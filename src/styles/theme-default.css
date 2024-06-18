@@ -1,0 +1,8 @@
+body.default-theme .btn {
+  background-color: #007bff;
+  color: white;
+}
+
+body.default-theme .btn:hover {
+  background-color: #0056b3;
+}
