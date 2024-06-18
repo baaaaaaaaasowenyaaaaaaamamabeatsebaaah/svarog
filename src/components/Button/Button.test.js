@@ -1,7 +1,42 @@
 import Button from './Button';
 
-test('Button should render correctly', () => {
-  const button = new Button({ text: 'Click me', onClick: () => {} });
-  document.body.appendChild(button.getElement());
-  expect(document.body.querySelector('button').textContent).toBe('Click me');
+describe('Button', () => {
+  test('should render correctly', () => {
+    const mockOnClick = jest.fn();
+    const button = new Button({ text: 'Click Me', onClick: mockOnClick });
+    document.body.appendChild(button.getElement());
+
+    const btnElement = document.querySelector('button');
+    expect(btnElement).not.toBeNull();
+    expect(btnElement.textContent).toBe('Click Me');
+
+    document.body.removeChild(button.getElement());
+  });
+
+  test('should call onClick when clicked', () => {
+    const mockOnClick = jest.fn();
+    const button = new Button({ text: 'Click Me', onClick: mockOnClick });
+    document.body.appendChild(button.getElement());
+
+    const btnElement = document.querySelector('button');
+    btnElement.click();
+    expect(mockOnClick).toHaveBeenCalled();
+
+    document.body.removeChild(button.getElement());
+  });
+
+  test('should be disabled when the disabled property is true', () => {
+    const mockOnClick = jest.fn();
+    const button = new Button({
+      text: 'Click Me',
+      onClick: mockOnClick,
+      disabled: true,
+    });
+    document.body.appendChild(button.getElement());
+
+    const btnElement = document.querySelector('button');
+    expect(btnElement.disabled).toBe(true);
+
+    document.body.removeChild(button.getElement());
+  });
 });

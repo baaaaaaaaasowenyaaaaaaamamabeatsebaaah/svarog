@@ -3,8 +3,8 @@ import './styles/theme-default.css';
 import './styles/theme-dark.css';
 import { switchTheme } from './utils/theme';
 import { THEMES } from './constants/themes';
-import Sidebar from './components/Sidebar/Sidebar';
-import Stage from './components/Stage/Stage';
+import Sidebar from './components/storybook/Sidebar/Sidebar';
+import Stage from './components/storybook/Stage/Stage';
 import { getComponents } from './utils/getComponents';
 
 const app = document.getElementById('app');
@@ -14,24 +14,21 @@ const components = getComponents();
 
 const stage = new Stage();
 
-const onComponentSelect = (component) => {
-  component
+const onStorySelect = (story) => {
+  story
     .module()
     .then((module) => {
-      const story = module.Default();
-      // eslint-disable-next-line no-console
-      console.log('Selected component:', story); // Log the selected component
-      stage.setComponent(story);
+      const storyComponent = module();
+      stage.setComponent(storyComponent);
     })
     .catch((error) => {
       // eslint-disable-next-line no-console
-      console.error('Error loading component module', error);
+      console.error('Error loading story module', error);
     });
 };
 
 const initializeApp = () => {
-  const sidebar = new Sidebar(components, onComponentSelect);
-
+  const sidebar = new Sidebar(components, onStorySelect);
   app.appendChild(sidebar.getElement());
   app.appendChild(stage.getElement());
 };
