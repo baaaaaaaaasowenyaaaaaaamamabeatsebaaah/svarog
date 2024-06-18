@@ -7,6 +7,11 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
+    library: {
+      name: 'svarog',
+      type: 'umd',
+    },
+    globalObject: 'this', // Ensures compatibility in different environments
   },
   module: {
     rules: [

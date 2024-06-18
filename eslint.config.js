@@ -20,9 +20,6 @@ module.exports = [
         document: 'readonly',
         alert: 'readonly',
         console: 'readonly',
-        jest: 'readonly',
-        test: 'readonly',
-        expect: 'readonly',
       },
     },
     plugins: {
@@ -43,6 +40,45 @@ module.exports = [
       'no-unused-expressions': 'off',
     },
   },
+  {
+    files: ['src/**/*.test.js'],
+    languageOptions: {
+      globals: {
+        jest: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        describe: 'readonly',
+        beforeEach: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'off',
+    },
+  },
+  {
+    files: [
+      '__mocks__/**',
+      'eslint.config.js',
+      'jest.config.js',
+      'plopfile.js',
+      'webpack.config.js',
+    ],
+    languageOptions: {
+      ecmaVersion: 2021,
+      sourceType: 'script',
+      globals: {
+        module: 'readonly',
+        require: 'readonly',
+        __dirname: 'readonly',
+        process: 'readonly',
+        exports: 'readonly',
+        console: 'readonly',
+      },
+    },
+  },
   ...compat.config(js.configs.recommended),
   ...compat.config(prettierConfig),
+  {
+    ignores: ['dist/**'],
+  },
 ];
