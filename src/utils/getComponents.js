@@ -46,6 +46,33 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Typography',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+
+        {
+          name: 'Heading',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.Heading
+            ),
+        },
+        {
+          name: 'Italic',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.Italic
+            ),
+        },
+      ],
+    },
   ];
 
   return components;

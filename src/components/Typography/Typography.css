@@ -1,0 +1,17 @@
+.typography {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .typography {
+    font-size: var(--mobile-font-size, 12px);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .typography {
+    font-size: var(--tablet-font-size, 14px);
+  }
+}
