@@ -106,6 +106,18 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Navigation',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Navigation/Navigation.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+      ],
+    },
   ];
 
   return components;
