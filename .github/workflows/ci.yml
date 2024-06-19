@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Validate Node.js version
+        run: node -v
+
       - run: npm install
 
       - run: npm run lint
