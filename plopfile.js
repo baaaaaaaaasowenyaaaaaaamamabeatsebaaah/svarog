@@ -26,8 +26,8 @@ module.exports = function (plop) {
       },
       {
         type: 'add',
-        path: 'src/components/{{componentName}}/{{componentName}}.test.js',
-        templateFile: 'plop-templates/componentTest.hbs',
+        path: 'src/components/{{pascalCase name}}/{{pascalCase name}}.test.js',
+        templateFile: 'plop-templates/Component.test.js.hbs',
       },
     ],
   });

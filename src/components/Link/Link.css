@@ -1,0 +1,12 @@
+.link {
+  align-items: baseline;
+  margin-left: 0.75ch;
+  margin-right: 0.75ch;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: color 0.2s ease-in-out;
+}
+
+.link:hover {
+  color: var(--link-hover-color, #000);
+}

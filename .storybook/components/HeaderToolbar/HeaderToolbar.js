@@ -9,7 +9,7 @@ export default class HeaderToolbar {
     this.header.className = 'header-toolbar';
 
     this.title = document.createElement('h1');
-    this.title.textContent = 'Storybook';
+    this.title.textContent = 'svarog';
 
     this.themeSelector = document.createElement('select');
     this.themeSelector.className = 'theme-selector';

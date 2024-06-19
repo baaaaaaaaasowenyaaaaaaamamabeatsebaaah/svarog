@@ -29,6 +29,23 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Link',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Link/Link.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'BlockLink',
+          module: () =>
+            import('../components/Link/Link.stories.js').then(
+              (m) => m.BlockLink
+            ),
+        },
+      ],
+    },
   ];
 
   return components;
