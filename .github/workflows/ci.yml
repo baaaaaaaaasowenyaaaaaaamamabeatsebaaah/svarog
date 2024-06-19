@@ -16,6 +16,14 @@ jobs:
         node-version: [20.x]
 
     steps:
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Checkout code
         uses: actions/checkout@v3 # Ensure you are using v3
 
