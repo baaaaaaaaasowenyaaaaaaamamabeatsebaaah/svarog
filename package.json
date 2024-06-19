@@ -11,6 +11,9 @@
     "test": "jest",
     "prepare": "husky install"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@babel/preset-env": "^7.24.7",
