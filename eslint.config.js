@@ -62,6 +62,7 @@ module.exports = [
       'jest.config.js',
       'plopfile.js',
       'webpack.config.js',
+      '.storybook/webpack.config.js',
     ],
     languageOptions: {
       ecmaVersion: 2021,
