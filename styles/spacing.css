@@ -1,0 +1,17 @@
+:root {
+  --spacing-small: 8px;
+  --spacing-medium: 16px;
+  --spacing-large: 24px;
+}
+
+.margin-small {
+  margin: var(--spacing-small);
+}
+
+.margin-medium {
+  margin: var(--spacing-medium);
+}
+
+.margin-large {
+  margin: var(--spacing-large);
+}

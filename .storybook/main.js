@@ -1,3 +1,4 @@
+import 'normalize.css';
 import './index.css';
 import '../styles/theme-default.css';
 import '../styles/theme-dark.css';
@@ -8,15 +9,12 @@ import HeaderToolbar from './components/HeaderToolbar/HeaderToolbar';
 import { switchTheme } from '../src/utils/theme';
 
 const app = document.getElementById('app');
-app.style.display = 'flex';
-app.style.flexDirection = 'column';
-app.style.height = '100vh';
 
 const headerContainer = document.createElement('div');
-headerContainer.style.flex = '0 1 auto';
+headerContainer.classList.add('header-container');
+
 const contentContainer = document.createElement('div');
-contentContainer.style.flex = '1 1 auto';
-contentContainer.style.display = 'flex';
+contentContainer.classList.add('content-container');
 
 app.appendChild(headerContainer);
 app.appendChild(contentContainer);

@@ -19,6 +19,16 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Grid',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then((m) => m.Default),
+        },
+      ],
+    },
   ];
 
   return components;

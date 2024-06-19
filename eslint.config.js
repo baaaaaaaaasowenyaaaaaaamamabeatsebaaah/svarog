@@ -20,6 +20,7 @@ module.exports = [
         document: 'readonly',
         alert: 'readonly',
         console: 'readonly',
+        HTMLElement: 'readonly',
       },
     },
     plugins: {
@@ -49,6 +50,8 @@ module.exports = [
         expect: 'readonly',
         describe: 'readonly',
         beforeEach: 'readonly',
+        HTMLElement: 'readonly',
+        it: 'readonly',
       },
     },
     rules: {
