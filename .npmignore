@@ -1,0 +1,4 @@
+.storybook/
+public/
+src/components/**/*.stories.js
+src/components/**/*.stories.mdx
