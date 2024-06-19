@@ -73,6 +73,39 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Section',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'MinorVariant',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.MinorVariant
+            ),
+        },
+        {
+          name: 'WithBackgroundImage',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.WithBackgroundImage
+            ),
+        },
+        {
+          name: 'NoPaddingBottom',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.NoPaddingBottom
+            ),
+        },
+      ],
+    },
   ];
 
   return components;

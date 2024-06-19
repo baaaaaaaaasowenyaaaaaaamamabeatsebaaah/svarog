@@ -1,7 +1,20 @@
 :root {
+  --space-2: 0.5rem;
+  --space-5: 1rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-20: 5rem;
+
+  --color-background: #ffffff;
+  --color-background-minor: #f7f7f7;
+
   --font-size-default: 14px;
+  --font-size-heading: 24px;
+  --font-size-italic: italic;
   --font-weight-normal: 400;
   --font-weight-bold: 700;
+  --font-color: #000000;
+  --font-color-hover: #333333;
   --color-default: #333;
   --color-primary: #007bff;
   --color-secondary: #6c757d;
