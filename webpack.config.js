@@ -2,16 +2,14 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './src/app.js',
+  entry: {
+    main: './.storybook/main.js',
+    preview: './.storybook/preview.js',
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    library: {
-      name: 'svarog',
-      type: 'umd',
-    },
-    globalObject: 'this', // Ensures compatibility in different environments
   },
   module: {
     rules: [
@@ -33,6 +31,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html',
+      chunks: ['main'],
     }),
   ],
   devServer: {

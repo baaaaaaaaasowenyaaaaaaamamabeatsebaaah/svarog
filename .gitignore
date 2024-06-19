@@ -76,3 +76,7 @@ public/
 
 # VSCode settings
 .vscode/
+
+# Ignore story files
+src/components/**/*.stories.js
+src/components/**/*.stories.mdx

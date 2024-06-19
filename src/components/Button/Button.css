@@ -1,4 +1,5 @@
-.btn {
+/* Default button styles */
+body.default-theme .btn {
   padding: 0.5rem 1rem;
   font-size: 1rem;
   color: #fff;
@@ -9,11 +10,12 @@
   transition: background-color 0.3s;
 }
 
-.btn:hover {
+body.default-theme .btn:hover {
   background-color: #0056b3;
 }
 
-.btn:disabled {
+/* Disabled button styles */
+body.default-theme .btn:disabled {
   background-color: #c0c0c0;
   cursor: not-allowed;
 }

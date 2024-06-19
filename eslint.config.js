@@ -10,7 +10,7 @@ const compat = new FlatCompat({
 
 module.exports = [
   {
-    files: ['src/**/*.js'],
+    files: ['src/**/*.js', '.storybook/**/*.js'],
     ignores: ['node_modules/**', 'dist/**'],
     languageOptions: {
       ecmaVersion: 2021,

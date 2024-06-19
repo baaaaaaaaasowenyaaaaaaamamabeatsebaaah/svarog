@@ -10,7 +10,7 @@ npm install svarog
 
 ### Usage
 
-```bash
+```javascript
 import { Button } from 'svarog';
 
 const myButton = new Button({
