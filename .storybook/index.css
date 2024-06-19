@@ -14,4 +14,5 @@
 .content-container {
   flex: 1 1 auto;
   display: flex;
+  background-color: grey;
 }
