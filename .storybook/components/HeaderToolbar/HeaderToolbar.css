@@ -1,0 +1,13 @@
+.header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.theme-selector {
+  padding: 0.25rem;
+  font-size: 1rem;
+}
