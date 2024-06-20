@@ -10,7 +10,7 @@ const compat = new FlatCompat({
 
 module.exports = [
   {
-    files: ['src/**/*.js', '.storybook/**/*.js'],
+    files: ['src/**/*.js', '.storybook/**/*.js', 'scripts/*.js'],
     ignores: ['node_modules/**', 'dist/**'],
     languageOptions: {
       ecmaVersion: 2021,
@@ -21,6 +21,9 @@ module.exports = [
         alert: 'readonly',
         console: 'readonly',
         HTMLElement: 'readonly',
+        __dirname: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
       },
     },
     plugins: {

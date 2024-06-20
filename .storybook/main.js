@@ -1,7 +1,8 @@
-import 'normalize.css';
+import '../styles/reset.css';
 import './index.css';
-import '../styles/theme-default.css';
-import '../styles/theme-dark.css';
+import '../styles/default-theme.css';
+import '../styles/cabalou-theme.css';
+
 import { getComponents } from '../src/utils/getComponents';
 import Sidebar from './components/Sidebar/Sidebar';
 import Stage from './components/Stage/Stage';

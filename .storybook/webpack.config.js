@@ -3,8 +3,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    main: '/.storybook/main.js',
-    preview: '/.storybook/preview.js',
+    main: './.storybook/main.js',
+    preview: './.storybook/preview.js',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -23,12 +23,23 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /\.(png|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.svg$/,
+        use: 'file-loader',
+      },
     ],
   },
   devServer: {
     static: [
       {
         directory: path.resolve(__dirname, '../public'),
+      },
+      {
+        directory: path.resolve(__dirname, '../styles'),
       },
     ],
     compress: true,

@@ -1,5 +1,10 @@
 /* app.css */
 
+* {
+  all: unset;
+  display: revert;
+}
+
 /* General app styles */
 #app {
   display: flex;
