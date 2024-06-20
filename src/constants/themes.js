@@ -1,4 +1,4 @@
 export const THEMES = {
-  DEFAULT: 'default',
+  default: 'default',
   CabaLou: 'cabalou',
 };

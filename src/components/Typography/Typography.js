@@ -4,7 +4,6 @@ export default class Typography {
   constructor({
     children,
     textAlign,
-    size,
     tabletSize,
     mobileSize,
     color,
@@ -17,7 +16,6 @@ export default class Typography {
   }) {
     this.children = children;
     this.textAlign = textAlign;
-    this.size = size;
     this.tabletSize = tabletSize;
     this.mobileSize = mobileSize;
     this.color = color;
@@ -39,7 +37,6 @@ export default class Typography {
   setStyle() {
     this.typography.style.textAlign = this.textAlign || '';
     this.typography.style.color = this.color || '';
-    this.typography.style.fontSize = this.size || '14px';
     this.typography.style.fontWeight = this.weight || '400';
     this.typography.style.fontStyle = this.italic ? 'italic' : 'normal';
     this.typography.style.display = this.block ? 'block' : 'inline';

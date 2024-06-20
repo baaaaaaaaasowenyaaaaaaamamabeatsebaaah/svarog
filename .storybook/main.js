@@ -1,4 +1,7 @@
-import '../styles/reset.css';
+import '../styles/base/reset.css';
+import '../styles/base/spacing.css';
+import '../styles/base/colors.css';
+import '../styles/base/font-sizes.css';
 import './index.css';
 import '../styles/default-theme.css';
 import '../styles/cabalou-theme.css';

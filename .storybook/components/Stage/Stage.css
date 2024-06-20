@@ -1,5 +1,5 @@
 .stage {
   flex-grow: 1;
-  padding: 20px;
-  background-color: #fff;
+  background-color: #efefef;
+  border: 20px solid #dee2e6;
 }

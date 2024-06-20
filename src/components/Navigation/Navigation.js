@@ -1,13 +1,19 @@
+import Link from '../Link/Link';
 import './Navigation.css';
 
 export class NavItem {
-  constructor({ label, href }) {
+  constructor({ label, href, onClick }) {
     this.label = label;
     this.href = href;
     this.item = document.createElement('li');
-    this.link = document.createElement('a');
-    this.link.href = this.href;
-    this.link.textContent = this.label;
+    this.link = new Link({
+      href: this.href,
+      children: this.label,
+    }).getElement();
+    this.link.addEventListener('click', (event) => {
+      event.preventDefault(); // Prevent the default anchor behavior
+      onClick(); // Call the provided onClick handler
+    });
     this.item.appendChild(this.link);
   }
 
@@ -17,11 +23,10 @@ export class NavItem {
 }
 
 export class Navigation {
-  constructor({ items, theme }) {
+  constructor({ items }) {
     this.items = items;
-    this.theme = theme;
     this.nav = document.createElement('nav');
-    this.nav.className = `navigation ${theme}`;
+    this.nav.className = `navigation`;
     this.ul = document.createElement('ul');
     this.ul.className = 'navigation-list';
     this.burgerButton = this.createBurgerButton();

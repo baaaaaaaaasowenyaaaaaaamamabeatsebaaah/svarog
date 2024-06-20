@@ -1,7 +1,6 @@
 import './HeaderToolbar.css';
 import { THEMES } from '../../../src/constants/themes';
-import logo from '../../../assets/svarog.svg'; // Adjust the path if necessary
-
+import logo from '../../assets/svg/svarog.svg';
 export default class HeaderToolbar {
   constructor({ onSelectTheme }) {
     this.onSelectTheme = onSelectTheme;
@@ -12,7 +11,7 @@ export default class HeaderToolbar {
     this.logo = document.createElement('img');
     this.logo.src = logo;
     this.logo.alt = 'svarog logo';
-    this.logo.className = 'header-logo'; // You can define styles for the logo in the CSS
+    this.logo.className = 'header-logo';
 
     this.title = document.createElement('h1');
     this.title.textContent = 'Svarog';

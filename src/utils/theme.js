@@ -1,10 +1,4 @@
-/**
- * Utility functions for managing themes in the application.
- * This module provides functions to get available theme names and switch themes.
- */
-
-// Import the generated theme names from the JSON file
-const themeNames = require('../../themeNames.json');
+import { THEMES } from '../constants/themes';
 
 /**
  * Get the list of available theme names.
@@ -12,7 +6,7 @@ const themeNames = require('../../themeNames.json');
  * @returns {Array<string>} An array of theme names.
  */
 export const getThemeNames = () => {
-  return themeNames;
+  return Object.values(THEMES);
 };
 
 /**
@@ -24,9 +18,16 @@ export const getThemeNames = () => {
  * @param {string} theme - The name of the theme to switch to.
  */
 export const switchTheme = (theme) => {
+  const themeNames = getThemeNames();
+  if (!theme || !themeNames.includes(theme)) {
+    console.warn(`Theme "${theme}" not found. Switching to default theme.`);
+    theme = THEMES.default;
+  }
+
   // Remove all existing theme classes
   document.body.classList.remove(...themeNames.map((name) => `${name}-theme`));
 
   // Add the new theme class
   document.body.classList.add(`${theme}-theme`);
+  console.log(`Applied theme: ${theme}`);
 };

@@ -7,4 +7,4 @@ const renderStories = (currentTheme) => {
 };
 
 // Initial render with default theme
-renderStories(THEMES.DEFAULT);
+renderStories(THEMES.default);

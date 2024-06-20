@@ -1,24 +1,16 @@
-:root {
-  --space-20: 20px;
-  --space-10: 10px;
-  --space-5: 5px;
-  --space-2: 2px;
-  --space-8: 8px;
-  --color-background: #fff;
-  --color-background-minor: #f7f7f7;
-}
-
 .section {
   display: flex;
-  padding: var(--space-20) var(--space-5);
+  padding: var(--section-padding);
   width: 100%;
-  background-color: var(--color-background);
+  background-color: var(--section-bg);
+  color: var(--section-color);
   position: relative;
   z-index: 1;
 }
 
 .section--minor {
-  background-color: var(--color-background-minor);
+  background-color: var(--section-bg-minor);
+  color: var(--section-color-minor);
 }
 
 .section--no-padding-bottom {
@@ -38,24 +30,24 @@
 .section__content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-10);
+  gap: var(--section-gap);
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--section-content-max-width);
   margin: 0 auto;
   z-index: 2;
 }
 
 @media (max-width: 768px) {
   .section {
-    padding: var(--space-10) var(--space-5);
+    padding: var(--section-padding-tablet);
   }
   .section__content {
-    gap: var(--space-8);
+    gap: var(--section-gap-tablet);
   }
 }
 
 @media (max-width: 480px) {
   .section {
-    padding: var(--space-10) var(--space-2);
+    padding: var(--section-padding-mobile);
   }
 }

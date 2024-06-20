@@ -1,17 +1,25 @@
 .typography {
   margin: 0;
   padding: 0;
-  line-height: 1.5;
-}
-
-@media (max-width: 768px) {
-  .typography {
-    font-size: var(--mobile-font-size, 12px);
+  h1 {
+    font-size: var(--font-size-32);
   }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .typography {
-    font-size: var(--tablet-font-size, 14px);
+  h2 {
+    font-size: var(--font-size-24);
+  }
+  h3 {
+    font-size: var(--font-size-20);
+  }
+  h4 {
+    font-size: var(--font-size-18);
+  }
+  h5 {
+    font-size: var(--font-size-16);
+  }
+  h6 {
+    font-size: var(--font-size-14);
+  }
+  p {
+    font-size: var(--font-size-16);
   }
 }

@@ -1,23 +1,9 @@
 import './Link.css';
 
 export default class Link {
-  constructor({
-    children,
-    href,
-    color,
-    hoverColor,
-    size,
-    target,
-    weight,
-    underline,
-    block,
-  }) {
+  constructor({ children, href, target, underline, block }) {
     this.href = href;
-    this.color = color;
-    this.hoverColor = hoverColor;
-    this.size = size;
     this.target = target;
-    this.weight = weight;
     this.underline = underline;
     this.block = block;
 
@@ -30,9 +16,6 @@ export default class Link {
   }
 
   setStyle() {
-    this.link.style.color = this.color || '';
-    this.link.style.fontSize = this.size || '';
-    this.link.style.fontWeight = this.weight || '';
     this.link.style.textDecoration = this.underline ? 'underline' : 'none';
     this.link.style.display = this.block ? 'block' : 'inline-flex';
   }

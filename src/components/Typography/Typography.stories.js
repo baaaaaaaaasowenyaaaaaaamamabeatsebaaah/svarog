@@ -8,8 +8,6 @@ export default {
 export const Default = () => {
   const typography = new Typography({
     children: 'Default Typography',
-    size: '16px',
-    color: 'black',
     textAlign: 'left',
   });
   return typography.getElement();
@@ -18,11 +16,9 @@ export const Default = () => {
 export const Heading = () => {
   const typography = new Typography({
     children: 'Heading Typography',
-    size: '24px',
-    color: 'blue',
     textAlign: 'center',
-    weight: 'bold',
     as: 'h1',
+    block: true,
   });
   return typography.getElement();
 };
@@ -30,8 +26,7 @@ export const Heading = () => {
 export const Italic = () => {
   const typography = new Typography({
     children: 'Italic Typography',
-    size: '14px',
-    color: 'gray',
+
     textAlign: 'right',
     italic: true,
   });

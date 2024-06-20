@@ -3,3 +3,24 @@
   -webkit-appearance: none;
   -moz-appearance: none;
 }
+
+/* button styles */
+.btn {
+  padding: var(--btn-padding);
+  font-size: var(--btn-font-size);
+  color: var(--btn-color);
+  background-color: var(--btn-bg);
+  border: var(--btn-border);
+  border-radius: var(--btn-border-radius);
+  cursor: pointer;
+  transition: var(--btn-transition);
+}
+
+.btn:hover {
+  background-color: var(--btn-hover-bg);
+}
+
+.btn:disabled {
+  background-color: var(--btn-disabled-bg);
+  cursor: not-allowed;
+}

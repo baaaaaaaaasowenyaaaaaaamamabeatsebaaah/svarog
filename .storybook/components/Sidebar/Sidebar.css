@@ -2,4 +2,30 @@
   width: 200px;
   background-color: #fff;
   padding: 10px;
+  border-right: 1px solid #dee2e6;
+}
+
+.sidebar h3 {
+  font-size: 18px;
+  padding-bottom: 8px;
+  padding-top: 16px;
+  font-family: 'balto', sans-serif;
+}
+
+.sidebar {
+  button {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    display: block;
+    margin-left: 0px 8px;
+    padding: 4px 0;
+    font-family: 'balto', sans-serif;
+  }
+  button:hover {
+    color: grey;
+  }
+  button:last-child {
+    border-bottom: 1px solid #dee2e6;
+  }
 }
