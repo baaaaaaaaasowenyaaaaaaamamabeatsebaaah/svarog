@@ -118,6 +118,16 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Logo',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Logo/Logo.stories.js').then((m) => m.Default),
+        },
+      ],
+    },
   ];
 
   return components;
