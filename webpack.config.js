@@ -1,11 +1,24 @@
-const path = require('path');
+// webpack.config.js
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-module.exports = {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default {
   entry: './src/index.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
+    library: {
+      name: 'svarog',
+      type: 'umd',
+      export: 'default',
+    },
+    globalObject: 'this',
+    // Configure output for Asset Modules
+    assetModuleFilename: 'assets/[hash][ext][query]',
   },
   module: {
     rules: [
@@ -18,9 +31,14 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      // Use Asset Modules for SVGs and other assets
       {
         test: /\.svg$/,
-        use: 'file-loader',
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
       },
     ],
   },

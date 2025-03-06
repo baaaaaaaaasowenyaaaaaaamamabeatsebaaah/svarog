@@ -1,3 +1,4 @@
+/* src/styles/themes/default-theme.css */
 .default-theme {
   /* Typography */
   --font-family-primary: 'balto', sans-serif;
@@ -9,7 +10,7 @@
   /* Component: Button */
   --button-bg: var(--color-primary);
   --button-color: var(--color-text-white);
-  --button-border: 1px solid var(--color-primary); /* Changed from 'none' to be more explicit */
+  --button-border: 1px solid var(--color-primary);
   --button-radius: var(--border-radius-md);
   --button-hover-bg: var(--color-primary-dark);
   --button-active-bg: var(--color-primary-dark);
@@ -19,6 +20,16 @@
   --button-font-family: var(--font-family-primary);
   --button-font-weight: var(--font-weight-medium);
   --button-transition: var(--transition-normal);
+  --button-primary-bg: var(--color-primary);
+  --button-primary-color: var(--color-text-white);
+  --button-secondary-bg: var(--color-secondary);
+  --button-secondary-color: var(--color-text-white);
+  --button-text-color: var(--color-primary);
+  --button-text-hover-color: var(--color-primary-dark);
+  --button-padding-sm: var(--space-1) var(--space-2);
+  --button-padding-lg: var(--space-2) var(--space-4);
+  --button-font-size-sm: var(--font-size-sm);
+  --button-font-size-lg: var(--font-size-lg);
 
   /* Component: Link */
   --link-color: var(--color-primary);
@@ -41,7 +52,7 @@
   --nav-burger-font-size: var(--font-size-2xl);
   --nav-burger-margin-bottom: var(--space-2);
   --nav-padding-mobile: var(--space-2) 0;
-  --nav-link-font-size: var(--font-size-base); /* Added missing variable */
+  --nav-link-font-size: var(--font-size-base);
 
   /* Component: Section */
   --section-bg: var(--color-bg);
@@ -74,4 +85,25 @@
   /* Component: Logo */
   --logo-width: 100px;
   --logo-height: 100px;
+
+  /* Component: Card */
+  --card-bg: var(--color-bg);
+  --card-color: var(--color-text);
+  --card-radius: var(--border-radius-md);
+  --card-border: 1px solid transparent;
+  --card-border-color: var(--color-gray-300);
+  --card-shadow: var(--shadow-md);
+  --card-hover-border-color: var(--color-primary-light);
+  --card-title-padding: var(--space-4);
+  --card-title-font-size: var(--font-size-xl);
+  --card-title-font-weight: var(--font-weight-bold);
+  --card-title-border: 1px solid var(--color-gray-200);
+  --card-content-padding: var(--space-4);
+  --card-footer-padding: var(--space-3) var(--space-4);
+  --card-footer-bg: var(--color-gray-100);
+  --card-footer-border: 1px solid var(--color-gray-200);
+  --card-footer-font-size: var(--font-size-sm);
+  --card-title-padding-mobile: var(--space-3);
+  --card-content-padding-mobile: var(--space-3);
+  --card-footer-padding-mobile: var(--space-2) var(--space-3);
 }

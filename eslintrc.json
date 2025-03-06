@@ -5,16 +5,10 @@
     "es2022": true,
     "node": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:prettier/recommended",
-    "plugin:vitest/recommended"
-  ],
+  "extends": ["eslint:recommended"],
   "parserOptions": {
     "ecmaVersion": 2022,
     "sourceType": "module"
   },
-  "globals": {
-    "process": "readonly"
-  }
+  "ignorePatterns": ["node_modules/", "dist/", "coverage/"]
 }

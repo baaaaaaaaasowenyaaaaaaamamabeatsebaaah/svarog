@@ -1,3 +1,5 @@
+// src/utils/getComponents.js
+
 export const getComponents = () => {
   const components = [
     {
@@ -15,6 +17,51 @@ export const getComponents = () => {
           module: () =>
             import('../components/Button/Button.stories.js').then(
               (m) => m.Disabled
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Card',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Card/Card.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'WithImage',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.WithImage
+            ),
+        },
+        {
+          name: 'WithFooter',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.WithFooter
+            ),
+        },
+        {
+          name: 'Outlined',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.Outlined
+            ),
+        },
+        {
+          name: 'Elevated',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.Elevated
+            ),
+        },
+        {
+          name: 'ComplexCard',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.ComplexCard
             ),
         },
       ],
@@ -56,7 +103,6 @@ export const getComponents = () => {
               (m) => m.Default
             ),
         },
-
         {
           name: 'Heading',
           module: () =>

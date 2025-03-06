@@ -1,5 +1,6 @@
 import Logo from './Logo.js';
 import './Logo.css';
+// Import SVG directly - webpack 5 will handle this with Asset Modules
 import svgLogo from '../../../.storybook/assets/svg/svarog.svg';
 
 export default {

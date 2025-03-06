@@ -1,0 +1,97 @@
+/**
+ * Card component styles
+ */
+
+.card {
+  /* Base styling */
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg, var(--color-bg, #ffffff));
+  color: var(--card-color, var(--color-text, #212529));
+  border-radius: var(--card-radius, var(--border-radius-md, 4px));
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+
+  /* Default shadow/border state */
+  border: var(--card-border, 1px solid transparent);
+}
+
+/* Card with elevation */
+.card--elevated {
+  box-shadow: var(
+    --card-shadow,
+    var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1))
+  );
+  border-color: transparent;
+}
+
+/* Card with outline */
+.card--outlined {
+  border-color: var(--card-border-color, var(--color-gray-300, #dee2e6));
+}
+
+/* Card image */
+.card__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Card title */
+.card__title {
+  padding: var(--card-title-padding, var(--space-4, 16px));
+  font-size: var(--card-title-font-size, var(--font-size-xl, 20px));
+  font-weight: var(--card-title-font-weight, var(--font-weight-bold, 700));
+  border-bottom: var(
+    --card-title-border,
+    1px solid var(--color-gray-200, #e9ecef)
+  );
+}
+
+/* Card content */
+.card__content {
+  padding: var(--card-content-padding, var(--space-4, 16px));
+  flex-grow: 1;
+}
+
+/* Card footer */
+.card__footer {
+  padding: var(
+    --card-footer-padding,
+    var(--space-3, 12px) var(--space-4, 16px)
+  );
+  background-color: var(--card-footer-bg, var(--color-gray-100, #f8f9fa));
+  border-top: var(
+    --card-footer-border,
+    1px solid var(--color-gray-200, #e9ecef)
+  );
+  font-size: var(--card-footer-font-size, var(--font-size-sm, 14px));
+}
+
+/* Card hover state */
+.card:hover {
+  border-color: var(
+    --card-hover-border-color,
+    var(--color-primary-light, #66b2ff)
+  );
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card__title {
+    padding: var(--card-title-padding-mobile, var(--space-3, 12px));
+  }
+
+  .card__content {
+    padding: var(--card-content-padding-mobile, var(--space-3, 12px));
+  }
+
+  .card__footer {
+    padding: var(
+      --card-footer-padding-mobile,
+      var(--space-2, 8px) var(--space-3, 12px)
+    );
+  }
+}

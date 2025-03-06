@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default {
-  mode: 'development', // Add explicit mode
+  mode: 'development',
   entry: {
     main: './.storybook/main.js',
     preview: './.storybook/preview.js',
@@ -14,11 +14,13 @@ export default {
   output: {
     path: path.resolve(__dirname, '../dist'),
     filename: '[name].bundle.js',
+    // Configure output for Asset Modules
+    assetModuleFilename: 'assets/[hash][ext][query]',
   },
   resolve: {
     extensions: ['.js', '.css', '.svg'],
     enforceExtension: false,
-    fullySpecified: false, // Add this to handle ESM imports without extensions
+    fullySpecified: false,
   },
   module: {
     rules: [
@@ -33,13 +35,14 @@ export default {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      // Use Asset Modules for images and SVGs
       {
         test: /\.(png|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
       },
       {
         test: /\.svg$/,
-        use: 'file-loader',
+        type: 'asset/resource',
       },
     ],
   },

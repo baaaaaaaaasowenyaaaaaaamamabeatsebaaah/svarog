@@ -1,101 +1,107 @@
 // src/components/Section/Section.js
 import './Section.css';
+import { Component } from '../../utils/componentFactory.js';
 
-export class Section {
-  constructor({ children, id, variant, backgroundImage, noPaddingBottom }) {
-    // Type validation
-    if (id && typeof id !== 'string') {
-      throw new Error('Section id must be a string');
-    }
+/**
+ * Section component for defining page sections
+ * @extends Component
+ */
+export class Section extends Component {
+  /**
+   * Creates a new Section instance
+   *
+   * @param {Object} props - Section properties
+   * @param {string|HTMLElement|Array} props.children - Content for the section
+   * @param {string} [props.id] - Section ID for anchor links
+   * @param {string} [props.variant] - Section variant ("minor" for alternative styling)
+   * @param {HTMLElement} [props.backgroundImage] - Optional background image element
+   * @param {boolean} [props.noPaddingBottom=false] - Whether to remove bottom padding
+   * @param {string} [props.className=''] - Additional CSS class names
+   * @throws {Error} If children is not provided or variant is invalid
+   */
+  constructor({
+    children,
+    id,
+    variant,
+    backgroundImage,
+    noPaddingBottom = false,
+    className = '',
+  }) {
+    super();
+
+    // Validation
+    this.validateRequiredProps({ children }, ['children'], 'Section');
 
     if (variant && variant !== 'minor') {
       throw new Error('Section variant must be "minor" or undefined');
-    }
-
-    if (noPaddingBottom && typeof noPaddingBottom !== 'boolean') {
-      throw new Error('noPaddingBottom must be a boolean');
     }
 
     if (backgroundImage && !(backgroundImage instanceof HTMLElement)) {
       throw new Error('backgroundImage must be an HTMLElement');
     }
 
-    // Children validation
-    if (!children) {
-      throw new Error('Section must have children content');
-    }
+    this.props = {
+      children,
+      id,
+      variant,
+      backgroundImage,
+      noPaddingBottom,
+      className,
+    };
 
-    this.children = children;
-    this.id = id;
-    this.variant = variant;
-    this.backgroundImage = backgroundImage;
-    this.noPaddingBottom = noPaddingBottom;
-
-    try {
-      this.section = document.createElement('div');
-      this.section.className = 'section';
-
-      if (variant === 'minor') {
-        this.section.classList.add('section--minor');
-      }
-
-      if (noPaddingBottom) {
-        this.section.classList.add('section--no-padding-bottom');
-      }
-
-      if (id) {
-        const anchor = document.createElement('div');
-        anchor.id = id;
-        this.section.appendChild(anchor);
-      }
-
-      if (backgroundImage) {
-        const bgImage = document.createElement('div');
-        bgImage.className = 'section__background-image';
-        bgImage.appendChild(backgroundImage);
-        this.section.appendChild(bgImage);
-      }
-
-      const content = document.createElement('div');
-      content.className = 'section__content';
-      this.appendChildren(content, children);
-      this.section.appendChild(content);
-    } catch (error) {
-      throw new Error(`Failed to create Section: ${error.message}`);
-    }
+    this.section = this.createSectionElement();
   }
 
-  appendChildren(container, children) {
-    try {
-      if (Array.isArray(children)) {
-        children.forEach((child, index) => {
-          if (typeof child === 'string') {
-            container.appendChild(document.createTextNode(child));
-          } else if (child instanceof HTMLElement) {
-            container.appendChild(child);
-          } else {
-            throw new Error(
-              `Invalid child at index ${index}: must be string or HTMLElement`
-            );
-          }
-        });
-      } else {
-        if (typeof children === 'string') {
-          container.appendChild(document.createTextNode(children));
-        } else if (children instanceof HTMLElement) {
-          container.appendChild(children);
-        } else {
-          throw new Error(
-            'Children must be string, HTMLElement, or array of these types'
-          );
-        }
-      }
-    } catch (error) {
-      throw new Error(`Failed to append children: ${error.message}`);
+  /**
+   * Creates the section element with all its content
+   * @private
+   * @returns {HTMLElement} The section element
+   */
+  createSectionElement() {
+    const { id, variant, backgroundImage, noPaddingBottom, className } =
+      this.props;
+
+    // Build class names
+    const classNames = this.createClassNames('section', className, {
+      'section--minor': variant === 'minor',
+      'section--no-padding-bottom': noPaddingBottom,
+    });
+
+    // Create the main section element
+    const section = this.createElement('div', { className: classNames });
+
+    // Add ID anchor if specified
+    if (id) {
+      const anchor = this.createElement('div', { attributes: { id } });
+      section.appendChild(anchor);
     }
+
+    // Add background image if provided
+    if (backgroundImage) {
+      const bgContainer = this.createElement('div', {
+        className: 'section__background-image',
+        children: backgroundImage,
+      });
+      section.appendChild(bgContainer);
+    }
+
+    // Create and add content container
+    const content = this.createElement('div', {
+      className: 'section__content',
+      children: this.props.children,
+    });
+    section.appendChild(content);
+
+    return section;
   }
 
+  /**
+   * Gets the section element
+   * @returns {HTMLElement} The section element
+   */
   getElement() {
     return this.section;
   }
 }
+
+export default Section;

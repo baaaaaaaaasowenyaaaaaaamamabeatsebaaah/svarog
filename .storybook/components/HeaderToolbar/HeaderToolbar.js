@@ -1,6 +1,8 @@
 import './HeaderToolbar.css';
 import { THEMES } from '../../../src/constants/themes.js';
+// Import SVG directly - webpack 5 will handle this with Asset Modules
 import logo from '../../assets/svg/svarog.svg';
+
 export default class HeaderToolbar {
   constructor({ onSelectTheme }) {
     this.onSelectTheme = (theme) => {

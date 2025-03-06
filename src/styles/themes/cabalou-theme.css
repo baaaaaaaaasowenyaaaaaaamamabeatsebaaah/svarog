@@ -1,3 +1,4 @@
+/* src/styles/themes/cabalou-theme.css */
 .cabalou-theme {
   /* Typography */
   --font-family-primary: 'questa-grande', serif;
@@ -23,6 +24,16 @@
   --button-font-family: var(--font-family-primary);
   --button-font-weight: var(--font-weight-medium);
   --button-transition: var(--transition-normal);
+  --button-primary-bg: var(--color-brand-primary);
+  --button-primary-color: var(--color-text-white);
+  --button-secondary-bg: var(--color-brand-secondary);
+  --button-secondary-color: var(--color-text-white);
+  --button-text-color: var(--color-brand-primary);
+  --button-text-hover-color: var(--color-brand-primary-dark);
+  --button-padding-sm: var(--space-2) var(--space-10);
+  --button-padding-lg: var(--space-4) var(--space-14);
+  --button-font-size-sm: var(--font-size-xl);
+  --button-font-size-lg: var(--font-size-3xl);
 
   /* Component: Link */
   --link-color: var(--color-brand-primary);
@@ -35,7 +46,7 @@
 
   /* Component: Navigation */
   --nav-bg: transparent;
-  --nav-border-bottom: 1px solid transparent; /* Changed from 'none' to be more explicit */
+  --nav-border-bottom: 1px solid transparent;
   --nav-link-color: var(--color-text-dark);
   --nav-link-hover-color: var(--color-brand-secondary);
   --nav-link-active-color: var(--color-brand-secondary);
@@ -58,25 +69,50 @@
   --section-padding-mobile: var(--space-1);
 
   /* Component: Typography */
-  --typography-color: var(
-    --color-text
-  ); /* Changed from 'inherit' to be more explicit */
+  --typography-color: var(--color-text);
   --typography-muted-color: var(--color-text-light);
-  --typography-margin-bottom: var(--space-4); /* Added missing variable */
-  --typography-h1-size: var(--font-size-6xl); /* Added missing variable */
-  --typography-h2-size: var(--font-size-4xl); /* Added missing variable */
-  --typography-h3-size: var(--font-size-3xl); /* Added missing variable */
-  --typography-h4-size: var(--font-size-2xl); /* Added missing variable */
-  --typography-h5-size: var(--font-size-xl); /* Added missing variable */
-  --typography-h6-size: var(--font-size-lg); /* Added missing variable */
-  --typography-body-size: var(--font-size-base); /* Added missing variable */
-  --typography-small-size: var(--font-size-sm); /* Added missing variable */
+  --typography-margin-bottom: var(--space-4);
+  --typography-h1-size: var(--font-size-6xl);
+  --typography-h2-size: var(--font-size-4xl);
+  --typography-h3-size: var(--font-size-3xl);
+  --typography-h4-size: var(--font-size-2xl);
+  --typography-h5-size: var(--font-size-xl);
+  --typography-h6-size: var(--font-size-lg);
+  --typography-body-size: var(--font-size-base);
+  --typography-small-size: var(--font-size-sm);
 
   /* Component: Logo */
   --logo-width: 100px;
   --logo-height: 100px;
+
+  /* Component: Card */
+  --card-bg: var(--color-brand-secondary-dark);
+  --card-color: var(--color-text-white);
+  --card-radius: 0;
+  --card-border: 2px solid var(--color-brand-primary);
+  --card-border-color: var(--color-brand-primary);
+  --card-shadow: 5px 5px 0 rgba(0, 0, 0, 0.2);
+  --card-hover-border-color: var(--color-brand-primary-dark);
+  --card-title-padding: var(--space-6);
+  --card-title-font-size: var(--font-size-3xl);
+  --card-title-font-weight: var(--font-weight-bold);
+  --card-title-border: 1px solid var(--color-brand-primary);
+  --card-content-padding: var(--space-6);
+  --card-footer-padding: var(--space-4) var(--space-6);
+  --card-footer-bg: var(--color-brand-secondary);
+  --card-footer-border: 1px solid var(--color-brand-primary);
+  --card-footer-font-size: var(--font-size-lg);
+  --card-title-padding-mobile: var(--space-4);
+  --card-content-padding-mobile: var(--space-4);
+  --card-footer-padding-mobile: var(--space-3) var(--space-4);
 }
 
 .cabalou-theme h1 {
   font-family: var(--font-family-heading);
+}
+
+.cabalou-theme .card__title {
+  font-family: var(--font-family-heading);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
