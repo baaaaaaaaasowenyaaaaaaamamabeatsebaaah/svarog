@@ -4,27 +4,30 @@
 @import './NavigationBurger.css';
 
 .nav {
-  --nav-bg: var(--nav-bg, transparent);
-  --nav-text: var(--nav-text-color, inherit);
-  --nav-hover-bg: var(--nav-hover-bg, rgba(0, 0, 0, 0.05));
-  --nav-active-bg: var(--nav-active-bg, rgba(0, 0, 0, 0.1));
-  --nav-border: var(--nav-border, none);
-  --nav-item-height: var(--nav-item-height, 48px);
-  --nav-item-indent: var(--nav-item-indent, 16px);
-  --nav-transition: var(--nav-transition, all 0.2s ease);
-  --nav-expand-icon-size: var(--nav-expand-icon-size, 20px);
-  --nav-mobile-breakpoint: 768px;
-
+  background: var(--nav-bg, var(--color-bg));
+  border-bottom: var(--nav-border-bottom, 1px solid var(--color-gray-200));
+  padding: var(--nav-padding, var(--space-2));
+  margin-right: var(--nav-margin-right, var(--space-2));
   position: relative;
-  background: var(--nav-bg);
-  border: var(--nav-border);
-  color: var(--nav-text);
+  max-width: 100%;
+  width: 100%;
 }
 
 .nav--responsive {
-  @media (max-width: var(--nav-mobile-breakpoint)) {
+  @media (max-width: var(--nav-mobile-breakpoint, 768px)) {
+    padding: var(--nav-padding-mobile, var(--space-2) 0);
+
     .nav-list {
       display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: var(--nav-dropdown-bg, var(--color-bg));
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      max-height: 70vh;
+      overflow-y: auto;
     }
 
     &.nav--open .nav-list {
@@ -33,8 +36,10 @@
   }
 }
 
-/* Animations */
+/* Smooth transitions */
 .nav-list,
-.nav-item__sub-list {
-  transition: var(--nav-transition);
+.nav-item__sub-list,
+.nav-item__link,
+.nav-burger__line {
+  transition: all 0.3s ease;
 }

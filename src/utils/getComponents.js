@@ -174,6 +174,290 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Input',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Input/Input.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithValue',
+          module: () =>
+            import('../components/Input/Input.stories.js').then(
+              (m) => m.WithValue
+            ),
+        },
+        {
+          name: 'Email',
+          module: () =>
+            import('../components/Input/Input.stories.js').then((m) => m.Email),
+        },
+        {
+          name: 'Password',
+          module: () =>
+            import('../components/Input/Input.stories.js').then(
+              (m) => m.Password
+            ),
+        },
+        {
+          name: 'WithValidation',
+          module: () =>
+            import('../components/Input/Input.stories.js').then(
+              (m) => m.WithValidation
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Select',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithValue',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.WithValue
+            ),
+        },
+        {
+          name: 'Required',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.Required
+            ),
+        },
+        {
+          name: 'Multiple',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.Multiple
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Checkbox',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'Checked',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.Checked
+            ),
+        },
+        {
+          name: 'Required',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.Required
+            ),
+        },
+        {
+          name: 'Disabled',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.Disabled
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Radio',
+      stories: [
+        {
+          name: 'SingleRadio',
+          module: () =>
+            import('../components/Radio/Radio.stories.js').then(
+              (m) => m.SingleRadio
+            ),
+        },
+        {
+          name: 'RadioGroup',
+          module: () =>
+            import('../components/Radio/Radio.stories.js').then(
+              (m) => m.BasicRadioGroup
+            ),
+        },
+        {
+          name: 'HorizontalRadioGroup',
+          module: () =>
+            import('../components/Radio/Radio.stories.js').then(
+              (m) => m.HorizontalLayout
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Form',
+      stories: [
+        {
+          name: 'SimpleForm',
+          module: () =>
+            import('../components/Form/Form.stories.js').then(
+              (m) => m.SimpleForm
+            ),
+        },
+        {
+          name: 'CompleteForm',
+          module: () =>
+            import('../components/Form/Form.stories.js').then(
+              (m) => m.CompleteForm
+            ),
+        },
+        {
+          name: 'HorizontalForm',
+          module: () =>
+            import('../components/Form/Form.stories.js').then(
+              (m) => m.HorizontalForm
+            ),
+        },
+        {
+          name: 'FormWithValidation',
+          module: () =>
+            import('../components/Form/Form.stories.js').then(
+              (m) => m.FormWithValidation
+            ),
+        },
+        {
+          name: 'FormWithDifferentLabelPositions',
+          module: () =>
+            import('../components/Form/Form.stories.js').then(
+              (m) => m.FormWithDifferentLabelPositions
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'Rating',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'Facebook',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.Facebook
+            ),
+        },
+        {
+          name: 'Trustpilot',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.Trustpilot
+            ),
+        },
+        {
+          name: 'NoImages',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.NoImages
+            ),
+        },
+        {
+          name: 'LimitedImages',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.LimitedImages
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'Map',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Map/Map.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'SpecificCoordinates',
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.SpecificCoordinates
+            ),
+        },
+        {
+          name: 'SanFrancisco',
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.SanFrancisco
+            ),
+        },
+        {
+          name: 'LosAngeles',
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.LosAngeles
+            ),
+        },
+        {
+          name: 'StoreLocation',
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.StoreLocation
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'Head',
+      stories: [
+        {
+          name: 'BasicSEO',
+          module: () =>
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.BasicSEO
+            ),
+        },
+        {
+          name: 'AdvancedSEO',
+          module: () =>
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.AdvancedSEO
+            ),
+        },
+        {
+          name: 'RestrictedIndexing',
+          module: () =>
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.RestrictedIndexing
+            ),
+        },
+        {
+          name: 'MultiLanguage',
+          module: () =>
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.MultiLanguage
+            ),
+        },
+      ],
+    },
   ];
 
   return components;

@@ -1,5 +1,4 @@
 /* app.css */
-
 * {
   all: unset;
   display: revert;
@@ -20,6 +19,19 @@
 .content-container {
   flex: 1 1 auto;
   display: flex;
+  overflow: hidden; /* Prevent content from overflowing */
+}
+
+.sidebar {
+  flex: 0 0 240px; /* Fixed width for sidebar */
+  overflow-y: auto; /* Allow sidebar to scroll */
+}
+
+.stage {
+  flex: 1 1 auto; /* Allow stage to take remaining space */
+  background-color: #efefef;
+  border: 20px solid #dee2e6;
+  overflow: auto; /* Allow stage content to scroll if needed */
 }
 
 h1 {

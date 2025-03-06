@@ -1,0 +1,98 @@
+/**
+ * Input component styles
+ */
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--input-margin-bottom, var(--space-4, 16px));
+  position: relative;
+}
+
+.input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: block;
+  width: 100%;
+  padding: var(--input-padding, var(--space-2, 8px) var(--space-3, 12px));
+  font-size: var(--input-font-size, var(--font-size-base, 16px));
+  font-family: var(--input-font-family, var(--font-family-primary, sans-serif));
+  color: var(--input-color, var(--color-text, #212529));
+  background-color: var(--input-bg, var(--color-bg, #ffffff));
+  border: var(--input-border, 1px solid var(--color-gray-400, #ced4da));
+  border-radius: var(--input-radius, var(--border-radius-md, 4px));
+  box-shadow: var(--input-shadow, none);
+  transition: var(--input-transition, all 0.2s ease-in-out);
+  line-height: 1.5;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* Focus state */
+.input:focus {
+  border-color: var(--input-focus-border-color, var(--color-primary, #007bff));
+  box-shadow: var(--input-focus-shadow, 0 0 0 0.2rem rgba(0, 123, 255, 0.25));
+}
+
+.input-container--focused .input {
+  border-color: var(--input-focus-border-color, var(--color-primary, #007bff));
+  box-shadow: var(--input-focus-shadow, 0 0 0 0.2rem rgba(0, 123, 255, 0.25));
+}
+
+/* Disabled state */
+.input:disabled,
+.input[readonly] {
+  background-color: var(--input-disabled-bg, var(--color-gray-200, #e9ecef));
+  opacity: var(--input-disabled-opacity, 0.6);
+  cursor: not-allowed;
+}
+
+/* Validation states */
+.input-container--valid .input {
+  border-color: var(--input-valid-border-color, var(--color-success, #28a745));
+}
+
+.input-container--invalid .input {
+  border-color: var(--input-invalid-border-color, var(--color-danger, #dc3545));
+}
+
+.input-validation-message {
+  font-size: var(--input-validation-font-size, var(--font-size-sm, 14px));
+  margin-top: var(--space-1, 4px);
+  color: var(--input-validation-color, var(--color-danger, #dc3545));
+  min-height: 20px; /* Reserve space for validation messages */
+}
+
+.input-container--valid .input-validation-message {
+  color: var(--input-valid-color, var(--color-success, #28a745));
+}
+
+/* Placeholder styling */
+.input::placeholder {
+  color: var(--input-placeholder-color, var(--color-gray-500, #adb5bd));
+  opacity: 1;
+}
+
+/* Input types styling */
+input[type='search'].input {
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px 16px;
+}
+
+input[type='date'].input,
+input[type='time'].input,
+input[type='datetime-local'].input {
+  min-height: 38px; /* Fix for date inputs in some browsers */
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .input {
+    font-size: var(--input-mobile-font-size, 16px); /* Prevent zoom on iOS */
+    padding: var(--input-mobile-padding, var(--space-2, 8px));
+  }
+}

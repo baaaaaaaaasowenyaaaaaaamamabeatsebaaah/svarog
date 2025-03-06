@@ -1,0 +1,129 @@
+/**
+ * Select component styles
+ */
+
+.select-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--select-margin-bottom, var(--space-4, 16px));
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: block;
+  width: 100%;
+  padding: var(--select-padding, var(--space-2, 8px) var(--space-3, 12px));
+  font-size: var(--select-font-size, var(--font-size-base, 16px));
+  font-family: var(
+    --select-font-family,
+    var(--font-family-primary, sans-serif)
+  );
+  color: var(--select-color, var(--color-text, #212529));
+  background-color: var(--select-bg, var(--color-bg, #ffffff));
+  border: var(--select-border, 1px solid var(--color-gray-400, #ced4da));
+  border-radius: var(--select-radius, var(--border-radius-md, 4px));
+  box-shadow: var(--select-shadow, none);
+  transition: var(--select-transition, all 0.2s ease-in-out);
+  line-height: 1.5;
+  outline: none;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  /* Add dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  padding-right: 2.5rem;
+}
+
+/* Focus state */
+.select:focus {
+  border-color: var(--select-focus-border-color, var(--color-primary, #007bff));
+  box-shadow: var(--select-focus-shadow, 0 0 0 0.2rem rgba(0, 123, 255, 0.25));
+}
+
+.select-container--focused .select {
+  border-color: var(--select-focus-border-color, var(--color-primary, #007bff));
+  box-shadow: var(--select-focus-shadow, 0 0 0 0.2rem rgba(0, 123, 255, 0.25));
+}
+
+/* Remove default focus styles for Firefox */
+.select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 var(--select-color, var(--color-text, #212529));
+}
+
+/* Disabled state */
+.select:disabled {
+  background-color: var(--select-disabled-bg, var(--color-gray-200, #e9ecef));
+  opacity: var(--select-disabled-opacity, 0.6);
+  cursor: not-allowed;
+}
+
+/* Multiple select */
+.select[multiple] {
+  height: auto;
+  padding: var(--select-multiple-padding, var(--space-1, 4px));
+  background-image: none;
+}
+
+.select[multiple] option {
+  padding: var(
+    --select-option-padding,
+    var(--space-1, 4px) var(--space-2, 8px)
+  );
+  margin: var(--select-option-margin, 2px 0);
+}
+
+/* Validation states */
+.select-container--valid .select {
+  border-color: var(--select-valid-border-color, var(--color-success, #28a745));
+}
+
+.select-container--invalid .select {
+  border-color: var(
+    --select-invalid-border-color,
+    var(--color-danger, #dc3545)
+  );
+}
+
+.select-validation-message {
+  font-size: var(--select-validation-font-size, var(--font-size-sm, 14px));
+  margin-top: var(--space-1, 4px);
+  color: var(--select-validation-color, var(--color-danger, #dc3545));
+  min-height: 20px; /* Reserve space for validation messages */
+}
+
+.select-container--valid .select-validation-message {
+  color: var(--select-valid-color, var(--color-success, #28a745));
+}
+
+/* Option styling */
+.select option {
+  background-color: var(--select-option-bg, var(--color-bg, #ffffff));
+  color: var(--select-option-color, var(--color-text, #212529));
+}
+
+.select option:disabled {
+  color: var(--select-option-disabled-color, var(--color-gray-500, #adb5bd));
+}
+
+/* Placeholder styling */
+.select option[value=''][disabled] {
+  display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .select {
+    font-size: var(--select-mobile-font-size, 16px); /* Prevent zoom on iOS */
+    padding: var(
+      --select-mobile-padding,
+      var(--space-2, 8px) var(--space-3, 12px)
+    );
+  }
+}

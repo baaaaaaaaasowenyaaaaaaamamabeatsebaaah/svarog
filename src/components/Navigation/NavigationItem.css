@@ -3,24 +3,38 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: var(--nav-item-height);
+  min-height: var(--nav-item-height, 48px);
+  width: 100%;
 }
 
 .nav-item__link {
   display: flex;
   align-items: center;
-  padding: 0 var(--nav-item-indent);
-  min-height: var(--nav-item-height);
+  padding: 0 var(--nav-item-indent, var(--space-2));
+  min-height: var(--nav-item-height, 48px);
   text-decoration: none;
-  color: inherit;
-  transition: var(--nav-transition);
+  color: var(--nav-link-color, var(--color-text));
+  font-size: var(--nav-link-font-size, var(--font-size-base));
+  font-weight: 400;
+  transition: all 0.3s ease;
   cursor: pointer;
+  position: relative;
+  outline: none;
+}
+
+.nav-item__link:hover {
+  color: var(--nav-link-hover-color, var(--color-primary));
+}
+
+.nav-item__link:focus-visible {
+  outline: 2px solid var(--color-primary-light, rgba(0, 123, 255, 0.5));
+  outline-offset: -2px;
 }
 
 .nav-item__content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -30,35 +44,38 @@
   justify-content: center;
   width: 24px;
   height: 24px;
+  color: currentColor;
 }
 
 .nav-item__label {
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-item__expand-icon {
-  width: var(--nav-expand-icon-size);
-  height: var(--nav-expand-icon-size);
-  transition: transform 0.2s ease;
+  width: var(--nav-expand-icon-size, 20px);
+  height: var(--nav-expand-icon-size, 20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
 
-  &::after {
-    content: '';
-    display: block;
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(45deg);
-  }
+.nav-item__expand-icon::after {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
 }
 
 /* States */
-.nav-item:hover > .nav-item__link {
-  background: var(--nav-hover-bg);
-}
-
 .nav-item--active > .nav-item__link {
-  background: var(--nav-active-bg);
+  color: var(--nav-link-active-color, var(--color-primary));
   font-weight: 500;
 }
 
@@ -72,26 +89,28 @@
 }
 
 /* Nesting levels */
-.nav-item--depth-0 {
-  /* Top level items */
-}
-
 .nav-item--depth-1 {
-  /* First level nested items */
-  padding-left: var(--nav-item-indent);
+  padding-left: var(--nav-item-indent, var(--space-2));
 }
 
 .nav-item--depth-2 {
-  /* Second level nested items */
-  padding-left: calc(var(--nav-item-indent) * 2);
+  padding-left: calc(var(--nav-item-indent, var(--space-2)) * 2);
 }
 
 /* Sub-list handling */
 .nav-item__sub-list {
   display: none;
   width: 100%;
+  background: var(--nav-dropdown-bg, var(--color-bg));
+  border-top: 1px solid var(--color-gray-200);
 }
 
 .nav-item--expanded > .nav-item__sub-list {
   display: block;
+}
+
+@media (max-width: 768px) {
+  .nav-item__link {
+    padding: 12px var(--nav-item-indent, var(--space-2));
+  }
 }
