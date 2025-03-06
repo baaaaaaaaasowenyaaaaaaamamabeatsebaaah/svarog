@@ -1,0 +1,82 @@
+.cabalou-theme {
+  /* Typography */
+  --font-family-primary: 'questa-grande', serif;
+  --font-family-heading: 'copperplate', serif;
+
+  /* Colors - Brand */
+  --color-brand-primary: #accf4e;
+  --color-brand-primary-dark: #354914;
+  --color-brand-secondary: #8f3557;
+  --color-brand-secondary-dark: #4a1a2c;
+  --color-brand-secondary-light: #e3cad4;
+
+  /* Component: Button */
+  --button-bg: var(--color-brand-primary);
+  --button-color: var(--color-text-white);
+  --button-border: 2px solid var(--color-text-white);
+  --button-radius: 0;
+  --button-hover-bg: var(--color-brand-primary-dark);
+  --button-active-bg: var(--color-brand-primary-dark);
+  --button-disabled-bg: var(--color-gray-600);
+  --button-padding: var(--space-3) var(--space-12);
+  --button-font-size: var(--font-size-2xl);
+  --button-font-family: var(--font-family-primary);
+  --button-font-weight: var(--font-weight-medium);
+  --button-transition: var(--transition-normal);
+
+  /* Component: Link */
+  --link-color: var(--color-brand-primary);
+  --link-hover-color: var(--color-brand-primary-dark);
+  --link-active-color: var(--color-brand-primary-dark);
+  --link-margin-left: 0;
+  --link-margin-right: var(--space-1);
+  --link-font-family: var(--font-family-primary);
+  --link-transition: var(--transition-fast);
+
+  /* Component: Navigation */
+  --nav-bg: transparent;
+  --nav-border-bottom: 1px solid transparent; /* Changed from 'none' to be more explicit */
+  --nav-link-color: var(--color-text-dark);
+  --nav-link-hover-color: var(--color-brand-secondary);
+  --nav-link-active-color: var(--color-brand-secondary);
+  --nav-dropdown-bg: var(--color-brand-secondary-dark);
+  --nav-padding: var(--space-2);
+  --nav-margin-right: var(--space-10);
+  --nav-burger-font-size: var(--font-size-2xl);
+  --nav-burger-margin-bottom: var(--space-2);
+  --nav-padding-mobile: var(--space-2) 0;
+  --nav-link-font-size: var(--font-size-2xl);
+
+  /* Component: Section */
+  --section-bg: var(--color-brand-secondary-dark);
+  --section-color: var(--color-text-white);
+  --section-padding: var(--space-2);
+  --section-gap: var(--space-2);
+  --section-content-max-width: var(--container-max-width);
+  --section-padding-tablet: var(--space-1);
+  --section-gap-tablet: var(--space-1);
+  --section-padding-mobile: var(--space-1);
+
+  /* Component: Typography */
+  --typography-color: var(
+    --color-text
+  ); /* Changed from 'inherit' to be more explicit */
+  --typography-muted-color: var(--color-text-light);
+  --typography-margin-bottom: var(--space-4); /* Added missing variable */
+  --typography-h1-size: var(--font-size-6xl); /* Added missing variable */
+  --typography-h2-size: var(--font-size-4xl); /* Added missing variable */
+  --typography-h3-size: var(--font-size-3xl); /* Added missing variable */
+  --typography-h4-size: var(--font-size-2xl); /* Added missing variable */
+  --typography-h5-size: var(--font-size-xl); /* Added missing variable */
+  --typography-h6-size: var(--font-size-lg); /* Added missing variable */
+  --typography-body-size: var(--font-size-base); /* Added missing variable */
+  --typography-small-size: var(--font-size-sm); /* Added missing variable */
+
+  /* Component: Logo */
+  --logo-width: 100px;
+  --logo-height: 100px;
+}
+
+.cabalou-theme h1 {
+  font-family: var(--font-family-heading);
+}

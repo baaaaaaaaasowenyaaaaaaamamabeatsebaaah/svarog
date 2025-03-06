@@ -1,4 +1,5 @@
-import { Section } from './Section';
+// src/components/Section/Section.stories.js
+import { Section } from './Section.js';
 
 export default {
   title: 'Section',
@@ -6,29 +7,25 @@ export default {
 };
 
 export const Default = () => {
+  const p = document.createElement('p');
+  p.textContent = 'This is a section with default settings.';
+
   const section = new Section({
-    children: [
-      document
-        .createElement('p')
-        .appendChild(
-          document.createTextNode('This is a section with default settings.')
-        ),
-    ],
+    children: [p],
   });
+
   return section.getElement();
 };
 
 export const MinorVariant = () => {
+  const p = document.createElement('p');
+  p.textContent = 'This is a minor variant section.';
+
   const section = new Section({
     variant: 'minor',
-    children: [
-      document
-        .createElement('p')
-        .appendChild(
-          document.createTextNode('This is a minor variant section.')
-        ),
-    ],
+    children: [p],
   });
+
   return section.getElement();
 };
 
@@ -37,29 +34,25 @@ export const WithBackgroundImage = () => {
   bgImage.src = 'https://via.placeholder.com/150';
   bgImage.alt = 'Background Image';
 
+  const p = document.createElement('p');
+  p.textContent = 'This section has a background image.';
+
   const section = new Section({
     backgroundImage: bgImage,
-    children: [
-      document
-        .createElement('p')
-        .appendChild(
-          document.createTextNode('This section has a background image.')
-        ),
-    ],
+    children: [p],
   });
+
   return section.getElement();
 };
 
 export const NoPaddingBottom = () => {
+  const p = document.createElement('p');
+  p.textContent = 'This section has no padding at the bottom.';
+
   const section = new Section({
     noPaddingBottom: true,
-    children: [
-      document
-        .createElement('p')
-        .appendChild(
-          document.createTextNode('This section has no padding at the bottom.')
-        ),
-    ],
+    children: [p],
   });
+
   return section.getElement();
 };

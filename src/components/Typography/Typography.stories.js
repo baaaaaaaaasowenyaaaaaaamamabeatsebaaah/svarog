@@ -1,4 +1,4 @@
-import Typography from './Typography';
+import Typography from './Typography.js';
 
 export default {
   title: 'Components/Typography',

@@ -1,0 +1,38 @@
+/* src/components/Navigation/NavigationBurger.css */
+.nav-burger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  @media (max-width: var(--nav-mobile-breakpoint)) {
+    display: flex;
+  }
+}
+
+.nav-burger__line {
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  transition: var(--nav-transition);
+}
+
+/* Burger animation */
+.nav--open .nav-burger {
+  .nav-burger__line:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+
+  .nav-burger__line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-burger__line:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+}

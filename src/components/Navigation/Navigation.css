@@ -1,64 +1,40 @@
-.navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: transparent;
-  padding: var(--nav-padding);
+/* src/components/Navigation/Navigation.css */
+@import './NavigationItem.css';
+@import './NavigationList.css';
+@import './NavigationBurger.css';
+
+.nav {
+  --nav-bg: var(--nav-bg, transparent);
+  --nav-text: var(--nav-text-color, inherit);
+  --nav-hover-bg: var(--nav-hover-bg, rgba(0, 0, 0, 0.05));
+  --nav-active-bg: var(--nav-active-bg, rgba(0, 0, 0, 0.1));
+  --nav-border: var(--nav-border, none);
+  --nav-item-height: var(--nav-item-height, 48px);
+  --nav-item-indent: var(--nav-item-indent, 16px);
+  --nav-transition: var(--nav-transition, all 0.2s ease);
+  --nav-expand-icon-size: var(--nav-expand-icon-size, 20px);
+  --nav-mobile-breakpoint: 768px;
+
+  position: relative;
+  background: var(--nav-bg);
+  border: var(--nav-border);
+  color: var(--nav-text);
 }
 
-.navigation-list {
-  list-style: none;
-  display: flex;
-  padding: 0;
-  margin: 0;
-}
+.nav--responsive {
+  @media (max-width: var(--nav-mobile-breakpoint)) {
+    .nav-list {
+      display: none;
+    }
 
-.navigation-list li {
-  margin-right: var(--nav-margin-right);
-}
-
-.navigation-list li a {
-  color: var(--nav-link-color);
-  transition: var(--nav-link-transition);
-  font-size: var(--nav-link-font-size);
-  padding-bottom: var(--nav-link-padding-bottom);
-}
-
-.navigation-list li a.active {
-  color: var(--nav-link-active-color, var(--nav-link-hover-color));
-  border-bottom: var(--nav-link-border-bottom);
-}
-
-.navigation-list li a:hover {
-  color: var(--nav-link-hover-color);
-  border-bottom: var(--nav-link-border-bottom);
-}
-
-.burger-button {
-  display: none;
-  font-size: var(--nav-burger-font-size);
-  background: none;
-  border: none;
-  color: var(--nav-link-color);
-}
-
-@media (max-width: 768px) {
-  .navigation {
-    flex-direction: column;
-    align-items: flex-start;
+    &.nav--open .nav-list {
+      display: block;
+    }
   }
-  .burger-button {
-    display: block;
-    margin-bottom: var(--nav-burger-margin-bottom);
-  }
+}
 
-  .navigation-list {
-    flex-direction: column;
-    display: none;
-    width: 100%;
-  }
-
-  .navigation-list li {
-    padding: var(--nav-padding-mobile);
-  }
+/* Animations */
+.nav-list,
+.nav-item__sub-list {
+  transition: var(--nav-transition);
 }

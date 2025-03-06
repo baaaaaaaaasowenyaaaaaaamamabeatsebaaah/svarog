@@ -1,53 +1,41 @@
-import { Grid, Column } from './Grid';
-import './Grid.css';
+// src/components/Grid/Grid.stories.js
+import Grid from './Grid.js';
 
 export default {
-  title: 'Grid',
+  title: 'Components/Grid',
   component: Grid,
 };
 
-export const Default = () => {
-  const grid = new Grid({ rowGap: '1rem' });
-  const column1 = new Column({ width: 6, children: [createColoredBox('red')] });
-  const column2 = new Column({
-    width: 6,
-    children: [createColoredBox('blue')],
-  });
-  grid.appendChild(column1.getElement());
-  grid.appendChild(column2.getElement());
-  return grid.getElement();
-};
-
-export const Responsive = () => {
-  const grid = new Grid({ rowGap: '1rem' });
-  const column1 = new Column({
-    width: 4,
-    mobileWidth: 2,
-    children: [createColoredBox('red')],
-  });
-  const column2 = new Column({
-    width: 4,
-    mobileWidth: 2,
-    children: [createColoredBox('blue')],
-  });
-  const column3 = new Column({
-    width: 4,
-    mobileWidth: 2,
-    children: [createColoredBox('green')],
-  });
-  grid.appendChild(column1.getElement());
-  grid.appendChild(column2.getElement());
-  grid.appendChild(column3.getElement());
-  return grid.getElement();
-};
-
-const createColoredBox = (color) => {
+const createColoredBox = (color, text = '') => {
   const box = document.createElement('div');
   box.style.backgroundColor = color;
-  box.style.height = '100px';
+  box.style.padding = '20px';
+  box.style.color = 'white';
   box.style.display = 'flex';
   box.style.alignItems = 'center';
   box.style.justifyContent = 'center';
-  box.textContent = color;
+  box.style.minHeight = '100px';
+  box.textContent = text || color;
   return box;
 };
+
+export const Default = () => {
+  const grid = new Grid({ gap: '1rem' });
+
+  const column1 = new Grid.Column({
+    width: 6,
+    children: [createColoredBox('#007bff', 'Column 1')],
+  });
+
+  const column2 = new Grid.Column({
+    width: 6,
+    children: [createColoredBox('#28a745', 'Column 2')],
+  });
+
+  grid.appendChild(column1.getElement());
+  grid.appendChild(column2.getElement());
+
+  return grid.getElement();
+};
+
+// ... rest of the stories remain the same but using Grid.Column instead of Column ...

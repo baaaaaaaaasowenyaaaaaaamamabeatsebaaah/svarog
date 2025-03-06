@@ -1,4 +1,5 @@
-import Grid, { Column } from './Grid';
+import { describe, it, expect } from 'vitest';
+import Grid from './Grid.js';
 
 describe('Grid component', () => {
   it('should create a grid element', () => {
@@ -11,11 +12,12 @@ describe('Grid component', () => {
   it('should apply correct row gap', () => {
     const grid = new Grid({ rowGap: '2rem' });
     const element = grid.getElement();
-    expect(element.style.gap).toBe('2rem');
+    expect(element.style.rowGap).toBe('2rem'); // Korrekte Property prüfen
   });
 
   it('should append children correctly', () => {
     const grid = new Grid({ rowGap: '1rem' });
+
     const child1 = document.createElement('div');
     child1.textContent = 'Child 1';
     const child2 = document.createElement('div');
@@ -32,13 +34,22 @@ describe('Grid component', () => {
 
   it('should apply styles to children correctly', () => {
     const grid = new Grid({ rowGap: '1rem' });
-    const child = new Column({
+
+    const column = new Grid.Column({
       width: 6,
-      children: [document.createTextNode('Child')],
+      children: [
+        (() => {
+          const div = document.createElement('div');
+          div.textContent = 'Child';
+          return div;
+        })(),
+      ],
     });
-    grid.appendChild(child.getElement());
+
+    grid.appendChild(column.getElement());
 
     const element = grid.getElement();
+    expect(element.children).toHaveLength(1);
     expect(element.children[0].style.gridColumnEnd).toBe('span 6');
   });
 });

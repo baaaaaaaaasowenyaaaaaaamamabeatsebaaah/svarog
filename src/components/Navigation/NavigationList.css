@@ -1,0 +1,27 @@
+/* src/components/Navigation/NavigationList.css */
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.nav-list--depth-0 {
+  /* Top level list */
+  display: flex;
+  flex-direction: row;
+
+  @media (max-width: var(--nav-mobile-breakpoint)) {
+    flex-direction: column;
+  }
+}
+
+.nav-list--depth-1 {
+  /* First level of nesting */
+  background: var(--nav-nested-bg, rgba(0, 0, 0, 0.02));
+}
+
+.nav-list--depth-2 {
+  /* Second level of nesting */
+  background: var(--nav-nested-bg-deep, rgba(0, 0, 0, 0.04));
+}

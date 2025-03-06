@@ -1,8 +1,8 @@
-import Button from './Button';
+import Button from './Button.js';
 
 describe('Button', () => {
   test('should render correctly', () => {
-    const mockOnClick = jest.fn();
+    const mockOnClick = vi.fn();
     const button = new Button({ text: 'Click Me', onClick: mockOnClick });
     document.body.appendChild(button.getElement());
 
@@ -14,7 +14,7 @@ describe('Button', () => {
   });
 
   test('should call onClick when clicked', () => {
-    const mockOnClick = jest.fn();
+    const mockOnClick = vi.fn();
     const button = new Button({ text: 'Click Me', onClick: mockOnClick });
     document.body.appendChild(button.getElement());
 
@@ -26,7 +26,7 @@ describe('Button', () => {
   });
 
   test('should be disabled when the disabled property is true', () => {
-    const mockOnClick = jest.fn();
+    const mockOnClick = vi.fn();
     const button = new Button({
       text: 'Click Me',
       onClick: mockOnClick,

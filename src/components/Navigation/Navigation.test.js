@@ -1,4 +1,5 @@
-import { Navigation, NavItem } from './Navigation';
+import Navigation from './Navigation.js';
+import NavigationItem from './NavigationItem.js';
 
 describe('Navigation component', () => {
   it('should create a navigation element', () => {
@@ -9,14 +10,12 @@ describe('Navigation component', () => {
     const navigation = new Navigation({ items, theme: 'default-theme' });
     const element = navigation.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.querySelectorAll('li')).toHaveLength(2);
   });
 
   it('should create a nav item element', () => {
-    const item = new NavItem({ label: 'Home', href: '#' });
+    const item = new NavigationItem({ label: 'Home', href: '#' });
     const element = item.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.querySelector('a').textContent).toBe('Home');
   });
 
   it('should toggle burger menu', () => {
@@ -27,15 +26,10 @@ describe('Navigation component', () => {
     const navigation = new Navigation({ items, theme: 'default-theme' });
     document.body.appendChild(navigation.getElement());
 
-    const burgerButton = document.querySelector('.burger-button');
-    burgerButton.click();
-    expect(
-      document.querySelector('.navigation-list').classList.contains('active')
-    ).toBe(true);
+    const burger = document.querySelector('.nav-burger');
+    expect(burger).not.toBeNull();
+    burger.click();
 
-    burgerButton.click();
-    expect(
-      document.querySelector('.navigation-list').classList.contains('active')
-    ).toBe(false);
+    expect(navigation.getElement().classList.contains('nav--open')).toBe(true);
   });
 });

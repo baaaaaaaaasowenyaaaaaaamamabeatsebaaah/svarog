@@ -1,11 +1,24 @@
 import {{componentName}} from './{{componentName}}';
 
 describe('{{componentName}}', () => {
-  test('should render correctly', () => {
+  it('should render correctly', () => {
     const component = new {{componentName}}();
     const element = component.getElement();
     expect(element).toBeDefined();
     // Add additional assertions here
+  });
+
+  // Example for mock usage if needed
+  it('should call someMethod when triggered', () => {
+    const mockFn = vi.fn();
+    const component = new {{componentName}}({ onSomeEvent: mockFn });
+
+    // Simulate whatever triggers onSomeEvent
+    // Example: component.triggerSomeEvent();
+
+    // expect(mockFn).toHaveBeenCalled();
+
+    // This is just a placeholder, update to fit your component
   });
 
   // Add more tests as needed

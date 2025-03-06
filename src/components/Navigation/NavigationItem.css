@@ -1,0 +1,97 @@
+/* src/components/Navigation/NavigationItem.css */
+.nav-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: var(--nav-item-height);
+}
+
+.nav-item__link {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--nav-item-indent);
+  min-height: var(--nav-item-height);
+  text-decoration: none;
+  color: inherit;
+  transition: var(--nav-transition);
+  cursor: pointer;
+}
+
+.nav-item__content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.nav-item__label {
+  flex: 1;
+}
+
+.nav-item__expand-icon {
+  width: var(--nav-expand-icon-size);
+  height: var(--nav-expand-icon-size);
+  transition: transform 0.2s ease;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+  }
+}
+
+/* States */
+.nav-item:hover > .nav-item__link {
+  background: var(--nav-hover-bg);
+}
+
+.nav-item--active > .nav-item__link {
+  background: var(--nav-active-bg);
+  font-weight: 500;
+}
+
+.nav-item--expanded > .nav-item__link .nav-item__expand-icon {
+  transform: rotate(180deg);
+}
+
+.nav-item--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Nesting levels */
+.nav-item--depth-0 {
+  /* Top level items */
+}
+
+.nav-item--depth-1 {
+  /* First level nested items */
+  padding-left: var(--nav-item-indent);
+}
+
+.nav-item--depth-2 {
+  /* Second level nested items */
+  padding-left: calc(var(--nav-item-indent) * 2);
+}
+
+/* Sub-list handling */
+.nav-item__sub-list {
+  display: none;
+  width: 100%;
+}
+
+.nav-item--expanded > .nav-item__sub-list {
+  display: block;
+}

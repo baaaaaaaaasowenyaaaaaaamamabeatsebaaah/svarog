@@ -1,9 +1,12 @@
 import './HeaderToolbar.css';
-import { THEMES } from '../../../src/constants/themes';
+import { THEMES } from '../../../src/constants/themes.js';
 import logo from '../../assets/svg/svarog.svg';
 export default class HeaderToolbar {
   constructor({ onSelectTheme }) {
-    this.onSelectTheme = onSelectTheme;
+    this.onSelectTheme = (theme) => {
+      console.log('Theme selection changed:', theme);
+      onSelectTheme(theme);
+    };
 
     this.header = document.createElement('header');
     this.header.className = 'header-toolbar';

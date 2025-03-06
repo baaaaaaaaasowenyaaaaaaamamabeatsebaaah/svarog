@@ -1,4 +1,4 @@
-import Logo from './Logo';
+import Logo from './Logo.js';
 import './Logo.css';
 import svgLogo from '../../../.storybook/assets/svg/svarog.svg';
 

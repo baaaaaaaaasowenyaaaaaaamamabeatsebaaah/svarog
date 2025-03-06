@@ -1,52 +1,84 @@
-import { Navigation } from './Navigation';
+// src/components/Navigation/Navigation.stories.js
+import Navigation from './Navigation.js';
 
 export default {
-  title: 'Navigation',
+  title: 'Components/Navigation',
   component: Navigation,
 };
 
+// Create a reusable items array
+const menuItems = [
+  {
+    id: 'home',
+    label: 'Home',
+    href: '/',
+    icon: 'home',
+  },
+  {
+    id: 'products',
+    label: 'Products',
+    href: '/products',
+    items: [
+      {
+        id: 'new',
+        label: 'New Arrivals',
+        href: '/products/new',
+        icon: 'star',
+      },
+      {
+        id: 'categories',
+        label: 'Categories',
+        href: '/products/categories',
+        items: [
+          {
+            id: 'electronics',
+            label: 'Electronics',
+            href: '/products/electronics',
+          },
+          {
+            id: 'books',
+            label: 'Books',
+            href: '/products/books',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'about',
+    label: 'About',
+    href: '/about',
+    disabled: true,
+  },
+];
+
 export const Default = () => {
-  const items = [
-    { label: 'Home', href: '#home' },
-    { label: 'About', href: '#about' },
-    { label: 'Services', href: '#services' },
-    { label: 'Contact', href: '#contact' },
-  ];
-
-  let activeHref = window.location.hash || '#home'; // Set the initial active item based on the URL hash
-
-  const handleItemClick = (href) => {
-    activeHref = href;
-    window.location.hash = href; // Update the URL hash
-    updateActiveState();
-  };
-
-  const updateActiveState = () => {
-    const links = navigation.getElement().querySelectorAll('a');
-    links.forEach((link) => {
-      if (link.getAttribute('href') === activeHref) {
-        link.classList.add('active');
-      } else {
-        link.classList.remove('active');
-      }
-    });
-  };
-
-  const navigation = new Navigation({
-    items: items.map((item) => ({
-      ...item,
-      onClick: () => handleItemClick(item.href),
-    })),
-    onItemClick: handleItemClick,
+  const nav = new Navigation({
+    items: menuItems,
   });
+  return nav.getElement();
+};
 
-  setTimeout(updateActiveState, 0); // Initial active state update
-
-  // Listen for hash changes
-  window.addEventListener('hashchange', () => {
-    activeHref = window.location.hash;
-    updateActiveState();
+export const WithActiveItem = () => {
+  const nav = new Navigation({
+    items: menuItems,
+    activeId: 'products',
   });
+  return nav.getElement();
+};
 
-  return navigation.getElement();
+export const WithExpandedItems = () => {
+  const nav = new Navigation({
+    items: menuItems,
+    expandedIds: ['products', 'categories'],
+  });
+  return nav.getElement();
+};
+
+export const NonResponsive = () => {
+  const nav = new Navigation({
+    items: menuItems,
+    responsive: false,
+  });
+  return nav.getElement();
 };

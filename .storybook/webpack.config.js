@@ -1,14 +1,24 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-module.exports = {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default {
+  mode: 'development', // Add explicit mode
   entry: {
     main: './.storybook/main.js',
     preview: './.storybook/preview.js',
   },
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '../dist'),
     filename: '[name].bundle.js',
+  },
+  resolve: {
+    extensions: ['.js', '.css', '.svg'],
+    enforceExtension: false,
+    fullySpecified: false, // Add this to handle ESM imports without extensions
   },
   module: {
     rules: [
@@ -39,7 +49,7 @@ module.exports = {
         directory: path.resolve(__dirname, '../public'),
       },
       {
-        directory: path.resolve(__dirname, '../styles'),
+        directory: path.resolve(__dirname, '../src/styles'),
       },
     ],
     compress: true,

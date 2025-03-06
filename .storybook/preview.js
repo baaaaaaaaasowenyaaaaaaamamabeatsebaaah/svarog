@@ -1,5 +1,5 @@
-import { switchTheme } from '../src/utils/theme';
-import { THEMES } from '../src/constants/themes';
+import { switchTheme } from '../src/utils/theme.js';
+import { THEMES } from '../src/constants/themes.js';
 
 const renderStories = (currentTheme) => {
   console.log(`Rendering stories for theme: ${currentTheme}`);

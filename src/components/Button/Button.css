@@ -1,26 +1,28 @@
 .btn {
-  appearance: none; /* Disable default appearance */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
 }
 
-/* button styles */
 .btn {
-  padding: var(--btn-padding);
-  font-size: var(--btn-font-size);
-  color: var(--btn-color);
-  background-color: var(--btn-bg);
-  border: var(--btn-border);
-  border-radius: var(--btn-border-radius);
+  padding: var(--button-padding);
+  font-size: var(--button-font-size);
+  color: var(--button-color);
+  background-color: var(--button-bg);
+  border: var(--button-border);
+  border-radius: var(--button-radius);
   cursor: pointer;
-  transition: var(--btn-transition);
+  transition: var(--button-transition);
+  font-family: var(--button-font-family);
+  font-weight: var(--button-font-weight);
 }
 
 .btn:hover {
-  background-color: var(--btn-hover-bg);
+  background-color: var(--button-hover-bg);
 }
 
 .btn:disabled {
-  background-color: var(--btn-disabled-bg);
+  background-color: var(--button-disabled-bg);
   cursor: not-allowed;
+  color: var(--button-disabled-color);
 }

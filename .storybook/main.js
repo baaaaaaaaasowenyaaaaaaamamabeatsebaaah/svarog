@@ -1,16 +1,10 @@
-import '../styles/base/reset.css';
-import '../styles/base/spacing.css';
-import '../styles/base/colors.css';
-import '../styles/base/font-sizes.css';
+import '../src/styles/index.js';
 import './index.css';
-import '../styles/default-theme.css';
-import '../styles/cabalou-theme.css';
-
-import { getComponents } from '../src/utils/getComponents';
-import Sidebar from './components/Sidebar/Sidebar';
-import Stage from './components/Stage/Stage';
-import HeaderToolbar from './components/HeaderToolbar/HeaderToolbar';
-import { switchTheme } from '../src/utils/theme';
+import { getComponents } from '../src/utils/getComponents.js';
+import Sidebar from './components/Sidebar/Sidebar.js';
+import Stage from './components/Stage/Stage.js';
+import HeaderToolbar from './components/HeaderToolbar/HeaderToolbar.js';
+import { switchTheme } from '../src/utils/theme.js';
 
 const app = document.getElementById('app');
 

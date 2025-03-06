@@ -1,0 +1,77 @@
+.default-theme {
+  /* Typography */
+  --font-family-primary: 'balto', sans-serif;
+
+  /* Colors - Brand */
+  --color-brand-primary: var(--color-primary);
+  --color-brand-secondary: var(--color-secondary);
+
+  /* Component: Button */
+  --button-bg: var(--color-primary);
+  --button-color: var(--color-text-white);
+  --button-border: 1px solid var(--color-primary); /* Changed from 'none' to be more explicit */
+  --button-radius: var(--border-radius-md);
+  --button-hover-bg: var(--color-primary-dark);
+  --button-active-bg: var(--color-primary-dark);
+  --button-disabled-bg: var(--color-gray-400);
+  --button-padding: var(--space-1) var(--space-2);
+  --button-font-size: var(--font-size-base);
+  --button-font-family: var(--font-family-primary);
+  --button-font-weight: var(--font-weight-medium);
+  --button-transition: var(--transition-normal);
+
+  /* Component: Link */
+  --link-color: var(--color-primary);
+  --link-hover-color: var(--color-primary-dark);
+  --link-active-color: var(--color-primary-dark);
+  --link-margin-left: 0;
+  --link-margin-right: var(--space-1);
+  --link-font-family: var(--font-family-primary);
+  --link-transition: var(--transition-fast);
+
+  /* Component: Navigation */
+  --nav-bg: var(--color-bg);
+  --nav-border-bottom: 1px solid var(--color-gray-200);
+  --nav-link-color: var(--color-text);
+  --nav-link-hover-color: var(--color-primary);
+  --nav-link-active-color: var(--color-primary);
+  --nav-dropdown-bg: var(--color-bg);
+  --nav-padding: var(--space-2);
+  --nav-margin-right: var(--space-2);
+  --nav-burger-font-size: var(--font-size-2xl);
+  --nav-burger-margin-bottom: var(--space-2);
+  --nav-padding-mobile: var(--space-2) 0;
+  --nav-link-font-size: var(--font-size-base); /* Added missing variable */
+
+  /* Component: Section */
+  --section-bg: var(--color-bg);
+  --section-color: var(--color-text);
+  --section-padding: var(--space-2);
+  --section-gap: var(--space-2);
+  --section-content-max-width: var(--container-max-width);
+  --section-padding-tablet: var(--space-1);
+  --section-gap-tablet: var(--space-1);
+  --section-padding-mobile: var(--space-1);
+
+  /* Component: Typography */
+  --typography-color: var(--color-text);
+  --typography-muted-color: var(--color-text-light);
+  --typography-margin-bottom: var(--space-4);
+  --typography-h1-size: var(--font-size-6xl);
+  --typography-h2-size: var(--font-size-4xl);
+  --typography-h3-size: var(--font-size-3xl);
+  --typography-h4-size: var(--font-size-2xl);
+  --typography-h5-size: var(--font-size-xl);
+  --typography-h6-size: var(--font-size-lg);
+  --typography-body-size: var(--font-size-base);
+  --typography-small-size: var(--font-size-sm);
+
+  /* Component: Grid */
+  --grid-columns: 12;
+  --grid-gap: var(--space-4);
+  --grid-container-padding: var(--space-4);
+
+  /* Component: Logo */
+  --logo-width: 100px;
+  --logo-height: 100px;
+}

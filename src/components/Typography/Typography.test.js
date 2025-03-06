@@ -8,7 +8,7 @@ describe('Typography component', () => {
     });
     const element = typography.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.className).toBe('typography ');
+    expect(element.classList.contains('typography')).toBe(true);
   });
 
   it('should apply correct styles', () => {

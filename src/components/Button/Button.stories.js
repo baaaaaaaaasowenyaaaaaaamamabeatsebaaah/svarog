@@ -1,4 +1,4 @@
-import Button from '../Button/Button';
+import Button from './Button.js';
 
 export default {
   title: 'Stage with Button',
