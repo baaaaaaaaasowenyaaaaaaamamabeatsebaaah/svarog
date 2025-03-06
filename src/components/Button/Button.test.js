@@ -1,7 +1,9 @@
+// src/components/Button/Button.test.js
+import { describe, it, expect, vi } from 'vitest';
 import Button from './Button.js';
 
 describe('Button', () => {
-  test('should render correctly', () => {
+  it('should render correctly', () => {
     const mockOnClick = vi.fn();
     const button = new Button({ text: 'Click Me', onClick: mockOnClick });
     document.body.appendChild(button.getElement());
@@ -13,7 +15,7 @@ describe('Button', () => {
     document.body.removeChild(button.getElement());
   });
 
-  test('should call onClick when clicked', () => {
+  it('should call onClick when clicked', () => {
     const mockOnClick = vi.fn();
     const button = new Button({ text: 'Click Me', onClick: mockOnClick });
     document.body.appendChild(button.getElement());
@@ -25,7 +27,7 @@ describe('Button', () => {
     document.body.removeChild(button.getElement());
   });
 
-  test('should be disabled when the disabled property is true', () => {
+  it('should be disabled when the disabled property is true', () => {
     const mockOnClick = vi.fn();
     const button = new Button({
       text: 'Click Me',

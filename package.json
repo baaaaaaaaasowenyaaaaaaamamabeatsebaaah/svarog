@@ -15,7 +15,10 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "validate-themes": "node scripts/validateThemes.js",
-    "create-component": "node scripts/create-component.js"
+    "create-component": "node scripts/create-component.js",
+    "ci-check": "node scripts/ci-check.js",
+    "prestart": "npm run generate-themes",
+    "prebuild": "npm run generate-themes"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

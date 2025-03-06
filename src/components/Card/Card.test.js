@@ -1,5 +1,5 @@
 // src/components/Card/Card.test.js
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import Card from './Card.js';
 
 describe('Card component', () => {

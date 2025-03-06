@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { Section } from './Section';
 
 describe('Section component', () => {
