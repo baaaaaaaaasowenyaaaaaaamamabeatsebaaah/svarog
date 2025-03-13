@@ -1,0 +1,11 @@
+/**
+ * Page component styles
+ */
+
+.page {
+  /* Base styling */
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* Add additional styles here */

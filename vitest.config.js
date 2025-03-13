@@ -6,5 +6,17 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.js'],
+    include: ['src/**/*.test.js'],
+    coverage: {
+      reporter: ['text', 'html'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        '.storybook/',
+        'coverage/',
+        '**/*.css',
+        '**/*.stories.js',
+      ],
+    },
   },
 });

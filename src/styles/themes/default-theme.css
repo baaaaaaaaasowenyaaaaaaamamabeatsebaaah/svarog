@@ -149,4 +149,114 @@
   --select-disabled-opacity: 0.6;
   --select-valid-border-color: var(--color-success);
   --select-invalid-border-color: var(--color-danger);
+  --select-validation-color: var(--color-danger);
+  --select-validation-font-size: var(--font-size-sm);
+  --select-margin-bottom: var(--space-4);
+  --select-mobile-font-size: 16px;
+  --select-mobile-padding: var(--space-2);
+  --select-multiple-padding: var(--space-1);
+  --select-option-padding: var(--space-1) var(--space-2);
+  --select-option-margin: 2px 0;
+
+  /* Component: Checkbox */
+  --checkbox-bg: var(--color-bg);
+  --checkbox-border: 1px solid var(--color-gray-400);
+  --checkbox-radius: var(--border-radius-sm);
+  --checkbox-size: 20px;
+  --checkbox-color: var(--color-text);
+  --checkbox-indicator-margin: var(--space-2);
+  --checkbox-font-size: var(--font-size-base);
+  --checkbox-font-family: var(--font-family-primary);
+  --checkbox-transition: all 0.2s ease-in-out;
+  --checkbox-padding: var(--space-1);
+  --checkbox-hover-border-color: var(--color-gray-600);
+  --checkbox-checked-bg: var(--color-primary);
+  --checkbox-checked-border-color: var(--color-primary);
+  --checkbox-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  --checkbox-disabled-bg: var(--color-gray-200);
+  --checkbox-disabled-border-color: var(--color-gray-300);
+  --checkbox-disabled-color: var(--color-gray-600);
+  --checkbox-valid-border-color: var(--color-success);
+  --checkbox-invalid-border-color: var(--color-danger);
+  --checkbox-validation-color: var(--color-danger);
+  --checkbox-validation-font-size: var(--font-size-sm);
+  --checkbox-margin-bottom: var(--space-3);
+  --checkbox-indicator-width: 6px;
+  --checkbox-indicator-height: 10px;
+  --checkbox-required-color: var(--color-danger);
+  --checkbox-indeterminate-bg: var(--color-primary);
+  --checkbox-indeterminate-border-color: var(--color-primary);
+  --checkbox-indeterminate-width: 10px;
+  --checkbox-indeterminate-height: 2px;
+
+  /* Component: Radio */
+  --radio-bg: var(--color-bg);
+  --radio-border: 1px solid var(--color-gray-400);
+  --radio-size: 20px;
+  --radio-inner-size: 10px;
+  --radio-color: var(--color-text);
+  --radio-indicator-margin: var(--space-2);
+  --radio-font-size: var(--font-size-base);
+  --radio-font-family: var(--font-family-primary);
+  --radio-transition: all 0.2s ease-in-out;
+  --radio-padding: var(--space-1);
+  --radio-hover-border-color: var(--color-gray-600);
+  --radio-checked-color: var(--color-primary);
+  --radio-checked-border-color: var(--color-primary);
+  --radio-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  --radio-disabled-bg: var(--color-gray-200);
+  --radio-disabled-border-color: var(--color-gray-300);
+  --radio-disabled-color: var(--color-gray-600);
+  --radio-disabled-checked-color: var(--color-gray-500);
+  --radio-margin-bottom: var(--space-3);
+  --radio-required-color: var(--color-danger);
+
+  /* Component: Radio Group */
+  --radio-group-margin-bottom: var(--space-4);
+  --radio-group-padding: var(--space-2);
+  --radio-group-border: 1px solid var(--color-gray-300);
+  --radio-group-radius: var(--border-radius-md);
+  --radio-group-legend-font-size: var(--font-size-base);
+  --radio-group-legend-color: var(--color-text);
+  --radio-group-font-family: var(--font-family-primary);
+  --radio-group-legend-font-weight: var(--font-weight-medium);
+  --radio-group-legend-padding: 0 var(--space-2);
+  --radio-group-legend-margin-bottom: var(--space-2);
+  --radio-group-required-color: var(--color-danger);
+  --radio-group-gap: var(--space-2);
+  --radio-group-valid-border-color: var(--color-success);
+  --radio-group-invalid-border-color: var(--color-danger);
+  --radio-group-validation-color: var(--color-danger);
+  --radio-group-validation-font-size: var(--font-size-sm);
+  --radio-group-disabled-opacity: 0.7;
+  --radio-group-disabled-bg: var(--color-gray-100);
+
+  /* Component: Form Group */
+  --form-group-margin-bottom: var(--space-4);
+  --form-group-label-font-size: var(--font-size-base);
+  --form-group-label-color: var(--color-text);
+  --form-group-font-family: var(--font-family-primary);
+  --form-group-label-font-weight: var(--font-weight-medium);
+  --form-group-label-margin-bottom: var(--space-1);
+  --form-group-required-color: var(--color-danger);
+  --form-group-help-font-size: var(--font-size-sm);
+  --form-group-help-color: var(--color-text-light);
+  --form-group-label-margin-right: var(--space-3);
+  --form-group-label-margin-left: var(--space-3);
+  --form-group-label-width: 30%;
+
+  /* Component: Form */
+  --form-label-width: 30%;
+  --form-section-margin-bottom: var(--space-6);
+  --form-section-title-font-size: var(--font-size-lg);
+  --form-section-title-color: var(--color-text);
+  --form-section-title-font-weight: var(--font-weight-semibold);
+  --form-section-title-margin-bottom: var(--space-3);
+  --form-section-title-border: 1px solid var(--color-gray-200);
+  --form-section-description-font-size: var(--font-size-base);
+  --form-section-description-color: var(--color-text-light);
+  --form-section-description-margin-bottom: var(--space-3);
+  --form-actions-gap: var(--space-3);
+  --form-actions-margin-top: var(--space-5);
+  --form-actions-justify: flex-end;
 }

@@ -105,6 +105,144 @@
   --card-title-padding-mobile: var(--space-4);
   --card-content-padding-mobile: var(--space-4);
   --card-footer-padding-mobile: var(--space-3) var(--space-4);
+
+  /* Component: Input */
+  --input-bg: var(--color-brand-secondary-dark);
+  --input-color: var(--color-text-white);
+  --input-border: 2px solid var(--color-brand-primary);
+  --input-radius: 0;
+  --input-padding: var(--space-3) var(--space-4);
+  --input-font-size: var(--font-size-lg);
+  --input-font-family: var(--font-family-primary);
+  --input-shadow: none;
+  --input-transition: all 0.3s ease-in-out;
+  --input-placeholder-color: var(--color-gray-400);
+  --input-focus-border-color: var(--color-brand-primary-dark);
+  --input-focus-shadow: 0 0 0 0.2rem rgba(172, 207, 78, 0.25);
+  --input-disabled-bg: var(--color-gray-700);
+  --input-disabled-opacity: 0.7;
+  --input-valid-border-color: var(--color-brand-primary);
+  --input-invalid-border-color: var(--color-danger);
+  --input-validation-color: var(--color-danger);
+  --input-validation-font-size: var(--font-size-base);
+  --input-margin-bottom: var(--space-5);
+
+  /* Component: Select */
+  --select-bg: var(--color-brand-secondary-dark);
+  --select-color: var(--color-text-white);
+  --select-border: 2px solid var(--color-brand-primary);
+  --select-radius: 0;
+  --select-padding: var(--space-3) var(--space-4);
+  --select-font-size: var(--font-size-lg);
+  --select-font-family: var(--font-family-primary);
+  --select-shadow: none;
+  --select-transition: all 0.3s ease-in-out;
+  --select-option-color: var(--color-text-dark);
+  --select-option-bg: var(--color-bg);
+  --select-option-disabled-color: var(--color-gray-500);
+  --select-focus-border-color: var(--color-brand-primary-dark);
+  --select-focus-shadow: 0 0 0 0.2rem rgba(172, 207, 78, 0.25);
+  --select-disabled-bg: var(--color-gray-700);
+  --select-disabled-opacity: 0.7;
+  --select-valid-border-color: var(--color-brand-primary);
+  --select-invalid-border-color: var(--color-danger);
+  --select-validation-color: var(--color-danger);
+  --select-validation-font-size: var(--font-size-base);
+  --select-margin-bottom: var(--space-5);
+  --select-option-padding: var(--space-2) var(--space-3);
+
+  /* Component: Checkbox */
+  --checkbox-bg: var(--color-brand-secondary-dark);
+  --checkbox-border: 2px solid var(--color-brand-primary);
+  --checkbox-radius: 0;
+  --checkbox-size: 24px;
+  --checkbox-color: var(--color-text-white);
+  --checkbox-indicator-margin: var(--space-3);
+  --checkbox-font-size: var(--font-size-lg);
+  --checkbox-font-family: var(--font-family-primary);
+  --checkbox-transition: all 0.3s ease-in-out;
+  --checkbox-hover-border-color: var(--color-brand-primary-dark);
+  --checkbox-checked-bg: var(--color-brand-primary);
+  --checkbox-checked-border-color: var(--color-brand-primary);
+  --checkbox-focus-shadow: 0 0 0 0.2rem rgba(172, 207, 78, 0.25);
+  --checkbox-disabled-bg: var(--color-gray-700);
+  --checkbox-disabled-border-color: var(--color-gray-500);
+  --checkbox-disabled-color: var(--color-gray-400);
+  --checkbox-valid-border-color: var(--color-brand-primary);
+  --checkbox-invalid-border-color: var(--color-danger);
+  --checkbox-validation-color: var(--color-danger);
+  --checkbox-margin-bottom: var(--space-4);
+  --checkbox-required-color: var(--color-danger);
+
+  /* Component: Radio */
+  --radio-bg: var(--color-brand-secondary-dark);
+  --radio-border: 2px solid var(--color-brand-primary);
+  --radio-size: 24px;
+  --radio-inner-size: 12px;
+  --radio-color: var(--color-text-white);
+  --radio-indicator-margin: var(--space-3);
+  --radio-font-size: var(--font-size-lg);
+  --radio-font-family: var(--font-family-primary);
+  --radio-transition: all 0.3s ease-in-out;
+  --radio-hover-border-color: var(--color-brand-primary-dark);
+  --radio-checked-color: var(--color-brand-primary);
+  --radio-checked-border-color: var(--color-brand-primary);
+  --radio-focus-shadow: 0 0 0 0.2rem rgba(172, 207, 78, 0.25);
+  --radio-disabled-bg: var(--color-gray-700);
+  --radio-disabled-border-color: var(--color-gray-500);
+  --radio-disabled-color: var(--color-gray-400);
+  --radio-disabled-checked-color: var(--color-gray-300);
+  --radio-margin-bottom: var(--space-4);
+  --radio-required-color: var(--color-danger);
+
+  /* Component: Radio Group */
+  --radio-group-margin-bottom: var(--space-5);
+  --radio-group-padding: var(--space-4);
+  --radio-group-border: 2px solid var(--color-brand-primary);
+  --radio-group-radius: 0;
+  --radio-group-legend-font-size: var(--font-size-xl);
+  --radio-group-legend-color: var(--color-text-white);
+  --radio-group-font-family: var(--font-family-heading);
+  --radio-group-legend-font-weight: var(--font-weight-bold);
+  --radio-group-legend-padding: 0 var(--space-3);
+  --radio-group-legend-margin-bottom: var(--space-3);
+  --radio-group-required-color: var(--color-danger);
+  --radio-group-gap: var(--space-3);
+  --radio-group-valid-border-color: var(--color-brand-primary);
+  --radio-group-invalid-border-color: var(--color-danger);
+  --radio-group-validation-color: var(--color-danger);
+  --radio-group-validation-font-size: var(--font-size-base);
+  --radio-group-disabled-opacity: 0.7;
+  --radio-group-disabled-bg: var(--color-gray-800);
+
+  /* Component: Form Group */
+  --form-group-margin-bottom: var(--space-5);
+  --form-group-label-font-size: var(--font-size-lg);
+  --form-group-label-color: var(--color-text-white);
+  --form-group-font-family: var(--font-family-heading);
+  --form-group-label-font-weight: var(--font-weight-bold);
+  --form-group-label-margin-bottom: var(--space-2);
+  --form-group-required-color: var(--color-danger);
+  --form-group-help-font-size: var(--font-size-base);
+  --form-group-help-color: var(--color-gray-300);
+  --form-group-label-margin-right: var(--space-4);
+  --form-group-label-margin-left: var(--space-4);
+  --form-group-label-width: 40%;
+
+  /* Component: Form */
+  --form-label-width: 40%;
+  --form-section-margin-bottom: var(--space-8);
+  --form-section-title-font-size: var(--font-size-2xl);
+  --form-section-title-color: var(--color-text-white);
+  --form-section-title-font-weight: var(--font-weight-bold);
+  --form-section-title-margin-bottom: var(--space-4);
+  --form-section-title-border: 2px solid var(--color-brand-primary);
+  --form-section-description-font-size: var(--font-size-lg);
+  --form-section-description-color: var(--color-gray-300);
+  --form-section-description-margin-bottom: var(--space-4);
+  --form-actions-gap: var(--space-4);
+  --form-actions-margin-top: var(--space-6);
+  --form-actions-justify: flex-end;
 }
 
 .cabalou-theme h1 {
@@ -115,4 +253,11 @@
   font-family: var(--font-family-heading);
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+.cabalou-theme .form-section__title {
+  font-family: var(--font-family-heading);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding-bottom: var(--space-2);
 }

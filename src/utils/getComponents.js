@@ -344,7 +344,6 @@ export const getComponents = () => {
         },
       ],
     },
-
     {
       name: 'Rating',
       stories: [
@@ -385,7 +384,6 @@ export const getComponents = () => {
         },
       ],
     },
-
     {
       name: 'Map',
       stories: [
@@ -424,7 +422,6 @@ export const getComponents = () => {
         },
       ],
     },
-
     {
       name: 'Head',
       stories: [
@@ -458,7 +455,144 @@ export const getComponents = () => {
         },
       ],
     },
-  ];
+    {
+      name: 'RepairPriceForm',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/RepairPriceForm/RepairPriceForm.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithCallback',
+          module: () =>
+            import(
+              '../components/RepairPriceForm/RepairPriceForm.stories.js'
+            ).then((m) => m.WithCallback),
+        },
+        {
+          name: 'CustomStyling',
+          module: () =>
+            import(
+              '../components/RepairPriceForm/RepairPriceForm.stories.js'
+            ).then((m) => m.CustomStyling),
+        },
+      ],
+    },
+    {
+      name: 'PurchasePriceForm',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/PurchasePriceForm/PurchasePriceForm.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithCallback',
+          module: () =>
+            import(
+              '../components/PurchasePriceForm/PurchasePriceForm.stories.js'
+            ).then((m) => m.WithCallback),
+        },
+        {
+          name: 'CustomStyling',
+          module: () =>
+            import(
+              '../components/PurchasePriceForm/PurchasePriceForm.stories.js'
+            ).then((m) => m.CustomStyling),
+        },
+      ],
+    },
+
+    {
+      name: 'Header',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Header/Header.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+      ],
+    },
+    {
+      name: 'HeroSection',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/HeroSection/HeroSection.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+      ],
+    },
+  
+  {
+    name: 'Footer',
+    stories: [
+      {
+        name: 'Default',
+        module: () =>
+          import('../components/Footer/Footer.stories.js').then(
+            (m) => m.Default
+          ),
+      },
+    ],
+  },
+  {
+    name: 'Image',
+    stories: [
+      {
+        name: 'Default',
+        module: () =>
+          import('../components/Image/Image.stories.js').then(
+            (m) => m.Default
+          ),
+      },
+    ],
+  },
+  {
+    name: 'List',
+    stories: [
+      {
+        name: 'Default',
+        module: () =>
+          import('../components/List/List.stories.js').then(
+            (m) => m.Default
+          ),
+      },
+    ],
+  },
+  {
+    name: 'Page',
+    stories: [
+      {
+        name: 'Default',
+        module: () =>
+          import('../components/Page/Page.stories.js').then(
+            (m) => m.Default
+          ),
+      },
+    ],
+  },
+  {
+    name: 'Badge',
+    stories: [
+      {
+        name: 'Default',
+        module: () =>
+          import('../components/Badge/Badge.stories.js').then(
+            (m) => m.Default
+          ),
+      },
+    ],
+  },];
 
   return components;
 };

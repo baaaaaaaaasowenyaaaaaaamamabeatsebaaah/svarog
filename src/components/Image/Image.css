@@ -1,0 +1,11 @@
+/**
+ * Image component styles
+ */
+
+.image {
+  /* Base styling */
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* Add additional styles here */

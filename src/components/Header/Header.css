@@ -1,0 +1,11 @@
+/**
+ * Header component styles
+ */
+
+.header {
+  /* Base styling */
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* Add additional styles here */

@@ -1,0 +1,11 @@
+/**
+ * Footer component styles
+ */
+
+.footer {
+  /* Base styling */
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* Add additional styles here */
