@@ -1,0 +1,15 @@
+// src/components/{{ComponentName}}/{{ComponentName}}.stories.js
+import {{ComponentName}} from './{{ComponentName}}.js';
+
+export default {
+  title: 'Components/{{ComponentName}}',
+  component: {{ComponentName}},
+};
+
+export const Default = () => {
+  return new {{ComponentName}}({
+    // Add props here
+  });
+};
+
+// Add more story variants here

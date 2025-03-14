@@ -15,117 +15,10 @@ import readline from 'readline';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Templates for component files
-const templates = {
-  component: (name) => `// src/components/${name}/${name}.js
-import './${name}.css';
-import { Component } from '../../utils/componentFactory.js';
-
 /**
- * ${name} component 
- * @extends Component
+ * Create a component from template files
+ * @param {string} componentName - Component name (PascalCase)
  */
-export default class ${name} extends Component {
-  /**
-   * Creates a new ${name} instance
-   * 
-   * @param {Object} props - ${name} properties
-   * @param {string} [props.className=''] - Additional CSS class names
-   */
-  constructor({
-    className = '',
-    // Add your props here
-  }) {
-    super();
-    
-    this.props = {
-      className,
-      // Store your props here
-    };
-    
-    this.element = this.createElement${name}();
-  }
-  
-  /**
-   * Creates the ${name.toLowerCase()} element
-   * @private
-   * @returns {HTMLElement} The ${name.toLowerCase()} element
-   */
-  createElement${name}() {
-    // Build class names
-    const classNames = this.createClassNames(
-      '${name.toLowerCase()}',
-      this.props.className
-    );
-    
-    // Create the main element
-    const element = this.createElement('div', { 
-      className: classNames,
-      // Add content and other properties here
-    });
-    
-    return element;
-  }
-  
-  /**
-   * Gets the ${name.toLowerCase()} element
-   * @returns {HTMLElement} The ${name.toLowerCase()} element
-   */
-  getElement() {
-    return this.element;
-  }
-}
-`,
-
-  css: (name) => `/**
- * ${name} component styles
- */
-
-.${name.toLowerCase()} {
-  /* Base styling */
-  display: flex;
-  box-sizing: border-box;
-}
-
-/* Add additional styles here */
-`,
-
-  story: (name) => `// src/components/${name}/${name}.stories.js
-import ${name} from './${name}.js';
-
-export default {
-  title: 'Components/${name}',
-  component: ${name},
-};
-
-export const Default = () => {
-  return new ${name}({
-    // Add props here
-  });
-};
-
-// Add more story variants here
-`,
-
-  test: (name) => `// src/components/${name}/${name}.test.js
-import { describe, it, expect, vi } from 'vitest';
-import ${name} from './${name}.js';
-
-describe('${name} component', () => {
-  it('should create a ${name.toLowerCase()} element', () => {
-    const ${name.toLowerCase()} = new ${name}({});
-    
-    const element = ${name.toLowerCase()}.getElement();
-    expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.className).toBe('${name.toLowerCase()}');
-  });
-  
-  // Add more tests here
-});
-`,
-};
-
-// Create component files
 async function createComponent(componentName) {
   if (!componentName || typeof componentName !== 'string') {
     console.error('Please provide a component name');
@@ -133,10 +26,17 @@ async function createComponent(componentName) {
   }
 
   // Format component name - ensure first letter is uppercase
-  const name = componentName.charAt(0).toUpperCase() + componentName.slice(1);
+  const ComponentName =
+    componentName.charAt(0).toUpperCase() + componentName.slice(1);
+  const componentNameLower =
+    ComponentName.charAt(0).toLowerCase() + ComponentName.slice(1);
 
   // Create component directory
-  const componentDir = path.resolve(__dirname, '../src/components', name);
+  const componentDir = path.resolve(
+    __dirname,
+    '../src/components',
+    ComponentName
+  );
 
   try {
     // Check if component already exists
@@ -151,7 +51,7 @@ async function createComponent(componentName) {
 
       const answer = await new Promise((resolve) => {
         rl.question(
-          `Component ${name} already exists. Overwrite? (y/N) `,
+          `Component ${ComponentName} already exists. Overwrite? (y/N) `,
           resolve
         );
       });
@@ -169,23 +69,62 @@ async function createComponent(componentName) {
     // Create directory
     await fs.mkdir(componentDir, { recursive: true });
 
+    // Read template files
+    const templatesDir = path.resolve(__dirname, 'templates');
+
+    const jsTemplate = await fs.readFile(
+      path.join(templatesDir, 'ComponentJS.template'),
+      'utf-8'
+    );
+    const cssTemplate = await fs.readFile(
+      path.join(templatesDir, 'ComponentCSS.template'),
+      'utf-8'
+    );
+    const storiesTemplate = await fs.readFile(
+      path.join(templatesDir, 'ComponentStories.template'),
+      'utf-8'
+    );
+    const testTemplate = await fs.readFile(
+      path.join(templatesDir, 'ComponentTest.template'),
+      'utf-8'
+    );
+
+    // Replace placeholders in templates
+    const replacePlaceholders = (template) => {
+      return template
+        .replace(/\{\{ComponentName\}\}/g, ComponentName)
+        .replace(/\{\{componentName\}\}/g, componentNameLower);
+    };
+
     // Create component files
     const files = [
-      { name: `${name}.js`, content: templates.component(name) },
-      { name: `${name}.css`, content: templates.css(name) },
-      { name: `${name}.stories.js`, content: templates.story(name) },
-      { name: `${name}.test.js`, content: templates.test(name) },
+      { name: `${ComponentName}.js`, content: replacePlaceholders(jsTemplate) },
+      {
+        name: `${ComponentName}.css`,
+        content: replacePlaceholders(cssTemplate),
+      },
+      {
+        name: `${ComponentName}.stories.js`,
+        content: replacePlaceholders(storiesTemplate),
+      },
+      {
+        name: `${ComponentName}.test.js`,
+        content: replacePlaceholders(testTemplate),
+      },
     ];
 
     for (const file of files) {
       await fs.writeFile(path.join(componentDir, file.name), file.content);
     }
 
-    // Update the getComponents.js file to include the new component
-    await updateComponentsRegistry(name);
+    // Update the components registry
+    await updateComponentsRegistry(ComponentName);
 
-    console.log(`✅ Component ${name} created successfully!`);
-    console.log(`Files created in src/components/${name}/`);
+    // Update the main index.js
+    await updateMainIndex(ComponentName);
+
+    console.log(`✅ Component ${ComponentName} created successfully!`);
+    console.log(`Files created in src/components/${ComponentName}/`);
     return true;
   } catch (error) {
     console.error(`Error creating component: ${error.message}`);
@@ -193,7 +132,10 @@ async function createComponent(componentName) {
   }
 }
 
-// Update the components registry
+/**
+ * Update the components registry in getComponents.js
+ * @param {string} componentName - Component name
+ */
 async function updateComponentsRegistry(componentName) {
   const registryPath = path.resolve(__dirname, '../src/utils/getComponents.js');
 
@@ -257,7 +199,10 @@ async function updateComponentsRegistry(componentName) {
   }
 }
 
-// Update the main index.js file to include the new component
+/**
+ * Update the main index.js file to include the new component
+ * @param {string} componentName - Component name
+ */
 async function updateMainIndex(componentName) {
   const indexPath = path.resolve(__dirname, '../src/index.js');
 
@@ -320,8 +265,7 @@ if (!componentName) {
 createComponent(componentName)
   .then((success) => {
     if (success) {
-      // Update main index.js
-      return updateMainIndex(componentName);
+      console.log(`Component ${componentName} created successfully!`);
     }
   })
   .catch((error) => {

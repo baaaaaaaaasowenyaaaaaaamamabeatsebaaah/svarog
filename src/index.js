@@ -30,27 +30,21 @@ import {
 import './styles/index.js';
 import Map from './components/Map/Map.js';
 import Head from './components/Head/Head.js';
-import RepairPriceForm from './components/RepairPriceForm/RepairPriceForm.js';
-import PurchasePriceForm from './components/PurchasePriceForm/PurchasePriceForm.js';
 import Header from './components/Header/Header.js';
 import HeroSection from './components/HeroSection/HeroSection.js';
 import Footer from './components/Footer/Footer.js';
 import Image from './components/Image/Image.js';
 import List from './components/List/List.js';
 import Page from './components/Page/Page.js';
-import Badge from './components/Badge/Badge.js';
 
 // Export components
 const Svarog = {
-  Badge,
   Page,
   List,
   Image,
   Footer,
   HeroSection,
   Header,
-  PurchasePriceForm,
-  RepairPriceForm,
   Head,
   Map,
   Rating,
@@ -67,7 +61,6 @@ const Svarog = {
   Checkbox,
   Radio,
   RadioGroup,
-  Rating,
   Form,
   FormGroup,
   FormSection,

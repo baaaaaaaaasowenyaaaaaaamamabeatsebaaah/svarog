@@ -9,6 +9,7 @@ import './base/05-states.css';
 // Theme styles
 import './themes/default-theme.css';
 import './themes/cabalou-theme.css';
+import './themes/muchandy-theme.css';
 
 // Export theme utilities
 export * from '../utils/theme.js';

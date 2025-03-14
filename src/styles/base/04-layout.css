@@ -1,33 +1,44 @@
-:root {
-  /* Z-index Scale */
-  --z-index-hide: -1;
-  --z-index-base: 0;
-  --z-index-above: 1;
-  --z-index-sticky: 100;
-  --z-index-modal: 1000;
-  --z-index-popup: 2000;
+/**
+ * Base layout variables
+ */
 
-  /* Container Widths */
+:root {
+  /* Containers */
   --container-max-width: 1200px;
   --container-padding: var(--space-4);
 
-  /* Breakpoints */
-  --breakpoint-xs: 360px;
-  --breakpoint-sm: 480px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
+  /* Grid */
+  --grid-columns: 12;
+  --grid-gap: var(--space-4);
 
-  /* Border Radius */
+  /* Z-index layers */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+
+  /* Shadows */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.1);
+
+  /* Border radius */
   --border-radius-none: 0;
   --border-radius-sm: 2px;
   --border-radius-md: 4px;
   --border-radius-lg: 8px;
-  --border-radius-xl: 12px;
+  --border-radius-xl: 16px;
   --border-radius-full: 9999px;
 
-  /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
+  /* Media query breakpoints */
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
 }

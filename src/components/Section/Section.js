@@ -1,12 +1,13 @@
 // src/components/Section/Section.js
 import './Section.css';
 import { Component } from '../../utils/componentFactory.js';
+import Typography from '../Typography/Typography.js';
 
 /**
  * Section component for defining page sections
  * @extends Component
  */
-export class Section extends Component {
+class Section extends Component {
   /**
    * Creates a new Section instance
    *
@@ -17,6 +18,8 @@ export class Section extends Component {
    * @param {HTMLElement} [props.backgroundImage] - Optional background image element
    * @param {boolean} [props.noPaddingBottom=false] - Whether to remove bottom padding
    * @param {string} [props.className=''] - Additional CSS class names
+   * @param {string} [props.title] - Optional section title
+   * @param {string} [props.description] - Optional section description
    * @throws {Error} If children is not provided or variant is invalid
    */
   constructor({
@@ -26,6 +29,8 @@ export class Section extends Component {
     backgroundImage,
     noPaddingBottom = false,
     className = '',
+    title,
+    description,
   }) {
     super();
 
@@ -47,6 +52,8 @@ export class Section extends Component {
       backgroundImage,
       noPaddingBottom,
       className,
+      title,
+      description,
     };
 
     this.section = this.createSectionElement();
@@ -58,8 +65,15 @@ export class Section extends Component {
    * @returns {HTMLElement} The section element
    */
   createSectionElement() {
-    const { id, variant, backgroundImage, noPaddingBottom, className } =
-      this.props;
+    const {
+      id,
+      variant,
+      backgroundImage,
+      noPaddingBottom,
+      className,
+      title,
+      description,
+    } = this.props;
 
     // Build class names
     const classNames = this.createClassNames('section', className, {
@@ -85,11 +99,35 @@ export class Section extends Component {
       section.appendChild(bgContainer);
     }
 
-    // Create and add content container
+    // Create content container
     const content = this.createElement('div', {
       className: 'section__content',
-      children: this.props.children,
     });
+
+    // Add title if provided
+    if (title) {
+      const titleEl = new Typography({
+        children: title,
+        as: 'h2',
+        className: 'section__title',
+      }).getElement();
+      content.appendChild(titleEl);
+    }
+
+    // Add description if provided
+    if (description) {
+      const descriptionEl = new Typography({
+        children: description,
+        as: 'p',
+        className: 'section__description',
+      }).getElement();
+      content.appendChild(descriptionEl);
+    }
+
+    // Add main content
+    this.appendChildren(content, this.props.children);
+
+    // Add content to section
     section.appendChild(content);
 
     return section;
@@ -104,4 +142,6 @@ export class Section extends Component {
   }
 }
 
+// Export as both named export and default export
+export { Section };
 export default Section;

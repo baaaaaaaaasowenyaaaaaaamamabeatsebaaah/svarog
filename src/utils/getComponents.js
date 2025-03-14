@@ -13,10 +13,59 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'Primary',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Primary
+            ),
+        },
+        {
+          name: 'Secondary',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Secondary
+            ),
+        },
+        {
+          name: 'Text',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Text
+            ),
+        },
+        {
+          name: 'Small',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Small
+            ),
+        },
+        {
+          name: 'Large',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Large
+            ),
+        },
+        {
           name: 'Disabled',
           module: () =>
             import('../components/Button/Button.stories.js').then(
               (m) => m.Disabled
+            ),
+        },
+        {
+          name: 'WithCustomClass',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.WithCustomClass
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.AllVariants
             ),
         },
       ],
@@ -455,59 +504,7 @@ export const getComponents = () => {
         },
       ],
     },
-    {
-      name: 'RepairPriceForm',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import(
-              '../components/RepairPriceForm/RepairPriceForm.stories.js'
-            ).then((m) => m.Default),
-        },
-        {
-          name: 'WithCallback',
-          module: () =>
-            import(
-              '../components/RepairPriceForm/RepairPriceForm.stories.js'
-            ).then((m) => m.WithCallback),
-        },
-        {
-          name: 'CustomStyling',
-          module: () =>
-            import(
-              '../components/RepairPriceForm/RepairPriceForm.stories.js'
-            ).then((m) => m.CustomStyling),
-        },
-      ],
-    },
-    {
-      name: 'PurchasePriceForm',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import(
-              '../components/PurchasePriceForm/PurchasePriceForm.stories.js'
-            ).then((m) => m.Default),
-        },
-        {
-          name: 'WithCallback',
-          module: () =>
-            import(
-              '../components/PurchasePriceForm/PurchasePriceForm.stories.js'
-            ).then((m) => m.WithCallback),
-        },
-        {
-          name: 'CustomStyling',
-          module: () =>
-            import(
-              '../components/PurchasePriceForm/PurchasePriceForm.stories.js'
-            ).then((m) => m.CustomStyling),
-        },
-      ],
-    },
-
+    // Header stories
     {
       name: 'Header',
       stories: [
@@ -520,6 +517,7 @@ export const getComponents = () => {
         },
       ],
     },
+    // HeroSection stories
     {
       name: 'HeroSection',
       stories: [
@@ -532,67 +530,55 @@ export const getComponents = () => {
         },
       ],
     },
-  
-  {
-    name: 'Footer',
-    stories: [
-      {
-        name: 'Default',
-        module: () =>
-          import('../components/Footer/Footer.stories.js').then(
-            (m) => m.Default
-          ),
-      },
-    ],
-  },
-  {
-    name: 'Image',
-    stories: [
-      {
-        name: 'Default',
-        module: () =>
-          import('../components/Image/Image.stories.js').then(
-            (m) => m.Default
-          ),
-      },
-    ],
-  },
-  {
-    name: 'List',
-    stories: [
-      {
-        name: 'Default',
-        module: () =>
-          import('../components/List/List.stories.js').then(
-            (m) => m.Default
-          ),
-      },
-    ],
-  },
-  {
-    name: 'Page',
-    stories: [
-      {
-        name: 'Default',
-        module: () =>
-          import('../components/Page/Page.stories.js').then(
-            (m) => m.Default
-          ),
-      },
-    ],
-  },
-  {
-    name: 'Badge',
-    stories: [
-      {
-        name: 'Default',
-        module: () =>
-          import('../components/Badge/Badge.stories.js').then(
-            (m) => m.Default
-          ),
-      },
-    ],
-  },];
+    // Footer stories
+    {
+      name: 'Footer',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Footer/Footer.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+      ],
+    },
+    // Image stories
+    {
+      name: 'Image',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+      ],
+    },
+    // List stories
+    {
+      name: 'List',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/List/List.stories.js').then((m) => m.Default),
+        },
+      ],
+    },
+    // Page stories
+    {
+      name: 'Page',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Page/Page.stories.js').then((m) => m.Default),
+        },
+      ],
+    },
+  ];
 
   return components;
 };

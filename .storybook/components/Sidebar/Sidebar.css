@@ -1,24 +1,17 @@
+/* .storybook/components/Sidebar/Sidebar.css */
 .sidebar {
   width: 240px;
-  background-color: #fff;
+  background-color: #f8f9fa;
   border-right: 1px solid #dee2e6;
-
-  /* Remove fixed positioning */
-  position: relative;
-  top: 0;
-
-  /* Ensure full height */
   height: calc(100vh - 69px); /* Subtract header height */
   overflow-y: auto;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-
-  /* Scrollbar styling */
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 .sidebar::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
@@ -30,30 +23,83 @@
   background: transparent;
 }
 
-.sidebar h3 {
-  font-size: 18px;
-  padding-bottom: 8px;
-  padding-top: 16px;
-  font-family: 'balto', sans-serif;
-  position: sticky;
-  top: 0;
-  background-color: #fff;
-  z-index: 1;
+.sidebar-nav {
+  width: 100%;
 }
 
-.sidebar button {
+.component-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.component-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.component-header {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  color: #333;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.component-header:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.component-header::after {
+  content: '▼';
+  position: absolute;
+  right: 16px;
+  font-size: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+}
+
+.component-item.expanded .component-header::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.stories-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.component-item.expanded .stories-list {
   display: block;
+}
+
+.story-item {
   width: 100%;
   cursor: pointer;
-  margin: 0 8px;
-  padding: 4px 0;
-  font-family: 'balto', sans-serif;
 }
 
-.sidebar button:hover {
-  color: grey;
+.story-link {
+  display: block;
+  padding: 8px 8px 8px 24px;
+  font-size: 13px;
+  color: #666;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.sidebar button:last-child {
-  border-bottom: 1px solid #dee2e6;
+.story-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.story-link.active {
+  background-color: rgba(30, 167, 253, 0.1);
+  color: #1ea7fd;
+  border-left: 3px solid #1ea7fd;
 }

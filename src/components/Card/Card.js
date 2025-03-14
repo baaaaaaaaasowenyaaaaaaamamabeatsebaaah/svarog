@@ -1,6 +1,7 @@
 // src/components/Card/Card.js
 import './Card.css';
 import { Component } from '../../utils/componentFactory.js';
+import Typography from '../Typography/Typography.js';
 
 /**
  * Card component for displaying content in a card container
@@ -77,10 +78,11 @@ export default class Card extends Component {
 
     // Add title if provided
     if (title) {
-      const titleEl = this.createElement('div', {
+      const titleEl = new Typography({
+        children: title,
+        as: 'h3',
         className: 'card__title',
-        textContent: title,
-      });
+      }).getElement();
       card.appendChild(titleEl);
     }
 

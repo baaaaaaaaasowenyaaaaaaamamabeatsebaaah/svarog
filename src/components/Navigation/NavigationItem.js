@@ -1,5 +1,6 @@
 // src/components/Navigation/NavigationItem.js
 import './NavigationItem.css';
+import Link from '../Link/Link.js';
 
 export default class NavigationItem {
   constructor({
@@ -39,9 +40,11 @@ export default class NavigationItem {
     const item = document.createElement('li');
     item.className = this.getItemClassNames();
 
-    const link = document.createElement('a');
-    link.href = this.config.href;
-    link.className = 'nav-item__link';
+    const link = new Link({
+      children: this.config.label,
+      href: this.config.href,
+      className: 'nav-item__link',
+    }).getElement();
 
     if (this.config.disabled) {
       link.setAttribute('aria-disabled', 'true');

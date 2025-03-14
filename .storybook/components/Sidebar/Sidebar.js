@@ -1,3 +1,4 @@
+// .storybook/components/Sidebar/Sidebar.js
 import './Sidebar.css';
 
 export default class Sidebar {
@@ -6,34 +7,82 @@ export default class Sidebar {
     this.onStorySelect = onStorySelect;
     this.sidebar = document.createElement('div');
     this.sidebar.className = 'sidebar';
-    this.render();
+
+    // Use a custom implementation instead of the Navigation component
+    this.renderCustomSidebar();
   }
 
-  render() {
+  renderCustomSidebar() {
+    // Clear any existing content
     this.sidebar.innerHTML = '';
-    this.components.forEach((component) => {
-      const componentItem = document.createElement('div');
-      componentItem.className = 'component-item';
-      const componentTitle = document.createElement('h3');
-      componentTitle.textContent = component.name;
-      componentItem.appendChild(componentTitle);
 
+    // Create a container for the navigation
+    const navContainer = document.createElement('nav');
+    navContainer.className = 'sidebar-nav';
+
+    // Create the main list
+    const componentList = document.createElement('ul');
+    componentList.className = 'component-list';
+
+    // Add components and their stories
+    this.components.forEach((component) => {
+      // Create component item
+      const componentItem = document.createElement('li');
+      componentItem.className = 'component-item';
+
+      // Create component header
+      const componentHeader = document.createElement('div');
+      componentHeader.className = 'component-header';
+      componentHeader.textContent = component.name;
+
+      // Make component header expandable
+      componentHeader.addEventListener('click', () => {
+        componentItem.classList.toggle('expanded');
+      });
+
+      componentItem.appendChild(componentHeader);
+
+      // Create stories list
       if (component.stories && component.stories.length > 0) {
+        const storiesList = document.createElement('ul');
+        storiesList.className = 'stories-list';
+
         component.stories.forEach((story) => {
-          const storyButton = document.createElement('button');
-          storyButton.textContent = story.name;
-          storyButton.addEventListener('click', () => {
-            this.onStorySelect(story);
+          const storyItem = document.createElement('li');
+          storyItem.className = 'story-item';
+
+          const storyLink = document.createElement('a');
+          storyLink.className = 'story-link';
+          storyLink.textContent = story.name;
+          storyLink.href = '#';
+          storyLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.selectStory(story);
           });
-          componentItem.appendChild(storyButton);
+
+          storyItem.appendChild(storyLink);
+          storiesList.appendChild(storyItem);
         });
-      } else {
-        // eslint-disable-next-line no-console
-        console.error('Component or stories are undefined:', component);
+
+        componentItem.appendChild(storiesList);
       }
 
-      this.sidebar.appendChild(componentItem);
+      componentList.appendChild(componentItem);
     });
+
+    navContainer.appendChild(componentList);
+    this.sidebar.appendChild(navContainer);
+  }
+
+  selectStory(story) {
+    // Remove active class from all stories
+    const activeStories = this.sidebar.querySelectorAll('.story-link.active');
+    activeStories.forEach((el) => el.classList.remove('active'));
+
+    // Call the provided onStorySelect callback
+    if (this.onStorySelect && typeof this.onStorySelect === 'function') {
+      this.onStorySelect(story);
+    }
   }
 
   getElement() {

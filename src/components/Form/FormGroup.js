@@ -1,6 +1,8 @@
 // src/components/Form/FormGroup.js
 import './FormGroup.css';
 import { Component } from '../../utils/componentFactory.js';
+import Typography from '../Typography/Typography.js';
+import Input from '../Input/Input.js';
 
 /**
  * FormGroup component for grouping form controls with labels
@@ -12,12 +14,13 @@ export default class FormGroup extends Component {
    *
    * @param {Object} props - FormGroup properties
    * @param {string} props.label - Input label
-   * @param {Object} props.field - Form field component
+   * @param {Object|string} props.field - Form field component or value string
    * @param {string} [props.helpText] - Help text to display below the field
    * @param {string} [props.id] - ID for the label (will be linked to field)
    * @param {boolean} [props.required=false] - Whether the field is required
    * @param {string} [props.className=''] - Additional CSS class names
    * @param {string} [props.labelPosition='top'] - Label position ('top', 'left', 'right', 'bottom')
+   * @param {string} [props.fieldType='text'] - Type of field if passing a string value instead of component
    */
   constructor({
     label,
@@ -27,13 +30,12 @@ export default class FormGroup extends Component {
     required = false,
     className = '',
     labelPosition = 'top',
+    fieldType = 'text',
   }) {
     super();
 
     // Validation
-    if (!label) {
-      throw new Error('FormGroup: label is required');
-    }
+    this.validateRequiredProps({ label }, ['label'], 'FormGroup');
 
     if (!field) {
       throw new Error('FormGroup: field is required');
@@ -54,6 +56,7 @@ export default class FormGroup extends Component {
       required,
       className,
       labelPosition,
+      fieldType,
     };
 
     // Create element
@@ -66,8 +69,16 @@ export default class FormGroup extends Component {
    * @returns {HTMLElement} The form group container element
    */
   createFormGroupContainer() {
-    const { label, field, helpText, id, required, className, labelPosition } =
-      this.props;
+    const {
+      label,
+      field,
+      helpText,
+      id,
+      required,
+      className,
+      labelPosition,
+      fieldType,
+    } = this.props;
 
     // Create container div
     const container = this.createElement('div', {
@@ -78,36 +89,50 @@ export default class FormGroup extends Component {
       ),
     });
 
-    // Create label
+    // Create label using Typography
     const labelId = id ? `${id}-label` : null;
-    const labelElement = this.createElement('label', {
-      className: 'form-group__label',
-      textContent: label,
+    const labelElement = new Typography({
+      children: label,
+      as: 'label',
+      className: this.createClassNames('form-group__label', {
+        'form-group__label--required': required,
+      }),
       attributes: {
         for: id,
         id: labelId,
       },
-    });
-
-    // Add required indicator if needed
-    if (required) {
-      labelElement.classList.add('form-group__label--required');
-    }
+    }).getElement();
 
     // Create field container
     const fieldContainer = this.createElement('div', {
       className: 'form-group__field',
     });
 
-    // Get field element
+    // Process field - either use the provided component or create an Input from string
     let fieldElement;
-    if (typeof field.getElement === 'function') {
+
+    if (typeof field === 'string') {
+      // If field is a string, create an Input component
+      const inputField = new Input({
+        type: fieldType,
+        id,
+        name: id,
+        value: field,
+        required,
+      });
+      fieldElement = inputField.getElement();
+      this.fieldComponent = inputField;
+    } else if (typeof field.getElement === 'function') {
+      // If field is a component with getElement method
       fieldElement = field.getElement();
+      this.fieldComponent = field;
     } else if (field instanceof HTMLElement) {
+      // If field is already an HTMLElement
       fieldElement = field;
+      this.fieldComponent = null;
     } else {
       throw new Error(
-        'FormGroup: field must be a component with getElement method or an HTMLElement'
+        'FormGroup: field must be a component with getElement method, an HTMLElement, or a string value'
       );
     }
 
@@ -117,10 +142,11 @@ export default class FormGroup extends Component {
     // Create help text if provided
     let helpTextElement = null;
     if (helpText) {
-      helpTextElement = this.createElement('div', {
+      helpTextElement = new Typography({
+        children: helpText,
+        as: 'div',
         className: 'form-group__help-text',
-        textContent: helpText,
-      });
+      }).getElement();
     }
 
     // Assemble the component based on label position
@@ -166,11 +192,11 @@ export default class FormGroup extends Component {
   }
 
   /**
-   * Gets the field component
+   * Gets the field component or element
    * @returns {Object|HTMLElement} The field component or element
    */
   getField() {
-    return this.props.field;
+    return this.fieldComponent || this.fieldElement;
   }
 
   /**
@@ -179,5 +205,19 @@ export default class FormGroup extends Component {
    */
   getElement() {
     return this.container;
+  }
+
+  /**
+   * Validates the field if it has a validate method
+   * @returns {boolean} Whether the field is valid
+   */
+  validate() {
+    if (
+      this.fieldComponent &&
+      typeof this.fieldComponent.validate === 'function'
+    ) {
+      return this.fieldComponent.validate();
+    }
+    return true;
   }
 }

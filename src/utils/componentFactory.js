@@ -1,24 +1,5 @@
-// src/utils/componentFactory.js
-
-/**
- * Base component class that all Svarog components can extend
- * This provides common functionality and helps standardize the component API
- */
+// src/utils/componentFactory.js - Improved Version
 export class Component {
-  /**
-   * Creates a DOM element with attributes and event listeners
-   *
-   * @param {string} tagName - HTML tag to create
-   * @param {Object} [options={}] - Element options
-   * @param {Object} [options.attributes={}] - HTML attributes to set
-   * @param {Object} [options.styles={}] - CSS styles to apply
-   * @param {Object} [options.events={}] - Event listeners to attach
-   * @param {string|Array|HTMLElement} [options.children] - Child content (string, array of elements, or element)
-   * @param {string} [options.className] - CSS class names
-   * @param {string} [options.innerHTML] - Inner HTML content
-   * @param {string} [options.textContent] - Text content
-   * @returns {HTMLElement} The created DOM element
-   */
   createElement(tagName, options = {}) {
     const {
       attributes = {},
@@ -28,22 +9,21 @@ export class Component {
       className,
       innerHTML,
       textContent,
+      disabled,
+      value,
+      readonly,
     } = options;
 
     const element = document.createElement(tagName);
 
     // Set attributes
     Object.entries(attributes).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        element.setAttribute(key, value);
-      }
+      if (value != null) element.setAttribute(key, value);
     });
 
     // Set styles
-    Object.entries(styles).forEach(([property, value]) => {
-      if (value !== undefined && value !== null) {
-        element.style[property] = value;
-      }
+    Object.entries(styles).forEach(([prop, value]) => {
+      if (value != null) element.style[prop] = value;
     });
 
     // Add event listeners
@@ -53,35 +33,20 @@ export class Component {
       }
     });
 
-    // Set class name
-    if (className) {
-      element.className = className;
-    }
-
-    // Set inner HTML
-    if (innerHTML !== undefined) {
-      element.innerHTML = innerHTML;
-    }
-
-    // Set text content
-    if (textContent !== undefined) {
-      element.textContent = textContent;
-    }
+    // Set direct properties
+    if (className) element.className = className;
+    if (innerHTML !== undefined) element.innerHTML = innerHTML;
+    if (textContent !== undefined) element.textContent = textContent;
+    if (disabled !== undefined) element.disabled = disabled;
+    if (value !== undefined) element.value = value;
+    if (readonly !== undefined) element.readOnly = readonly;
 
     // Append children
-    if (children) {
-      this.appendChildren(element, children);
-    }
+    if (children) this.appendChildren(element, children);
 
     return element;
   }
 
-  /**
-   * Appends children to a parent element
-   *
-   * @param {HTMLElement} parent - Parent element to append to
-   * @param {string|Array|HTMLElement} children - Children to append
-   */
   appendChildren(parent, children) {
     if (!parent) return;
 
@@ -89,80 +54,53 @@ export class Component {
       parent.textContent = children;
     } else if (Array.isArray(children)) {
       children.forEach((child) => {
-        if (child) {
-          if (typeof child === 'string') {
-            const textNode = document.createTextNode(child);
-            parent.appendChild(textNode);
-          } else if (child instanceof HTMLElement) {
-            parent.appendChild(child);
-          } else if (child && typeof child.getElement === 'function') {
-            parent.appendChild(child.getElement());
-          }
+        if (!child) return;
+
+        if (typeof child === 'string') {
+          parent.appendChild(document.createTextNode(child));
+        } else if (child instanceof HTMLElement) {
+          parent.appendChild(child);
+        } else if (typeof child.getElement === 'function') {
+          parent.appendChild(child.getElement());
         }
       });
     } else if (children instanceof HTMLElement) {
       parent.appendChild(children);
-    } else if (children && typeof children.getElement === 'function') {
+    } else if (typeof children.getElement === 'function') {
       parent.appendChild(children.getElement());
     }
   }
 
-  /**
-   * Creates a set of CSS classes from various inputs
-   *
-   * @param {...(string|Object|Array)} args - Class names, objects, or arrays
-   * @returns {string} Combined class string
-   *
-   * @example
-   * // Returns "btn btn--primary is-active"
-   * createClassNames('btn', { 'btn--primary': true, 'btn--secondary': false }, 'is-active')
-   */
   createClassNames(...args) {
-    const classes = [];
+    return args
+      .reduce((classes, arg) => {
+        if (!arg) return classes;
 
-    args.forEach((arg) => {
-      if (!arg) return;
+        if (typeof arg === 'string') {
+          classes.push(arg);
+        } else if (Array.isArray(arg)) {
+          classes.push(this.createClassNames(...arg));
+        } else if (typeof arg === 'object') {
+          Object.entries(arg).forEach(([key, value]) => {
+            if (value) classes.push(key);
+          });
+        }
 
-      if (typeof arg === 'string') {
-        classes.push(arg);
-      } else if (Array.isArray(arg)) {
-        classes.push(this.createClassNames(...arg));
-      } else if (typeof arg === 'object') {
-        Object.entries(arg).forEach(([key, value]) => {
-          if (value) {
-            classes.push(key);
-          }
-        });
-      }
-    });
-
-    return classes.filter(Boolean).join(' ');
+        return classes;
+      }, [])
+      .filter(Boolean)
+      .join(' ');
   }
 
-  /**
-   * Validates required props and throws errors if any are missing
-   *
-   * @param {Object} props - Component props
-   * @param {Array<string>} requiredProps - List of required prop names
-   * @param {string} componentName - Component name for error messages
-   * @throws {Error} If any required props are missing
-   */
   validateRequiredProps(props, requiredProps, componentName) {
     requiredProps.forEach((propName) => {
-      if (props[propName] === undefined || props[propName] === null) {
+      if (props[propName] == null) {
         throw new Error(`${componentName}: ${propName} is required`);
       }
     });
   }
 }
 
-/**
- * Creates a consistent component factory
- *
- * @param {string} name - Component name
- * @param {Function} createInstance - Function that creates a component instance
- * @returns {Function} Component factory function
- */
 export function createComponentFactory(name, createInstance) {
   return (props = {}) => {
     try {
