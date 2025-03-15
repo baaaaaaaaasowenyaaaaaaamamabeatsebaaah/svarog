@@ -607,7 +607,19 @@ export const getComponents = () => {
         },
       ],
     },
-  ];
+  
+  {
+    name: 'PhoneRepairForm',
+    stories: [
+      {
+        name: 'Default',
+        module: () =>
+          import('../components/PhoneRepairForm/PhoneRepairForm.stories.js').then(
+            (m) => m.Default
+          ),
+      },
+    ],
+  },];
 
   return components;
 };

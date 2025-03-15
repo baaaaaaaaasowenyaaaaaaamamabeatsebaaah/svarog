@@ -41,9 +41,11 @@ import Page from './components/Page/Page.js';
 import HomePageDefaultTheme from './prototypes/HomePage/DefaultTheme.js';
 import HomePageCabalouTheme from './prototypes/HomePage/CabalouTheme.js';
 import HomePageMuchandyTheme from './prototypes/HomePage/MuchandyTheme.js';
+import PhoneRepairForm from './components/PhoneRepairForm/PhoneRepairForm.js';
 
 // Export components
 const Svarog = {
+  PhoneRepairForm,
   Page,
   List,
   Image,
