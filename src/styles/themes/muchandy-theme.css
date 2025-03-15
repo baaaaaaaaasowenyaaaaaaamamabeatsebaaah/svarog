@@ -1,16 +1,16 @@
 /* src/styles/themes/muchandy-theme.css */
 .muchandy-theme {
   /* Typography */
-  --font-family-primary: 'balto', sans-serif;
-  --font-family-heading: 'balto', sans-serif;
+  --font-family-primary: 'Myriad Pro', sans-serif;
+  --font-family-heading: 'Myriad Pro', sans-serif;
 
   /* Colors - Brand */
-  --color-brand-primary: #9b59b6;
-  --color-brand-primary-dark: #8e44ad;
-  --color-brand-primary-light: #c39bd3;
-  --color-brand-secondary: #3498db;
-  --color-brand-secondary-dark: #2980b9;
-  --color-brand-secondary-light: #85c1e9;
+  --color-brand-primary: #ff7f50;
+  --color-brand-primary-dark: #cc643f;
+  --color-brand-primary-light: #ffa07a;
+  --color-brand-secondary: #4aa2d9;
+  --color-brand-secondary-dark: #3881b0;
+  --color-brand-secondary-light: #7cc0ed;
 
   /* Component: Button */
   --button-bg: var(--color-brand-primary);

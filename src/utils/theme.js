@@ -1,4 +1,4 @@
-// src/utils/theme.js - Improved Version
+// src/utils/theme.js
 import { THEMES } from '../constants/themes.js';
 
 class ThemeManager {
@@ -20,12 +20,34 @@ class ThemeManager {
 
   initializeTheme() {
     try {
-      const savedTheme = localStorage.getItem('svarog-theme');
-      this.switchTheme(
-        this.isValidTheme(savedTheme) ? savedTheme : this.defaultTheme
-      );
+      // First, check if there's a Storybook theme preference
+      const storybookTheme = localStorage.getItem('svarog-storybook-theme');
+
+      // Then check for regular app theme preference
+      const appTheme = localStorage.getItem('svarog-theme');
+
+      // Prioritize Storybook theme if we're in Storybook context
+      const isInStorybook =
+        typeof window !== 'undefined' &&
+        window.location.pathname.includes('storybook');
+
+      const themeToUse =
+        isInStorybook && this.isValidTheme(storybookTheme)
+          ? storybookTheme
+          : this.isValidTheme(appTheme)
+            ? appTheme
+            : this.defaultTheme;
+
+      console.log(`Theme.js: Initializing theme, using ${themeToUse}`);
+
+      this.switchTheme(themeToUse);
     } catch (e) {
-      this.switchTheme(this.defaultTheme);
+      // If we can't access localStorage, just use the default theme
+      // But don't overwrite a potentially set theme from elsewhere
+      if (!this.currentTheme) {
+        console.log('Theme.js: Using default theme due to localStorage error');
+        this.switchTheme(this.defaultTheme);
+      }
     }
   }
 
@@ -57,13 +79,24 @@ class ThemeManager {
     document.documentElement.classList.add(themeClass);
     document.body.classList.add(themeClass);
 
-    // Update state and save preference
+    // Update state
     this.currentTheme = theme;
+
+    // Determine which localStorage key to use based on context
+    const isInStorybook =
+      typeof window !== 'undefined' &&
+      window.location.pathname.includes('storybook');
+
+    const storageKey = isInStorybook
+      ? 'svarog-storybook-theme'
+      : 'svarog-theme';
+
     try {
-      localStorage.setItem('svarog-theme', theme);
+      localStorage.setItem(storageKey, theme);
+      console.log(`Theme.js: Saved theme "${theme}" to ${storageKey}`);
     } catch (e) {
-      // Silent fail - can't access localStorage (private browsing or permissions)
-      console.debug('Could not save theme to localStorage', e);
+      // Silent fail - can't access localStorage
+      console.debug('Theme.js: Could not save theme to localStorage', e);
     }
 
     // Notify observers
