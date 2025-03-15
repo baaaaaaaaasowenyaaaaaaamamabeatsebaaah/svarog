@@ -1,11 +1,16 @@
 /* src/styles/themes/default-theme.css */
 .default-theme {
-  /* Typography */
-  --font-family-primary: 'balto', sans-serif;
+  /* Typography - use base variables */
+  --font-family-primary: var(--font-family-primary);
+  --font-family-heading: var(--font-family-primary);
 
-  /* Colors - Brand */
+  /* Colors - Brand - define theme colors */
   --color-brand-primary: var(--color-primary);
+  --color-brand-primary-light: var(--color-primary-light);
+  --color-brand-primary-dark: var(--color-primary-dark);
   --color-brand-secondary: var(--color-secondary);
+  --color-brand-secondary-light: var(--color-secondary-light);
+  --color-brand-secondary-dark: var(--color-secondary-dark);
 
   /* Component: Button */
   --button-bg: var(--color-primary);
@@ -23,12 +28,12 @@
   --button-disabled-color: var(--color-text-white);
   --button-disabled-opacity: 0.65;
   --button-padding: var(--space-2) var(--space-4);
-  --button-font-size: var(--font-size-base);
+  --button-font-size: var(--font-size-sm);
   --button-font-family: var(--font-family-primary);
   --button-font-weight: var(--font-weight-medium);
   --button-transition: var(--transition-normal);
-  --button-shadow: none;
-  --button-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  --button-shadow: var(--shadow-sm);
+  --button-focus-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25);
 
   /* Primary variant */
   --button-primary-bg: var(--color-primary);
@@ -53,42 +58,6 @@
   --button-text-hover-color: var(--color-primary-dark);
   --button-text-padding: 0;
 
-  /* Success variant */
-  --button-success-bg: var(--color-success);
-  --button-success-color: var(--color-text-white);
-  --button-success-border-color: var(--color-success);
-  --button-success-hover-bg: var(--color-success-dark);
-  --button-success-hover-border-color: var(--color-success-dark);
-
-  /* Danger variant */
-  --button-danger-bg: var(--color-danger);
-  --button-danger-color: var(--color-text-white);
-  --button-danger-border-color: var(--color-danger);
-  --button-danger-hover-bg: var(--color-danger-dark);
-  --button-danger-hover-border-color: var(--color-danger-dark);
-
-  /* Outlined variant */
-  --button-outlined-color: var(--color-primary);
-  --button-outlined-border-color: var(--color-primary);
-  --button-outlined-hover-bg: rgba(0, 123, 255, 0.1);
-  --button-outlined-hover-color: var(--color-primary-dark);
-  --button-outlined-hover-border-color: var(--color-primary-dark);
-
-  /* Size variants */
-  --button-padding-sm: var(--space-1) var(--space-2);
-  --button-padding-lg: var(--space-3) var(--space-6);
-  --button-font-size-sm: var(--font-size-sm);
-  --button-font-size-lg: var(--font-size-lg);
-  --button-radius-sm: calc(var(--border-radius-md) * 0.85);
-  --button-radius-lg: calc(var(--border-radius-md) * 1.15);
-
-  /* Icon button */
-  --button-icon-size: 2.5rem;
-  --button-icon-size-sm: 2rem;
-  --button-icon-size-lg: 3rem;
-  --button-icon-radius: 50%;
-  --button-icon-margin: 0.5rem;
-
   /* Component: Link */
   --link-color: var(--color-primary);
   --link-hover-color: var(--color-primary-dark);
@@ -98,60 +67,15 @@
   --link-font-family: var(--font-family-primary);
   --link-transition: var(--transition-fast);
 
-  /* Component: Navigation */
-  --nav-bg: var(--color-bg);
-  --nav-border-bottom: 1px solid var(--color-gray-200);
-  --nav-link-color: var(--color-text);
-  --nav-link-hover-color: var(--color-primary);
-  --nav-link-active-color: var(--color-primary);
-  --nav-dropdown-bg: var(--color-bg);
-  --nav-padding: var(--space-2);
-  --nav-margin-right: var(--space-2);
-  --nav-burger-font-size: var(--font-size-2xl);
-  --nav-burger-margin-bottom: var(--space-2);
-  --nav-padding-mobile: var(--space-2) 0;
-  --nav-link-font-size: var(--font-size-base);
-
-  /* Component: Section */
-  --section-bg: var(--color-bg);
-  --section-color: var(--color-text);
-  --section-padding: var(--space-2);
-  --section-gap: var(--space-2);
-  --section-content-max-width: var(--container-max-width);
-  --section-padding-tablet: var(--space-1);
-  --section-gap-tablet: var(--space-1);
-  --section-padding-mobile: var(--space-1);
-
-  /* Component: Typography */
-  --typography-color: var(--color-text);
-  --typography-muted-color: var(--color-text-light);
-  --typography-margin-bottom: var(--space-4);
-  --typography-h1-size: var(--font-size-6xl);
-  --typography-h2-size: var(--font-size-4xl);
-  --typography-h3-size: var(--font-size-3xl);
-  --typography-h4-size: var(--font-size-2xl);
-  --typography-h5-size: var(--font-size-xl);
-  --typography-h6-size: var(--font-size-lg);
-  --typography-body-size: var(--font-size-base);
-  --typography-small-size: var(--font-size-sm);
-
-  /* Component: Grid */
-  --grid-columns: 12;
-  --grid-gap: var(--space-4);
-  --grid-container-padding: var(--space-4);
-
-  /* Component: Logo */
-  --logo-width: 100px;
-  --logo-height: 100px;
-
   /* Component: Card */
-  --card-bg: var(--color-bg);
+  --card-bg: var(--color-white);
   --card-color: var(--color-text);
   --card-radius: var(--border-radius-md);
-  --card-border: 1px solid transparent;
-  --card-border-color: var(--color-gray-300);
+  --card-border: 1px solid var(--color-gray-200);
+  --card-border-color: var(--color-gray-200);
   --card-shadow: var(--shadow-md);
   --card-hover-border-color: var(--color-primary-light);
+  --card-hover-shadow: var(--shadow-lg);
   --card-title-padding: var(--space-4);
   --card-title-font-size: var(--font-size-xl);
   --card-title-font-weight: var(--font-weight-bold);
@@ -317,4 +241,27 @@
   --form-actions-gap: var(--space-3);
   --form-actions-margin-top: var(--space-5);
   --form-actions-justify: flex-end;
+}
+
+.default-theme .card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.default-theme .card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+/* Improve typography readability */
+.default-theme h1,
+.default-theme h2,
+.default-theme h3,
+.default-theme h4,
+.default-theme h5,
+.default-theme h6 {
+  color: var(--color-gray-900);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
 }

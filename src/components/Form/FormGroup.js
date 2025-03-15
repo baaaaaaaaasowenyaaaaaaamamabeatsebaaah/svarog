@@ -89,11 +89,9 @@ export default class FormGroup extends Component {
       ),
     });
 
-    // Create label using Typography
+    // Create label directly without using Typography
     const labelId = id ? `${id}-label` : null;
-    const labelElement = new Typography({
-      children: label,
-      as: 'label',
+    const labelElement = this.createElement('label', {
       className: this.createClassNames('form-group__label', {
         'form-group__label--required': required,
       }),
@@ -101,7 +99,8 @@ export default class FormGroup extends Component {
         for: id,
         id: labelId,
       },
-    }).getElement();
+      textContent: label,
+    });
 
     // Create field container
     const fieldContainer = this.createElement('div', {
@@ -139,7 +138,7 @@ export default class FormGroup extends Component {
     // Add field to container
     fieldContainer.appendChild(fieldElement);
 
-    // Create help text if provided
+    // Create help text if provided - still use Typography for this
     let helpTextElement = null;
     if (helpText) {
       helpTextElement = new Typography({

@@ -1,5 +1,46 @@
+/* .storybook/components/Stage/Stage.css */
 .stage {
-  flex-grow: 1;
-  background-color: #efefef;
-  border: 20px solid #dee2e6;
+  flex: 1;
+  background-color: #f8f9fa;
+  padding: 20px;
+  overflow: auto;
+  position: relative;
+}
+
+.stage__inner {
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 200px;
+  padding: 20px;
+  position: relative;
+}
+
+.stage__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #6c757d;
+  text-align: center;
+  padding: 20px;
+}
+
+.stage__empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.stage__empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stage__empty-message {
+  font-size: 14px;
+  max-width: 400px;
+  line-height: 1.5;
 }

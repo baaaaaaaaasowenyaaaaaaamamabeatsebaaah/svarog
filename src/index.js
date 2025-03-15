@@ -37,6 +37,11 @@ import Image from './components/Image/Image.js';
 import List from './components/List/List.js';
 import Page from './components/Page/Page.js';
 
+// Import prototypes
+import HomePageDefaultTheme from './prototypes/HomePage/DefaultTheme.js';
+import HomePageCabalouTheme from './prototypes/HomePage/CabalouTheme.js';
+import HomePageMuchandyTheme from './prototypes/HomePage/MuchandyTheme.js';
+
 // Export components
 const Svarog = {
   Page,
@@ -70,6 +75,10 @@ const Svarog = {
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
+  // Prototypes
+  HomePageDefaultTheme,
+  HomePageCabalouTheme,
+  HomePageMuchandyTheme,
 };
 
 // Individual named exports
