@@ -1,4 +1,5 @@
 // src/utils/getComponents.js
+// Updated with new Logo stories
 
 export const getComponents = () => {
   const components = [
@@ -220,6 +221,34 @@ export const getComponents = () => {
           name: 'Default',
           module: () =>
             import('../components/Logo/Logo.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'WithThemeSpecificLogos',
+          module: () =>
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.WithThemeSpecificLogos
+            ),
+        },
+        {
+          name: 'WithCustomSizes',
+          module: () =>
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.WithCustomSizes
+            ),
+        },
+        {
+          name: 'WithFallback',
+          module: () =>
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.WithFallback
+            ),
+        },
+        {
+          name: 'WithClickHandler',
+          module: () =>
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.WithClickHandler
+            ),
         },
       ],
     },
