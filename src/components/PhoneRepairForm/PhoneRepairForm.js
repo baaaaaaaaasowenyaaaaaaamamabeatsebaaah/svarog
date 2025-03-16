@@ -432,6 +432,7 @@ export default class PhoneRepairForm extends Component {
       const newSelect = new Select({
         ...selectComponent.props,
         options,
+        disabled: false, // Explicitly set disabled to false
       });
 
       // Replace the old select with the new one
@@ -589,6 +590,23 @@ export default class PhoneRepairForm extends Component {
    * @param {string} manufacturerId - Manufacturer ID
    */
   loadMockDevices(manufacturerId) {
+    // Reset states
+    this.setState({
+      devices: [],
+      actions: [],
+      selectedDevice: '',
+      selectedAction: '',
+      currentPrice: null,
+      loading: { ...this.state.loading, devices: true },
+      error: { ...this.state.error, devices: null },
+    });
+
+    // Reset dependent fields
+    this.deviceSelect.setValue('');
+    this.actionSelect.setValue('');
+    this.actionSelect.getElement().querySelector('select').disabled = true;
+    this.updatePriceDisplay('Bitte Modell und Service auswählen');
+
     // Find manufacturer in mock data
     const mockData = this.props.mockData || PhoneRepairForm.defaultMockData;
     const manufacturer = mockData.manufacturers.find(
@@ -620,6 +638,7 @@ export default class PhoneRepairForm extends Component {
       label: d.name,
     }));
 
+    // IMPORTANT FIX: Make sure to not only update the props but also the DOM element
     this.deviceSelect.getElement().querySelector('select').disabled = false;
     this.updateSelectOptions(this.deviceSelect, options);
     this.updatePriceDisplay('Bitte Modell und Service auswählen');

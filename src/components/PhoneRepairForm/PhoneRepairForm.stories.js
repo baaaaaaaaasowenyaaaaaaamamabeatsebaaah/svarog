@@ -20,7 +20,26 @@ export default {
 
 // Helper function to setup mock data for all stories
 const setupMocks = () => {
-  setupPhoneRepairMocks();
+  try {
+    setupPhoneRepairMocks();
+  } catch (error) {
+    console.warn('Error setting up mocks:', error.message);
+    // Provide fallback mock directly
+    window.fetch = (url) => {
+      if (url === '/api/manufacturers') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockPhoneRepairData.manufacturers),
+        });
+      }
+      // Add other mocks as needed
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve({ error: 'Not found' }),
+      });
+    };
+  }
 };
 
 export const Default = () => {

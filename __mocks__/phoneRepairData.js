@@ -401,8 +401,8 @@ export const mockPhoneRepairApi = {
 
 // Export a function to setup fetch mocks for tests
 export const setupPhoneRepairMocks = () => {
-  // Mock global fetch for tests
-  global.fetch = (url) => {
+  // Mock fetch for tests - using window instead of global in browser environments
+  const mockFetch = (url) => {
     if (url === '/api/manufacturers') {
       return Promise.resolve({
         ok: true,
@@ -465,4 +465,11 @@ export const setupPhoneRepairMocks = () => {
       json: () => Promise.resolve({ error: 'Not found' }),
     });
   };
+
+  // Use window.fetch in browser, fallback to global in Node environment
+  if (typeof window !== 'undefined') {
+    window.fetch = mockFetch;
+  } else if (typeof global !== 'undefined') {
+    global.fetch = mockFetch;
+  }
 };
