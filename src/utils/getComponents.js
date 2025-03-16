@@ -607,19 +607,41 @@ export const getComponents = () => {
         },
       ],
     },
-  
-  {
-    name: 'PhoneRepairForm',
-    stories: [
-      {
-        name: 'Default',
-        module: () =>
-          import('../components/PhoneRepairForm/PhoneRepairForm.stories.js').then(
-            (m) => m.Default
-          ),
-      },
-    ],
-  },];
+
+    {
+      name: 'PhoneRepairForm',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithPreselectedData',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithPreselectedData),
+        },
+        {
+          name: 'WithCustomTheme',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithCustomTheme),
+        },
+        {
+          name: 'WithErrorHandling',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithErrorHandling),
+        },
+      ],
+    },
+  ];
 
   return components;
 };

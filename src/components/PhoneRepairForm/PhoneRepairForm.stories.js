@@ -3,7 +3,7 @@ import PhoneRepairForm from './PhoneRepairForm.js';
 import {
   mockPhoneRepairData,
   setupPhoneRepairMocks,
-} from '../../mocks/phoneRepairData.js';
+} from '../../../__mocks__/phoneRepairData.js';
 
 export default {
   title: 'Components/PhoneRepairForm',

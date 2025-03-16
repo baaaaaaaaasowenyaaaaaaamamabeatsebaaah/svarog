@@ -3,7 +3,7 @@ import './PhoneRepairForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
 import Typography from '../Typography/Typography.js';
-import { mockPhoneRepairData } from '../../mocks/phoneRepairData.js';
+import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 
 /**
  * PhoneRepairForm component for selecting phone repair options and viewing prices
