@@ -2,7 +2,6 @@
 import './PhoneRepairForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
-import Typography from '../Typography/Typography.js';
 import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 
 /**
@@ -72,7 +71,7 @@ export default class PhoneRepairForm extends Component {
   }
 
   /**
-   * Creates the form element
+   * Creates the form element with step indicators
    * @private
    * @returns {HTMLElement} The form element
    */
@@ -80,7 +79,11 @@ export default class PhoneRepairForm extends Component {
     // Build class names
     const classNames = this.createClassNames(
       'phone-repair-form',
-      this.props.className
+      this.props.className,
+      {
+        'phone-repair-form--loading': this.isAnyLoading(),
+        'phone-repair-form--error': this.hasAnyError(),
+      }
     );
 
     // Create the main form element
@@ -90,6 +93,17 @@ export default class PhoneRepairForm extends Component {
         submit: (e) => e.preventDefault(),
       },
     });
+
+    // Add title
+    const title = this.createElement('h2', {
+      className: 'phone-repair-form__title',
+      textContent: 'Reparatur anfragen',
+    });
+    form.appendChild(title);
+
+    // Add step indicator
+    const stepsContainer = this.createStepIndicator();
+    form.appendChild(stepsContainer);
 
     // Create form fields
     // Manufacturer select
@@ -147,17 +161,15 @@ export default class PhoneRepairForm extends Component {
       className: 'phone-repair-form__price-container',
     });
 
-    const priceLabel = new Typography({
-      children: 'Preis:',
-      as: 'span',
+    const priceLabel = this.createElement('span', {
       className: 'phone-repair-form__price-label',
-    }).getElement();
+      textContent: 'Preis:',
+    });
 
-    this.priceDisplay = new Typography({
-      children: 'Bitte zuerst Hersteller, Modell und Service auswählen',
-      as: 'span',
+    this.priceDisplay = this.createElement('span', {
       className: 'phone-repair-form__price-value',
-    }).getElement();
+      textContent: 'Bitte zuerst Hersteller, Modell und Service auswählen',
+    });
 
     priceContainer.appendChild(priceLabel);
     priceContainer.appendChild(this.priceDisplay);
@@ -169,6 +181,70 @@ export default class PhoneRepairForm extends Component {
     form.appendChild(priceContainer);
 
     return form;
+  }
+
+  /**
+   * Creates step indicator component
+   * @private
+   * @returns {HTMLElement} Step indicator element
+   */
+  createStepIndicator() {
+    const stepsContainer = this.createElement('div', {
+      className: 'phone-repair-form__steps',
+    });
+
+    const steps = [
+      { name: 'Hersteller', completed: !!this.state.selectedManufacturer },
+      { name: 'Modell', completed: !!this.state.selectedDevice },
+      { name: 'Service', completed: !!this.state.selectedAction },
+    ];
+
+    let activeIndex = 0;
+    if (this.state.selectedManufacturer) activeIndex = 1;
+    if (this.state.selectedDevice) activeIndex = 2;
+
+    steps.forEach((step, index) => {
+      const stepElement = this.createElement('div', {
+        className: this.createClassNames('phone-repair-form__step', {
+          'phone-repair-form__step--active': index === activeIndex,
+          'phone-repair-form__step--completed': step.completed,
+        }),
+      });
+
+      const stepNumber = this.createElement('div', {
+        className: 'phone-repair-form__step-number',
+        textContent: (index + 1).toString(),
+      });
+
+      const stepName = this.createElement('div', {
+        className: 'phone-repair-form__step-name',
+        textContent: step.name,
+      });
+
+      stepElement.appendChild(stepNumber);
+      stepElement.appendChild(stepName);
+      stepsContainer.appendChild(stepElement);
+    });
+
+    return stepsContainer;
+  }
+
+  /**
+   * Check if any state is loading
+   * @private
+   * @returns {boolean} Whether any state is loading
+   */
+  isAnyLoading() {
+    return Object.values(this.state.loading).some(Boolean);
+  }
+
+  /**
+   * Check if any state has error
+   * @private
+   * @returns {boolean} Whether any state has error
+   */
+  hasAnyError() {
+    return Object.values(this.state.error).some(Boolean);
   }
 
   /**
@@ -224,6 +300,9 @@ export default class PhoneRepairForm extends Component {
       error: { ...this.state.error, manufacturers: null },
     });
 
+    // Update form state to reflect loading
+    this.updateFormState();
+
     try {
       // Fetch manufacturers from API
       const manufacturers = await this.fetchFromApi('manufacturers');
@@ -243,12 +322,18 @@ export default class PhoneRepairForm extends Component {
         false;
       this.manufacturerSelect.setValue('');
       this.updateSelectOptions(this.manufacturerSelect, options);
+
+      // Update form state after loading completes
+      this.updateFormState();
     } catch (error) {
       console.error('Error loading manufacturers:', error);
       this.setState({
         loading: { ...this.state.loading, manufacturers: false },
         error: { ...this.state.error, manufacturers: error.message },
       });
+
+      // Update form state to reflect error
+      this.updateFormState();
     }
   }
 
@@ -267,6 +352,9 @@ export default class PhoneRepairForm extends Component {
       loading: { ...this.state.loading, devices: true },
       error: { ...this.state.error, devices: null },
     });
+
+    // Update form state to reflect loading
+    this.updateFormState();
 
     // Reset dependent fields
     this.deviceSelect.setValue('');
@@ -291,6 +379,9 @@ export default class PhoneRepairForm extends Component {
 
       this.deviceSelect.getElement().querySelector('select').disabled = false;
       this.updateSelectOptions(this.deviceSelect, options);
+
+      // Update form state after loading completes
+      this.updateFormState();
     } catch (error) {
       console.error('Error loading devices:', error);
       this.setState({
@@ -298,6 +389,9 @@ export default class PhoneRepairForm extends Component {
         error: { ...this.state.error, devices: error.message },
       });
       this.updatePriceDisplay('Fehler beim Laden der Geräte');
+
+      // Update form state to reflect error
+      this.updateFormState();
     }
   }
 
@@ -314,6 +408,9 @@ export default class PhoneRepairForm extends Component {
       loading: { ...this.state.loading, actions: true },
       error: { ...this.state.error, actions: null },
     });
+
+    // Update form state to reflect loading
+    this.updateFormState();
 
     // Reset action field
     this.actionSelect.setValue('');
@@ -336,6 +433,9 @@ export default class PhoneRepairForm extends Component {
 
       this.actionSelect.getElement().querySelector('select').disabled = false;
       this.updateSelectOptions(this.actionSelect, options);
+
+      // Update form state after loading completes
+      this.updateFormState();
     } catch (error) {
       console.error('Error loading actions:', error);
       this.setState({
@@ -343,6 +443,9 @@ export default class PhoneRepairForm extends Component {
         error: { ...this.state.error, actions: error.message },
       });
       this.updatePriceDisplay('Fehler beim Laden der Services');
+
+      // Update form state to reflect error
+      this.updateFormState();
     }
   }
 
@@ -357,6 +460,9 @@ export default class PhoneRepairForm extends Component {
       loading: { ...this.state.loading, price: true },
       error: { ...this.state.error, price: null },
     });
+
+    // Update form state to reflect loading
+    this.updateFormState();
 
     this.updatePriceDisplay('Preis wird geladen...');
 
@@ -377,6 +483,9 @@ export default class PhoneRepairForm extends Component {
       if (typeof this.props.onPriceChange === 'function') {
         this.props.onPriceChange(priceData);
       }
+
+      // Update form state after loading completes
+      this.updateFormState();
     } catch (error) {
       console.error('Error loading price:', error);
       this.setState({
@@ -384,6 +493,9 @@ export default class PhoneRepairForm extends Component {
         error: { ...this.state.error, price: error.message },
       });
       this.updatePriceDisplay('Fehler beim Laden des Preises');
+
+      // Update form state to reflect error
+      this.updateFormState();
     }
   }
 
@@ -457,6 +569,44 @@ export default class PhoneRepairForm extends Component {
   updatePriceDisplay(text) {
     if (this.priceDisplay) {
       this.priceDisplay.textContent = text;
+
+      // Add price highlight class if it's an actual price
+      const priceContainer = this.priceDisplay.parentElement;
+      if (priceContainer) {
+        if (text.includes('€') || text.includes('EUR')) {
+          priceContainer.classList.add(
+            'phone-repair-form__price-container--has-price'
+          );
+        } else {
+          priceContainer.classList.remove(
+            'phone-repair-form__price-container--has-price'
+          );
+        }
+      }
+    }
+  }
+
+  /**
+   * Update form state based on selection changes
+   * @private
+   */
+  updateFormState() {
+    // Update loading states
+    const formElement = this.getElement();
+    formElement.classList.toggle(
+      'phone-repair-form--loading',
+      this.isAnyLoading()
+    );
+    formElement.classList.toggle(
+      'phone-repair-form--error',
+      this.hasAnyError()
+    );
+
+    // Update step indicator
+    const oldSteps = formElement.querySelector('.phone-repair-form__steps');
+    if (oldSteps) {
+      const newSteps = this.createStepIndicator();
+      formElement.replaceChild(newSteps, oldSteps);
     }
   }
 
@@ -469,6 +619,9 @@ export default class PhoneRepairForm extends Component {
     if (!manufacturerId) return;
 
     this.setState({ selectedManufacturer: manufacturerId });
+
+    // Update form state for step indicator
+    this.updateFormState();
 
     if (this.props.useMockData) {
       this.loadMockDevices(manufacturerId);
@@ -487,6 +640,9 @@ export default class PhoneRepairForm extends Component {
 
     this.setState({ selectedDevice: deviceId });
 
+    // Update form state for step indicator
+    this.updateFormState();
+
     if (this.props.useMockData) {
       this.loadMockActions(deviceId);
     } else {
@@ -503,6 +659,9 @@ export default class PhoneRepairForm extends Component {
     if (!actionId) return;
 
     this.setState({ selectedAction: actionId });
+
+    // Update form state for step indicator
+    this.updateFormState();
 
     if (this.props.useMockData) {
       this.loadMockPrice(actionId);
@@ -573,6 +732,9 @@ export default class PhoneRepairForm extends Component {
       loading: { ...this.state.loading, manufacturers: false },
     });
 
+    // Update form state
+    this.updateFormState();
+
     // Update manufacturer select options
     const options = mockManufacturers.map((m) => ({
       value: m.id.toString(),
@@ -601,6 +763,9 @@ export default class PhoneRepairForm extends Component {
       error: { ...this.state.error, devices: null },
     });
 
+    // Update form state to reflect loading
+    this.updateFormState();
+
     // Reset dependent fields
     this.deviceSelect.setValue('');
     this.actionSelect.setValue('');
@@ -621,6 +786,9 @@ export default class PhoneRepairForm extends Component {
         devices: [],
         error: { ...this.state.error, devices: 'Manufacturer not found' },
       });
+
+      // Update form state to reflect error
+      this.updateFormState();
       return;
     }
 
@@ -631,6 +799,9 @@ export default class PhoneRepairForm extends Component {
       devices,
       loading: { ...this.state.loading, devices: false },
     });
+
+    // Update form state after loading completes
+    this.updateFormState();
 
     // Update device select options
     const options = devices.map((d) => ({
@@ -650,6 +821,21 @@ export default class PhoneRepairForm extends Component {
    * @param {string} deviceId - Device ID
    */
   loadMockActions(deviceId) {
+    this.setState({
+      actions: [],
+      selectedAction: '',
+      currentPrice: null,
+      loading: { ...this.state.loading, actions: true },
+      error: { ...this.state.error, actions: null },
+    });
+
+    // Update form state to reflect loading
+    this.updateFormState();
+
+    // Reset action field
+    this.actionSelect.setValue('');
+    this.updatePriceDisplay('Bitte Service auswählen');
+
     // Find device in mock data
     const mockData = this.props.mockData || PhoneRepairForm.defaultMockData;
     let foundDevice = null;
@@ -672,6 +858,9 @@ export default class PhoneRepairForm extends Component {
         actions: [],
         error: { ...this.state.error, actions: 'Device not found' },
       });
+
+      // Update form state to reflect error
+      this.updateFormState();
       return;
     }
 
@@ -679,6 +868,9 @@ export default class PhoneRepairForm extends Component {
       actions,
       loading: { ...this.state.loading, actions: false },
     });
+
+    // Update form state after loading completes
+    this.updateFormState();
 
     // Update action select options
     const options = actions.map((a) => ({
@@ -697,6 +889,16 @@ export default class PhoneRepairForm extends Component {
    * @param {string} actionId - Action ID
    */
   loadMockPrice(actionId) {
+    this.setState({
+      currentPrice: null,
+      loading: { ...this.state.loading, price: true },
+      error: { ...this.state.error, price: null },
+    });
+
+    // Update form state to reflect loading
+    this.updateFormState();
+    this.updatePriceDisplay('Preis wird geladen...');
+
     // Find action in mock data
     const mockData = this.props.mockData || PhoneRepairForm.defaultMockData;
     let foundAction = null;
@@ -729,6 +931,9 @@ export default class PhoneRepairForm extends Component {
         error: { ...this.state.error, price: 'Price not found' },
       });
       this.updatePriceDisplay('Preis nicht verfügbar');
+
+      // Update form state to reflect error
+      this.updateFormState();
       return;
     }
 
@@ -736,6 +941,9 @@ export default class PhoneRepairForm extends Component {
       currentPrice: priceData,
       loading: { ...this.state.loading, price: false },
     });
+
+    // Update form state after loading completes
+    this.updateFormState();
 
     // Format and display price
     const formattedPrice = this.formatPrice(priceData.price);

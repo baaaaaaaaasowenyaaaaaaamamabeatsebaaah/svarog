@@ -185,7 +185,7 @@ export const WithCustomTheme = () => {
 
 export const WithErrorHandling = () => {
   // Setup mock with deliberate errors
-  global.fetch = (url) => {
+  window.fetch = (url) => {
     if (url === '/api/manufacturers') {
       return Promise.resolve({
         ok: true,
