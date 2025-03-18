@@ -51,6 +51,16 @@ export const Default = () => {
   });
 };
 
+export const WithoutSteps = () => {
+  setupMocks();
+
+  return new PhoneRepairForm({
+    useMockData: true,
+    showStepsIndicator: false,
+    onPriceChange: (priceData) => console.log('Price selected:', priceData),
+  });
+};
+
 export const WithPreselectedData = () => {
   setupMocks();
 

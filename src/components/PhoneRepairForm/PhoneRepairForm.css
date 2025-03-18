@@ -26,194 +26,14 @@
   padding-bottom: var(--space-3, 12px);
 }
 
-/* Form Group */
-.phone-repair-form .form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--space-4, 16px);
-  transition: all 0.3s ease;
-}
-
-.phone-repair-form .form-group__label {
-  font-size: var(--font-size-base, 16px);
-  font-weight: var(--font-weight-medium, 500);
-  margin-bottom: var(--space-2, 8px);
-  color: var(--color-text, #212529);
-}
-
-.phone-repair-form .form-group__field {
-  width: 100%;
-}
-
-/* Select styling */
-.phone-repair-form .select {
-  border-radius: var(--border-radius-md, 4px);
-  border: 2px solid var(--color-gray-300, #dee2e6);
-  padding: var(--space-3, 12px);
-  font-size: var(--font-size-base, 16px);
-  transition: all 0.2s ease;
-}
-
-.phone-repair-form .select:focus {
-  border-color: var(--color-primary, #3182ce);
-  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.25);
-}
-
-.phone-repair-form .select:hover:not(:disabled) {
-  border-color: var(--color-primary, #3182ce);
-}
-
-.phone-repair-form .select:disabled {
-  background-color: var(--color-gray-100, #f8f9fa);
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* Price display */
-.phone-repair-form__price-container {
-  display: flex;
-  align-items: center;
-  padding: var(--space-4, 16px);
-  margin-top: var(--space-3, 12px);
-  background-color: var(
-    --phone-repair-form-price-bg,
-    var(--color-gray-100, #f8f9fa)
-  );
-  border-radius: var(--border-radius-md, 4px);
-  border: var(
-    --phone-repair-form-price-border,
-    1px solid var(--color-gray-200, #e9ecef)
-  );
-  transition: all 0.3s ease;
-}
-
-.phone-repair-form__price-label {
-  font-weight: var(--font-weight-bold, 700);
-  margin-right: var(--space-3, 12px);
-  color: var(--color-text, #212529);
-  font-size: var(--font-size-base, 16px);
-}
-
-.phone-repair-form__price-value {
-  color: var(--phone-repair-form-price-color, var(--color-primary, #3182ce));
-  font-weight: var(--font-weight-bold, 700);
-  font-size: var(--font-size-xl, 20px);
-}
-
-/* Price container highlight when a price is shown */
-.phone-repair-form__price-container--has-price {
-  background-color: var(--color-primary-light, #ebf8ff);
-  border-color: var(--color-primary, #3182ce);
-}
-
 /* Loading and error states */
-.phone-repair-form--loading .phone-repair-form__price-value {
-  color: var(--color-text-light, #6c757d);
-  font-style: italic;
-}
-
-.phone-repair-form--loading .select {
+.phone-repair-form--loading select {
   opacity: 0.7;
+  pointer-events: none;
 }
 
-.phone-repair-form--error .phone-repair-form__price-value {
-  color: var(--color-danger, #dc3545);
-}
-
-/* Loading indicator */
-.phone-repair-form__loading-indicator {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top-color: var(--color-primary, #3182ce);
-  border-radius: 50%;
-  animation: phone-repair-form-spin 1s linear infinite;
-  margin-left: var(--space-2, 8px);
-}
-
-@keyframes phone-repair-form-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Selected option highlight */
-.phone-repair-form__selected-option {
-  color: var(--color-primary, #3182ce);
-  font-weight: var(--font-weight-medium, 500);
-}
-
-/* Step indicator */
-.phone-repair-form__steps {
-  display: flex;
-  margin-bottom: var(--space-4, 16px);
-  padding-bottom: var(--space-3, 12px);
-  border-bottom: 1px solid var(--color-gray-200, #e9ecef);
-}
-
-.phone-repair-form__step {
-  flex: 1;
-  text-align: center;
-  padding: var(--space-2, 8px);
-  position: relative;
-  color: var(--color-gray-500, #adb5bd);
-}
-
-.phone-repair-form__step::after {
-  content: '';
-  position: absolute;
-  height: 2px;
-  background-color: var(--color-gray-300, #dee2e6);
-  width: 100%;
-  left: 50%;
-  bottom: -1px;
-  z-index: 1;
-}
-
-.phone-repair-form__step:last-child::after {
-  display: none;
-}
-
-.phone-repair-form__step--active {
-  color: var(--color-primary, #3182ce);
-  font-weight: var(--font-weight-medium, 500);
-}
-
-.phone-repair-form__step--active::after {
-  background-color: var(--color-primary, #3182ce);
-}
-
-.phone-repair-form__step--completed {
-  color: var(--color-success, #48bb78);
-}
-
-.phone-repair-form__step--completed::after {
-  background-color: var(--color-success, #48bb78);
-}
-
-.phone-repair-form__step-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: var(--color-gray-200, #e9ecef);
-  color: var(--color-gray-600, #6c757d);
-  margin-bottom: var(--space-1, 4px);
-  font-size: var(--font-size-sm, 14px);
-  font-weight: var(--font-weight-bold, 700);
-}
-
-.phone-repair-form__step--active .phone-repair-form__step-number {
-  background-color: var(--color-primary, #3182ce);
-  color: white;
-}
-
-.phone-repair-form__step--completed .phone-repair-form__step-number {
-  background-color: var(--color-success, #48bb78);
-  color: white;
+.phone-repair-form--error {
+  /* Add any error state styles here */
 }
 
 /* Responsive adjustments */
@@ -221,37 +41,10 @@
   .phone-repair-form {
     padding: var(--space-6, 24px);
   }
-
-  .form-group {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .phone-repair-form .form-group__label {
-    width: 120px;
-    margin-bottom: 0;
-    margin-right: var(--space-3, 12px);
-  }
-
-  .phone-repair-form .form-group__field {
-    flex: 1;
-  }
 }
 
 @media (max-width: 480px) {
   .phone-repair-form {
     padding: var(--space-3, 12px);
-  }
-
-  .phone-repair-form__steps {
-    flex-direction: column;
-    gap: var(--space-2, 8px);
-  }
-
-  .phone-repair-form__step::after {
-    width: 2px;
-    height: 100%;
-    left: 12px;
-    bottom: -50%;
   }
 }

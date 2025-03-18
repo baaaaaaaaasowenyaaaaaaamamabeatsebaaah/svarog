@@ -16,12 +16,14 @@ export default class UsedPhonePriceForm extends Component {
    * @param {Object} [props.mockData] - Optional mock data for testing/storybook
    * @param {string} [props.className=''] - Additional CSS class names
    * @param {boolean} [props.useMockData=false] - Whether to use mock data instead of API
+   * @param {boolean} [props.showStepsIndicator=true] - Whether to show the steps indicator
    */
   constructor({
     onPriceChange,
     mockData,
     className = '',
     useMockData = false,
+    showStepsIndicator = true,
   }) {
     super();
 
@@ -31,6 +33,7 @@ export default class UsedPhonePriceForm extends Component {
       mockData,
       className,
       useMockData,
+      showStepsIndicator,
     };
 
     // Component state
@@ -100,9 +103,11 @@ export default class UsedPhonePriceForm extends Component {
     });
     form.appendChild(title);
 
-    // Add step indicator
-    const stepsContainer = this.createStepIndicator();
-    form.appendChild(stepsContainer);
+    // Add step indicator if enabled
+    if (this.props.showStepsIndicator) {
+      const stepsContainer = this.createStepIndicator();
+      form.appendChild(stepsContainer);
+    }
 
     // Create form fields
     // Manufacturer select
@@ -189,42 +194,36 @@ export default class UsedPhonePriceForm extends Component {
    */
   createStepIndicator() {
     const stepsContainer = this.createElement('div', {
-      className: 'used-phone-price-form__steps',
+      className: 'used-phone-form__steps',
     });
-
+    // Using the exact same German names as in PhoneRepairForm
     const steps = [
       { name: 'Hersteller', completed: !!this.state.selectedManufacturer },
       { name: 'Modell', completed: !!this.state.selectedDevice },
-      { name: 'Zustand', completed: !!this.state.selectedCondition },
+      { name: 'Zustand', completed: !!this.state.selectedCondition }, // "Zustand" is German for "Condition"
     ];
-
     let activeIndex = 0;
     if (this.state.selectedManufacturer) activeIndex = 1;
     if (this.state.selectedDevice) activeIndex = 2;
-
     steps.forEach((step, index) => {
       const stepElement = this.createElement('div', {
-        className: this.createClassNames('used-phone-price-form__step', {
-          'used-phone-price-form__step--active': index === activeIndex,
-          'used-phone-price-form__step--completed': step.completed,
+        className: this.createClassNames('used-phone-form__step', {
+          'used-phone-form__step--active': index === activeIndex,
+          'used-phone-form__step--completed': step.completed,
         }),
       });
-
       const stepNumber = this.createElement('div', {
-        className: 'used-phone-price-form__step-number',
+        className: 'used-phone-form__step-number',
         textContent: (index + 1).toString(),
       });
-
       const stepName = this.createElement('div', {
-        className: 'used-phone-price-form__step-name',
+        className: 'used-phone-form__step-name',
         textContent: step.name,
       });
-
       stepElement.appendChild(stepNumber);
       stepElement.appendChild(stepName);
       stepsContainer.appendChild(stepElement);
     });
-
     return stepsContainer;
   }
 
@@ -603,11 +602,22 @@ export default class UsedPhonePriceForm extends Component {
       this.hasAnyError()
     );
 
-    // Update step indicator
-    const oldSteps = formElement.querySelector('.used-phone-price-form__steps');
-    if (oldSteps) {
-      const newSteps = this.createStepIndicator();
-      formElement.replaceChild(newSteps, oldSteps);
+    // Update step indicator if enabled
+    if (this.props.showStepsIndicator) {
+      const oldSteps = formElement.querySelector('.used-phone-form__steps');
+      if (oldSteps) {
+        const newSteps = this.createStepIndicator();
+        formElement.replaceChild(newSteps, oldSteps);
+      } else {
+        // If using old class name
+        const oldStyleSteps = formElement.querySelector(
+          '.used-phone-price-form__steps'
+        );
+        if (oldStyleSteps) {
+          const newSteps = this.createStepIndicator();
+          formElement.replaceChild(newSteps, oldStyleSteps);
+        }
+      }
     }
   }
 
@@ -683,22 +693,20 @@ export default class UsedPhonePriceForm extends Component {
     try {
       let response;
 
+      // Updated API endpoints to match the structure used in PhoneRepairForm
       switch (endpoint) {
         case 'manufacturers':
-          response = await fetch('/api/used-phones/manufacturers');
+          response = await fetch('/api/manufacturers');
           break;
         case 'devices':
-          response = await fetch(
-            `/api/used-phones/manufacturers/${id}/devices`
-          );
+          response = await fetch(`/api/manufacturers/${id}/devices`);
           break;
         case 'conditions':
-          response = await fetch(`/api/used-phones/devices/${id}/conditions`);
+          response = await fetch(`/api/devices/${id}/conditions`);
           break;
         case 'price':
-          response = await fetch(
-            `/api/used-phones/devices/${id}/conditions/${secondId}/price`
-          );
+          // Updated to match the pattern in phoneRepairData.js
+          response = await fetch(`/api/conditions/${secondId}/price`);
           break;
         default:
           throw new Error(`Unknown endpoint: ${endpoint}`);
