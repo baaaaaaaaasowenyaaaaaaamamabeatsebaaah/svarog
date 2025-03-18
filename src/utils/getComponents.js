@@ -701,6 +701,19 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'ConditionSelector',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.Default),
+        },
+      ],
+    },
   ];
 
   return components;

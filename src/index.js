@@ -45,9 +45,11 @@ import PhoneRepairForm from './components/PhoneRepairForm/PhoneRepairForm.js';
 import UsedPhonePriceForm from './components/UsedPhonePriceForm/UsedPhonePriceForm.js';
 import StepsIndicator from './components/StepsIndicator/StepsIndicator.js';
 import PriceDisplay from './components/PriceDisplay/PriceDisplay.js';
+import ConditionSelector from './components/ConditionSelector/ConditionSelector.js';
 
 // Export components
 const Svarog = {
+  ConditionSelector,
   PriceDisplay,
   StepsIndicator,
   UsedPhonePriceForm,
