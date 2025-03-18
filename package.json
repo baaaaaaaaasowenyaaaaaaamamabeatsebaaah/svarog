@@ -18,7 +18,9 @@
     "create-component": "node scripts/create-component.js",
     "ci-check": "node scripts/ci-check.js",
     "prestart": "npm run generate-themes",
-    "prebuild": "npm run generate-themes"
+    "prebuild": "npm run generate-themes",
+    "check-stories": "node scripts/check-stories.js",
+    "update-stories": "node scripts/update-stories.js"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
