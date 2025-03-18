@@ -42,9 +42,11 @@ import HomePageDefaultTheme from './prototypes/HomePage/DefaultTheme.js';
 import HomePageCabalouTheme from './prototypes/HomePage/CabalouTheme.js';
 import HomePageMuchandyTheme from './prototypes/HomePage/MuchandyTheme.js';
 import PhoneRepairForm from './components/PhoneRepairForm/PhoneRepairForm.js';
+import UsedPhonePriceForm from './components/UsedPhonePriceForm/UsedPhonePriceForm.js';
 
 // Export components
 const Svarog = {
+  UsedPhonePriceForm,
   PhoneRepairForm,
   Page,
   List,

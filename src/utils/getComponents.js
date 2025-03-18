@@ -641,6 +641,40 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'UsedPhonePriceForm',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithPreselectedData',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithPreselectedData),
+        },
+        {
+          name: 'WithCustomTheme',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithCustomTheme),
+        },
+        {
+          name: 'WithErrorHandling',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithErrorHandling),
+        },
+      ],
+    },
   ];
 
   return components;
