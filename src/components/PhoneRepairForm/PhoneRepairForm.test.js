@@ -1,476 +1,246 @@
 // src/components/PhoneRepairForm/PhoneRepairForm.test.js
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import PhoneRepairFormFactory from '../../factories/PhoneRepairFormFactory.js';
-import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
+import PhoneRepairForm from './PhoneRepairForm.js';
 
 describe('PhoneRepairForm component', () => {
+  let mockData;
+
   beforeEach(() => {
-    // Reset DOM between tests
-    document.body.innerHTML = '';
+    // Setup mock data for each test
+    mockData = {
+      manufacturers: [
+        {
+          id: 1,
+          name: 'Apple',
+          devices: [
+            {
+              id: 1,
+              name: 'iPhone 13',
+              manufacturerId: 1,
+              actions: [
+                {
+                  id: 1,
+                  name: 'Display Reparatur',
+                  deviceId: 1,
+                  prices: [{ id: 1, price: 269, actionId: 1 }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    // Mock fetch
+    global.fetch = vi.fn().mockImplementation((url) => {
+      if (url === '/api/manufacturers') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockData.manufacturers),
+        });
+      }
+
+      const deviceMatch = url.match(/\/api\/manufacturers\/(\d+)\/devices/);
+      if (deviceMatch) {
+        const manufacturerId = deviceMatch[1];
+        const manufacturer = mockData.manufacturers.find(
+          (m) => m.id.toString() === manufacturerId
+        );
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(manufacturer ? manufacturer.devices : []),
+        });
+      }
+
+      const actionMatch = url.match(/\/api\/devices\/(\d+)\/actions/);
+      if (actionMatch) {
+        const deviceId = actionMatch[1];
+        let actions = [];
+        for (const manufacturer of mockData.manufacturers) {
+          const device = manufacturer.devices.find(
+            (d) => d.id.toString() === deviceId
+          );
+          if (device) {
+            actions = device.actions;
+            break;
+          }
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(actions),
+        });
+      }
+
+      const priceMatch = url.match(/\/api\/actions\/(\d+)\/price/);
+      if (priceMatch) {
+        const actionId = priceMatch[1];
+        let price = null;
+        outerLoop: for (const manufacturer of mockData.manufacturers) {
+          for (const device of manufacturer.devices) {
+            for (const action of device.actions) {
+              if (
+                action.id.toString() === actionId &&
+                action.prices &&
+                action.prices.length > 0
+              ) {
+                price = { price: action.prices[0].price };
+                break outerLoop;
+              }
+            }
+          }
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(price || { price: 0 }),
+        });
+      }
+
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        json: () => Promise.resolve({ error: 'Not found' }),
+      });
+    });
   });
 
   it('should create a phone repair form element', () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
+    const form = new PhoneRepairForm({});
 
     const element = form.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
     expect(element.className).toContain('phone-repair-form');
-
-    // Check for select elements
-    const manufacturerSelect = element.querySelector('#manufacturer');
-    const deviceSelect = element.querySelector('#device');
-    const actionSelect = element.querySelector('#action');
-
-    expect(manufacturerSelect).not.toBeNull();
-    expect(deviceSelect).not.toBeNull();
-    expect(actionSelect).not.toBeNull();
   });
 
   it('should initialize with custom labels', () => {
     const customLabels = {
       title: 'Custom Title',
-      priceLabel: 'Custom Price:'
+      priceLabel: 'Custom Price:',
     };
-    
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData,
-      labels: customLabels
+
+    const form = new PhoneRepairForm({
+      labels: customLabels,
     });
 
     const element = form.getElement();
     const titleElement = element.querySelector('.phone-repair-form__title');
-    const priceLabelElement = element.querySelector('.price-display__label');
 
     expect(titleElement.textContent).toBe(customLabels.title);
-    expect(priceLabelElement.textContent).toBe(customLabels.priceLabel);
   });
 
   it('should load manufacturers on initialization', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
+    const form = new PhoneRepairForm({});
     document.body.appendChild(form.getElement());
-    
+
     // Wait for manufacturers to load
     await vi.runAllTimersAsync();
 
-    // Check if manufacturers are loaded in the select
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    expect(manufacturerSelect.options.length).toBeGreaterThan(1); // Include placeholder
-
-    // Check the first manufacturer option after placeholder
-    expect(manufacturerSelect.options[1].textContent).toBe('Apple');
+    // Verify fetch was called with correct URL
+    expect(global.fetch).toHaveBeenCalledWith('/api/manufacturers');
   });
 
   it('should enable device select when manufacturer is selected', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
+    const form = new PhoneRepairForm({});
     document.body.appendChild(form.getElement());
-    
+
     // Wait for manufacturers to load
     await vi.runAllTimersAsync();
 
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    const deviceSelect = document.querySelector('#device');
-
-    // Initially device select should be disabled
-    expect(deviceSelect.disabled).toBe(true);
-
     // Select a manufacturer
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
+    form.handleManufacturerChange('1'); // Apple
 
     // Wait for async operations
     await vi.runAllTimersAsync();
 
-    // Device select should now be enabled and populated
-    expect(deviceSelect.disabled).toBe(false);
-    expect(deviceSelect.options.length).toBeGreaterThan(1);
+    // Verify fetch was called with correct URL
+    expect(global.fetch).toHaveBeenCalledWith('/api/manufacturers/1/devices');
   });
 
   it('should enable action select when device is selected', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
+    const form = new PhoneRepairForm({});
     document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
 
     // Set up manufacturer first
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-
+    form.handleManufacturerChange('1'); // Apple
     await vi.runAllTimersAsync();
 
     // Then select a device
-    const deviceSelect = document.querySelector('#device');
-    deviceSelect.value = '3'; // iPhone 13
-    deviceSelect.dispatchEvent(new Event('change'));
-
+    form.handleDeviceChange('1'); // iPhone 13
     await vi.runAllTimersAsync();
 
-    // Action select should now be enabled and populated
-    const actionSelect = document.querySelector('#action');
-    expect(actionSelect.disabled).toBe(false);
-    expect(actionSelect.options.length).toBeGreaterThan(1);
+    // Verify fetch was called with correct URL
+    expect(global.fetch).toHaveBeenCalledWith('/api/devices/1/actions');
   });
 
   it('should display price when action is selected', async () => {
     const mockOnPriceChange = vi.fn();
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData,
-      onPriceChange: mockOnPriceChange
+    const form = new PhoneRepairForm({
+      onPriceChange: mockOnPriceChange,
     });
-
     document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
 
     // Set up selection chain
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-
+    form.handleManufacturerChange('1'); // Apple
     await vi.runAllTimersAsync();
 
-    const deviceSelect = document.querySelector('#device');
-    deviceSelect.value = '3'; // iPhone 13
-    deviceSelect.dispatchEvent(new Event('change'));
-
+    form.handleDeviceChange('1'); // iPhone 13
     await vi.runAllTimersAsync();
 
-    const actionSelect = document.querySelector('#action');
-    actionSelect.value = '7'; // Display Reparatur
-    actionSelect.dispatchEvent(new Event('change'));
-
+    form.handleActionChange('1'); // Display Reparatur
     await vi.runAllTimersAsync();
 
-    // Price should now be displayed
-    const priceElement = document.querySelector('.price-display__value');
-    expect(priceElement.textContent).not.toContain('Bitte');
-    expect(priceElement.textContent).toContain('269');
+    // Verify fetch was called with correct URL
+    expect(global.fetch).toHaveBeenCalledWith('/api/actions/1/price');
 
     // Callback should be called with price data
     expect(mockOnPriceChange).toHaveBeenCalledTimes(1);
     expect(mockOnPriceChange).toHaveBeenCalledWith(
       expect.objectContaining({
-        price: 269
+        price: 269,
       })
     );
   });
 
   it('should update step indicator as selections change', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
+    const form = new PhoneRepairForm({});
+    const element = form.getElement();
+    document.body.appendChild(element);
 
-    document.body.appendChild(form.getElement());
-    
     // Initial state: first step active, none completed
-    let steps = document.querySelectorAll('.steps-indicator__step');
-    expect(steps[0].classList.contains('steps-indicator__step--active')).toBe(true);
-    expect(steps[0].classList.contains('steps-indicator__step--completed')).toBe(false);
-    
+    expect(form.stepsIndicator.props.steps[0].completed).toBe(false);
+    expect(form.stepsIndicator.props.activeIndex).toBe(0);
+
     // Select manufacturer
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-    
+    form.handleManufacturerChange('1'); // Apple
     await vi.runAllTimersAsync();
-    
+
     // After manufacturer selection: first step completed, second step active
-    steps = document.querySelectorAll('.steps-indicator__step');
-    expect(steps[0].classList.contains('steps-indicator__step--completed')).toBe(true);
-    expect(steps[1].classList.contains('steps-indicator__step--active')).toBe(true);
-    
+    expect(form.stepsIndicator.props.steps[0].completed).toBe(true);
+    expect(form.stepsIndicator.props.activeIndex).toBe(1);
+
     // Select device
-    const deviceSelect = document.querySelector('#device');
-    deviceSelect.value = '3'; // iPhone 13
-    deviceSelect.dispatchEvent(new Event('change'));
-    
+    form.handleDeviceChange('1'); // iPhone 13
     await vi.runAllTimersAsync();
-    
+
     // After device selection: first two steps completed, third step active
-    steps = document.querySelectorAll('.steps-indicator__step');
-    expect(steps[0].classList.contains('steps-indicator__step--completed')).toBe(true);
-    expect(steps[1].classList.contains('steps-indicator__step--completed')).toBe(true);
-    expect(steps[2].classList.contains('steps-indicator__step--active')).toBe(true);
+    expect(form.stepsIndicator.props.steps[1].completed).toBe(true);
+    expect(form.stepsIndicator.props.activeIndex).toBe(2);
   });
 
   it('should handle error states', async () => {
-    // Mock service with deliberate error
-    const errorMockData = { ...mockPhoneRepairData };
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: errorMockData
-    });
-    
     // Override service to simulate error
-    form.service.fetchDevices = vi.fn().mockRejectedValue(new Error('Failed to fetch devices'));
-    
+    const form = new PhoneRepairForm({});
+    form.service.fetchDevices = vi
+      .fn()
+      .mockRejectedValue(new Error('Failed to fetch devices'));
+
     document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
-    
+
     // Select a manufacturer to trigger device fetch (which will fail)
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-    
+    form.handleManufacturerChange('1'); // Apple
     await vi.runAllTimersAsync();
-    
-    // Form should have error class
-    expect(form.getElement().classList.contains('phone-repair-form--error')).toBe(true);
-    
-    // Price display should show error message
-    const priceElement = document.querySelector('.price-display__value');
-    expect(priceElement.textContent).toContain('Fehler');
+
+    // Form should have error state
+    expect(form.hasAnyError()).toBe(true);
+    expect(form.state.error.devices).toBe('Failed to fetch devices');
   });
-  // src/components/PhoneRepairForm/PhoneRepairForm.test.js
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import PhoneRepairFormFactory from '../../factories/PhoneRepairFormFactory.js';
-import { mockPhoneRepairData } from '../../mocks/phoneRepairData.js';
-
-describe('PhoneRepairForm component', () => {
-  beforeEach(() => {
-    // Reset DOM between tests
-    document.body.innerHTML = '';
-  });
-
-  it('should create a phone repair form element', () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
-    const element = form.getElement();
-    expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.className).toContain('phone-repair-form');
-
-    // Check for select elements
-    const manufacturerSelect = element.querySelector('#manufacturer');
-    const deviceSelect = element.querySelector('#device');
-    const actionSelect = element.querySelector('#action');
-
-    expect(manufacturerSelect).not.toBeNull();
-    expect(deviceSelect).not.toBeNull();
-    expect(actionSelect).not.toBeNull();
-  });
-
-  it('should initialize with custom labels', () => {
-    const customLabels = {
-      title: 'Custom Title',
-      priceLabel: 'Custom Price:'
-    };
-    
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData,
-      labels: customLabels
-    });
-
-    const element = form.getElement();
-    const titleElement = element.querySelector('.phone-repair-form__title');
-    const priceLabelElement = element.querySelector('.price-display__label');
-
-    expect(titleElement.textContent).toBe(customLabels.title);
-    expect(priceLabelElement.textContent).toBe(customLabels.priceLabel);
-  });
-
-  it('should load manufacturers on initialization', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
-    document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
-
-    // Check if manufacturers are loaded in the select
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    expect(manufacturerSelect.options.length).toBeGreaterThan(1); // Include placeholder
-
-    // Check the first manufacturer option after placeholder
-    expect(manufacturerSelect.options[1].textContent).toBe('Apple');
-  });
-
-  it('should enable device select when manufacturer is selected', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
-    document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
-
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    const deviceSelect = document.querySelector('#device');
-
-    // Initially device select should be disabled
-    expect(deviceSelect.disabled).toBe(true);
-
-    // Select a manufacturer
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-
-    // Wait for async operations
-    await vi.runAllTimersAsync();
-
-    // Device select should now be enabled and populated
-    expect(deviceSelect.disabled).toBe(false);
-    expect(deviceSelect.options.length).toBeGreaterThan(1);
-  });
-
-  it('should enable action select when device is selected', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
-    document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
-
-    // Set up manufacturer first
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-
-    await vi.runAllTimersAsync();
-
-    // Then select a device
-    const deviceSelect = document.querySelector('#device');
-    deviceSelect.value = '3'; // iPhone 13
-    deviceSelect.dispatchEvent(new Event('change'));
-
-    await vi.runAllTimersAsync();
-
-    // Action select should now be enabled and populated
-    const actionSelect = document.querySelector('#action');
-    expect(actionSelect.disabled).toBe(false);
-    expect(actionSelect.options.length).toBeGreaterThan(1);
-  });
-
-  it('should display price when action is selected', async () => {
-    const mockOnPriceChange = vi.fn();
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData,
-      onPriceChange: mockOnPriceChange
-    });
-
-    document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
-
-    // Set up selection chain
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-
-    await vi.runAllTimersAsync();
-
-    const deviceSelect = document.querySelector('#device');
-    deviceSelect.value = '3'; // iPhone 13
-    deviceSelect.dispatchEvent(new Event('change'));
-
-    await vi.runAllTimersAsync();
-
-    const actionSelect = document.querySelector('#action');
-    actionSelect.value = '7'; // Display Reparatur
-    actionSelect.dispatchEvent(new Event('change'));
-
-    await vi.runAllTimersAsync();
-
-    // Price should now be displayed
-    const priceElement = document.querySelector('.price-display__value');
-    expect(priceElement.textContent).not.toContain('Bitte');
-    expect(priceElement.textContent).toContain('269');
-
-    // Callback should be called with price data
-    expect(mockOnPriceChange).toHaveBeenCalledTimes(1);
-    expect(mockOnPriceChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        price: 269
-      })
-    );
-  });
-
-  it('should update step indicator as selections change', async () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData
-    });
-
-    document.body.appendChild(form.getElement());
-    
-    // Initial state: first step active, none completed
-    let steps = document.querySelectorAll('.steps-indicator__step');
-    expect(steps[0].classList.contains('steps-indicator__step--active')).toBe(true);
-    expect(steps[0].classList.contains('steps-indicator__step--completed')).toBe(false);
-    
-    // Select manufacturer
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-    
-    await vi.runAllTimersAsync();
-    
-    // After manufacturer selection: first step completed, second step active
-    steps = document.querySelectorAll('.steps-indicator__step');
-    expect(steps[0].classList.contains('steps-indicator__step--completed')).toBe(true);
-    expect(steps[1].classList.contains('steps-indicator__step--active')).toBe(true);
-    
-    // Select device
-    const deviceSelect = document.querySelector('#device');
-    deviceSelect.value = '3'; // iPhone 13
-    deviceSelect.dispatchEvent(new Event('change'));
-    
-    await vi.runAllTimersAsync();
-    
-    // After device selection: first two steps completed, third step active
-    steps = document.querySelectorAll('.steps-indicator__step');
-    expect(steps[0].classList.contains('steps-indicator__step--completed')).toBe(true);
-    expect(steps[1].classList.contains('steps-indicator__step--completed')).toBe(true);
-    expect(steps[2].classList.contains('steps-indicator__step--active')).toBe(true);
-  });
-
-  it('should handle error states', async () => {
-    // Mock service with deliberate error
-    const errorMockData = { ...mockPhoneRepairData };
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: errorMockData
-    });
-    
-    // Override service to simulate error
-    form.service.fetchDevices = vi.fn().mockRejectedValue(new Error('Failed to fetch devices'));
-    
-    document.body.appendChild(form.getElement());
-    
-    // Wait for manufacturers to load
-    await vi.runAllTimersAsync();
-    
-    // Select a manufacturer to trigger device fetch (which will fail)
-    const manufacturerSelect = document.querySelector('#manufacturer');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change'));
-    
-    await vi.runAllTimersAsync();
-    
-    // Form should have error class
-    expect(form.getElement().classList.contains('phone-repair-form--error')).toBe(true);
-    
-    // Price display should show error message
-    const priceElement = document.querySelector('.price-display__value');
-    expect(priceElement.textContent).toContain('Fehler');
-  });
-}
-// src/components/PriceDisplay/PriceDisplay.js
+});

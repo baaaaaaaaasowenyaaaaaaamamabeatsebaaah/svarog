@@ -3,9 +3,10 @@ import './PhoneRepairForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
-import FormGroup from '../FormGroup/FormGroup.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 import PhoneRepairService from '../../services/PhoneRepairService.js';
+import { Form, FormGroup, FormActions } from '../Form/index.js';
+import Button from '../Button/Button.js';
 
 /**
  * PhoneRepairForm component for selecting phone repair options and viewing prices
@@ -39,6 +40,7 @@ export default class PhoneRepairForm extends Component {
       servicePlaceholder: 'Zuerst Modell auswählen',
       initialPriceText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
       loadingPriceText: 'Preis wird geladen...',
+      submitButton: 'Anfrage absenden',
       ...labels,
     };
 
@@ -74,6 +76,9 @@ export default class PhoneRepairForm extends Component {
       },
     };
 
+    // Create child components
+    this.createChildComponents();
+
     // Create form element
     this.form = this.createFormElement();
 
@@ -82,37 +87,11 @@ export default class PhoneRepairForm extends Component {
   }
 
   /**
-   * Creates the form element
+   * Create the child components needed for the form
    * @private
-   * @returns {HTMLElement} The form element
    */
-  createFormElement() {
-    // Build class names
-    const classNames = this.createClassNames(
-      'phone-repair-form',
-      this.props.className,
-      {
-        'phone-repair-form--loading': this.isAnyLoading(),
-        'phone-repair-form--error': this.hasAnyError(),
-      }
-    );
-
-    // Create the main form element
-    const form = this.createElement('form', {
-      className: classNames,
-      events: {
-        submit: (e) => e.preventDefault(),
-      },
-    });
-
-    // Add title
-    const title = this.createElement('h2', {
-      className: 'phone-repair-form__title',
-      textContent: this.labels.title,
-    });
-    form.appendChild(title);
-
-    // Add step indicator
+  createChildComponents() {
+    // Create StepsIndicator
     this.stepsIndicator = new StepsIndicator({
       steps: [
         { name: this.labels.manufacturerStep, completed: false },
@@ -121,7 +100,6 @@ export default class PhoneRepairForm extends Component {
       ],
       activeIndex: 0,
     });
-    form.appendChild(this.stepsIndicator.getElement());
 
     // Create manufacturer select
     this.manufacturerSelect = new Select({
@@ -130,14 +108,6 @@ export default class PhoneRepairForm extends Component {
       placeholder: this.labels.manufacturerPlaceholder,
       onChange: (event, value) => this.handleManufacturerChange(value),
     });
-
-    // Add manufacturer form group
-    this.manufacturerGroup = new FormGroup({
-      labelText: this.labels.manufacturerLabel,
-      id: 'manufacturer',
-      fieldElement: this.manufacturerSelect.getElement(),
-    });
-    form.appendChild(this.manufacturerGroup.getElement());
 
     // Create device select
     this.deviceSelect = new Select({
@@ -148,14 +118,6 @@ export default class PhoneRepairForm extends Component {
       onChange: (event, value) => this.handleDeviceChange(value),
     });
 
-    // Add device form group
-    this.deviceGroup = new FormGroup({
-      labelText: this.labels.deviceLabel,
-      id: 'device',
-      fieldElement: this.deviceSelect.getElement(),
-    });
-    form.appendChild(this.deviceGroup.getElement());
-
     // Create action select
     this.actionSelect = new Select({
       id: 'action',
@@ -165,22 +127,119 @@ export default class PhoneRepairForm extends Component {
       onChange: (event, value) => this.handleActionChange(value),
     });
 
-    // Add action form group
-    this.actionGroup = new FormGroup({
-      labelText: this.labels.serviceLabel,
-      id: 'action',
-      fieldElement: this.actionSelect.getElement(),
-    });
-    form.appendChild(this.actionGroup.getElement());
-
-    // Add price display
+    // Create price display
     this.priceDisplay = new PriceDisplay({
       label: this.labels.priceLabel,
       value: this.labels.initialPriceText,
     });
-    form.appendChild(this.priceDisplay.getElement());
 
-    return form;
+    // Create submit button
+    this.submitButton = new Button({
+      text: this.labels.submitButton,
+      type: 'submit',
+      variant: 'primary',
+      disabled: true, // Initially disabled until a price is selected
+    });
+  }
+
+  /**
+   * Creates the form element using Form component
+   * @private
+   * @returns {HTMLElement} The form element
+   */
+  createFormElement() {
+    // Create form groups
+    const manufacturerGroup = new FormGroup({
+      label: this.labels.manufacturerLabel,
+      field: this.manufacturerSelect,
+      id: 'manufacturer',
+    });
+
+    const deviceGroup = new FormGroup({
+      label: this.labels.deviceLabel,
+      field: this.deviceSelect,
+      id: 'device',
+    });
+
+    const actionGroup = new FormGroup({
+      label: this.labels.serviceLabel,
+      field: this.actionSelect,
+      id: 'action',
+    });
+
+    // Create form actions with submit button
+    const formActions = new FormActions({
+      children: this.submitButton,
+    });
+
+    // Build class names
+    const className = this.createClassNames(
+      'phone-repair-form',
+      this.props.className
+    );
+
+    // Create the main form component
+    const formContainer = document.createElement('div');
+    formContainer.className = className;
+
+    // Add title
+    const title = this.createElement('h2', {
+      className: 'phone-repair-form__title',
+      textContent: this.labels.title,
+    });
+    formContainer.appendChild(title);
+
+    // Add steps indicator
+    formContainer.appendChild(this.stepsIndicator.getElement());
+
+    // Create main form using Form component
+    this.mainForm = new Form({
+      className: 'phone-repair-form__main-form',
+      children: [
+        manufacturerGroup,
+        deviceGroup,
+        actionGroup,
+        this.priceDisplay,
+        formActions,
+      ],
+      onSubmit: (event, formData, isValid) =>
+        this.handleSubmit(event, formData, isValid),
+    });
+
+    formContainer.appendChild(this.mainForm.getElement());
+
+    // Add loading/error class handlers
+    this.updateFormState(formContainer);
+
+    return formContainer;
+  }
+
+  /**
+   * Handle form submission
+   * @private
+   * @param {Event} event - The submit event
+   * @param {Object} formData - The form data
+   * @param {boolean} isValid - Whether the form is valid
+   */
+  handleSubmit(event, formData, isValid) {
+    if (!isValid || !this.state.currentPrice) {
+      return;
+    }
+
+    // Create full submission data with all relevant information
+    const submissionData = {
+      ...formData,
+      manufacturerId: this.state.selectedManufacturer,
+      deviceId: this.state.selectedDevice,
+      actionId: this.state.selectedAction,
+      price: this.state.currentPrice.price,
+      // Include any additional data from the form that might be useful
+    };
+
+    // Call onSubmit callback if provided
+    if (typeof this.props.onSubmit === 'function') {
+      this.props.onSubmit(event, submissionData);
+    }
   }
 
   /**
@@ -202,20 +261,17 @@ export default class PhoneRepairForm extends Component {
   }
 
   /**
-   * Update form state based on selection changes
+   * Update form state based on loading and error conditions
    * @private
+   * @param {HTMLElement} container - The form container element to update classes on
    */
-  updateFormState() {
-    // Update loading states
-    const formElement = this.getElement();
-    formElement.classList.toggle(
+  updateFormState(container = this.form) {
+    // Apply loading and error classes
+    container.classList.toggle(
       'phone-repair-form--loading',
       this.isAnyLoading()
     );
-    formElement.classList.toggle(
-      'phone-repair-form--error',
-      this.hasAnyError()
-    );
+    container.classList.toggle('phone-repair-form--error', this.hasAnyError());
 
     // Update step indicator
     const steps = [
@@ -234,6 +290,11 @@ export default class PhoneRepairForm extends Component {
 
     // Update steps indicator
     this.stepsIndicator.update({ steps, activeIndex });
+
+    // Update submit button state - only enable if we have a price
+    if (this.submitButton) {
+      this.submitButton.setDisabled(!this.state.currentPrice);
+    }
   }
 
   /**
