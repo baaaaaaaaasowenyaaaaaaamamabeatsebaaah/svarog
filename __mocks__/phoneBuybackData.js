@@ -685,7 +685,8 @@ export const mockPhoneBuybackApi = {
 export const setupPhoneBuybackMocks = () => {
   // Mock fetch for tests - using window instead of global in browser environments
   const mockFetch = (url) => {
-    if (url === '/api/buyback/manufacturers') {
+    // Changed API endpoints to match the pattern used in phoneRepairData.js
+    if (url === '/api/manufacturers') {
       return Promise.resolve({
         ok: true,
         json: () => Promise.resolve(mockPhoneBuybackData.manufacturers),
@@ -693,9 +694,7 @@ export const setupPhoneBuybackMocks = () => {
     }
 
     // Match manufacturers/{id}/devices
-    const deviceMatch = url.match(
-      /\/api\/buyback\/manufacturers\/(\d+)\/devices/
-    );
+    const deviceMatch = url.match(/\/api\/manufacturers\/(\d+)\/devices/);
     if (deviceMatch) {
       const manufacturerId = deviceMatch[1];
       return mockPhoneBuybackApi
@@ -711,9 +710,7 @@ export const setupPhoneBuybackMocks = () => {
     }
 
     // Match devices/{id}/conditions
-    const conditionMatch = url.match(
-      /\/api\/buyback\/devices\/(\d+)\/conditions/
-    );
+    const conditionMatch = url.match(/\/api\/devices\/(\d+)\/conditions/);
     if (conditionMatch) {
       const deviceId = conditionMatch[1];
       return mockPhoneBuybackApi
@@ -728,8 +725,8 @@ export const setupPhoneBuybackMocks = () => {
         }));
     }
 
-    // Match conditions/{id}/price
-    const priceMatch = url.match(/\/api\/buyback\/conditions\/(\d+)\/price/);
+    // Match conditions/{id}/price - changed to match the pattern in phoneRepairData.js
+    const priceMatch = url.match(/\/api\/conditions\/(\d+)\/price/);
     if (priceMatch) {
       const conditionId = priceMatch[1];
       return mockPhoneBuybackApi

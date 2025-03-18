@@ -1,0 +1,61 @@
+/* src/components/PriceDisplay/PriceDisplay.css */
+.price-display {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4, 16px);
+  margin-top: var(--space-3, 12px);
+  background-color: var(--price-display-bg, var(--color-gray-100, #f8f9fa));
+  border-radius: var(--border-radius-md, 4px);
+  border: var(--price-display-border, 1px solid var(--color-gray-200, #e9ecef));
+  transition: all 0.3s ease;
+}
+
+.price-display__label {
+  font-weight: var(--font-weight-bold, 700);
+  margin-right: var(--space-3, 12px);
+  color: var(--color-text, #212529);
+  font-size: var(--font-size-base, 16px);
+}
+
+.price-display__value {
+  color: var(--price-display-color, var(--color-primary, #3182ce));
+  font-weight: var(--font-weight-bold, 700);
+  font-size: var(--font-size-xl, 20px);
+  display: flex;
+  align-items: center;
+}
+
+/* Highlighted state */
+.price-display--highlighted {
+  background-color: var(--color-primary-light, #ebf8ff);
+  border-color: var(--color-primary, #3182ce);
+}
+
+/* Loading state */
+.price-display--loading .price-display__value {
+  color: var(--color-text-light, #6c757d);
+  font-style: italic;
+}
+
+/* Loading indicator */
+.price-display__loading-indicator {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-primary, #3182ce);
+  border-radius: 50%;
+  animation: price-display-spin 1s linear infinite;
+  margin-left: var(--space-2, 8px);
+}
+
+@keyframes price-display-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error state */
+.price-display--error .price-display__value {
+  color: var(--color-danger, #dc3545);
+}

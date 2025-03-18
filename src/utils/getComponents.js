@@ -675,6 +675,32 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'StepsIndicator',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/StepsIndicator/StepsIndicator.stories.js'
+            ).then((m) => m.Default),
+        },
+      ],
+    },
+
+    {
+      name: 'PriceDisplay',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+      ],
+    },
   ];
 
   return components;

@@ -1,0 +1,99 @@
+/* src/components/StepsIndicator/StepsIndicator.css */
+.steps-indicator {
+  display: flex;
+  margin-bottom: var(--space-4, 16px);
+  padding-bottom: var(--space-3, 12px);
+  border-bottom: 1px solid var(--color-gray-200, #e9ecef);
+}
+
+.steps-indicator__step {
+  flex: 1;
+  text-align: center;
+  padding: var(--space-2, 8px);
+  position: relative;
+  color: var(--color-gray-500, #adb5bd);
+}
+
+.steps-indicator__step::after {
+  content: '';
+  position: absolute;
+  height: 2px;
+  background-color: var(--color-gray-300, #dee2e6);
+  width: 100%;
+  left: 50%;
+  bottom: -1px;
+  z-index: 1;
+}
+
+.steps-indicator__step:last-child::after {
+  display: none;
+}
+
+.steps-indicator__step--active {
+  color: var(--color-primary, #3182ce);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.steps-indicator__step--active::after {
+  background-color: var(--color-primary, #3182ce);
+}
+
+.steps-indicator__step--completed {
+  color: var(--color-success, #48bb78);
+}
+
+.steps-indicator__step--completed::after {
+  background-color: var(--color-success, #48bb78);
+}
+
+.steps-indicator__step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--color-gray-200, #e9ecef);
+  color: var(--color-gray-600, #6c757d);
+  margin-bottom: var(--space-1, 4px);
+  font-size: var(--font-size-sm, 14px);
+  font-weight: var(--font-weight-bold, 700);
+}
+
+.steps-indicator__step--active .steps-indicator__step-number {
+  background-color: var(--color-primary, #3182ce);
+  color: white;
+}
+
+.steps-indicator__step--completed .steps-indicator__step-number {
+  background-color: var(--color-success, #48bb78);
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .steps-indicator {
+    flex-direction: column;
+    gap: var(--space-2, 8px);
+  }
+
+  .steps-indicator__step {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    padding: var(--space-1, 4px);
+    display: flex;
+  }
+
+  .steps-indicator__step-number {
+    margin-bottom: 0;
+    margin-right: var(--space-2, 8px);
+  }
+
+  .steps-indicator__step::after {
+    width: 2px;
+    height: 100%;
+    left: 12px;
+    bottom: -50%;
+  }
+}
