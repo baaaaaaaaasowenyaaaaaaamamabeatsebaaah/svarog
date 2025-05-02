@@ -51,4 +51,20 @@
   --color-warning-dark: #975a16;
   --color-danger-light: #fed7d7;
   --color-danger-dark: #c53030;
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+  --color-initial: initial;
+  --color-unset: unset;
+  --color-revert: revert;
+  --color-revert-layer: revert-layer;
+  --color-clip: clip;
+  --color-visibility: visible;
+  --color-hidden: hidden;
+  --color-scroll: scroll;
+  --color-auto: auto;
+  --color-ellipsis: ellipsis;
+  --color-clip: clip;
+  --color-clip-path: path;
 }

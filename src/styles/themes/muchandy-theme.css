@@ -1,8 +1,8 @@
 /* src/styles/themes/muchandy-theme.css */
 .muchandy-theme {
   /* Typography */
-  --font-family-primary: 'Myriad Pro', sans-serif;
-  --font-family-heading: 'Myriad Pro', sans-serif;
+  --font-family-primary: 'Montserrat', sans-serif;
+  --font-family-heading: 'Montserrat', sans-serif;
 
   /* Colors - Brand */
   --color-brand-primary: #ff7f50;
@@ -13,10 +13,10 @@
   --color-brand-secondary-light: #7cc0ed;
 
   /* Component: Button */
-  --button-bg: var(--color-brand-primary);
-  --button-color: var(--color-text-white);
-  --button-border: 1px solid var(--color-brand-primary);
-  --button-radius: var(--border-radius-lg);
+  --button-bg: var(--color-transparent);
+  --button-color: var(--color-brand-primary);
+  --button-border: 2px solid var(--color-brand-primary);
+  --button-radius: 0;
   --button-hover-bg: var(--color-brand-primary-dark);
   --button-active-bg: var(--color-brand-primary-dark);
   --button-disabled-bg: var(--color-gray-400);
@@ -27,8 +27,10 @@
   --button-transition: var(--transition-normal);
   --button-primary-bg: var(--color-brand-primary);
   --button-primary-color: var(--color-text-white);
+  --buton-primary-hover-bg: var(--color-brand-primary-dark);
   --button-secondary-bg: var(--color-brand-secondary);
   --button-secondary-color: var(--color-text-white);
+  --button-secondary-hover-bg: var(--color-brand-secondary-dark);
   --button-text-color: var(--color-brand-primary);
   --button-text-hover-color: var(--color-brand-primary-dark);
   --button-padding-sm: var(--space-1) var(--space-3);
@@ -276,4 +278,193 @@
 .muchandy-theme .form-section__title {
   color: var(--color-brand-primary);
   font-weight: var(--font-weight-bold);
+
+  /* TODO: Define value for 'border-radius-default' in muchandy theme */
+  --border-radius-default: inherit;
+  /* TODO: Define value for 'box-shadow-sm' in muchandy theme */
+  --box-shadow-sm: inherit;
+  /* TODO: Define value for 'button-active-border-color' in muchandy theme */
+  --button-active-border-color: inherit;
+  /* TODO: Define value for 'button-active-shadow' in muchandy theme */
+  --button-active-shadow: inherit;
+  /* TODO: Define value for 'button-active-transform' in muchandy theme */
+  --button-active-transform: inherit;
+  /* TODO: Define value for 'button-danger-bg' in muchandy theme */
+  --button-danger-bg: inherit;
+  /* TODO: Define value for 'button-danger-color' in muchandy theme */
+  --button-danger-color: inherit;
+  /* TODO: Define value for 'button-danger-hover-bg' in muchandy theme */
+  --button-danger-hover-bg: inherit;
+  /* TODO: Define value for 'button-disabled-border-color' in muchandy theme */
+  --button-disabled-border-color: inherit;
+  /* TODO: Define value for 'button-disabled-color' in muchandy theme */
+  --button-disabled-color: inherit;
+  /* TODO: Define value for 'button-disabled-opacity' in muchandy theme */
+  --button-disabled-opacity: inherit;
+  /* TODO: Define value for 'button-focus-shadow' in muchandy theme */
+  --button-focus-shadow: inherit;
+  /* TODO: Define value for 'button-hover-border-color' in muchandy theme */
+  --button-hover-border-color: inherit;
+  /* TODO: Define value for 'button-hover-color' in muchandy theme */
+  --button-hover-color: inherit;
+  /* TODO: Define value for 'button-hover-shadow' in muchandy theme */
+  --button-hover-shadow: inherit;
+  /* TODO: Define value for 'button-icon-margin' in muchandy theme */
+  --button-icon-margin: inherit;
+  /* TODO: Define value for 'button-icon-radius' in muchandy theme */
+  --button-icon-radius: inherit;
+  /* TODO: Define value for 'button-icon-size' in muchandy theme */
+  --button-icon-size: inherit;
+  /* TODO: Define value for 'button-icon-size-lg' in muchandy theme */
+  --button-icon-size-lg: inherit;
+  /* TODO: Define value for 'button-icon-size-sm' in muchandy theme */
+  --button-icon-size-sm: inherit;
+  /* TODO: Define value for 'button-outlined-color' in muchandy theme */
+  --button-outlined-color: inherit;
+  /* TODO: Define value for 'button-outlined-hover-bg' in muchandy theme */
+  --button-outlined-hover-bg: inherit;
+  /* TODO: Define value for 'button-outlined-hover-color' in muchandy theme */
+  --button-outlined-hover-color: inherit;
+  /* TODO: Define value for 'button-primary-active-bg' in muchandy theme */
+  --button-primary-active-bg: inherit;
+  /* TODO: Define value for 'button-primary-hover-bg' in muchandy theme */
+  --button-primary-hover-bg: inherit;
+  /* TODO: Define value for 'button-secondary-active-bg' in muchandy theme */
+  --button-secondary-active-bg: inherit;
+  /* TODO: Define value for 'button-secondary-hover-bg' in muchandy theme */
+  --button-secondary-hover-bg: inherit;
+  /* TODO: Define value for 'button-success-bg' in muchandy theme */
+  --button-success-bg: inherit;
+  /* TODO: Define value for 'button-success-color' in muchandy theme */
+  --button-success-color: inherit;
+  /* TODO: Define value for 'button-success-hover-bg' in muchandy theme */
+  --button-success-hover-bg: inherit;
+  /* TODO: Define value for 'button-text-padding' in muchandy theme */
+  --button-text-padding: inherit;
+  /* TODO: Define value for 'checkbox-valid-color' in muchandy theme */
+  --checkbox-valid-color: inherit;
+  /* TODO: Define value for 'color-text-muted' in muchandy theme */
+  --color-text-muted: inherit;
+  /* TODO: Define value for 'color-yellow' in muchandy theme */
+  --color-yellow: inherit;
+  /* TODO: Define value for 'font-family-base' in muchandy theme */
+  --font-family-base: inherit;
+  /* TODO: Define value for 'font-size-14' in muchandy theme */
+  --font-size-14: inherit;
+  /* TODO: Define value for 'font-size-16' in muchandy theme */
+  --font-size-16: inherit;
+  /* TODO: Define value for 'font-size-18' in muchandy theme */
+  --font-size-18: inherit;
+  /* TODO: Define value for 'font-size-20' in muchandy theme */
+  --font-size-20: inherit;
+  /* TODO: Define value for 'font-size-24' in muchandy theme */
+  --font-size-24: inherit;
+  /* TODO: Define value for 'font-size-32' in muchandy theme */
+  --font-size-32: inherit;
+  /* TODO: Define value for 'header-bg' in muchandy theme */
+  --header-bg: inherit;
+  /* TODO: Define value for 'header-bg-scrolled' in muchandy theme */
+  --header-bg-scrolled: inherit;
+  /* TODO: Define value for 'header-branding-gap' in muchandy theme */
+  --header-branding-gap: inherit;
+  /* TODO: Define value for 'header-color' in muchandy theme */
+  --header-color: inherit;
+  /* TODO: Define value for 'header-height' in muchandy theme */
+  --header-height: inherit;
+  /* TODO: Define value for 'header-height-mobile' in muchandy theme */
+  --header-height-mobile: inherit;
+  /* TODO: Define value for 'header-max-width' in muchandy theme */
+  --header-max-width: inherit;
+  /* TODO: Define value for 'header-padding' in muchandy theme */
+  --header-padding: inherit;
+  /* TODO: Define value for 'header-padding-mobile' in muchandy theme */
+  --header-padding-mobile: inherit;
+  /* TODO: Define value for 'header-shadow' in muchandy theme */
+  --header-shadow: inherit;
+  /* TODO: Define value for 'header-shadow-scrolled' in muchandy theme */
+  --header-shadow-scrolled: inherit;
+  /* TODO: Define value for 'header-title-size' in muchandy theme */
+  --header-title-size: inherit;
+  /* TODO: Define value for 'header-title-size-mobile' in muchandy theme */
+  --header-title-size-mobile: inherit;
+  /* TODO: Define value for 'header-title-weight' in muchandy theme */
+  --header-title-weight: inherit;
+  /* TODO: Define value for 'header-transition' in muchandy theme */
+  --header-transition: inherit;
+  /* TODO: Define value for 'header-transparent-color' in muchandy theme */
+  --header-transparent-color: inherit;
+  /* TODO: Define value for 'header-z-index' in muchandy theme */
+  --header-z-index: inherit;
+  /* TODO: Define value for 'input-valid-color' in muchandy theme */
+  --input-valid-color: inherit;
+  /* TODO: Define value for 'logo-height-tablet' in muchandy theme */
+  --logo-height-tablet: inherit;
+  /* TODO: Define value for 'logo-hover-opacity' in muchandy theme */
+  --logo-hover-opacity: inherit;
+  /* TODO: Define value for 'logo-max-height' in muchandy theme */
+  --logo-max-height: inherit;
+  /* TODO: Define value for 'logo-max-width' in muchandy theme */
+  --logo-max-width: inherit;
+  /* TODO: Define value for 'logo-width-tablet' in muchandy theme */
+  --logo-width-tablet: inherit;
+  /* TODO: Define value for 'nav-active-font-weight' in muchandy theme */
+  --nav-active-font-weight: inherit;
+  /* TODO: Define value for 'nav-burger-color' in muchandy theme */
+  --nav-burger-color: inherit;
+  /* TODO: Define value for 'nav-burger-size' in muchandy theme */
+  --nav-burger-size: inherit;
+  /* TODO: Define value for 'nav-dropdown-border' in muchandy theme */
+  --nav-dropdown-border: inherit;
+  /* TODO: Define value for 'nav-dropdown-link-padding' in muchandy theme */
+  --nav-dropdown-link-padding: inherit;
+  /* TODO: Define value for 'nav-dropdown-padding' in muchandy theme */
+  --nav-dropdown-padding: inherit;
+  /* TODO: Define value for 'nav-dropdown-radius' in muchandy theme */
+  --nav-dropdown-radius: inherit;
+  /* TODO: Define value for 'nav-dropdown-shadow' in muchandy theme */
+  --nav-dropdown-shadow: inherit;
+  /* TODO: Define value for 'nav-focus-shadow' in muchandy theme */
+  --nav-focus-shadow: inherit;
+  /* TODO: Define value for 'nav-font-size' in muchandy theme */
+  --nav-font-size: inherit;
+  /* TODO: Define value for 'nav-item-spacing' in muchandy theme */
+  --nav-item-spacing: inherit;
+  /* TODO: Define value for 'nav-line-height' in muchandy theme */
+  --nav-line-height: inherit;
+  /* TODO: Define value for 'nav-link-padding' in muchandy theme */
+  --nav-link-padding: inherit;
+  /* TODO: Define value for 'nav-link-radius' in muchandy theme */
+  --nav-link-radius: inherit;
+  /* TODO: Define value for 'nav-link-transition' in muchandy theme */
+  --nav-link-transition: inherit;
+  /* TODO: Define value for 'nav-mobile-bg' in muchandy theme */
+  --nav-mobile-bg: inherit;
+  /* TODO: Define value for 'nav-mobile-item-border' in muchandy theme */
+  --nav-mobile-item-border: inherit;
+  /* TODO: Define value for 'nav-mobile-link-padding' in muchandy theme */
+  --nav-mobile-link-padding: inherit;
+  /* TODO: Define value for 'nav-mobile-max-height' in muchandy theme */
+  --nav-mobile-max-height: inherit;
+  /* TODO: Define value for 'nav-mobile-padding' in muchandy theme */
+  --nav-mobile-padding: inherit;
+  /* TODO: Define value for 'nav-mobile-radius' in muchandy theme */
+  --nav-mobile-radius: inherit;
+  /* TODO: Define value for 'nav-mobile-shadow' in muchandy theme */
+  --nav-mobile-shadow: inherit;
+  /* TODO: Define value for 'nav-mobile-submenu-bg' in muchandy theme */
+  --nav-mobile-submenu-bg: inherit;
+  /* TODO: Define value for 'nav-submenu-indent' in muchandy theme */
+  --nav-submenu-indent: inherit;
+  /* TODO: Define value for 'price-display-bg' in muchandy theme */
+  --price-display-bg: inherit;
+  /* TODO: Define value for 'price-display-border' in muchandy theme */
+  --price-display-border: inherit;
+  /* TODO: Define value for 'price-display-color' in muchandy theme */
+  --price-display-color: inherit;
+  /* TODO: Define value for 'section-bg-minor' in muchandy theme */
+  --section-bg-minor: inherit;
+  /* TODO: Define value for 'section-color-minor' in muchandy theme */
+  --section-color-minor: inherit;
+  /* TODO: Define value for 'select-valid-color' in muchandy theme */
+  --select-valid-color: inherit;
 }

@@ -20,7 +20,11 @@
     "prestart": "npm run generate-themes",
     "prebuild": "npm run generate-themes",
     "check-stories": "node scripts/check-stories.js",
-    "update-stories": "node scripts/update-stories.js"
+    "update-stories": "node scripts/update-stories.js",
+    "extract-css-vars": "node scripts/extract-css-variables.js",
+    "analyze-css-vars": "node scripts/analyze-css-variables.js",
+    "analyze-css-vars:dry": "node scripts/analyze-css-variables.js --dry-run",
+    "analyze-css-vars:suggest": "node scripts/analyze-css-variables.js --auto-suggest"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
