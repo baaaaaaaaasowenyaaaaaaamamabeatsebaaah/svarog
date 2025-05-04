@@ -27,24 +27,28 @@ const onStorySelect = (story) => {
   story
     .module()
     .then((module) => {
-      const storyComponent = module();
-      stage.setComponent(storyComponent);
+      console.log('Story module loaded:', module);
+      const storyFunction = module();
+      console.log('Story function result:', storyFunction);
 
-      // Remember the last viewed story in localStorage
-      try {
-        localStorage.setItem(
-          'svarog-storybook-last-story',
-          JSON.stringify({
-            name: story.name,
-          })
-        );
-      } catch (error) {
-        console.debug('Could not save story to localStorage', error);
+      // Check what we got from the story
+      if (storyFunction && typeof storyFunction.getElement === 'function') {
+        console.log('Story returned component with getElement');
+        stage.setComponent(storyFunction);
+      } else if (storyFunction instanceof HTMLElement) {
+        console.log('Story returned HTMLElement');
+        stage.setComponent(storyFunction);
+      } else {
+        console.error('Story did not return a valid component', storyFunction);
+        const errorElement = document.createElement('div');
+        errorElement.style.padding = '20px';
+        errorElement.style.color = '#dc3545';
+        errorElement.innerHTML = `<h3>Invalid Story Component</h3><p>The story must return either an HTMLElement or an object with a getElement() method.</p>`;
+        stage.setComponent(errorElement);
       }
     })
     .catch((error) => {
       console.error('Error loading story module', error);
-      // Show an error state in the stage
       const errorElement = document.createElement('div');
       errorElement.style.padding = '20px';
       errorElement.style.color = '#dc3545';

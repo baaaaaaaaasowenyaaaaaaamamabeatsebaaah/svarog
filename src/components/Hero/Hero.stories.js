@@ -7,16 +7,17 @@ export default {
 };
 
 export const Default = () => {
-  return new Hero({
+  const hero = new Hero({
     title: 'Welcome to Svarog',
     subtitle: 'Build amazing web applications with our component library',
     ctaText: 'Get Started',
     ctaLink: '/docs',
   });
+  return hero.getElement();
 };
 
 export const WithBackground = () => {
-  return new Hero({
+  const hero = new Hero({
     title: 'Create Beautiful Websites',
     subtitle: 'Modern components for modern web development',
     ctaText: 'Explore Components',
@@ -24,45 +25,50 @@ export const WithBackground = () => {
     backgroundImage:
       'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80',
   });
+  return hero.getElement();
 };
 
 export const LeftAligned = () => {
-  return new Hero({
+  const hero = new Hero({
     title: 'Left Aligned Hero',
     subtitle: 'This hero section is aligned to the left',
     ctaText: 'Learn More',
     ctaLink: '/about',
     align: 'left',
   });
+  return hero.getElement();
 };
 
 export const RightAligned = () => {
-  return new Hero({
+  const hero = new Hero({
     title: 'Right Aligned Hero',
     subtitle: 'This hero section is aligned to the right',
     ctaText: 'Contact Us',
     ctaLink: '/contact',
     align: 'right',
   });
+  return hero.getElement();
 };
 
 export const WithCallbackAction = () => {
-  return new Hero({
+  const hero = new Hero({
     title: 'Interactive Hero',
     subtitle: 'Click the button to see an alert',
     ctaText: 'Click Me',
     onCtaClick: () => alert('Button clicked!'),
   });
+  return hero.getElement();
 };
 
 export const MinimalHero = () => {
-  return new Hero({
+  const hero = new Hero({
     title: 'Simple Hero Section',
   });
+  return hero.getElement();
 };
 
 export const WithLongContent = () => {
-  return new Hero({
+  const hero = new Hero({
     title: 'Discover the Power of Modern Web Development',
     subtitle:
       "Our comprehensive component library provides everything you need to build stunning, responsive web applications. From basic UI elements to complex interactive components, we've got you covered.",
@@ -71,4 +77,5 @@ export const WithLongContent = () => {
     backgroundImage:
       'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=80',
   });
+  return hero.getElement();
 };

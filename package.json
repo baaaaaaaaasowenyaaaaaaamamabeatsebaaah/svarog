@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "generate-themes": "node scripts/getThemeNames.js > themeNames.json",
-    "start": "npm run generate-themes && node scripts/webpack-start.js",
-    "build": "webpack --config webpack.config.js --mode production",
+    "dev": "npm run generate-themes && node scripts/webpack-start.js",
+    "start": "node server.mjs",
+    "build": "npm run generate-themes && webpack --config .storybook/webpack.config.js --mode production",
+    "build:lib": "webpack --config webpack.config.js --mode production",
     "watch": "webpack --config webpack.config.js --mode development --watch",
     "lint": "eslint \"src/**/*.js\" --quiet",
     "format": "prettier --write \"src/**/*.{js,css}\"",
@@ -17,7 +19,7 @@
     "validate-themes": "node scripts/validateThemes.js",
     "create-component": "node scripts/create-component.js",
     "ci-check": "node scripts/ci-check.js",
-    "prestart": "npm run generate-themes",
+    "prestart": "echo 'Starting production server...'",
     "prebuild": "npm run generate-themes",
     "check-stories": "node scripts/check-stories.js",
     "update-stories": "node scripts/update-stories.js",
@@ -25,6 +27,9 @@
     "analyze-css-vars": "node scripts/analyze-css-variables.js",
     "analyze-css-vars:dry": "node scripts/analyze-css-variables.js --dry-run",
     "analyze-css-vars:suggest": "node scripts/analyze-css-variables.js --auto-suggest"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
@@ -41,6 +46,7 @@
     "html-webpack-plugin": "^5.6.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.7",
+    "mini-css-extract-plugin": "^2.9.2",
     "prettier": "^3.5.3",
     "style-loader": "^4.0.0",
     "vite": "^4.5.0",
