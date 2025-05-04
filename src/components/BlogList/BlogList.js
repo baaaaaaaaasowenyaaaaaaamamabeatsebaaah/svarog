@@ -36,7 +36,7 @@ export default class BlogList extends Component {
     // Create grid for blog cards
     const grid = new Grid({
       columns: columns,
-      gap: 'medium',
+      gap: '1rem',
       className: 'blog-list__grid',
     });
 
@@ -53,7 +53,7 @@ export default class BlogList extends Component {
           categories: post.categories,
         });
 
-        grid.addItem(blogCard.getElement());
+        grid.appendChild(blogCard.getElement());
       });
     } else {
       // Show no posts message
@@ -62,10 +62,14 @@ export default class BlogList extends Component {
         textContent: 'No posts found.',
       });
 
-      grid.addItem(noPostsElement);
+      grid.appendChild(noPostsElement);
     }
 
     container.appendChild(grid.getElement());
     return container;
+  }
+
+  getElement() {
+    return this.element;
   }
 }

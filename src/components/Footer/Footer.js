@@ -91,4 +91,8 @@ export default class Footer extends Component {
     footerElement.appendChild(container);
     return footerElement;
   }
+
+  getElement() {
+    return this.element;
+  }
 }
