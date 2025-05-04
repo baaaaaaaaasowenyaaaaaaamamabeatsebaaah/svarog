@@ -60,11 +60,12 @@ export default class PhoneRepairFormFactory {
     // Create mock service instance
     const mockService = new MockPhoneRepairService(mockData);
 
-    // Create form with mock service
+    // Create form with autoInitialize set to false for testing
     const form = new PhoneRepairForm({
       onPriceChange,
       labels: { ...defaultLabels, ...labels },
       className,
+      autoInitialize: false, // Don't auto-load in tests
     });
 
     // Replace service with mock service

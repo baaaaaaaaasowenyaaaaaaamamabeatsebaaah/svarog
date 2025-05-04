@@ -115,11 +115,19 @@ export const WithFallback = () => {
     sources: {
       default: 'invalid-path.svg',
     },
-    fallbackPath: svarogSvg,
+    fallbackPath: '/assets/images/fallback-logo.svg',
     alt: 'Fallback Logo',
   });
 
-  return logo.getElement();
+  const container = document.createElement('div');
+  const description = document.createElement('p');
+  description.textContent =
+    'This logo uses an invalid path, so it falls back to the fallback SVG:';
+  description.style.marginBottom = '10px';
+  container.appendChild(description);
+  container.appendChild(logo.getElement());
+
+  return container;
 };
 
 export const WithClickHandler = () => {

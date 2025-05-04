@@ -12,7 +12,7 @@ export default {
     path: path.resolve(__dirname, 'dist'),
     clean: true,
     library: {
-      name: 'svarog',
+      name: 'svarog-ui',
       type: 'umd',
       export: 'default',
     },

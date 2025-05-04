@@ -1,5 +1,4 @@
 // src/utils/getComponents.js
-// Updated with new Logo stories
 
 export const getComponents = () => {
   const components = [
@@ -1047,6 +1046,312 @@ export const getComponents = () => {
             import(
               '../components/ConditionSelector/ConditionSelector.stories.js'
             ).then((m) => m.Default),
+        },
+      ],
+    },
+
+    {
+      name: 'BlogCard',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithoutImage',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithoutImage
+            ),
+        },
+        {
+          name: 'WithoutAuthor',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithoutAuthor
+            ),
+        },
+        {
+          name: 'WithLongExcerpt',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithLongExcerpt
+            ),
+        },
+        {
+          name: 'WithManyCategories',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithManyCategories
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'BlogList',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithoutTitle',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.WithoutTitle
+            ),
+        },
+        {
+          name: 'EmptyState',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.EmptyState
+            ),
+        },
+        {
+          name: 'TwoColumns',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.TwoColumns
+            ),
+        },
+        {
+          name: 'SingleColumn',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.SingleColumn
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'BlogDetail',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithoutImage',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.WithoutImage
+            ),
+        },
+        {
+          name: 'MinimalContent',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.MinimalContent
+            ),
+        },
+        {
+          name: 'LongContent',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.LongContent
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'Header',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Header/Header.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithoutLogo',
+          module: () =>
+            import('../components/Header/Header.stories.js').then(
+              (m) => m.WithoutLogo
+            ),
+        },
+        {
+          name: 'WithoutNavigation',
+          module: () =>
+            import('../components/Header/Header.stories.js').then(
+              (m) => m.WithoutNavigation
+            ),
+        },
+        {
+          name: 'MinimalHeader',
+          module: () =>
+            import('../components/Header/Header.stories.js').then(
+              (m) => m.MinimalHeader
+            ),
+        },
+        {
+          name: 'WithManyNavItems',
+          module: () =>
+            import('../components/Header/Header.stories.js').then(
+              (m) => m.WithManyNavItems
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'Footer',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Footer/Footer.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'MinimalFooter',
+          module: () =>
+            import('../components/Footer/Footer.stories.js').then(
+              (m) => m.MinimalFooter
+            ),
+        },
+        {
+          name: 'WithLinksOnly',
+          module: () =>
+            import('../components/Footer/Footer.stories.js').then(
+              (m) => m.WithLinksOnly
+            ),
+        },
+        {
+          name: 'WithSocialOnly',
+          module: () =>
+            import('../components/Footer/Footer.stories.js').then(
+              (m) => m.WithSocialOnly
+            ),
+        },
+        {
+          name: 'ExtensiveFooter',
+          module: () =>
+            import('../components/Footer/Footer.stories.js').then(
+              (m) => m.ExtensiveFooter
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'Hero',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Hero/Hero.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'WithBackground',
+          module: () =>
+            import('../components/Hero/Hero.stories.js').then(
+              (m) => m.WithBackground
+            ),
+        },
+        {
+          name: 'LeftAligned',
+          module: () =>
+            import('../components/Hero/Hero.stories.js').then(
+              (m) => m.LeftAligned
+            ),
+        },
+        {
+          name: 'RightAligned',
+          module: () =>
+            import('../components/Hero/Hero.stories.js').then(
+              (m) => m.RightAligned
+            ),
+        },
+        {
+          name: 'WithCallbackAction',
+          module: () =>
+            import('../components/Hero/Hero.stories.js').then(
+              (m) => m.WithCallbackAction
+            ),
+        },
+        {
+          name: 'MinimalHero',
+          module: () =>
+            import('../components/Hero/Hero.stories.js').then(
+              (m) => m.MinimalHero
+            ),
+        },
+        {
+          name: 'WithLongContent',
+          module: () =>
+            import('../components/Hero/Hero.stories.js').then(
+              (m) => m.WithLongContent
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'Pagination',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'MiddlePage',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.MiddlePage
+            ),
+        },
+        {
+          name: 'LastPage',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.LastPage
+            ),
+        },
+        {
+          name: 'ManyPages',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.ManyPages
+            ),
+        },
+        {
+          name: 'FewPages',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.FewPages
+            ),
+        },
+        {
+          name: 'SinglePage',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.SinglePage
+            ),
+        },
+        {
+          name: 'WithCustomSiblingCount',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.WithCustomSiblingCount
+            ),
         },
       ],
     },

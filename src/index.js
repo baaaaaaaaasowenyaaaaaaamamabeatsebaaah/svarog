@@ -46,9 +46,19 @@ import UsedPhonePriceForm from './components/UsedPhonePriceForm/UsedPhonePriceFo
 import StepsIndicator from './components/StepsIndicator/StepsIndicator.js';
 import PriceDisplay from './components/PriceDisplay/PriceDisplay.js';
 import ConditionSelector from './components/ConditionSelector/ConditionSelector.js';
+import BlogCard from './components/BlogCard/BlogCard.js';
+import BlogList from './components/BlogList/BlogList.js';
+import BlogDetail from './components/BlogDetail/BlogDetail.js';
+import Hero from './components/Hero/Hero.js';
+import Pagination from './components/Pagination/Pagination.js';
 
 // Export components
 const Svarog = {
+  Pagination,
+  Hero,
+  BlogDetail,
+  BlogList,
+  BlogCard,
   ConditionSelector,
   PriceDisplay,
   StepsIndicator,
