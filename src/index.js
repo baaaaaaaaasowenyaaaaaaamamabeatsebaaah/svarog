@@ -47,9 +47,13 @@ import BlogList from './components/BlogList/BlogList.js';
 import BlogDetail from './components/BlogDetail/BlogDetail.js';
 import Hero from './components/Hero/Hero.js';
 import Pagination from './components/Pagination/Pagination.js';
+import MuchandyHero from './components/MuchandyHero/MuchandyHero.js';
+import Tabs from './components/Tabs/Tabs.js';
 
 // Export components
 const Svarog = {
+  Tabs,
+  MuchandyHero,
   // Components
   Button,
   Grid,

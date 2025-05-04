@@ -1,0 +1,111 @@
+/* src/components/MuchandyHero/MuchandyHero.css */
+.muchandy-hero {
+  position: relative;
+  min-height: 600px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1a1a1a;
+  color: white;
+  overflow: hidden;
+}
+
+.muchandy-hero__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+
+.muchandy-hero__content {
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.muchandy-hero__title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-4);
+  color: #64b5f6; /* Light blue color similar to the image */
+}
+
+.muchandy-hero__subtitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-8);
+  color: white;
+}
+
+/* Customize tabs for the hero */
+.muchandy-hero__tabs .tabs__list {
+  justify-content: center;
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+  margin-bottom: var(--space-6);
+}
+
+.muchandy-hero__tabs .tabs__button {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--font-size-lg);
+  padding: var(--space-3) var(--space-6);
+  min-width: 150px;
+}
+
+.muchandy-hero__tabs .tabs__button:hover {
+  color: white;
+}
+
+.muchandy-hero__tabs .tabs__button--active {
+  color: white;
+  border-bottom-color: #64b5f6;
+}
+
+/* Form styling within hero */
+.muchandy-hero .phone-repair-form,
+.muchandy-hero .used-phone-price-form {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .muchandy-hero {
+    min-height: 500px;
+  }
+
+  .muchandy-hero__overlay {
+    padding: var(--space-4);
+  }
+
+  .muchandy-hero__title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .muchandy-hero__subtitle {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-6);
+  }
+
+  .muchandy-hero__tabs .tabs__button {
+    font-size: var(--font-size-base);
+    padding: var(--space-2) var(--space-4);
+    min-width: 120px;
+  }
+
+  .muchandy-hero .phone-repair-form,
+  .muchandy-hero .used-phone-price-form {
+    padding: var(--space-4);
+  }
+}

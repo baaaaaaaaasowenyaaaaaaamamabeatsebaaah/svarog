@@ -1369,6 +1369,107 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'Tabs',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'WithComponents',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithComponents
+            ),
+        },
+        {
+          name: 'WithDefaultActiveTab',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithDefaultActiveTab
+            ),
+        },
+        {
+          name: 'WithCallback',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithCallback
+            ),
+        },
+        {
+          name: 'WithCustomStyling',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithCustomStyling
+            ),
+        },
+        {
+          name: 'WithHTMLContent',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithHTMLContent
+            ),
+        },
+      ],
+    },
+
+    {
+      name: 'MuchandyHero',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithSellTabDefault',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithSellTabDefault
+            ),
+        },
+        {
+          name: 'WithoutBackgroundImage',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithoutBackgroundImage
+            ),
+        },
+        {
+          name: 'WithCustomText',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithCustomText
+            ),
+        },
+        {
+          name: 'WithMuchandyTheme',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithMuchandyTheme
+            ),
+        },
+        {
+          name: 'WithCallbacks',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithCallbacks
+            ),
+        },
+        {
+          name: 'MinimalConfiguration',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.MinimalConfiguration
+            ),
+        },
+      ],
+    },
   ];
 
   return components;
