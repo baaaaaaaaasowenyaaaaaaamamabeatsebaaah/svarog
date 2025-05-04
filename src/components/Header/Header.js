@@ -1,57 +1,74 @@
 // src/components/Header/Header.js
 import './Header.css';
 import { Component } from '../../utils/componentFactory.js';
+import Navigation from '../Navigation/Navigation.js';
+import Logo from '../Logo/Logo.js';
+import Link from '../Link/Link.js';
 
-/**
- * Header component 
- * @extends Component
- */
 export default class Header extends Component {
-  /**
-   * Creates a new Header instance
-   * 
-   * @param {Object} props - Header properties
-   * @param {string} [props.className=''] - Additional CSS class names
-   */
-  constructor({
-    className = '',
-    // Add your props here
-  }) {
+  constructor(props) {
     super();
-    
     this.props = {
-      className,
-      // Store your props here
+      siteName: '',
+      navigation: { items: [] },
+      logo: '',
+      className: '',
+      ...props,
     };
-    
-    this.element = this.createElementHeader();
+    this.element = this.createComponentElement();
   }
-  
-  /**
-   * Creates the header element
-   * @private
-   * @returns {HTMLElement} The header element
-   */
-  createElementHeader() {
-    // Build class names
-    const classNames = this.createClassNames(
-      'header',
-      this.props.className
-    );
-    
-    // Create the main element
-    const element = this.createElement('div', { 
-      className: classNames,
-      // Add content and other properties here
+
+  createComponentElement() {
+    const { siteName, navigation, logo, className = '' } = this.props;
+
+    const header = this.createElement('header', {
+      className: this.createClassNames('header', className),
     });
-    
-    return element;
+
+    const container = this.createElement('div', {
+      className: 'header__container',
+    });
+
+    const brand = this.createElement('div', {
+      className: 'header__brand',
+    });
+
+    // Fix: Logo component expects 'sources' prop
+    if (logo) {
+      const logoLink = new Link({
+        children: new Logo({
+          sources: [{ src: logo, theme: 'default' }],
+          alt: siteName || 'Logo',
+        }).getElement(),
+        href: '/',
+        block: true,
+      });
+      brand.appendChild(logoLink.getElement());
+    } else if (siteName) {
+      const siteNameLink = new Link({
+        children: siteName,
+        href: '/',
+        block: true,
+      });
+      siteNameLink.getElement().className = 'header__site-name';
+      brand.appendChild(siteNameLink.getElement());
+    }
+
+    container.appendChild(brand);
+
+    if (navigation && navigation.items && navigation.items.length > 0) {
+      const nav = new Navigation({
+        items: navigation.items,
+        responsive: true,
+        theme: 'default',
+      });
+      container.appendChild(nav.getElement());
+    }
+
+    header.appendChild(container);
+    return header;
   }
-  
-  /**
-   * Gets the header element
-   * @returns {HTMLElement} The header element
-   */
+
   getElement() {
     return this.element;
   }

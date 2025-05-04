@@ -2,6 +2,12 @@
 import './UsedPhonePriceForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
+import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
+import FormGroup from '../Form/FormGroup.js';
+import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
+import ConditionSelector from '../ConditionSelector/ConditionSelector.js';
+import Button from '../Button/Button.js';
+import { defaultLabels } from '../../config/UsedPhonePriceFormConfig.js';
 
 /**
  * UsedPhonePriceForm component for selecting used phone options and viewing prices
@@ -12,28 +18,38 @@ export default class UsedPhonePriceForm extends Component {
    * Creates a new UsedPhonePriceForm instance
    *
    * @param {Object} props - UsedPhonePriceForm properties
+   * @param {Object} props.service - Service for API interactions
    * @param {Function} [props.onPriceChange] - Callback when a price is selected
-   * @param {Object} [props.mockData] - Optional mock data for testing/storybook
+   * @param {Function} [props.onSubmit] - Callback when form is submitted
+   * @param {Object} [props.labels={}] - Custom labels for form elements
+   * @param {boolean} [props.showStepsIndicator=true] - Whether to show steps indicator
    * @param {string} [props.className=''] - Additional CSS class names
-   * @param {boolean} [props.useMockData=false] - Whether to use mock data instead of API
-   * @param {boolean} [props.showStepsIndicator=true] - Whether to show the steps indicator
    */
   constructor({
+    service,
     onPriceChange,
-    mockData,
-    className = '',
-    useMockData = false,
+    onSubmit,
+    labels = {},
     showStepsIndicator = true,
+    className = '',
   }) {
     super();
 
+    // Validate required props
+    if (!service) {
+      throw new Error('UsedPhonePriceForm: service is required');
+    }
+
+    // Set labels with defaults
+    this.labels = { ...defaultLabels, ...labels };
+
     // Store props
     this.props = {
+      service,
       onPriceChange,
-      mockData,
-      className,
-      useMockData,
+      onSubmit,
       showStepsIndicator,
+      className,
     };
 
     // Component state
@@ -50,30 +66,34 @@ export default class UsedPhonePriceForm extends Component {
         devices: false,
         conditions: false,
         price: false,
+        submit: false,
       },
       error: {
         manufacturers: null,
         devices: null,
         conditions: null,
         price: null,
+        submit: null,
       },
     };
 
-    // Create references to child components
+    // Create component references (will be set in createFormElement)
     this.manufacturerSelect = null;
     this.deviceSelect = null;
-    this.conditionSelect = null;
+    this.conditionSelector = null;
     this.priceDisplay = null;
+    this.submitButton = null;
+    this.stepsIndicator = null;
 
     // Create form element
     this.form = this.createFormElement();
 
-    // Initialize form
-    this.initializeForm();
+    // Initialize form data
+    this.loadManufacturers();
   }
 
   /**
-   * Creates the form element with step indicators
+   * Creates the form element with all components
    * @private
    * @returns {HTMLElement} The form element
    */
@@ -92,139 +112,190 @@ export default class UsedPhonePriceForm extends Component {
     const form = this.createElement('form', {
       className: classNames,
       events: {
-        submit: (e) => e.preventDefault(),
+        submit: (e) => this.handleSubmit(e),
       },
     });
 
     // Add title
     const title = this.createElement('h2', {
       className: 'used-phone-price-form__title',
-      textContent: 'Telefon verkaufen',
+      textContent: this.labels.title,
     });
     form.appendChild(title);
 
     // Add step indicator if enabled
     if (this.props.showStepsIndicator) {
-      const stepsContainer = this.createStepIndicator();
-      form.appendChild(stepsContainer);
+      const steps = [
+        { name: this.labels.manufacturerStep, completed: false },
+        { name: this.labels.deviceStep, completed: false },
+        { name: this.labels.conditionStep, completed: false },
+      ];
+
+      this.stepsIndicator = new StepsIndicator({
+        steps,
+        activeIndex: 0,
+      });
+      form.appendChild(this.stepsIndicator.getElement());
     }
 
-    // Create form fields
-    // Manufacturer select
-    const manufacturerContainer = this.createFormGroup({
-      labelText: 'Hersteller:',
-      id: 'manufacturer',
-    });
-
+    // Create manufacturer select
     this.manufacturerSelect = new Select({
       id: 'manufacturer',
       name: 'manufacturer',
-      placeholder: 'Hersteller auswählen',
+      placeholder: this.labels.manufacturerPlaceholder,
+      disabled: true,
       onChange: (event, value) => this.handleManufacturerChange(value),
     });
-    manufacturerContainer
-      .querySelector('.form-group__field')
-      .appendChild(this.manufacturerSelect.getElement());
 
-    // Device select
-    const deviceContainer = this.createFormGroup({
-      labelText: 'Modell:',
-      id: 'device',
+    const manufacturerGroup = new FormGroup({
+      label: this.labels.manufacturerLabel,
+      field: this.manufacturerSelect,
+      id: 'manufacturer',
     });
+    form.appendChild(manufacturerGroup.getElement());
 
+    // Create device select
     this.deviceSelect = new Select({
       id: 'device',
       name: 'device',
-      placeholder: 'Zuerst Hersteller auswählen',
+      placeholder: this.labels.devicePlaceholder,
       disabled: true,
       onChange: (event, value) => this.handleDeviceChange(value),
     });
-    deviceContainer
-      .querySelector('.form-group__field')
-      .appendChild(this.deviceSelect.getElement());
 
-    // Condition select
-    const conditionContainer = this.createFormGroup({
-      labelText: 'Zustand:',
-      id: 'condition',
+    const deviceGroup = new FormGroup({
+      label: this.labels.deviceLabel,
+      field: this.deviceSelect,
+      id: 'device',
+    });
+    form.appendChild(deviceGroup.getElement());
+
+    // Create condition section
+    const conditionGroup = this.createElement('div', {
+      className: 'form-group',
     });
 
-    this.conditionSelect = new Select({
-      id: 'condition',
-      name: 'condition',
-      placeholder: 'Zuerst Modell auswählen',
+    const conditionLabel = this.createElement('label', {
+      className: 'form-group__label',
+      textContent: this.labels.conditionLabel,
+    });
+
+    const conditionField = this.createElement('div', {
+      className: 'form-group__field',
+    });
+
+    // Create condition selector with empty initial state
+    this.conditionSelector = new ConditionSelector({
+      conditions: [],
+      onSelect: (conditionId) => this.handleConditionChange(conditionId),
+    });
+    conditionField.appendChild(this.conditionSelector.getElement());
+
+    conditionGroup.appendChild(conditionLabel);
+    conditionGroup.appendChild(conditionField);
+    form.appendChild(conditionGroup);
+
+    // Create price display
+    this.priceDisplay = new PriceDisplay({
+      label: this.labels.priceLabel,
+      value: this.labels.initialPriceText,
+    });
+    form.appendChild(this.priceDisplay.getElement());
+
+    // Create submit button container
+    const buttonContainer = this.createElement('div', {
+      className: 'used-phone-price-form__button-container',
+    });
+
+    // Create submit button
+    this.submitButton = new Button({
+      text: this.labels.submitButtonText,
+      type: 'submit',
+      variant: 'primary',
       disabled: true,
-      onChange: (event, value) => this.handleConditionChange(value),
     });
-    conditionContainer
-      .querySelector('.form-group__field')
-      .appendChild(this.conditionSelect.getElement());
-
-    // Price display
-    const priceContainer = this.createElement('div', {
-      className: 'used-phone-price-form__price-container',
-    });
-
-    const priceLabel = this.createElement('span', {
-      className: 'used-phone-price-form__price-label',
-      textContent: 'Auszahlungspreis:',
-    });
-
-    this.priceDisplay = this.createElement('span', {
-      className: 'used-phone-price-form__price-value',
-      textContent: 'Bitte wählen Sie Hersteller, Modell und Zustand',
-    });
-
-    priceContainer.appendChild(priceLabel);
-    priceContainer.appendChild(this.priceDisplay);
-
-    // Add form groups to form
-    form.appendChild(manufacturerContainer);
-    form.appendChild(deviceContainer);
-    form.appendChild(conditionContainer);
-    form.appendChild(priceContainer);
+    buttonContainer.appendChild(this.submitButton.getElement());
+    form.appendChild(buttonContainer);
 
     return form;
   }
 
   /**
-   * Creates step indicator component
+   * Handle form submission
    * @private
-   * @returns {HTMLElement} Step indicator element
+   * @param {Event} event - The submit event
    */
-  createStepIndicator() {
-    const stepsContainer = this.createElement('div', {
-      className: 'used-phone-form__steps',
+  handleSubmit(event) {
+    event.preventDefault();
+
+    // Don't submit if any data is missing
+    if (!this.canSubmit()) {
+      return;
+    }
+
+    // Don't submit if already loading
+    if (this.state.loading.submit) {
+      return;
+    }
+
+    // Update loading state
+    this.setState({
+      loading: { ...this.state.loading, submit: true },
+      error: { ...this.state.error, submit: null },
     });
-    // Using the exact same German names as in PhoneRepairForm
-    const steps = [
-      { name: 'Hersteller', completed: !!this.state.selectedManufacturer },
-      { name: 'Modell', completed: !!this.state.selectedDevice },
-      { name: 'Zustand', completed: !!this.state.selectedCondition }, // "Zustand" is German for "Condition"
-    ];
-    let activeIndex = 0;
-    if (this.state.selectedManufacturer) activeIndex = 1;
-    if (this.state.selectedDevice) activeIndex = 2;
-    steps.forEach((step, index) => {
-      const stepElement = this.createElement('div', {
-        className: this.createClassNames('used-phone-form__step', {
-          'used-phone-form__step--active': index === activeIndex,
-          'used-phone-form__step--completed': step.completed,
-        }),
+
+    // Update UI to reflect loading
+    this.updateFormState();
+    this.submitButton.setText(this.labels.submitButtonLoadingText);
+    this.submitButton.setDisabled(true);
+
+    // Prepare form data
+    const formData = {
+      manufacturerId: this.state.selectedManufacturer,
+      deviceId: this.state.selectedDevice,
+      conditionId: this.state.selectedCondition,
+      price: this.state.currentPrice?.price,
+      // Include additional identifying information
+      manufacturerName: this.getSelectedManufacturerName(),
+      deviceName: this.getSelectedDeviceName(),
+      conditionName: this.getSelectedConditionName(),
+    };
+
+    // Call onSubmit callback if provided
+    if (typeof this.props.onSubmit === 'function') {
+      try {
+        this.props.onSubmit(formData);
+      } catch (error) {
+        console.error('Error in onSubmit callback:', error);
+        this.setState({
+          error: { ...this.state.error, submit: error.message },
+        });
+      }
+    }
+
+    // Reset loading state after a short delay (even if there was an error)
+    setTimeout(() => {
+      this.setState({
+        loading: { ...this.state.loading, submit: false },
       });
-      const stepNumber = this.createElement('div', {
-        className: 'used-phone-form__step-number',
-        textContent: (index + 1).toString(),
-      });
-      const stepName = this.createElement('div', {
-        className: 'used-phone-form__step-name',
-        textContent: step.name,
-      });
-      stepElement.appendChild(stepNumber);
-      stepElement.appendChild(stepName);
-      stepsContainer.appendChild(stepElement);
-    });
-    return stepsContainer;
+      this.updateFormState();
+      this.submitButton.setText(this.labels.submitButtonText);
+      this.submitButton.setDisabled(!this.canSubmit());
+    }, 1000);
+  }
+
+  /**
+   * Check if form can be submitted
+   * @private
+   * @returns {boolean} Whether the form can be submitted
+   */
+  canSubmit() {
+    return (
+      !!this.state.selectedManufacturer &&
+      !!this.state.selectedDevice &&
+      !!this.state.selectedCondition &&
+      !!this.state.currentPrice
+    );
   }
 
   /**
@@ -246,50 +317,54 @@ export default class UsedPhonePriceForm extends Component {
   }
 
   /**
-   * Creates a form group container with label and field container
-   * @private
-   * @param {Object} options - Form group options
-   * @param {string} options.labelText - Label text
-   * @param {string} options.id - Element ID
-   * @returns {HTMLElement} The form group container
-   */
-  createFormGroup({ labelText, id }) {
-    const container = this.createElement('div', {
-      className: 'form-group',
-    });
-
-    const label = this.createElement('label', {
-      className: 'form-group__label',
-      attributes: { for: id },
-      textContent: labelText,
-    });
-
-    const fieldContainer = this.createElement('div', {
-      className: 'form-group__field',
-    });
-
-    container.appendChild(label);
-    container.appendChild(fieldContainer);
-
-    return container;
-  }
-
-  /**
-   * Initialize form data
+   * Update form state based on selection changes
    * @private
    */
-  async initializeForm() {
-    if (this.props.useMockData) {
-      // Initialize with mock data
-      this.loadMockManufacturers();
-    } else {
-      // Load real data from API
-      this.loadManufacturers();
+  updateFormState() {
+    // Update loading/error classes
+    const formElement = this.getElement();
+    formElement.classList.toggle(
+      'used-phone-price-form--loading',
+      this.isAnyLoading()
+    );
+    formElement.classList.toggle(
+      'used-phone-price-form--error',
+      this.hasAnyError()
+    );
+
+    // Update step indicator if enabled
+    if (this.props.showStepsIndicator && this.stepsIndicator) {
+      const steps = [
+        {
+          name: this.labels.manufacturerStep,
+          completed: !!this.state.selectedManufacturer,
+        },
+        {
+          name: this.labels.deviceStep,
+          completed: !!this.state.selectedDevice,
+        },
+        {
+          name: this.labels.conditionStep,
+          completed: !!this.state.selectedCondition,
+        },
+      ];
+
+      // Determine active step
+      let activeIndex = 0;
+      if (this.state.selectedManufacturer) activeIndex = 1;
+      if (this.state.selectedDevice) activeIndex = 2;
+
+      this.stepsIndicator.update({ steps, activeIndex });
+    }
+
+    // Update submit button state
+    if (this.submitButton) {
+      this.submitButton.setDisabled(!this.canSubmit());
     }
   }
 
   /**
-   * Load manufacturers from API
+   * Load manufacturers from service
    * @private
    */
   async loadManufacturers() {
@@ -302,8 +377,8 @@ export default class UsedPhonePriceForm extends Component {
     this.updateFormState();
 
     try {
-      // Fetch manufacturers from API
-      const manufacturers = await this.fetchFromApi('manufacturers');
+      // Fetch manufacturers from service
+      const manufacturers = await this.props.service.fetchManufacturers();
 
       this.setState({
         manufacturers,
@@ -316,9 +391,9 @@ export default class UsedPhonePriceForm extends Component {
         label: m.name,
       }));
 
+      // Enable select and set options
       this.manufacturerSelect.getElement().querySelector('select').disabled =
         false;
-      this.manufacturerSelect.setValue('');
       this.updateSelectOptions(this.manufacturerSelect, options);
 
       // Update form state after loading completes
@@ -336,7 +411,7 @@ export default class UsedPhonePriceForm extends Component {
   }
 
   /**
-   * Load devices for a manufacturer from API
+   * Load devices for a manufacturer from service
    * @private
    * @param {string} manufacturerId - Manufacturer ID
    */
@@ -356,13 +431,18 @@ export default class UsedPhonePriceForm extends Component {
 
     // Reset dependent fields
     this.deviceSelect.setValue('');
-    this.conditionSelect.setValue('');
-    this.conditionSelect.getElement().querySelector('select').disabled = true;
-    this.updatePriceDisplay('Bitte Modell und Zustand auswählen');
+    this.deviceSelect.getElement().querySelector('select').disabled = true;
+
+    // Reset condition selector
+    this.conditionSelector.updateConditions([]);
+
+    // Reset price display
+    this.priceDisplay.setValue(this.labels.initialPriceText);
+    this.priceDisplay.setLoading(false);
 
     try {
-      // Fetch devices from API
-      const devices = await this.fetchFromApi('devices', manufacturerId);
+      // Fetch devices from service
+      const devices = await this.props.service.fetchDevices(manufacturerId);
 
       this.setState({
         devices,
@@ -375,6 +455,7 @@ export default class UsedPhonePriceForm extends Component {
         label: d.name,
       }));
 
+      // Enable select and set options
       this.deviceSelect.getElement().querySelector('select').disabled = false;
       this.updateSelectOptions(this.deviceSelect, options);
 
@@ -386,7 +467,10 @@ export default class UsedPhonePriceForm extends Component {
         loading: { ...this.state.loading, devices: false },
         error: { ...this.state.error, devices: error.message },
       });
-      this.updatePriceDisplay('Fehler beim Laden der Geräte');
+
+      // Show error message in price display
+      this.priceDisplay.setValue(this.labels.deviceLoadError);
+      this.priceDisplay.setLoading(false);
 
       // Update form state to reflect error
       this.updateFormState();
@@ -394,7 +478,7 @@ export default class UsedPhonePriceForm extends Component {
   }
 
   /**
-   * Load conditions for a device from API
+   * Load conditions for a device from service
    * @private
    * @param {string} deviceId - Device ID
    */
@@ -410,28 +494,25 @@ export default class UsedPhonePriceForm extends Component {
     // Update form state to reflect loading
     this.updateFormState();
 
-    // Reset condition field
-    this.conditionSelect.setValue('');
-    this.updatePriceDisplay('Bitte Zustand auswählen');
+    // Update condition selector loading state
+    this.conditionSelector.setLoading(true);
+
+    // Reset price display
+    this.priceDisplay.setValue(this.labels.initialPriceText);
+    this.priceDisplay.setLoading(false);
 
     try {
-      // Fetch conditions from API - for a used phone form, these would be condition options
-      const conditions = await this.fetchFromApi('conditions', deviceId);
+      // Fetch conditions from service
+      const conditions = await this.props.service.fetchConditions(deviceId);
 
       this.setState({
         conditions,
         loading: { ...this.state.loading, conditions: false },
       });
 
-      // Update condition select options
-      const options = conditions.map((c) => ({
-        value: c.id.toString(),
-        label: c.name,
-      }));
-
-      this.conditionSelect.getElement().querySelector('select').disabled =
-        false;
-      this.updateSelectOptions(this.conditionSelect, options);
+      // Update condition selector with new conditions
+      this.conditionSelector.updateConditions(conditions);
+      this.conditionSelector.setLoading(false);
 
       // Update form state after loading completes
       this.updateFormState();
@@ -441,7 +522,13 @@ export default class UsedPhonePriceForm extends Component {
         loading: { ...this.state.loading, conditions: false },
         error: { ...this.state.error, conditions: error.message },
       });
-      this.updatePriceDisplay('Fehler beim Laden der Zustandsoptionen');
+
+      // Update condition selector to show error state
+      this.conditionSelector.setLoading(false);
+
+      // Show error message in price display
+      this.priceDisplay.setValue(this.labels.conditionLoadError);
+      this.priceDisplay.setLoading(false);
 
       // Update form state to reflect error
       this.updateFormState();
@@ -449,12 +536,11 @@ export default class UsedPhonePriceForm extends Component {
   }
 
   /**
-   * Load price for a device with specific condition from API
+   * Load price for a condition from service
    * @private
-   * @param {string} deviceId - Device ID
    * @param {string} conditionId - Condition ID
    */
-  async loadPrice(deviceId, conditionId) {
+  async loadPrice(conditionId) {
     this.setState({
       currentPrice: null,
       loading: { ...this.state.loading, price: true },
@@ -464,11 +550,13 @@ export default class UsedPhonePriceForm extends Component {
     // Update form state to reflect loading
     this.updateFormState();
 
-    this.updatePriceDisplay('Preis wird geladen...');
+    // Update price display loading state
+    this.priceDisplay.setValue(this.labels.loadingPriceText);
+    this.priceDisplay.setLoading(true);
 
     try {
-      // Fetch price from API
-      const priceData = await this.fetchFromApi('price', deviceId, conditionId);
+      // Fetch price from service
+      const priceData = await this.props.service.fetchPrice(conditionId);
 
       this.setState({
         currentPrice: priceData,
@@ -477,7 +565,8 @@ export default class UsedPhonePriceForm extends Component {
 
       // Format and display price
       const formattedPrice = this.formatPrice(priceData.price);
-      this.updatePriceDisplay(formattedPrice);
+      this.priceDisplay.setValue(formattedPrice, true);
+      this.priceDisplay.setLoading(false);
 
       // Call onPriceChange callback if provided
       if (typeof this.props.onPriceChange === 'function') {
@@ -492,7 +581,10 @@ export default class UsedPhonePriceForm extends Component {
         loading: { ...this.state.loading, price: false },
         error: { ...this.state.error, price: error.message },
       });
-      this.updatePriceDisplay('Fehler beim Laden des Preises');
+
+      // Show error message in price display
+      this.priceDisplay.setValue(this.labels.priceLoadError);
+      this.priceDisplay.setLoading(false);
 
       // Update form state to reflect error
       this.updateFormState();
@@ -508,7 +600,7 @@ export default class UsedPhonePriceForm extends Component {
   formatPrice(price) {
     // Check if price is valid
     if (price === undefined || price === null) {
-      return 'Preis nicht verfügbar';
+      return this.labels.priceNotAvailable;
     }
 
     // Determine if price is in cents or euros
@@ -555,68 +647,6 @@ export default class UsedPhonePriceForm extends Component {
         this.manufacturerSelect = newSelect;
       } else if (selectComponent === this.deviceSelect) {
         this.deviceSelect = newSelect;
-      } else if (selectComponent === this.conditionSelect) {
-        this.conditionSelect = newSelect;
-      }
-    }
-  }
-
-  /**
-   * Update price display
-   * @private
-   * @param {string} text - Text to display
-   */
-  updatePriceDisplay(text) {
-    if (this.priceDisplay) {
-      this.priceDisplay.textContent = text;
-
-      // Add price highlight class if it's an actual price
-      const priceContainer = this.priceDisplay.parentElement;
-      if (priceContainer) {
-        if (text.includes('€') || text.includes('EUR')) {
-          priceContainer.classList.add(
-            'used-phone-price-form__price-container--has-price'
-          );
-        } else {
-          priceContainer.classList.remove(
-            'used-phone-price-form__price-container--has-price'
-          );
-        }
-      }
-    }
-  }
-
-  /**
-   * Update form state based on selection changes
-   * @private
-   */
-  updateFormState() {
-    // Update loading states
-    const formElement = this.getElement();
-    formElement.classList.toggle(
-      'used-phone-price-form--loading',
-      this.isAnyLoading()
-    );
-    formElement.classList.toggle(
-      'used-phone-price-form--error',
-      this.hasAnyError()
-    );
-
-    // Update step indicator if enabled
-    if (this.props.showStepsIndicator) {
-      const oldSteps = formElement.querySelector('.used-phone-form__steps');
-      if (oldSteps) {
-        const newSteps = this.createStepIndicator();
-        formElement.replaceChild(newSteps, oldSteps);
-      } else {
-        // If using old class name
-        const oldStyleSteps = formElement.querySelector(
-          '.used-phone-price-form__steps'
-        );
-        if (oldStyleSteps) {
-          const newSteps = this.createStepIndicator();
-          formElement.replaceChild(newSteps, oldStyleSteps);
-        }
       }
     }
   }
@@ -634,11 +664,8 @@ export default class UsedPhonePriceForm extends Component {
     // Update form state for step indicator
     this.updateFormState();
 
-    if (this.props.useMockData) {
-      this.loadMockDevices(manufacturerId);
-    } else {
-      this.loadDevices(manufacturerId);
-    }
+    // Load devices for selected manufacturer
+    this.loadDevices(manufacturerId);
   }
 
   /**
@@ -654,11 +681,8 @@ export default class UsedPhonePriceForm extends Component {
     // Update form state for step indicator
     this.updateFormState();
 
-    if (this.props.useMockData) {
-      this.loadMockConditions(deviceId);
-    } else {
-      this.loadConditions(deviceId);
-    }
+    // Load conditions for selected device
+    this.loadConditions(deviceId);
   }
 
   /**
@@ -674,53 +698,44 @@ export default class UsedPhonePriceForm extends Component {
     // Update form state for step indicator
     this.updateFormState();
 
-    if (this.props.useMockData) {
-      this.loadMockPrice(this.state.selectedDevice, conditionId);
-    } else {
-      this.loadPrice(this.state.selectedDevice, conditionId);
-    }
+    // Load price for selected condition
+    this.loadPrice(conditionId);
   }
 
   /**
-   * Fetch data from API with error handling
+   * Get name of selected manufacturer
    * @private
-   * @param {string} endpoint - API endpoint
-   * @param {string} [id] - Optional ID for endpoints that require it
-   * @param {string} [secondId] - Optional second ID for endpoints that require it
-   * @returns {Promise<Object>} API response
+   * @returns {string} Manufacturer name
    */
-  async fetchFromApi(endpoint, id, secondId) {
-    try {
-      let response;
+  getSelectedManufacturerName() {
+    const manufacturer = this.state.manufacturers.find(
+      (m) => m.id.toString() === this.state.selectedManufacturer
+    );
+    return manufacturer ? manufacturer.name : '';
+  }
 
-      // Updated API endpoints to match the structure used in PhoneRepairForm
-      switch (endpoint) {
-        case 'manufacturers':
-          response = await fetch('/api/manufacturers');
-          break;
-        case 'devices':
-          response = await fetch(`/api/manufacturers/${id}/devices`);
-          break;
-        case 'conditions':
-          response = await fetch(`/api/devices/${id}/conditions`);
-          break;
-        case 'price':
-          // Updated to match the pattern in phoneRepairData.js
-          response = await fetch(`/api/conditions/${secondId}/price`);
-          break;
-        default:
-          throw new Error(`Unknown endpoint: ${endpoint}`);
-      }
+  /**
+   * Get name of selected device
+   * @private
+   * @returns {string} Device name
+   */
+  getSelectedDeviceName() {
+    const device = this.state.devices.find(
+      (d) => d.id.toString() === this.state.selectedDevice
+    );
+    return device ? device.name : '';
+  }
 
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error(`API fetch error (${endpoint}):`, error);
-      throw error;
-    }
+  /**
+   * Get name of selected condition
+   * @private
+   * @returns {string} Condition name
+   */
+  getSelectedConditionName() {
+    const condition = this.state.conditions.find(
+      (c) => c.id.toString() === this.state.selectedCondition
+    );
+    return condition ? condition.name : '';
   }
 
   /**
@@ -730,220 +745,6 @@ export default class UsedPhonePriceForm extends Component {
    */
   setState(newState) {
     this.state = { ...this.state, ...newState };
-  }
-
-  /**
-   * Load mock manufacturers
-   * @private
-   */
-  loadMockManufacturers() {
-    // Example mock manufacturers data
-    const mockManufacturers = [
-      { id: 1, name: 'Apple' },
-      { id: 2, name: 'Samsung' },
-      { id: 3, name: 'Google' },
-      { id: 4, name: 'Huawei' },
-      { id: 5, name: 'Xiaomi' },
-    ];
-
-    this.setState({
-      manufacturers: mockManufacturers,
-      loading: { ...this.state.loading, manufacturers: false },
-    });
-
-    // Update form state
-    this.updateFormState();
-
-    // Update manufacturer select options
-    const options = mockManufacturers.map((m) => ({
-      value: m.id.toString(),
-      label: m.name,
-    }));
-
-    this.manufacturerSelect.getElement().querySelector('select').disabled =
-      false;
-    this.updateSelectOptions(this.manufacturerSelect, options);
-  }
-
-  /**
-   * Load mock devices
-   * @private
-   * @param {string} manufacturerId - Manufacturer ID
-   */
-  loadMockDevices(manufacturerId) {
-    // Reset states
-    this.setState({
-      devices: [],
-      conditions: [],
-      selectedDevice: '',
-      selectedCondition: '',
-      currentPrice: null,
-      loading: { ...this.state.loading, devices: true },
-      error: { ...this.state.error, devices: null },
-    });
-
-    // Update form state to reflect loading
-    this.updateFormState();
-
-    // Reset dependent fields
-    this.deviceSelect.setValue('');
-    this.conditionSelect.setValue('');
-    this.conditionSelect.getElement().querySelector('select').disabled = true;
-    this.updatePriceDisplay('Bitte Modell und Zustand auswählen');
-
-    // Example mock devices data
-    let devices = [];
-
-    switch (manufacturerId) {
-      case '1': // Apple
-        devices = [
-          { id: 1, name: 'iPhone 13', manufacturerId: 1 },
-          { id: 2, name: 'iPhone 12', manufacturerId: 1 },
-          { id: 3, name: 'iPhone 11', manufacturerId: 1 },
-          { id: 4, name: 'iPhone XS', manufacturerId: 1 },
-        ];
-        break;
-      case '2': // Samsung
-        devices = [
-          { id: 5, name: 'Galaxy S22', manufacturerId: 2 },
-          { id: 6, name: 'Galaxy S21', manufacturerId: 2 },
-          { id: 7, name: 'Galaxy Note 20', manufacturerId: 2 },
-        ];
-        break;
-      case '3': // Google
-        devices = [
-          { id: 8, name: 'Pixel 6', manufacturerId: 3 },
-          { id: 9, name: 'Pixel 5', manufacturerId: 3 },
-        ];
-        break;
-      case '4': // Huawei
-        devices = [
-          { id: 10, name: 'P40 Pro', manufacturerId: 4 },
-          { id: 11, name: 'P30 Pro', manufacturerId: 4 },
-        ];
-        break;
-      case '5': // Xiaomi
-        devices = [
-          { id: 12, name: 'Mi 11', manufacturerId: 5 },
-          { id: 13, name: 'Redmi Note 10', manufacturerId: 5 },
-        ];
-        break;
-      default:
-        devices = [];
-    }
-
-    this.setState({
-      devices,
-      loading: { ...this.state.loading, devices: false },
-    });
-
-    // Update form state after loading completes
-    this.updateFormState();
-
-    // Update device select options
-    const options = devices.map((d) => ({
-      value: d.id.toString(),
-      label: d.name,
-    }));
-
-    this.deviceSelect.getElement().querySelector('select').disabled = false;
-    this.updateSelectOptions(this.deviceSelect, options);
-    this.updatePriceDisplay('Bitte Modell und Zustand auswählen');
-  }
-
-  /**
-   * Load mock conditions
-   * @private
-   * @param {string} deviceId - Device ID
-   */
-  loadMockConditions(deviceId) {
-    this.setState({
-      conditions: [],
-      selectedCondition: '',
-      currentPrice: null,
-      loading: { ...this.state.loading, conditions: true },
-      error: { ...this.state.error, conditions: null },
-    });
-
-    // Update form state to reflect loading
-    this.updateFormState();
-
-    // Reset condition field
-    this.conditionSelect.setValue('');
-    this.updatePriceDisplay('Bitte Zustand auswählen');
-
-    // Example mock conditions data - standardized across devices for simplicity
-    const conditions = [
-      { id: 1, name: 'Neuwertig', deviceId: parseInt(deviceId) },
-      { id: 2, name: 'Sehr gut', deviceId: parseInt(deviceId) },
-      { id: 3, name: 'Gut', deviceId: parseInt(deviceId) },
-      { id: 4, name: 'Akzeptabel', deviceId: parseInt(deviceId) },
-    ];
-
-    this.setState({
-      conditions,
-      loading: { ...this.state.loading, conditions: false },
-    });
-
-    // Update form state after loading completes
-    this.updateFormState();
-
-    // Update condition select options
-    const options = conditions.map((c) => ({
-      value: c.id.toString(),
-      label: c.name,
-    }));
-
-    this.conditionSelect.getElement().querySelector('select').disabled = false;
-    this.updateSelectOptions(this.conditionSelect, options);
-    this.updatePriceDisplay('Bitte Zustand auswählen');
-  }
-
-  /**
-   * Load mock price
-   * @private
-   * @param {string} deviceId - Device ID
-   * @param {string} conditionId - Condition ID
-   */
-  loadMockPrice(deviceId, conditionId) {
-    this.setState({
-      currentPrice: null,
-      loading: { ...this.state.loading, price: true },
-      error: { ...this.state.error, price: null },
-    });
-
-    // Update form state to reflect loading
-    this.updateFormState();
-    this.updatePriceDisplay('Preis wird geladen...');
-
-    // Simulate API delay
-    setTimeout(() => {
-      // Generate a price based on device ID and condition
-      // Higher device ID = newer = more expensive
-      // Lower condition ID = better condition = more expensive
-      const basePrice = parseInt(deviceId) * 50;
-      const conditionMultiplier = 1 - (parseInt(conditionId) - 1) * 0.2;
-      const calculatedPrice = Math.round(basePrice * conditionMultiplier);
-
-      const priceData = { price: calculatedPrice };
-
-      this.setState({
-        currentPrice: priceData,
-        loading: { ...this.state.loading, price: false },
-      });
-
-      // Update form state after loading completes
-      this.updateFormState();
-
-      // Format and display price
-      const formattedPrice = this.formatPrice(priceData.price);
-      this.updatePriceDisplay(formattedPrice);
-
-      // Call onPriceChange callback if provided
-      if (typeof this.props.onPriceChange === 'function') {
-        this.props.onPriceChange(priceData);
-      }
-    }, 500); // Simulate network delay
   }
 
   /**

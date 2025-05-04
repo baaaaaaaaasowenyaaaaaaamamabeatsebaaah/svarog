@@ -260,4 +260,218 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   padding-bottom: var(--space-2);
-}
+
+  /* TODO: Define value for 'border-radius-default' in cabalou theme */
+  --border-radius-default: inherit;
+  /* TODO: Define value for 'box-shadow-sm' in cabalou theme */
+  --box-shadow-sm: inherit;
+  /* TODO: Define value for 'button-active-border-color' in cabalou theme */
+  --button-active-border-color: inherit;
+  /* TODO: Define value for 'button-active-shadow' in cabalou theme */
+  --button-active-shadow: inherit;
+  /* TODO: Define value for 'button-active-transform' in cabalou theme */
+  --button-active-transform: inherit;
+  /* TODO: Define value for 'button-danger-bg' in cabalou theme */
+  --button-danger-bg: inherit;
+  /* TODO: Define value for 'button-danger-color' in cabalou theme */
+  --button-danger-color: inherit;
+  /* TODO: Define value for 'button-danger-hover-bg' in cabalou theme */
+  --button-danger-hover-bg: inherit;
+  /* TODO: Define value for 'button-disabled-border-color' in cabalou theme */
+  --button-disabled-border-color: inherit;
+  /* TODO: Define value for 'button-disabled-color' in cabalou theme */
+  --button-disabled-color: inherit;
+  /* TODO: Define value for 'button-disabled-opacity' in cabalou theme */
+  --button-disabled-opacity: inherit;
+  /* TODO: Define value for 'button-focus-shadow' in cabalou theme */
+  --button-focus-shadow: inherit;
+  /* TODO: Define value for 'button-hover-border-color' in cabalou theme */
+  --button-hover-border-color: inherit;
+  /* TODO: Define value for 'button-hover-color' in cabalou theme */
+  --button-hover-color: inherit;
+  /* TODO: Define value for 'button-hover-shadow' in cabalou theme */
+  --button-hover-shadow: inherit;
+  /* TODO: Define value for 'button-icon-margin' in cabalou theme */
+  --button-icon-margin: inherit;
+  /* TODO: Define value for 'button-icon-radius' in cabalou theme */
+  --button-icon-radius: inherit;
+  /* TODO: Define value for 'button-icon-size' in cabalou theme */
+  --button-icon-size: inherit;
+  /* TODO: Define value for 'button-icon-size-lg' in cabalou theme */
+  --button-icon-size-lg: inherit;
+  /* TODO: Define value for 'button-icon-size-sm' in cabalou theme */
+  --button-icon-size-sm: inherit;
+  /* TODO: Define value for 'button-outlined-color' in cabalou theme */
+  --button-outlined-color: inherit;
+  /* TODO: Define value for 'button-outlined-hover-bg' in cabalou theme */
+  --button-outlined-hover-bg: inherit;
+  /* TODO: Define value for 'button-outlined-hover-color' in cabalou theme */
+  --button-outlined-hover-color: inherit;
+  /* TODO: Define value for 'button-primary-active-bg' in cabalou theme */
+  --button-primary-active-bg: inherit;
+  /* TODO: Define value for 'button-primary-hover-bg' in cabalou theme */
+  --button-primary-hover-bg: inherit;
+  /* TODO: Define value for 'button-secondary-active-bg' in cabalou theme */
+  --button-secondary-active-bg: inherit;
+  /* TODO: Define value for 'button-secondary-hover-bg' in cabalou theme */
+  --button-secondary-hover-bg: inherit;
+  /* TODO: Define value for 'button-shadow' in cabalou theme */
+  --button-shadow: inherit;
+  /* TODO: Define value for 'button-success-bg' in cabalou theme */
+  --button-success-bg: inherit;
+  /* TODO: Define value for 'button-success-color' in cabalou theme */
+  --button-success-color: inherit;
+  /* TODO: Define value for 'button-success-hover-bg' in cabalou theme */
+  --button-success-hover-bg: inherit;
+  /* TODO: Define value for 'button-text-padding' in cabalou theme */
+  --button-text-padding: inherit;
+  /* TODO: Define value for 'checkbox-indeterminate-height' in cabalou theme */
+  --checkbox-indeterminate-height: inherit;
+  /* TODO: Define value for 'checkbox-indeterminate-width' in cabalou theme */
+  --checkbox-indeterminate-width: inherit;
+  /* TODO: Define value for 'checkbox-indicator-height' in cabalou theme */
+  --checkbox-indicator-height: inherit;
+  /* TODO: Define value for 'checkbox-indicator-width' in cabalou theme */
+  --checkbox-indicator-width: inherit;
+  /* TODO: Define value for 'checkbox-padding' in cabalou theme */
+  --checkbox-padding: inherit;
+  /* TODO: Define value for 'checkbox-valid-color' in cabalou theme */
+  --checkbox-valid-color: inherit;
+  /* TODO: Define value for 'checkbox-validation-font-size' in cabalou theme */
+  --checkbox-validation-font-size: inherit;
+  /* TODO: Define value for 'color-text-muted' in cabalou theme */
+  --color-text-muted: inherit;
+  /* TODO: Define value for 'color-yellow' in cabalou theme */
+  --color-yellow: inherit;
+  /* TODO: Define value for 'font-family-base' in cabalou theme */
+  --font-family-base: inherit;
+  /* TODO: Define value for 'font-size-14' in cabalou theme */
+  --font-size-14: inherit;
+  /* TODO: Define value for 'font-size-16' in cabalou theme */
+  --font-size-16: inherit;
+  /* TODO: Define value for 'font-size-18' in cabalou theme */
+  --font-size-18: inherit;
+  /* TODO: Define value for 'font-size-20' in cabalou theme */
+  --font-size-20: inherit;
+  /* TODO: Define value for 'font-size-24' in cabalou theme */
+  --font-size-24: inherit;
+  /* TODO: Define value for 'font-size-32' in cabalou theme */
+  --font-size-32: inherit;
+  /* TODO: Define value for 'header-bg' in cabalou theme */
+  --header-bg: inherit;
+  /* TODO: Define value for 'header-bg-scrolled' in cabalou theme */
+  --header-bg-scrolled: inherit;
+  /* TODO: Define value for 'header-branding-gap' in cabalou theme */
+  --header-branding-gap: inherit;
+  /* TODO: Define value for 'header-color' in cabalou theme */
+  --header-color: inherit;
+  /* TODO: Define value for 'header-height' in cabalou theme */
+  --header-height: inherit;
+  /* TODO: Define value for 'header-height-mobile' in cabalou theme */
+  --header-height-mobile: inherit;
+  /* TODO: Define value for 'header-max-width' in cabalou theme */
+  --header-max-width: inherit;
+  /* TODO: Define value for 'header-padding' in cabalou theme */
+  --header-padding: inherit;
+  /* TODO: Define value for 'header-padding-mobile' in cabalou theme */
+  --header-padding-mobile: inherit;
+  /* TODO: Define value for 'header-shadow' in cabalou theme */
+  --header-shadow: inherit;
+  /* TODO: Define value for 'header-shadow-scrolled' in cabalou theme */
+  --header-shadow-scrolled: inherit;
+  /* TODO: Define value for 'header-title-size' in cabalou theme */
+  --header-title-size: inherit;
+  /* TODO: Define value for 'header-title-size-mobile' in cabalou theme */
+  --header-title-size-mobile: inherit;
+  /* TODO: Define value for 'header-title-weight' in cabalou theme */
+  --header-title-weight: inherit;
+  /* TODO: Define value for 'header-transition' in cabalou theme */
+  --header-transition: inherit;
+  /* TODO: Define value for 'header-transparent-color' in cabalou theme */
+  --header-transparent-color: inherit;
+  /* TODO: Define value for 'header-z-index' in cabalou theme */
+  --header-z-index: inherit;
+  /* TODO: Define value for 'input-mobile-font-size' in cabalou theme */
+  --input-mobile-font-size: inherit;
+  /* TODO: Define value for 'input-mobile-padding' in cabalou theme */
+  --input-mobile-padding: inherit;
+  /* TODO: Define value for 'input-valid-color' in cabalou theme */
+  --input-valid-color: inherit;
+  /* TODO: Define value for 'logo-height-tablet' in cabalou theme */
+  --logo-height-tablet: inherit;
+  /* TODO: Define value for 'logo-hover-opacity' in cabalou theme */
+  --logo-hover-opacity: inherit;
+  /* TODO: Define value for 'logo-max-height' in cabalou theme */
+  --logo-max-height: inherit;
+  /* TODO: Define value for 'logo-max-width' in cabalou theme */
+  --logo-max-width: inherit;
+  /* TODO: Define value for 'logo-width-tablet' in cabalou theme */
+  --logo-width-tablet: inherit;
+  /* TODO: Define value for 'nav-active-font-weight' in cabalou theme */
+  --nav-active-font-weight: inherit;
+  /* TODO: Define value for 'nav-burger-color' in cabalou theme */
+  --nav-burger-color: inherit;
+  /* TODO: Define value for 'nav-burger-size' in cabalou theme */
+  --nav-burger-size: inherit;
+  /* TODO: Define value for 'nav-dropdown-border' in cabalou theme */
+  --nav-dropdown-border: inherit;
+  /* TODO: Define value for 'nav-dropdown-link-padding' in cabalou theme */
+  --nav-dropdown-link-padding: inherit;
+  /* TODO: Define value for 'nav-dropdown-padding' in cabalou theme */
+  --nav-dropdown-padding: inherit;
+  /* TODO: Define value for 'nav-dropdown-radius' in cabalou theme */
+  --nav-dropdown-radius: inherit;
+  /* TODO: Define value for 'nav-dropdown-shadow' in cabalou theme */
+  --nav-dropdown-shadow: inherit;
+  /* TODO: Define value for 'nav-focus-shadow' in cabalou theme */
+  --nav-focus-shadow: inherit;
+  /* TODO: Define value for 'nav-font-size' in cabalou theme */
+  --nav-font-size: inherit;
+  /* TODO: Define value for 'nav-item-spacing' in cabalou theme */
+  --nav-item-spacing: inherit;
+  /* TODO: Define value for 'nav-line-height' in cabalou theme */
+  --nav-line-height: inherit;
+  /* TODO: Define value for 'nav-link-padding' in cabalou theme */
+  --nav-link-padding: inherit;
+  /* TODO: Define value for 'nav-link-radius' in cabalou theme */
+  --nav-link-radius: inherit;
+  /* TODO: Define value for 'nav-link-transition' in cabalou theme */
+  --nav-link-transition: inherit;
+  /* TODO: Define value for 'nav-mobile-bg' in cabalou theme */
+  --nav-mobile-bg: inherit;
+  /* TODO: Define value for 'nav-mobile-item-border' in cabalou theme */
+  --nav-mobile-item-border: inherit;
+  /* TODO: Define value for 'nav-mobile-link-padding' in cabalou theme */
+  --nav-mobile-link-padding: inherit;
+  /* TODO: Define value for 'nav-mobile-max-height' in cabalou theme */
+  --nav-mobile-max-height: inherit;
+  /* TODO: Define value for 'nav-mobile-padding' in cabalou theme */
+  --nav-mobile-padding: inherit;
+  /* TODO: Define value for 'nav-mobile-radius' in cabalou theme */
+  --nav-mobile-radius: inherit;
+  /* TODO: Define value for 'nav-mobile-shadow' in cabalou theme */
+  --nav-mobile-shadow: inherit;
+  /* TODO: Define value for 'nav-mobile-submenu-bg' in cabalou theme */
+  --nav-mobile-submenu-bg: inherit;
+  /* TODO: Define value for 'nav-submenu-indent' in cabalou theme */
+  --nav-submenu-indent: inherit;
+  /* TODO: Define value for 'price-display-bg' in cabalou theme */
+  --price-display-bg: inherit;
+  /* TODO: Define value for 'price-display-border' in cabalou theme */
+  --price-display-border: inherit;
+  /* TODO: Define value for 'price-display-color' in cabalou theme */
+  --price-display-color: inherit;
+  /* TODO: Define value for 'radio-padding' in cabalou theme */
+  --radio-padding: inherit;
+  /* TODO: Define value for 'section-bg-minor' in cabalou theme */
+  --section-bg-minor: inherit;
+  /* TODO: Define value for 'section-color-minor' in cabalou theme */
+  --section-color-minor: inherit;
+  /* TODO: Define value for 'select-mobile-font-size' in cabalou theme */
+  --select-mobile-font-size: inherit;
+  /* TODO: Define value for 'select-multiple-padding' in cabalou theme */
+  --select-multiple-padding: inherit;
+  /* TODO: Define value for 'select-option-margin' in cabalou theme */
+  --select-option-margin: inherit;
+  /* TODO: Define value for 'select-valid-color' in cabalou theme */
+  --select-valid-color: inherit;}

@@ -3,7 +3,7 @@ import './StepsIndicator.css';
 import { Component } from '../../utils/componentFactory.js';
 
 /**
- * StepsIndicator component for displaying multi-step form progress
+ * StepsIndicator component for displaying multi-step form progress with a 3-part progress bar
  * @extends Component
  */
 export default class StepsIndicator extends Component {
@@ -44,34 +44,87 @@ export default class StepsIndicator extends Component {
   createStepsIndicator() {
     const { steps, activeIndex } = this.props;
 
-    const stepsContainer = this.createElement('div', {
+    // Main container
+    const container = this.createElement('div', {
       className: this.createClassNames('steps-indicator', this.props.className),
     });
 
+    // Progress bar with exactly 3 sections
+    const progressBar = this.createElement('div', {
+      className: 'steps-indicator__progress-bar',
+    });
+
+    // Create the three progress sections
+    const sections = 3;
+    for (let i = 0; i < sections; i++) {
+      const isActive = this.isSectionActive(i, activeIndex, steps.length);
+
+      const section = this.createElement('div', {
+        className: this.createClassNames('steps-indicator__section', {
+          'steps-indicator__section--active': isActive,
+        }),
+      });
+
+      progressBar.appendChild(section);
+    }
+
+    // Step indicators
+    const stepsRow = this.createElement('div', {
+      className: 'steps-indicator__steps',
+    });
+
+    // Create each step
     steps.forEach((step, index) => {
-      const stepElement = this.createElement('div', {
+      const stepEl = this.createElement('div', {
         className: this.createClassNames('steps-indicator__step', {
           'steps-indicator__step--active': index === activeIndex,
           'steps-indicator__step--completed': step.completed,
         }),
       });
 
-      const stepNumber = this.createElement('div', {
-        className: 'steps-indicator__step-number',
+      // Step number
+      const number = this.createElement('div', {
+        className: 'steps-indicator__number',
         textContent: (index + 1).toString(),
       });
 
-      const stepName = this.createElement('div', {
-        className: 'steps-indicator__step-name',
+      // Step label
+      const label = this.createElement('div', {
+        className: 'steps-indicator__label',
         textContent: step.name,
       });
 
-      stepElement.appendChild(stepNumber);
-      stepElement.appendChild(stepName);
-      stepsContainer.appendChild(stepElement);
+      stepEl.appendChild(number);
+      stepEl.appendChild(label);
+      stepsRow.appendChild(stepEl);
     });
 
-    return stepsContainer;
+    // Assemble the component
+    container.appendChild(progressBar);
+    container.appendChild(stepsRow);
+
+    return container;
+  }
+
+  /**
+   * Determines if a progress section should be active
+   * @private
+   * @param {number} sectionIndex - Index of the section (0-2)
+   * @param {number} activeStepIndex - Index of the active step
+   * @param {number} totalSteps - Total number of steps
+   * @returns {boolean} Whether the section should be active
+   */
+  isSectionActive(sectionIndex, activeStepIndex, totalSteps) {
+    // For 3 steps, map directly (section 0 → step 0, section 1 → step 1, etc.)
+    if (totalSteps <= 3) {
+      return sectionIndex <= activeStepIndex;
+    }
+
+    // For more than 3 steps, distribute progress proportionally
+    const progressRatio = (activeStepIndex + 1) / totalSteps;
+    const sectionThreshold = (sectionIndex + 1) / 3;
+
+    return progressRatio >= sectionThreshold;
   }
 
   /**

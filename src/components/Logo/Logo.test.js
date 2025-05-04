@@ -14,6 +14,7 @@ vi.mock('../../utils/theme.js', () => ({
 describe('Logo component', () => {
   const mockSvgPath = 'path/to/logo.svg';
   const mockCabalouPath = 'path/to/cabalou-logo.svg';
+  const mockFallbackPath = '/assets/images/fallback-logo.svg';
 
   // Setup and teardown
   beforeEach(() => {
@@ -64,26 +65,25 @@ describe('Logo component', () => {
     expect(updatedImg.src).toContain(mockCabalouPath);
   });
 
-  it('should use fallback path if theme-specific logo not found', () => {
+  it('should use fallback path when no theme match and no default key', () => {
     // Mock getCurrentTheme to return 'muchandy' which isn't in our sources
     themeUtils.getCurrentTheme.mockReturnValue('muchandy');
 
     const logo = new Logo({
       sources: {
-        default: mockSvgPath,
-        cabalou: mockCabalouPath,
+        cabalou: mockCabalouPath, // No 'default' key
       },
-      fallbackPath: 'fallback.svg',
+      fallbackPath: mockFallbackPath,
     });
 
     const element = logo.getElement();
     const img = element.querySelector('img');
 
     // Should use fallback path
-    expect(img.src).toContain('fallback.svg');
+    expect(img.src).toContain(mockFallbackPath);
   });
 
-  it('should use first available logo if no match and no fallback', () => {
+  it('should use default logo if theme-specific logo not found but default exists', () => {
     // Mock getCurrentTheme to return 'muchandy' which isn't in our sources
     themeUtils.getCurrentTheme.mockReturnValue('muchandy');
 
@@ -92,13 +92,32 @@ describe('Logo component', () => {
         default: mockSvgPath,
         cabalou: mockCabalouPath,
       },
+      fallbackPath: mockFallbackPath,
     });
 
     const element = logo.getElement();
     const img = element.querySelector('img');
 
-    // Should use the first available logo (default)
+    // Should use default path, not fallback
     expect(img.src).toContain(mockSvgPath);
+  });
+
+  it('should use first available logo if no match and no default and no fallback', () => {
+    // Mock getCurrentTheme to return 'muchandy' which isn't in our sources
+    themeUtils.getCurrentTheme.mockReturnValue('muchandy');
+
+    const logo = new Logo({
+      sources: {
+        cabalou: mockCabalouPath,
+        someTheme: mockSvgPath,
+      },
+    });
+
+    const element = logo.getElement();
+    const img = element.querySelector('img');
+
+    // Should use the first available logo
+    expect(img.src).toContain(mockCabalouPath);
   });
 
   it('should apply responsive class when responsive is true', () => {
@@ -177,5 +196,20 @@ describe('Logo component', () => {
     const errorSpan = element.querySelector('.logo-error');
     expect(errorSpan).not.toBeNull();
     expect(errorSpan.textContent).toBe('Logo');
+  });
+
+  it('should use fallback path when image fails to load', () => {
+    const logo = new Logo({
+      sources: 'invalid.svg',
+      fallbackPath: mockFallbackPath,
+    });
+    const element = logo.getElement();
+    const img = element.querySelector('img');
+
+    // Simulate image load error
+    img.onerror();
+
+    // After error, should use fallback path
+    expect(img.src).toContain(mockFallbackPath);
   });
 });

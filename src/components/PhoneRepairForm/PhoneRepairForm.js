@@ -3,7 +3,7 @@ import './PhoneRepairForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
-import FormGroup from '../FormGroup/FormGroup.js';
+import FormGroup from '../Form/FormGroup.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 import PhoneRepairService from '../../services/PhoneRepairService.js';
 
@@ -19,9 +19,16 @@ export default class PhoneRepairForm extends Component {
    * @param {Function} [props.onPriceChange] - Callback when a price is selected
    * @param {Object} [props.labels] - Custom labels for form elements
    * @param {Object} [props.apiOptions] - API service configuration options
+   * @param {boolean} [props.autoInitialize=true] - Whether to automatically load manufacturers
    * @param {string} [props.className=''] - Additional CSS class names
    */
-  constructor({ onPriceChange, labels = {}, apiOptions = {}, className = '' }) {
+  constructor({
+    onPriceChange,
+    labels = {},
+    apiOptions = {},
+    autoInitialize = true,
+    className = '',
+  }) {
     super();
 
     // Set default labels
@@ -46,6 +53,7 @@ export default class PhoneRepairForm extends Component {
     this.props = {
       onPriceChange,
       className,
+      autoInitialize,
     };
 
     // Initialize service
@@ -77,8 +85,10 @@ export default class PhoneRepairForm extends Component {
     // Create form element
     this.form = this.createFormElement();
 
-    // Initialize form
-    this.loadManufacturers();
+    // Initialize form only if autoInitialize is true
+    if (autoInitialize) {
+      this.loadManufacturers();
+    }
   }
 
   /**
@@ -133,9 +143,9 @@ export default class PhoneRepairForm extends Component {
 
     // Add manufacturer form group
     this.manufacturerGroup = new FormGroup({
-      labelText: this.labels.manufacturerLabel,
+      label: this.labels.manufacturerLabel, // Changed from labelText to label
       id: 'manufacturer',
-      fieldElement: this.manufacturerSelect.getElement(),
+      field: this.manufacturerSelect, // Changed from fieldElement to field
     });
     form.appendChild(this.manufacturerGroup.getElement());
 
@@ -150,9 +160,9 @@ export default class PhoneRepairForm extends Component {
 
     // Add device form group
     this.deviceGroup = new FormGroup({
-      labelText: this.labels.deviceLabel,
+      label: this.labels.deviceLabel, // Changed from labelText to label
       id: 'device',
-      fieldElement: this.deviceSelect.getElement(),
+      field: this.deviceSelect, // Changed from fieldElement to field
     });
     form.appendChild(this.deviceGroup.getElement());
 
@@ -167,9 +177,9 @@ export default class PhoneRepairForm extends Component {
 
     // Add action form group
     this.actionGroup = new FormGroup({
-      labelText: this.labels.serviceLabel,
+      label: this.labels.serviceLabel, // Changed from labelText to label
       id: 'action',
-      fieldElement: this.actionSelect.getElement(),
+      field: this.actionSelect, // Changed from fieldElement to field
     });
     form.appendChild(this.actionGroup.getElement());
 
