@@ -1,4 +1,8 @@
 // src/index.js
+// Import styles first
+import './styles/index.js';
+
+// Import components
 import Button from './components/Button/Button.js';
 import Grid from './components/Grid/Grid.js';
 import Navigation from './components/Navigation/Navigation.js';
@@ -25,9 +29,6 @@ import {
   getCurrentTheme,
   setThemeVariable,
 } from './utils/theme.js';
-
-// Import base styles
-import './styles/index.js';
 import Map from './components/Map/Map.js';
 import Head from './components/Head/Head.js';
 import Header from './components/Header/Header.js';
@@ -36,11 +37,6 @@ import Footer from './components/Footer/Footer.js';
 import Image from './components/Image/Image.js';
 import List from './components/List/List.js';
 import Page from './components/Page/Page.js';
-
-// Import prototypes
-import HomePageDefaultTheme from './prototypes/HomePage/DefaultTheme.js';
-import HomePageCabalouTheme from './prototypes/HomePage/CabalouTheme.js';
-import HomePageMuchandyTheme from './prototypes/HomePage/MuchandyTheme.js';
 import PhoneRepairForm from './components/PhoneRepairForm/PhoneRepairForm.js';
 import UsedPhonePriceForm from './components/UsedPhonePriceForm/UsedPhonePriceForm.js';
 import StepsIndicator from './components/StepsIndicator/StepsIndicator.js';
@@ -54,25 +50,7 @@ import Pagination from './components/Pagination/Pagination.js';
 
 // Export components
 const Svarog = {
-  Pagination,
-  Hero,
-  BlogDetail,
-  BlogList,
-  BlogCard,
-  ConditionSelector,
-  PriceDisplay,
-  StepsIndicator,
-  UsedPhonePriceForm,
-  PhoneRepairForm,
-  Page,
-  List,
-  Image,
-  Footer,
-  HeroSection,
-  Header,
-  Head,
-  Map,
-  Rating,
+  // Components
   Button,
   Grid,
   Navigation,
@@ -90,15 +68,30 @@ const Svarog = {
   FormGroup,
   FormSection,
   FormActions,
+  Rating,
+  Map,
+  Head,
+  Header,
+  HeroSection,
+  Footer,
+  Image,
+  List,
+  Page,
+  PhoneRepairForm,
+  UsedPhonePriceForm,
+  StepsIndicator,
+  PriceDisplay,
+  ConditionSelector,
+  BlogCard,
+  BlogList,
+  BlogDetail,
+  Hero,
+  Pagination,
   // Utilities
   themeManager,
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
-  // Prototypes
-  HomePageDefaultTheme,
-  HomePageCabalouTheme,
-  HomePageMuchandyTheme,
 };
 
 // Individual named exports
@@ -121,6 +114,24 @@ export {
   FormGroup,
   FormSection,
   FormActions,
+  Map,
+  Head,
+  Header,
+  HeroSection,
+  Footer,
+  Image,
+  List,
+  Page,
+  PhoneRepairForm,
+  UsedPhonePriceForm,
+  StepsIndicator,
+  PriceDisplay,
+  ConditionSelector,
+  BlogCard,
+  BlogList,
+  BlogDetail,
+  Hero,
+  Pagination,
   themeManager,
   switchTheme,
   getCurrentTheme,
