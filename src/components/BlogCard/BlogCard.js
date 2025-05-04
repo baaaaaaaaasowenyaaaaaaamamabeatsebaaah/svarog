@@ -146,4 +146,8 @@ export default class BlogCard extends Component {
 
     return card.getElement();
   }
+
+  getElement() {
+    return this.element;
+  }
 }

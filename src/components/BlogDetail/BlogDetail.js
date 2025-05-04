@@ -135,4 +135,8 @@ export default class BlogDetail extends Component {
     article.appendChild(contentElement);
     return article;
   }
+
+  getElement() {
+    return this.element;
+  }
 }
