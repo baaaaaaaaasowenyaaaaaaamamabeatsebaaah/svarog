@@ -1,7 +1,8 @@
 // src/components/Typography/Typography.js
 import './Typography.css';
+import { Component } from '../../utils/componentFactory.js';
 
-export default class Typography {
+export default class Typography extends Component {
   constructor({
     children,
     textAlign,
@@ -15,10 +16,10 @@ export default class Typography {
     weight,
     block = false,
   }) {
-    // Required props validation
-    if (!children) {
-      throw new Error('Typography must have content');
-    }
+    super();
+
+    // Validate required props
+    this.validateRequiredProps({ children }, ['children'], 'Typography');
 
     // Type validation
     const validElements = [
@@ -57,10 +58,13 @@ export default class Typography {
       throw new Error('block must be a boolean');
     }
 
-    if (
-      weight &&
-      ![
-        'normal',
+    // Weight validation - accept both numeric and named weights
+    if (weight) {
+      const validWeights = [
+        'light',
+        'regular',
+        'medium',
+        'semibold',
         'bold',
         '100',
         '200',
@@ -71,9 +75,13 @@ export default class Typography {
         '700',
         '800',
         '900',
-      ].includes(String(weight))
-    ) {
-      throw new Error('Invalid font weight value');
+        'normal', // Allow 'normal' as well
+      ];
+      if (!validWeights.includes(String(weight))) {
+        throw new Error(
+          `Invalid font weight value: ${weight}. Must be one of: ${validWeights.join(', ')}`
+        );
+      }
     }
 
     // Size validation
@@ -97,23 +105,7 @@ export default class Typography {
     this.weight = weight;
     this.block = block;
 
-    try {
-      this.typography = document.createElement(this.as);
-      this.typography.className = `typography ${this.className}`.trim();
-      this.typography.id = this.id || '';
-
-      if (typeof this.children === 'string') {
-        this.typography.innerHTML = this.children;
-      } else if (this.children instanceof HTMLElement) {
-        this.typography.appendChild(this.children);
-      } else {
-        throw new Error('children must be string or HTMLElement');
-      }
-
-      this.setStyle();
-    } catch (error) {
-      throw new Error(`Failed to create Typography: ${error.message}`);
-    }
+    this.element = this.createTypographyElement();
   }
 
   validateSize(size, propertyName) {
@@ -134,15 +126,47 @@ export default class Typography {
     return s.color !== '';
   }
 
-  setStyle() {
-    if (this.textAlign) this.typography.style.textAlign = this.textAlign;
-    if (this.color) this.typography.style.color = this.color;
-    if (this.weight) this.typography.style.fontWeight = this.weight;
-    this.typography.style.fontStyle = this.italic ? 'italic' : 'normal';
-    this.typography.style.display = this.block ? 'block' : 'inline';
+  createTypographyElement() {
+    const classNames = this.createClassNames(
+      'typography',
+      `typography--${this.as}`,
+      this.block ? 'typography--block' : 'typography--inline',
+      this.textAlign ? `typography--align-${this.textAlign}` : '',
+      this.italic ? 'typography--italic' : '',
+      this.weight ? `typography--weight-${this.weight}` : '',
+      this.className
+    );
+
+    const element = this.createElement(this.as, {
+      className: classNames,
+      id: this.id || '',
+    });
+
+    // Add custom data attributes for responsive sizes
+    if (this.tabletSize) {
+      element.setAttribute('data-tablet-size', this.tabletSize);
+    }
+    if (this.mobileSize) {
+      element.setAttribute('data-mobile-size', this.mobileSize);
+    }
+
+    // Apply inline styles that don't have CSS classes
+    if (this.color) {
+      element.style.color = this.color;
+    }
+
+    if (typeof this.children === 'string') {
+      element.innerHTML = this.children;
+    } else if (this.children instanceof HTMLElement) {
+      element.appendChild(this.children);
+    } else {
+      throw new Error('children must be string or HTMLElement');
+    }
+
+    return element;
   }
 
   getElement() {
-    return this.typography;
+    return this.element;
   }
 }

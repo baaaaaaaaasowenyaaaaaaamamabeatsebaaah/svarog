@@ -192,24 +192,101 @@ export const getComponents = () => {
       name: 'Typography',
       stories: [
         {
-          name: 'Default',
+          name: 'AllHeadings',
           module: () =>
             import('../components/Typography/Typography.stories.js').then(
-              (m) => m.Default
+              (m) => m.AllHeadings
             ),
         },
         {
-          name: 'Heading',
+          name: 'TextElements',
           module: () =>
             import('../components/Typography/Typography.stories.js').then(
-              (m) => m.Heading
+              (m) => m.TextElements
             ),
         },
         {
-          name: 'Italic',
+          name: 'TextAlignments',
           module: () =>
             import('../components/Typography/Typography.stories.js').then(
-              (m) => m.Italic
+              (m) => m.TextAlignments
+            ),
+        },
+        {
+          name: 'FontWeights',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.FontWeights
+            ),
+        },
+        {
+          name: 'FontStyles',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.FontStyles
+            ),
+        },
+        {
+          name: 'Colors',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.Colors
+            ),
+        },
+        {
+          name: 'CustomSizes',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.CustomSizes
+            ),
+        },
+        {
+          name: 'InlineVsBlock',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.InlineVsBlock
+            ),
+        },
+        {
+          name: 'WithCustomClasses',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.WithCustomClasses
+            ),
+        },
+        {
+          name: 'WithCustomId',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.WithCustomId
+            ),
+        },
+        {
+          name: 'ComplexContent',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.ComplexContent
+            ),
+        },
+        {
+          name: 'WithNestedElements',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.WithNestedElements
+            ),
+        },
+        {
+          name: 'CombinedFeatures',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.CombinedFeatures
+            ),
+        },
+        {
+          name: 'ResponsiveTypography',
+          module: () =>
+            import('../components/Typography/Typography.stories.js').then(
+              (m) => m.ResponsiveTypography
             ),
         },
       ],
