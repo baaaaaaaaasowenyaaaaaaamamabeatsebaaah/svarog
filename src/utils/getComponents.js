@@ -33,6 +33,36 @@ export const getComponents = () => {
               (m) => m.Text
             ),
         },
+        // ADD THESE NEW STORIES:
+        {
+          name: 'Success',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Success
+            ),
+        },
+        {
+          name: 'Danger',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Danger
+            ),
+        },
+        {
+          name: 'Outlined',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Outlined
+            ),
+        },
+        {
+          name: 'IconButton',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.IconButton
+            ),
+        },
+        // KEEP EXISTING ONES:
         {
           name: 'Small',
           module: () =>
@@ -68,8 +98,24 @@ export const getComponents = () => {
               (m) => m.AllVariants
             ),
         },
+        // ADD THESE NEW STORIES:
+        {
+          name: 'ButtonWithIcon',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.ButtonWithIcon
+            ),
+        },
+        {
+          name: 'ButtonIconRight',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.ButtonIconRight
+            ),
+        },
       ],
     },
+
     {
       name: 'Card',
       stories: [
