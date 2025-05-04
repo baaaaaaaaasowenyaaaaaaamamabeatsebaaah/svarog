@@ -2,17 +2,15 @@
 import './MuchandyHero.css';
 import { Component } from '../../utils/componentFactory.js';
 import Tabs from '../Tabs/Tabs.js';
-import PhoneRepairForm from '../PhoneRepairForm/PhoneRepairForm.js';
-import UsedPhonePriceForm from '../UsedPhonePriceForm/UsedPhonePriceForm.js';
 
 export default class MuchandyHero extends Component {
   constructor({
     backgroundImage = '',
     title = 'Reparatur in wenigen Klicks:',
     subtitle = 'Finden Sie Ihren Preis.',
-    repairFormConfig = {},
-    usedPhoneFormConfig = {},
-    defaultTab = 'repair', // 'repair' or 'sell'
+    repairForm,
+    buybackForm,
+    defaultTab = 'repair',
     className = '',
   }) {
     super();
@@ -21,11 +19,20 @@ export default class MuchandyHero extends Component {
       backgroundImage,
       title,
       subtitle,
-      repairFormConfig,
-      usedPhoneFormConfig,
+      repairForm,
+      buybackForm,
       defaultTab,
       className,
     };
+
+    // Create default forms if not provided
+    if (!this.props.repairForm) {
+      throw new Error('repairForm is required');
+    }
+
+    if (!this.props.buybackForm) {
+      throw new Error('buybackForm is required');
+    }
 
     this.element = this.createMuchandyHero();
   }
@@ -59,7 +66,7 @@ export default class MuchandyHero extends Component {
       content.appendChild(title);
     }
 
-    // Add subtitle
+    // Add subtitle if provided
     if (this.props.subtitle) {
       const subtitle = this.createElement('h2', {
         className: 'muchandy-hero__subtitle',
@@ -68,23 +75,33 @@ export default class MuchandyHero extends Component {
       content.appendChild(subtitle);
     }
 
-    // Create forms
-    const repairForm = new PhoneRepairForm(this.props.repairFormConfig);
-    const usedPhoneForm = new UsedPhonePriceForm(
-      this.props.usedPhoneFormConfig
-    );
+    // Create form container
+    const formContainer = this.createElement('div', {
+      className: 'muchandy-hero__form-container',
+    });
+
+    // Wrap forms in divs to control their display
+    const repairFormWrapper = this.createElement('div', {
+      className: 'muchandy-hero__form-wrapper',
+    });
+    repairFormWrapper.appendChild(this.props.repairForm.getElement());
+
+    const buybackFormWrapper = this.createElement('div', {
+      className: 'muchandy-hero__form-wrapper',
+    });
+    buybackFormWrapper.appendChild(this.props.buybackForm.getElement());
 
     // Create tabs configuration
     const tabs = [
       {
         id: 'repair',
         label: 'Reparatur',
-        content: repairForm,
+        content: repairFormWrapper,
       },
       {
         id: 'sell',
         label: 'Verkaufen',
-        content: usedPhoneForm,
+        content: buybackFormWrapper,
       },
     ];
 
@@ -95,8 +112,8 @@ export default class MuchandyHero extends Component {
       className: 'muchandy-hero__tabs',
     });
 
-    content.appendChild(tabsComponent.getElement());
-
+    formContainer.appendChild(tabsComponent.getElement());
+    content.appendChild(formContainer);
     overlay.appendChild(content);
     container.appendChild(overlay);
 

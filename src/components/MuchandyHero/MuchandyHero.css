@@ -1,111 +1,134 @@
 /* src/components/MuchandyHero/MuchandyHero.css */
 .muchandy-hero {
   position: relative;
-  min-height: 600px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #1a1a1a;
-  color: white;
-  overflow: hidden;
+  background-color: #333;
+  width: 100%;
+  padding: var(--space-8) 0;
 }
 
 .muchandy-hero__overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   background: linear-gradient(
     135deg,
     rgba(0, 0, 0, 0.7) 0%,
     rgba(0, 0, 0, 0.5) 100%
   );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-6);
+  padding: var(--space-8);
 }
 
 .muchandy-hero__content {
-  width: 100%;
   max-width: 800px;
+  margin: 0 auto;
   text-align: center;
 }
 
 .muchandy-hero__title {
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-4);
-  color: #64b5f6; /* Light blue color similar to the image */
+  color: #64b5f6;
 }
 
 .muchandy-hero__subtitle {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: var(--font-weight-medium);
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
   color: white;
+  display: none; /* Hide subtitle when no text is provided */
 }
 
-/* Customize tabs for the hero */
+.muchandy-hero__subtitle:not(:empty) {
+  display: block;
+}
+
+/* Tabs styling */
+.muchandy-hero__tabs {
+  background: transparent;
+}
+
 .muchandy-hero__tabs .tabs__list {
   justify-content: center;
-  border-bottom-color: rgba(255, 255, 255, 0.2);
-  margin-bottom: var(--space-6);
+  border-bottom: none;
+  margin-bottom: var(--space-4);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--border-radius-md);
+  display: inline-flex;
+  padding: 4px;
 }
 
 .muchandy-hero__tabs .tabs__button {
   color: rgba(255, 255, 255, 0.7);
-  font-size: var(--font-size-lg);
-  padding: var(--space-3) var(--space-6);
-  min-width: 150px;
+  font-size: var(--font-size-base);
+  padding: var(--space-2) var(--space-6);
+  min-width: 120px;
+  border: none;
+  background: transparent;
+  border-radius: var(--border-radius-md);
+  margin: 0 2px;
+  transition: all 0.2s ease;
 }
 
 .muchandy-hero__tabs .tabs__button:hover {
   color: white;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .muchandy-hero__tabs .tabs__button--active {
   color: white;
-  border-bottom-color: #64b5f6;
+  background: var(--color-primary);
+  border-bottom: none;
 }
 
-/* Form styling within hero */
-.muchandy-hero .phone-repair-form,
-.muchandy-hero .used-phone-price-form {
-  background: rgba(255, 255, 255, 0.95);
+.muchandy-hero__tabs .tabs__panel {
+  padding: 0;
+}
+
+/* Form container styling */
+.muchandy-hero__form-container {
+  background: white;
   border-radius: var(--border-radius-lg);
   padding: var(--space-6);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Override form styles within hero */
+.muchandy-hero .phone-repair-form,
+.muchandy-hero .used-phone-price-form {
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+.muchandy-hero .phone-repair-form__title,
+.muchandy-hero .used-phone-price-form__title {
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
-  .muchandy-hero {
-    min-height: 500px;
-  }
-
   .muchandy-hero__overlay {
-    padding: var(--space-4);
+    padding: var(--space-6) var(--space-4);
   }
 
   .muchandy-hero__title {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
   }
 
   .muchandy-hero__subtitle {
-    font-size: var(--font-size-xl);
-    margin-bottom: var(--space-6);
+    font-size: var(--font-size-lg);
   }
 
-  .muchandy-hero__tabs .tabs__button {
-    font-size: var(--font-size-base);
-    padding: var(--space-2) var(--space-4);
-    min-width: 120px;
-  }
-
-  .muchandy-hero .phone-repair-form,
-  .muchandy-hero .used-phone-price-form {
+  .muchandy-hero__form-container {
     padding: var(--space-4);
   }
 }

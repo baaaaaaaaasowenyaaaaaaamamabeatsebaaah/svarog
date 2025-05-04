@@ -369,13 +369,6 @@ export const getComponents = () => {
               (m) => m.CustomStyling
             ),
         },
-        {
-          name: 'ResponsiveNavigation',
-          module: () =>
-            import('../components/Navigation/Navigation.stories.js').then(
-              (m) => m.ResponsiveNavigation
-            ),
-        },
       ],
     },
     {

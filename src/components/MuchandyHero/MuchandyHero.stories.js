@@ -1,6 +1,8 @@
 // src/components/MuchandyHero/MuchandyHero.stories.js
 import MuchandyHero from './MuchandyHero.js';
 import { switchTheme } from '../../utils/theme.js';
+import PhoneRepairFormFactory from '../../factories/PhoneRepairFormFactory.js';
+import UsedPhonePriceFormFactory from '../../factories/UsedPhonePriceFormFactory.js';
 import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 import { mockPhoneBuybackData } from '../../../__mocks__/phoneBuybackData.js';
 
@@ -9,82 +11,110 @@ export default {
   component: MuchandyHero,
 };
 
+// Helper function to create forms with mock data
+const createMockForms = (repairConfig = {}, buybackConfig = {}) => {
+  // Create repair form with mock data
+  const repairForm = PhoneRepairFormFactory.createWithMockData({
+    mockData: mockPhoneRepairData,
+    ...repairConfig,
+  });
+
+  // Create buyback form with mock data
+  const buybackForm = UsedPhonePriceFormFactory.createWithMockData({
+    mockData: mockPhoneBuybackData,
+    ...buybackConfig,
+  });
+
+  return { repairForm, buybackForm };
+};
+
 export const Default = () => {
   const backgroundImage =
     'https://via.placeholder.com/1920x1080/1a1a1a/ffffff?text=Background+Image';
+
+  // Create forms with mock data
+  const { repairForm, buybackForm } = createMockForms(
+    {
+      onPriceChange: (price) => console.log('Repair price:', price),
+    },
+    {
+      onPriceChange: (price) => console.log('Used phone price:', price),
+    }
+  );
 
   const hero = new MuchandyHero({
     backgroundImage,
     title: 'Reparatur in wenigen Klicks:',
     subtitle: 'Finden Sie Ihren Preis.',
-    repairFormConfig: {
-      mockData: mockPhoneRepairData,
-      onPriceChange: (price) => console.log('Repair price:', price),
-    },
-    usedPhoneFormConfig: {
-      mockData: mockPhoneBuybackData,
-      onPriceChange: (price) => console.log('Used phone price:', price),
-    },
+    repairForm,
+    buybackForm,
   });
 
   return hero.getElement();
 };
 
 export const WithSellTabDefault = () => {
-  const backgroundImage =
-    'https://via.placeholder.com/1920x1080/1a1a1a/ffffff?text=Background+Image';
+  const backgroundImage = 'https://picsum.photos/1920/1080';
+
+  const { repairForm, buybackForm } = createMockForms(
+    {
+      onPriceChange: (price) => console.log('Repair price:', price),
+    },
+    {
+      onPriceChange: (price) => console.log('Used phone price:', price),
+    }
+  );
 
   const hero = new MuchandyHero({
     backgroundImage,
     defaultTab: 'sell',
     title: 'Verkaufen Sie Ihr Gerät:',
     subtitle: 'Schnell und einfach zum besten Preis.',
-    repairFormConfig: {
-      mockData: mockPhoneRepairData,
-      onPriceChange: (price) => console.log('Repair price:', price),
-    },
-    usedPhoneFormConfig: {
-      mockData: mockPhoneBuybackData,
-      onPriceChange: (price) => console.log('Used phone price:', price),
-    },
+    repairForm,
+    buybackForm,
   });
 
   return hero.getElement();
 };
 
 export const WithoutBackgroundImage = () => {
+  const { repairForm, buybackForm } = createMockForms(
+    {
+      onPriceChange: (price) => console.log('Repair price:', price),
+    },
+    {
+      onPriceChange: (price) => console.log('Used phone price:', price),
+    }
+  );
+
   const hero = new MuchandyHero({
     title: 'Reparatur in wenigen Klicks:',
     subtitle: 'Finden Sie Ihren Preis.',
-    repairFormConfig: {
-      mockData: mockPhoneRepairData,
-      onPriceChange: (price) => console.log('Repair price:', price),
-    },
-    usedPhoneFormConfig: {
-      mockData: mockPhoneBuybackData,
-      onPriceChange: (price) => console.log('Used phone price:', price),
-    },
+    repairForm,
+    buybackForm,
   });
 
   return hero.getElement();
 };
 
 export const WithCustomText = () => {
-  const backgroundImage =
-    'https://via.placeholder.com/1920x1080/1a1a1a/ffffff?text=Background+Image';
+  const backgroundImage = 'https://picsum.photos/1920/1080';
+
+  const { repairForm, buybackForm } = createMockForms(
+    {
+      onPriceChange: (price) => console.log('Repair price:', price),
+    },
+    {
+      onPriceChange: (price) => console.log('Used phone price:', price),
+    }
+  );
 
   const hero = new MuchandyHero({
     backgroundImage,
     title: 'Ihr Smartphone-Service',
     subtitle: 'Reparatur oder Verkauf - Sie entscheiden!',
-    repairFormConfig: {
-      mockData: mockPhoneRepairData,
-      onPriceChange: (price) => console.log('Repair price:', price),
-    },
-    usedPhoneFormConfig: {
-      mockData: mockPhoneBuybackData,
-      onPriceChange: (price) => console.log('Used phone price:', price),
-    },
+    repairForm,
+    buybackForm,
   });
 
   return hero.getElement();
@@ -94,29 +124,30 @@ export const WithMuchandyTheme = () => {
   // Set the Muchandy theme
   switchTheme('muchandy');
 
-  const backgroundImage =
-    'https://via.placeholder.com/1920x1080/1a1a1a/ffffff?text=Background+Image';
+  const backgroundImage = 'https://picsum.photos/1920/1080';
+
+  const { repairForm, buybackForm } = createMockForms(
+    {
+      onPriceChange: (price) => console.log('Repair price:', price),
+    },
+    {
+      onPriceChange: (price) => console.log('Used phone price:', price),
+    }
+  );
 
   const hero = new MuchandyHero({
     backgroundImage,
     title: 'Reparatur in wenigen Klicks:',
     subtitle: 'Finden Sie Ihren Preis.',
-    repairFormConfig: {
-      mockData: mockPhoneRepairData,
-      onPriceChange: (price) => console.log('Repair price:', price),
-    },
-    usedPhoneFormConfig: {
-      mockData: mockPhoneBuybackData,
-      onPriceChange: (price) => console.log('Used phone price:', price),
-    },
+    repairForm,
+    buybackForm,
   });
 
   return hero.getElement();
 };
 
 export const WithCallbacks = () => {
-  const backgroundImage =
-    'https://via.placeholder.com/1920x1080/1a1a1a/ffffff?text=Background+Image';
+  const backgroundImage = 'https://picsum.photos/1920/1080';
 
   const container = document.createElement('div');
 
@@ -129,20 +160,15 @@ export const WithCallbacks = () => {
   output.innerHTML =
     '<h3>Callback Output:</h3><p>Interact with the forms to see callbacks</p>';
 
-  const hero = new MuchandyHero({
-    backgroundImage,
-    title: 'Reparatur in wenigen Klicks:',
-    subtitle: 'Finden Sie Ihren Preis.',
-    repairFormConfig: {
-      mockData: mockPhoneRepairData,
+  const { repairForm, buybackForm } = createMockForms(
+    {
       onPriceChange: (price) => {
         const message = document.createElement('p');
         message.textContent = `Repair price selected: €${price.price}`;
         output.appendChild(message);
       },
     },
-    usedPhoneFormConfig: {
-      mockData: mockPhoneBuybackData,
+    {
       onPriceChange: (price) => {
         const message = document.createElement('p');
         message.textContent = `Used phone price selected: €${price.price}`;
@@ -154,7 +180,15 @@ export const WithCallbacks = () => {
         message.textContent = `Form submitted with data: ${JSON.stringify(formData)}`;
         output.appendChild(message);
       },
-    },
+    }
+  );
+
+  const hero = new MuchandyHero({
+    backgroundImage,
+    title: 'Reparatur in wenigen Klicks:',
+    subtitle: 'Finden Sie Ihren Preis.',
+    repairForm,
+    buybackForm,
   });
 
   container.appendChild(hero.getElement());
@@ -164,6 +198,12 @@ export const WithCallbacks = () => {
 };
 
 export const MinimalConfiguration = () => {
-  const hero = new MuchandyHero({});
+  const { repairForm, buybackForm } = createMockForms();
+
+  const hero = new MuchandyHero({
+    repairForm,
+    buybackForm,
+  });
+
   return hero.getElement();
 };
