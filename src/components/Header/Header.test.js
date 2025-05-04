@@ -45,14 +45,14 @@ describe('Header', () => {
     const header = new Header(defaultProps);
     const element = header.getElement();
 
-    expect(element.querySelector('.logo')).toBeTruthy();
+    expect(element.querySelector('.logo-container')).toBeTruthy();
   });
 
   it('should render navigation items', () => {
     const header = new Header(defaultProps);
     const element = header.getElement();
 
-    const navItems = element.querySelectorAll('.navigation__link');
+    const navItems = element.querySelectorAll('.nav__link');
     expect(navItems.length).toBe(3);
   });
 
@@ -63,6 +63,6 @@ describe('Header', () => {
     const header = new Header(props);
     const element = header.getElement();
 
-    expect(element.querySelector('.navigation')).toBeNull();
+    expect(element.querySelector('.nav')).toBeNull();
   });
 });

@@ -85,4 +85,8 @@ export default class Hero extends Component {
     hero.appendChild(content);
     return hero;
   }
+
+  getElement() {
+    return this.element;
+  }
 }
