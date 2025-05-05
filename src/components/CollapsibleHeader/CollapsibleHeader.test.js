@@ -53,6 +53,14 @@ describe('CollapsibleHeader', () => {
 
     // Clear all mocks
     vi.restoreAllMocks();
+
+    // Remove any sticky contact icons that might have been added to the document
+    const stickyElements = document.querySelectorAll('.sticky-contact-icons');
+    stickyElements.forEach((el) => {
+      if (el.parentElement) {
+        el.parentElement.removeChild(el);
+      }
+    });
   });
 
   it('should render correctly with all props', () => {
@@ -130,9 +138,83 @@ describe('CollapsibleHeader', () => {
     document.body.removeChild(header.element);
   });
 
-  it('should clean up event listeners when destroyed', () => {
-    const header = new CollapsibleHeader(defaultProps);
+  it('should show sticky icons when collapsed if enabled', () => {
+    const header = new CollapsibleHeader({
+      ...defaultProps,
+      collapseThreshold: 50,
+      showStickyIcons: true,
+    });
     document.body.appendChild(header.getElement());
+
+    // Initially not collapsed
+    expect(header.state.isCollapsed).toBe(false);
+
+    // Check if sticky icons exist but are hidden
+    const stickyIcons = document.querySelector(
+      '.collapsible-header__sticky-icons'
+    );
+    expect(stickyIcons).not.toBeNull();
+    expect(stickyIcons.style.display).toBe('none');
+
+    // Simulate scroll past threshold
+    Object.defineProperty(window, 'scrollY', {
+      value: 100,
+      configurable: true,
+    });
+
+    // Call the scroll handler manually since we've mocked addEventListener
+    if (window.scrollHandler) {
+      window.scrollHandler();
+    }
+
+    // Should be collapsed and sticky icons should be visible
+    expect(header.state.isCollapsed).toBe(true);
+    expect(stickyIcons.style.display).toBe('flex');
+
+    document.body.removeChild(header.element);
+  });
+
+  it('should not show sticky icons when disabled', () => {
+    const header = new CollapsibleHeader({
+      ...defaultProps,
+      collapseThreshold: 50,
+      showStickyIcons: false,
+    });
+    document.body.appendChild(header.getElement());
+
+    // Simulate scroll past threshold
+    Object.defineProperty(window, 'scrollY', {
+      value: 100,
+      configurable: true,
+    });
+
+    // Call the scroll handler manually
+    if (window.scrollHandler) {
+      window.scrollHandler();
+    }
+
+    // Should be collapsed but no sticky icons should be present
+    expect(header.state.isCollapsed).toBe(true);
+    const stickyIcons = document.querySelector(
+      '.collapsible-header__sticky-icons'
+    );
+    expect(stickyIcons).toBeNull();
+
+    document.body.removeChild(header.element);
+  });
+
+  it('should clean up event listeners when destroyed', () => {
+    const header = new CollapsibleHeader({
+      ...defaultProps,
+      showStickyIcons: true,
+    });
+    document.body.appendChild(header.getElement());
+
+    // Verify sticky icons are created
+    const stickyIcons = document.querySelector(
+      '.collapsible-header__sticky-icons'
+    );
+    expect(stickyIcons).not.toBeNull();
 
     // Verify removeEventListener is called with correct params
     header.destroy();
@@ -141,6 +223,12 @@ describe('CollapsibleHeader', () => {
       'scroll',
       header.handleScroll
     );
+
+    // Verify sticky icons are removed
+    const stickyIconsAfterDestroy = document.querySelector(
+      '.collapsible-header__sticky-icons'
+    );
+    expect(stickyIconsAfterDestroy).toBeNull();
 
     document.body.removeChild(header.element);
   });

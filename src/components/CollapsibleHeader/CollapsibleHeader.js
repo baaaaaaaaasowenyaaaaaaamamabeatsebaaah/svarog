@@ -6,6 +6,7 @@ import ContactInfo from '../ContactInfo/ContactInfo.js';
 import Logo from '../Logo/Logo.js';
 import Link from '../Link/Link.js';
 import Button from '../Button/Button.js';
+import StickyContactIcons from '../StickyContactIcons/StickyContactIcons.js';
 
 /**
  * CollapsibleHeader component that combines Header and ContactInfo with scroll animation
@@ -30,6 +31,8 @@ export default class CollapsibleHeader extends Component {
    * @param {Function} props.onCallButtonClick - Callback for call button click
    * @param {string} props.className - Additional CSS class names
    * @param {Element} [props.scrollContainer=null] - Element to listen for scroll events
+   * @param {boolean} [props.showStickyIcons=true] - Whether to show sticky icons when collapsed
+   * @param {string} [props.stickyIconsPosition='right'] - Position of sticky icons ('right' or 'bottom')
    */
   constructor({
     siteName = '',
@@ -42,6 +45,8 @@ export default class CollapsibleHeader extends Component {
     onCallButtonClick = null,
     className = '',
     scrollContainer = null, // Will default to window
+    showStickyIcons = true,
+    stickyIconsPosition = 'right',
   }) {
     super();
 
@@ -71,6 +76,8 @@ export default class CollapsibleHeader extends Component {
       onCallButtonClick,
       className,
       scrollContainer,
+      showStickyIcons,
+      stickyIconsPosition,
     };
 
     this.state = {
@@ -79,6 +86,11 @@ export default class CollapsibleHeader extends Component {
     };
 
     this.element = this.createCollapsibleHeaderElement();
+
+    // Create the sticky contact icons but don't append it yet
+    if (this.props.showStickyIcons) {
+      this.createStickyContactIcons();
+    }
 
     // Initialize scroll listener in constructor to fix tests
     this.setupScrollListener(scrollContainer);
@@ -212,6 +224,34 @@ export default class CollapsibleHeader extends Component {
   }
 
   /**
+   * Create the sticky contact icons component
+   * @private
+   */
+  createStickyContactIcons() {
+    const { contactInfo, stickyIconsPosition } = this.props;
+
+    this.stickyIcons = new StickyContactIcons({
+      location: contactInfo.location,
+      phone: contactInfo.phone,
+      email: contactInfo.email,
+      position: stickyIconsPosition,
+      className: 'collapsible-header__sticky-icons',
+    });
+
+    // Add custom styles to position the sticky icons correctly
+    const stickyIconsElement = this.stickyIcons.getElement();
+
+    // Hide initially - only show when header is collapsed
+    stickyIconsElement.style.display = 'none';
+
+    // Apply custom styles to maintain space from header
+    stickyIconsElement.style.top = 'var(--sticky-icons-top-offset, 80px)';
+
+    // Add to body element to avoid z-index issues
+    document.body.appendChild(stickyIconsElement);
+  }
+
+  /**
    * Set up scroll event listener for header collapse/expand
    * @param {Element} container - Element to listen for scroll events
    * @private
@@ -260,12 +300,35 @@ export default class CollapsibleHeader extends Component {
       if (this.props.compactLogo !== this.props.logo) {
         this.updateLogo(this.props.compactLogo);
       }
+
+      // Show sticky contact icons when collapsed
+      if (this.props.showStickyIcons && this.stickyIcons) {
+        const iconElement = this.stickyIcons.getElement();
+        if (iconElement) {
+          iconElement.style.display = 'flex';
+
+          // Calculate the header height and add offset for spacing
+          const headerHeight = this.element.offsetHeight;
+          iconElement.style.setProperty(
+            '--sticky-icons-top-offset',
+            `${headerHeight + 20}px`
+          );
+        }
+      }
     } else {
       this.element.classList.remove('collapsible-header--collapsed');
 
       // Switch back to full logo if needed
       if (this.props.compactLogo !== this.props.logo) {
         this.updateLogo(this.props.logo);
+      }
+
+      // Hide sticky contact icons when expanded
+      if (this.props.showStickyIcons && this.stickyIcons) {
+        const iconElement = this.stickyIcons.getElement();
+        if (iconElement) {
+          iconElement.style.display = 'none';
+        }
       }
     }
   }
@@ -288,6 +351,14 @@ export default class CollapsibleHeader extends Component {
   destroy() {
     if (this.scrollContainer && this.handleScroll) {
       this.scrollContainer.removeEventListener('scroll', this.handleScroll);
+    }
+
+    // Remove sticky icons if they exist
+    if (this.props.showStickyIcons && this.stickyIcons) {
+      const iconElement = this.stickyIcons.getElement();
+      if (iconElement && iconElement.parentNode) {
+        iconElement.parentNode.removeChild(iconElement);
+      }
     }
   }
 

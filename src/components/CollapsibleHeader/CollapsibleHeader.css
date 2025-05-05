@@ -92,6 +92,17 @@
   padding-right: 0;
 }
 
+/* Custom styles for sticky contact icons when displayed with header */
+.collapsible-header__sticky-icons {
+  --sticky-icons-top-offset: 80px; /* Default spacing from top */
+  position: fixed;
+  top: var(
+    --sticky-icons-top-offset
+  ) !important; /* Override the default top:50% */
+  transform: translateY(0) !important; /* Override the default transform */
+  z-index: 99; /* Just below the header */
+}
+
 /* Media queries for responsive behavior */
 @media (max-width: 768px) {
   .collapsible-header__container {
@@ -100,5 +111,10 @@
 
   .collapsible-header__contact-container {
     display: none; /* Hide contact info on mobile */
+  }
+
+  /* Adjust sticky icons positioning on mobile */
+  .collapsible-header__sticky-icons {
+    --sticky-icons-top-offset: 60px; /* Smaller spacing for mobile */
   }
 }

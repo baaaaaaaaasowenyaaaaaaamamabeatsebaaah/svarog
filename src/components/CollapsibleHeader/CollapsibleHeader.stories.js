@@ -39,7 +39,7 @@ export const MuchandyHeader = () => {
   content.style.padding = '20px';
   content.style.paddingTop = '200px';
   content.innerHTML =
-    '<h2>Scroll down to see header collapse</h2><p>The header will collapse after scrolling past the threshold.</p>';
+    '<h2>Scroll down to see header collapse</h2><p>The header will collapse after scrolling past the threshold, and sticky contact icons will appear.</p>';
 
   // Create SVG logo string
   const svgLogo = `
@@ -98,6 +98,8 @@ export const MuchandyHeader = () => {
     compactLogo: compactSvgDataUrl,
     collapseThreshold: 50,
     callButtonText: 'Anrufen',
+    showStickyIcons: true,
+    stickyIconsPosition: 'right',
     onCallButtonClick: (e) => {
       e.preventDefault(); // Prevent actual call in story
       statusDisplay.style.display = 'block';
@@ -123,10 +125,55 @@ export const MuchandyHeader = () => {
   instructions.style.borderRadius = '5px';
   instructions.style.zIndex = '1000';
   instructions.innerHTML =
-    'Scroll down to see the header collapse<br>Click "Anrufen" to test the call button';
+    'Scroll down to see the header collapse and sticky contact icons appear<br>Click "Anrufen" to test the call button';
 
   wrapper.appendChild(instructions);
   wrapper.appendChild(statusDisplay);
+
+  // Set up the scroll listener after the header is added to the DOM
+  setTimeout(() => {
+    header.componentDidMount(wrapper);
+  }, 0);
+
+  return wrapper;
+};
+
+// Story to demonstrate WITHOUT sticky icons
+export const WithoutStickyIcons = () => {
+  // Create a wrapper with scroll area
+  const wrapper = document.createElement('div');
+  wrapper.style.height = '500px';
+  wrapper.style.overflow = 'auto';
+  wrapper.style.position = 'relative';
+  wrapper.style.border = '1px solid #ccc';
+
+  // Create content to allow scrolling
+  const content = document.createElement('div');
+  content.style.height = '1200px';
+  content.style.padding = '20px';
+  content.style.paddingTop = '200px';
+  content.innerHTML =
+    '<h2>Without Sticky Icons</h2><p>This version will not show sticky contact icons when collapsed.</p>';
+
+  // Create the header
+  const header = new CollapsibleHeader({
+    siteName: 'MUCHANDY',
+    navigation: {
+      items: navigationItems,
+    },
+    contactInfo: {
+      location: 'Luisenstr. 1',
+      phone: '0176/88778877',
+      email: 'info@muchandy.de',
+    },
+    collapseThreshold: 50,
+    callButtonText: 'Anrufen',
+    showStickyIcons: false, // Disable sticky icons
+  });
+
+  // Append header and content to the wrapper
+  wrapper.appendChild(header.getElement());
+  wrapper.appendChild(content);
 
   // Set up the scroll listener after the header is added to the DOM
   setTimeout(() => {
@@ -181,6 +228,8 @@ export const SecondDesign = () => {
     collapseThreshold: 50,
     callButtonText: 'Call Us',
     className: 'second-design',
+    showStickyIcons: true,
+    stickyIconsPosition: 'right',
   });
 
   // Add custom styles for the second design
@@ -204,6 +253,12 @@ export const SecondDesign = () => {
       background-color: #FF6B6B;
       border-color: #FF6B6B;
     }
+    
+    /* Custom styles for sticky icons in second design */
+    .second-design + .collapsible-header__sticky-icons {
+      --sticky-contact-icons-color: #FF6B6B;
+      --sticky-contact-icons-hover-color: #4294d0;
+    }
   `;
   document.head.appendChild(style);
 
@@ -217,4 +272,22 @@ export const SecondDesign = () => {
   }, 0);
 
   return wrapper;
+};
+
+// Ensure all sticky contact icons are removed when the story is unmounted
+export const parameters = {
+  docs: {
+    story: {
+      inline: false,
+    },
+  },
+  beforeDestroy: () => {
+    // Remove any sticky contact icons in the document
+    const stickyElements = document.querySelectorAll('.sticky-contact-icons');
+    stickyElements.forEach((el) => {
+      if (el.parentElement) {
+        el.parentElement.removeChild(el);
+      }
+    });
+  },
 };
