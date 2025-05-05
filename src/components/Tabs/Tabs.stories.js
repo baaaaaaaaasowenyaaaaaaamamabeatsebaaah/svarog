@@ -8,28 +8,47 @@ export default {
   component: Tabs,
 };
 
+// Helper function to create the same tabs for each variant
+const createTabsConfig = () => ({
+  tabs: [
+    {
+      id: 'tab1',
+      label: 'Tab 1',
+      content: 'This is the content for Tab 1',
+    },
+    {
+      id: 'tab2',
+      label: 'Tab 2',
+      content: 'This is the content for Tab 2',
+    },
+    {
+      id: 'tab3',
+      label: 'Tab 3',
+      content: 'This is the content for Tab 3',
+    },
+  ],
+});
+
+// Make sure each story function is properly exported
 export const Default = () => {
+  return new Tabs(createTabsConfig());
+};
+
+export const SimpleVariant = () => {
   return new Tabs({
-    tabs: [
-      {
-        id: 'tab1',
-        label: 'Tab 1',
-        content: 'This is the content for Tab 1',
-      },
-      {
-        id: 'tab2',
-        label: 'Tab 2',
-        content: 'This is the content for Tab 2',
-      },
-      {
-        id: 'tab3',
-        label: 'Tab 3',
-        content: 'This is the content for Tab 3',
-      },
-    ],
+    ...createTabsConfig(),
+    variant: 'simple',
   });
 };
 
+export const BorderVariant = () => {
+  return new Tabs({
+    ...createTabsConfig(),
+    variant: 'border',
+  });
+};
+
+// Keep the existing story exports
 export const WithComponents = () => {
   return new Tabs({
     tabs: [
@@ -177,4 +196,88 @@ export const WithHTMLContent = () => {
       },
     ],
   });
+};
+
+export const AllVariants = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '2rem';
+
+  // Create heading and description for each variant
+  const variants = [
+    {
+      name: 'Default',
+      variant: 'default',
+      description: 'With bottom border and active tab indicator',
+    },
+    {
+      name: 'Simple',
+      variant: 'simple',
+      description: 'Clean tabs without bottom border',
+    },
+    {
+      name: 'Border',
+      variant: 'border',
+      description:
+        'Tabs with border styling and disabled appearance for inactive tabs',
+    },
+  ];
+
+  variants.forEach(({ name, variant, description }) => {
+    const section = document.createElement('div');
+
+    const header = document.createElement('h3');
+    header.textContent = `${name} Variant`;
+    header.style.marginBottom = '0.5rem';
+
+    const desc = document.createElement('p');
+    desc.textContent = description;
+    desc.style.marginBottom = '1rem';
+
+    const tabs = new Tabs({
+      ...createTabsConfig(),
+      variant: variant,
+    });
+
+    section.appendChild(header);
+    section.appendChild(desc);
+    section.appendChild(tabs.getElement());
+    container.appendChild(section);
+  });
+
+  return container;
+};
+
+export const TabAlignments = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '2rem';
+
+  // Create heading and section for each alignment
+  const alignments = [
+    { name: 'Left Alignment (Default)', align: 'left' },
+    { name: 'Center Alignment', align: 'center' },
+    { name: 'Right Alignment', align: 'right' },
+  ];
+
+  alignments.forEach(({ name, align }) => {
+    const section = document.createElement('div');
+
+    const header = document.createElement('h3');
+    header.textContent = name;
+    header.style.marginBottom = '1rem';
+
+    const tabs = new Tabs({
+      ...createTabsConfig(),
+      align: align,
+    });
+
+    section.appendChild(header);
+    section.appendChild(tabs.getElement());
+    container.appendChild(section);
+  });
+
+  return container;
 };

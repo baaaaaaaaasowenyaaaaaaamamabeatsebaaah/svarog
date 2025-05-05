@@ -8,16 +8,39 @@ export default class Tabs extends Component {
     defaultActiveTab = 0,
     onTabChange,
     className = '',
+    variant = 'default',
+    align = 'left', // Add align prop with default value of 'left'
   }) {
     super();
 
-    this.validateRequiredProps({ tabs }, ['tabs'], 'Tabs');
+    // Fix the validation to explicitly check if tabs is missing or empty
+    if (!tabs || tabs.length === 0) {
+      throw new Error('Tabs: tabs is required');
+    }
+
+    // Validate variant
+    const validVariants = ['default', 'simple', 'border'];
+    if (!validVariants.includes(variant)) {
+      throw new Error(
+        `Tabs: Invalid variant "${variant}". Must be one of: ${validVariants.join(', ')}`
+      );
+    }
+
+    // Validate alignment
+    const validAlignments = ['left', 'center', 'right'];
+    if (!validAlignments.includes(align)) {
+      throw new Error(
+        `Tabs: Invalid alignment "${align}". Must be one of: ${validAlignments.join(', ')}`
+      );
+    }
 
     this.props = {
       tabs,
       defaultActiveTab,
       onTabChange,
       className,
+      variant,
+      align,
     };
 
     this.state = {
@@ -28,8 +51,15 @@ export default class Tabs extends Component {
   }
 
   createTabs() {
+    const { variant, align } = this.props;
+
     const container = this.createElement('div', {
-      className: this.createClassNames('tabs', this.props.className),
+      className: this.createClassNames(
+        'tabs',
+        variant !== 'default' && `tabs--${variant}`,
+        align !== 'left' && `tabs--align-${align}`,
+        this.props.className
+      ),
     });
 
     // Create tab buttons
@@ -46,12 +76,15 @@ export default class Tabs extends Component {
     // Add tab buttons and panels
     this.props.tabs.forEach((tab, index) => {
       const isActive = index === this.state.activeTab;
+      const isFirst = index === 0;
 
       // Tab button
       const button = this.createElement('button', {
         className: this.createClassNames(
           'tabs__button',
-          isActive && 'tabs__button--active'
+          isActive && 'tabs__button--active',
+          variant === 'border' && isFirst && 'tabs__button--first',
+          variant === 'border' && 'tabs__button--bordered'
         ),
         attributes: {
           role: 'tab',
@@ -71,15 +104,20 @@ export default class Tabs extends Component {
       const panel = this.createElement('div', {
         className: this.createClassNames(
           'tabs__panel',
-          isActive && 'tabs__panel--active'
+          isActive && 'tabs__panel--active',
+          variant === 'border' && 'tabs__panel--bordered'
         ),
         attributes: {
           role: 'tabpanel',
           'aria-labelledby': `tab-${tab.id}`,
           id: `panel-${tab.id}`,
-          hidden: !isActive,
         },
       });
+
+      // Set hidden attribute only for inactive panels
+      if (!isActive) {
+        panel.hidden = true;
+      }
 
       // Add content to panel
       if (tab.content instanceof HTMLElement) {

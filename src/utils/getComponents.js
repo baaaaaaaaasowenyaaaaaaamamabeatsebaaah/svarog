@@ -1372,6 +1372,20 @@ export const getComponents = () => {
             import('../components/Tabs/Tabs.stories.js').then((m) => m.Default),
         },
         {
+          name: 'SimpleVariant',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.SimpleVariant
+            ),
+        },
+        {
+          name: 'BorderVariant',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.BorderVariant
+            ),
+        },
+        {
           name: 'WithComponents',
           module: () =>
             import('../components/Tabs/Tabs.stories.js').then(
@@ -1404,6 +1418,20 @@ export const getComponents = () => {
           module: () =>
             import('../components/Tabs/Tabs.stories.js').then(
               (m) => m.WithHTMLContent
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.AllVariants
+            ),
+        },
+        {
+          name: 'TabAlignments',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.TabAlignments
             ),
         },
       ],
