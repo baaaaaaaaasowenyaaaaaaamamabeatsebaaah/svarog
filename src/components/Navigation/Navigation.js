@@ -11,6 +11,8 @@ export default class Navigation extends Component {
     expandable = true,
     onItemSelect = null,
     className = '',
+    burgerPosition = 'left',
+    submenuShadow = false,
   }) {
     super();
 
@@ -22,6 +24,8 @@ export default class Navigation extends Component {
       expandable,
       onItemSelect,
       className,
+      burgerPosition,
+      submenuShadow,
     };
 
     this.state = {
@@ -40,6 +44,9 @@ export default class Navigation extends Component {
       {
         'nav--responsive': this.props.responsive,
         'nav--vertical': !this.props.horizontal,
+        'nav--horizontal': this.props.horizontal,
+        'nav--submenu-shadow': this.props.submenuShadow,
+        [`nav--burger-${this.props.burgerPosition}`]: this.props.responsive,
       },
       this.props.className
     );
@@ -53,7 +60,10 @@ export default class Navigation extends Component {
     if (this.props.responsive) {
       const burger = this.createElement('button', {
         className: 'nav__burger',
-        attributes: { 'aria-label': 'Toggle navigation menu' },
+        attributes: {
+          'aria-label': 'Toggle navigation menu',
+          'aria-expanded': 'false',
+        },
       });
 
       for (let i = 0; i < 3; i++) {
@@ -95,14 +105,19 @@ export default class Navigation extends Component {
       attributes: { 'data-id': item.id },
     });
 
+    const linkAttributes = {
+      ...(item.href && !hasChildren ? { href: item.href } : {}),
+      ...(item.disabled ? { 'aria-disabled': 'true' } : {}),
+      ...(hasChildren
+        ? { 'aria-expanded': isExpanded ? 'true' : 'false' }
+        : {}),
+    };
+
     const linkElement = this.createElement(
       hasChildren && this.props.expandable ? 'button' : 'a',
       {
         className: 'nav__link',
-        attributes: {
-          ...(item.href && !hasChildren ? { href: item.href } : {}),
-          ...(item.disabled ? { 'aria-disabled': 'true' } : {}),
-        },
+        attributes: linkAttributes,
         textContent: item.label,
       }
     );
@@ -204,18 +219,39 @@ export default class Navigation extends Component {
   toggleMobileMenu() {
     this.state.isOpen = !this.state.isOpen;
     this.element.classList.toggle('nav--open', this.state.isOpen);
+
+    // Update aria-expanded on burger button
+    const burger = this.element.querySelector('.nav__burger');
+    if (burger) {
+      burger.setAttribute(
+        'aria-expanded',
+        this.state.isOpen ? 'true' : 'false'
+      );
+    }
   }
 
   closeMobileMenu() {
     this.state.isOpen = false;
     this.element.classList.remove('nav--open');
+
+    // Update aria-expanded on burger button
+    const burger = this.element.querySelector('.nav__burger');
+    if (burger) {
+      burger.setAttribute('aria-expanded', 'false');
+    }
   }
 
   updateExpandedStates() {
-    const items = this.element.querySelectorAll('.nav__item');
+    const items = this.element.querySelectorAll('.nav__item--has-children');
     items.forEach((item) => {
       const isExpanded = item.dataset.id === this.state.expandedId;
       item.classList.toggle('nav__item--expanded', isExpanded);
+
+      // Update aria-expanded attribute on the link/button
+      const link = item.querySelector('.nav__link');
+      if (link) {
+        link.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+      }
     });
   }
 

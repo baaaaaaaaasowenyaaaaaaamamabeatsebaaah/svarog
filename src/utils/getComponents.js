@@ -324,6 +324,7 @@ export const getComponents = () => {
         },
       ],
     },
+
     {
       name: 'Navigation',
       stories: [
@@ -332,6 +333,13 @@ export const getComponents = () => {
           module: () =>
             import('../components/Navigation/Navigation.stories.js').then(
               (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithSubmenuShadow',
+          module: () =>
+            import('../components/Navigation/Navigation.stories.js').then(
+              (m) => m.WithSubmenuShadow
             ),
         },
         {
@@ -349,6 +357,13 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'BurgerRight',
+          module: () =>
+            import('../components/Navigation/Navigation.stories.js').then(
+              (m) => m.BurgerRight
+            ),
+        },
+        {
           name: 'NonExpandable',
           module: () =>
             import('../components/Navigation/Navigation.stories.js').then(
@@ -363,6 +378,13 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'MobileWithLogo',
+          module: () =>
+            import('../components/Navigation/Navigation.stories.js').then(
+              (m) => m.MobileWithLogo
+            ),
+        },
+        {
           name: 'CustomStyling',
           module: () =>
             import('../components/Navigation/Navigation.stories.js').then(
@@ -371,6 +393,7 @@ export const getComponents = () => {
         },
       ],
     },
+
     {
       name: 'Logo',
       stories: [

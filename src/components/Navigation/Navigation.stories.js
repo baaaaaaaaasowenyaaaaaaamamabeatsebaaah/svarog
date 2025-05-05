@@ -68,6 +68,14 @@ const navItems = [
 export const Default = () => {
   return new Navigation({
     items: navItems,
+    submenuShadow: false, // Default without shadow
+  });
+};
+
+export const WithSubmenuShadow = () => {
+  return new Navigation({
+    items: navItems,
+    submenuShadow: true, // Only this story has shadow
   });
 };
 
@@ -75,6 +83,7 @@ export const Vertical = () => {
   return new Navigation({
     items: navItems,
     horizontal: false,
+    submenuShadow: false,
   });
 };
 
@@ -82,6 +91,15 @@ export const WithActiveItem = () => {
   return new Navigation({
     items: navItems,
     activeId: 'products',
+    submenuShadow: false,
+  });
+};
+
+export const BurgerRight = () => {
+  return new Navigation({
+    items: navItems,
+    burgerPosition: 'right',
+    submenuShadow: false,
   });
 };
 
@@ -89,6 +107,7 @@ export const NonExpandable = () => {
   return new Navigation({
     items: navItems,
     expandable: false,
+    submenuShadow: false,
   });
 };
 
@@ -100,12 +119,12 @@ export const WithItemSelectionCallback = () => {
   output.style.marginTop = '20px';
   output.style.padding = '10px';
   output.style.border = '1px solid #ccc';
-  output.style.borderRadius = '4px';
   output.innerHTML = '<p>Click on a navigation item</p>';
 
   // Create navigation with callback
   const navigation = new Navigation({
     items: navItems,
+    submenuShadow: false,
     onItemSelect: (item) => {
       output.innerHTML = `
         <p><strong>Selected Item:</strong></p>
@@ -116,6 +135,33 @@ export const WithItemSelectionCallback = () => {
 
   container.appendChild(navigation.getElement());
   container.appendChild(output);
+
+  return container;
+};
+
+export const MobileWithLogo = () => {
+  const container = document.createElement('div');
+
+  // Create a logo element
+  const logo = document.createElement('div');
+  logo.style.fontWeight = 'bold';
+  logo.style.fontSize = '24px';
+  logo.style.margin = '0 1rem';
+  logo.textContent = 'LOGO';
+
+  // Create navigation with right-aligned burger
+  const navigation = new Navigation({
+    items: navItems,
+    burgerPosition: 'right',
+    submenuShadow: false,
+  });
+
+  const navElement = navigation.getElement();
+
+  // Insert logo after the burger button
+  navElement.insertBefore(logo, navElement.querySelector('.nav__list'));
+
+  container.appendChild(navElement);
 
   return container;
 };
@@ -131,11 +177,9 @@ export const CustomStyling = () => {
       --nav-link-hover-color: #ff6b6b;
       --nav-link-active-color: #ff6b6b;
       --nav-link-padding: 0.75rem 1.25rem;
-      --nav-link-radius: 30px;
       --nav-active-font-weight: 700;
       --nav-dropdown-bg: white;
       --nav-dropdown-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      --nav-dropdown-radius: 12px;
       --nav-dropdown-border: none;
       --nav-dropdown-link-padding: 0.75rem 1.5rem;
       --nav-focus-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
@@ -154,6 +198,7 @@ export const CustomStyling = () => {
   const nav = new Navigation({
     items: navItems,
     className: 'custom-nav',
+    submenuShadow: false,
   });
 
   container.appendChild(style);
