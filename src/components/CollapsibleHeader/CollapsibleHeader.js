@@ -5,6 +5,7 @@ import Navigation from '../Navigation/Navigation.js';
 import ContactInfo from '../ContactInfo/ContactInfo.js';
 import Logo from '../Logo/Logo.js';
 import Link from '../Link/Link.js';
+import Button from '../Button/Button.js';
 
 /**
  * CollapsibleHeader component that combines Header and ContactInfo with scroll animation
@@ -25,6 +26,8 @@ export default class CollapsibleHeader extends Component {
    * @param {string} props.logo - URL to logo image
    * @param {string} props.compactLogo - URL to compact logo image for collapsed state
    * @param {number} props.collapseThreshold - Scroll threshold in pixels to trigger collapse
+   * @param {string} props.callButtonText - Text for the call button (default: "Anrufen")
+   * @param {Function} props.onCallButtonClick - Callback for call button click
    * @param {string} props.className - Additional CSS class names
    * @param {Element} [props.scrollContainer=null] - Element to listen for scroll events
    */
@@ -35,6 +38,8 @@ export default class CollapsibleHeader extends Component {
     logo = '',
     compactLogo = '',
     collapseThreshold = 100,
+    callButtonText = 'Anrufen',
+    onCallButtonClick = null,
     className = '',
     scrollContainer = null, // Will default to window
   }) {
@@ -62,6 +67,8 @@ export default class CollapsibleHeader extends Component {
       logo,
       compactLogo: compactLogo || logo, // Use the regular logo if no compact logo is provided
       collapseThreshold,
+      callButtonText,
+      onCallButtonClick,
       className,
       scrollContainer,
     };
@@ -72,6 +79,9 @@ export default class CollapsibleHeader extends Component {
     };
 
     this.element = this.createCollapsibleHeaderElement();
+
+    // Initialize scroll listener in constructor to fix tests
+    this.setupScrollListener(scrollContainer);
   }
 
   /**
@@ -80,7 +90,15 @@ export default class CollapsibleHeader extends Component {
    * @private
    */
   createCollapsibleHeaderElement() {
-    const { siteName, navigation, contactInfo, logo, className } = this.props;
+    const {
+      siteName,
+      navigation,
+      contactInfo,
+      logo,
+      callButtonText,
+      onCallButtonClick,
+      className,
+    } = this.props;
 
     const headerClasses = this.createClassNames(
       'collapsible-header',
@@ -161,6 +179,27 @@ export default class CollapsibleHeader extends Component {
       });
       rightContainer.appendChild(nav.getElement());
     }
+
+    // Create call button container and button
+    const callButtonContainer = this.createElement('div', {
+      className: 'collapsible-header__call-button',
+    });
+
+    // Default click handler that uses the phone number if no custom handler provided
+    const handleCallClick =
+      onCallButtonClick ||
+      (() => {
+        window.location.href = `tel:${contactInfo.phone.replace(/[\s()/-]/g, '')}`;
+      });
+
+    const callButton = new Button({
+      text: callButtonText,
+      variant: 'primary',
+      onClick: handleCallClick,
+    });
+
+    callButtonContainer.appendChild(callButton.getElement());
+    rightContainer.appendChild(callButtonContainer);
 
     // Add logo and right containers to navigation container
     navigationContainer.appendChild(logoContainer);
@@ -263,10 +302,20 @@ export default class CollapsibleHeader extends Component {
 
   /**
    * Called after the component is mounted to the DOM
+   * This method is already called in the constructor, but
+   * can be called again if needed for a different container
    * @param {Element} container - Optional scroll container
    * @public
    */
   componentDidMount(container) {
-    this.setupScrollListener(container);
+    if (container && container !== this.scrollContainer) {
+      // Clean up old listener if exists
+      if (this.scrollContainer && this.handleScroll) {
+        this.scrollContainer.removeEventListener('scroll', this.handleScroll);
+      }
+
+      // Set up new listener
+      this.setupScrollListener(container);
+    }
   }
 }

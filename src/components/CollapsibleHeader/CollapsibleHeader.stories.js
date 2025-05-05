@@ -6,14 +6,13 @@ export default {
   component: CollapsibleHeader,
 };
 
-// Sample navigation items
+// Sample navigation items (without Anrufen - moved to separate button)
 const navigationItems = [
   { id: 'repair', label: 'Reparatur', href: '/reparatur' },
   { id: 'purchase', label: 'Ankauf', href: '/ankauf' },
   { id: 'used', label: 'Gebrauchte', href: '/gebrauchte' },
   { id: 'services', label: 'Services', href: '/services' },
   { id: 'find-us', label: 'So Finden Sie Uns', href: '/kontakt' },
-  { id: 'call', label: 'Anrufen', href: '/anrufen' },
 ];
 
 // Sample navigation for second example
@@ -72,6 +71,18 @@ export const MuchandyHeader = () => {
   const compactSvgDataUrl =
     'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(compactSvgLogo);
 
+  // Status display for call button click
+  const statusDisplay = document.createElement('div');
+  statusDisplay.style.position = 'absolute';
+  statusDisplay.style.bottom = '60px';
+  statusDisplay.style.right = '20px';
+  statusDisplay.style.padding = '10px';
+  statusDisplay.style.background = 'rgba(255,255,255,0.9)';
+  statusDisplay.style.border = '1px solid #ccc';
+  statusDisplay.style.borderRadius = '5px';
+  statusDisplay.style.display = 'none';
+  statusDisplay.textContent = 'Call button clicked!';
+
   // Create the header
   const header = new CollapsibleHeader({
     siteName: 'MUCHANDY',
@@ -86,6 +97,15 @@ export const MuchandyHeader = () => {
     logo: svgDataUrl,
     compactLogo: compactSvgDataUrl,
     collapseThreshold: 50,
+    callButtonText: 'Anrufen',
+    onCallButtonClick: (e) => {
+      e.preventDefault(); // Prevent actual call in story
+      statusDisplay.style.display = 'block';
+      setTimeout(() => {
+        statusDisplay.style.display = 'none';
+      }, 2000);
+      return false;
+    },
   });
 
   // Append header and content to the wrapper
@@ -102,9 +122,11 @@ export const MuchandyHeader = () => {
   instructions.style.color = 'white';
   instructions.style.borderRadius = '5px';
   instructions.style.zIndex = '1000';
-  instructions.innerHTML = 'Scroll down to see the header collapse';
+  instructions.innerHTML =
+    'Scroll down to see the header collapse<br>Click "Anrufen" to test the call button';
 
   wrapper.appendChild(instructions);
+  wrapper.appendChild(statusDisplay);
 
   // Set up the scroll listener after the header is added to the DOM
   setTimeout(() => {
@@ -114,6 +136,7 @@ export const MuchandyHeader = () => {
   return wrapper;
 };
 
+// The second design story can remain the same with adjustments for the call button
 export const SecondDesign = () => {
   // Create a wrapper with scroll area
   const wrapper = document.createElement('div');
@@ -156,6 +179,7 @@ export const SecondDesign = () => {
     },
     logo: svgDataUrl,
     collapseThreshold: 50,
+    callButtonText: 'Call Us',
     className: 'second-design',
   });
 
@@ -174,6 +198,11 @@ export const SecondDesign = () => {
     
     .second-design .nav__link {
       font-weight: 500;
+    }
+    
+    .second-design .collapsible-header__call-button .btn--primary {
+      background-color: #FF6B6B;
+      border-color: #FF6B6B;
     }
   `;
   document.head.appendChild(style);
