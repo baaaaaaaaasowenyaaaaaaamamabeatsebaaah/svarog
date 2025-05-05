@@ -150,6 +150,21 @@ export default class Typography extends Component {
       element.setAttribute('data-mobile-size', this.mobileSize);
     }
 
+    // Apply inline styles for testing and direct manipulation
+    if (this.textAlign) {
+      element.style.textAlign = this.textAlign;
+    }
+
+    if (this.block) {
+      element.style.display = 'block';
+    } else {
+      element.style.display = 'inline';
+    }
+
+    if (this.italic) {
+      element.style.fontStyle = 'italic';
+    }
+
     // Apply inline styles that don't have CSS classes
     if (this.color) {
       element.style.color = this.color;
