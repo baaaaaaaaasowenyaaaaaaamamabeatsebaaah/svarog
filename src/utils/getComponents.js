@@ -1584,6 +1584,26 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'CollapsibleHeader',
+      stories: [
+        {
+          name: 'MuchandyHeader',
+          module: () =>
+            import(
+              '../components/CollapsibleHeader/CollapsibleHeader.stories.js'
+            ).then((m) => m.MuchandyHeader),
+        },
+        {
+          name: 'SecondDesign',
+          module: () =>
+            import(
+              '../components/CollapsibleHeader/CollapsibleHeader.stories.js'
+            ).then((m) => m.SecondDesign),
+        },
+      ],
+    },
   ];
 
   return components;

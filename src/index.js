@@ -50,9 +50,11 @@ import Pagination from './components/Pagination/Pagination.js';
 import MuchandyHero from './components/MuchandyHero/MuchandyHero.js';
 import Tabs from './components/Tabs/Tabs.js';
 import ContactInfo from './components/ContactInfo/ContactInfo.js';
+import CollapsibleHeader from './components/CollapsibleHeader/CollapsibleHeader.js';
 
 // Export components
 const Svarog = {
+  CollapsibleHeader,
   ContactInfo,
   Tabs,
   MuchandyHero,

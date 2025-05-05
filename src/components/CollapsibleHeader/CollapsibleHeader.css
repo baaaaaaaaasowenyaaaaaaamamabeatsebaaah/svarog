@@ -1,0 +1,92 @@
+/* src/components/CollapsibleHeader/CollapsibleHeader.css */
+.collapsible-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: var(
+    --collapsible-header-transition,
+    transform 0.3s ease,
+    height 0.3s ease
+  );
+  background-color: var(--color-bg);
+  box-shadow: var(--collapsible-header-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+  width: 100%;
+}
+
+.collapsible-header__container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 64px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contact info container with animation */
+.collapsible-header__contact-container {
+  background-color: var(--collapsible-header-contact-bg, var(--color-bg));
+  transition: var(
+    --collapsible-header-contact-transition,
+    height 0.3s ease,
+    opacity 0.3s ease
+  );
+  overflow: hidden;
+  height: auto;
+  display: flex;
+  justify-content: flex-end; /* Right-aligned */
+  padding: var(--space-2) 0;
+  padding-right: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Main navigation bar */
+.collapsible-header__navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+}
+
+/* Logo container */
+.collapsible-header__logo {
+  display: flex;
+  align-items: center;
+  margin-right: auto; /* Left-aligned */
+  transition: var(--collapsible-header-logo-transition, transform 0.3s ease);
+}
+
+/* Right container for navigation */
+.collapsible-header__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Collapsed state */
+.collapsible-header--collapsed .collapsible-header__contact-container {
+  height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Small logo in collapsed state */
+.collapsible-header--collapsed .collapsible-header__logo {
+  transform: scale(0.85);
+}
+
+/* Remove margin from last nav item to align with contact info */
+.collapsible-header .nav__item:last-child .nav__link {
+  padding-right: 0;
+}
+
+/* Media queries for responsive behavior */
+@media (max-width: 768px) {
+  .collapsible-header__container {
+    padding: 0 20px; /* Smaller padding on mobile */
+  }
+
+  .collapsible-header__contact-container {
+    display: none; /* Hide contact info on mobile */
+  }
+}
