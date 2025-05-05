@@ -49,9 +49,11 @@ import Hero from './components/Hero/Hero.js';
 import Pagination from './components/Pagination/Pagination.js';
 import MuchandyHero from './components/MuchandyHero/MuchandyHero.js';
 import Tabs from './components/Tabs/Tabs.js';
+import ContactInfo from './components/ContactInfo/ContactInfo.js';
 
 // Export components
 const Svarog = {
+  ContactInfo,
   Tabs,
   MuchandyHero,
   // Components

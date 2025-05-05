@@ -254,6 +254,17 @@
   box-shadow: var(--card-hover-shadow);
 }
 
+.default-theme {
+  /* ContactInfo Component */
+  --contact-info-gap: var(--space-4);
+  --contact-info-item-gap: var(--space-2);
+  --contact-info-mobile-gap: var(--space-2);
+  --contact-info-color: var(--color-text);
+  --contact-info-hover-color: var(--color-brand-primary);
+  --contact-info-font-size: var(--font-size-sm);
+  --contact-info-icon-size: 18px;
+}
+
 /* Improve typography readability */
 .default-theme h1,
 .default-theme h2,
@@ -462,4 +473,5 @@
   /* TODO: Define value for 'section-padding-tablet' in default theme */
   --section-padding-tablet: inherit;
   /* TODO: Define value for 'select-valid-color' in default theme */
-  --select-valid-color: inherit;}
+  --select-valid-color: inherit;
+}

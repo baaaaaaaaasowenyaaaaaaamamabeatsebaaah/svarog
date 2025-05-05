@@ -1550,6 +1550,40 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'ContactInfo',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithCustomClass',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.WithCustomClass
+            ),
+        },
+        {
+          name: 'WithCustomLocationId',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.WithCustomLocationId
+            ),
+        },
+        {
+          name: 'WithClickHandlers',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.WithClickHandlers
+            ),
+        },
+      ],
+    },
   ];
 
   return components;
