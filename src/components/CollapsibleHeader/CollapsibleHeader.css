@@ -2,7 +2,7 @@
 .collapsible-header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: var(--z-index-sticky);
   transition: var(
     --collapsible-header-transition,
     transform 0.3s ease,
