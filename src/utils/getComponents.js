@@ -1077,6 +1077,42 @@ export const getComponents = () => {
               '../components/ConditionSelector/ConditionSelector.stories.js'
             ).then((m) => m.Default),
         },
+        // Add these new stories:
+        {
+          name: 'WithSelectedCondition',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.WithSelectedCondition),
+        },
+        {
+          name: 'LoadingState',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.LoadingState),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.Interactive),
+        },
+        {
+          name: 'AllStates',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.AllStates),
+        },
+        {
+          name: 'CustomStyling',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.CustomStyling),
+        },
       ],
     },
 

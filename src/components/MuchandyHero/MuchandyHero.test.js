@@ -3,8 +3,34 @@ import { describe, it, expect, vi } from 'vitest';
 import MuchandyHero from './MuchandyHero.js';
 
 describe('MuchandyHero', () => {
+  // Create mock forms
+  const createMockForms = () => {
+    // Create mock for repairForm
+    const repairForm = {
+      getElement: () => {
+        const element = document.createElement('div');
+        element.className = 'phone-repair-form';
+        element.textContent = 'Mock Repair Form';
+        return element;
+      },
+    };
+
+    // Create mock for buybackForm
+    const buybackForm = {
+      getElement: () => {
+        const element = document.createElement('div');
+        element.className = 'used-phone-price-form';
+        element.textContent = 'Mock Buyback Form';
+        return element;
+      },
+    };
+
+    return { repairForm, buybackForm };
+  };
+
   it('should create a muchandy hero element', () => {
-    const hero = new MuchandyHero({});
+    const { repairForm, buybackForm } = createMockForms();
+    const hero = new MuchandyHero({ repairForm, buybackForm });
     const element = hero.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -12,8 +38,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should apply background image when provided', () => {
+    const { repairForm, buybackForm } = createMockForms();
     const hero = new MuchandyHero({
       backgroundImage: 'test-image.jpg',
+      repairForm,
+      buybackForm,
     });
     const element = hero.getElement();
 
@@ -21,8 +50,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should render title when provided', () => {
+    const { repairForm, buybackForm } = createMockForms();
     const hero = new MuchandyHero({
       title: 'Test Title',
+      repairForm,
+      buybackForm,
     });
     const element = hero.getElement();
 
@@ -32,8 +64,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should render subtitle when provided', () => {
+    const { repairForm, buybackForm } = createMockForms();
     const hero = new MuchandyHero({
       subtitle: 'Test Subtitle',
+      repairForm,
+      buybackForm,
     });
     const element = hero.getElement();
 
@@ -43,7 +78,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should render tabs with repair and sell options', () => {
-    const hero = new MuchandyHero({});
+    const { repairForm, buybackForm } = createMockForms();
+    const hero = new MuchandyHero({
+      repairForm,
+      buybackForm,
+    });
     const element = hero.getElement();
 
     const tabButtons = element.querySelectorAll('.tabs__button');
@@ -53,7 +92,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should set repair tab as default', () => {
-    const hero = new MuchandyHero({});
+    const { repairForm, buybackForm } = createMockForms();
+    const hero = new MuchandyHero({
+      repairForm,
+      buybackForm,
+    });
     const element = hero.getElement();
 
     const activeButton = element.querySelector('.tabs__button--active');
@@ -61,8 +104,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should set sell tab as default when specified', () => {
+    const { repairForm, buybackForm } = createMockForms();
     const hero = new MuchandyHero({
       defaultTab: 'sell',
+      repairForm,
+      buybackForm,
     });
     const element = hero.getElement();
 
@@ -71,8 +117,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should apply custom className', () => {
+    const { repairForm, buybackForm } = createMockForms();
     const hero = new MuchandyHero({
       className: 'custom-hero',
+      repairForm,
+      buybackForm,
     });
     const element = hero.getElement();
 
@@ -80,7 +129,11 @@ describe('MuchandyHero', () => {
   });
 
   it('should render both form components', () => {
-    const hero = new MuchandyHero({});
+    const { repairForm, buybackForm } = createMockForms();
+    const hero = new MuchandyHero({
+      repairForm,
+      buybackForm,
+    });
     const element = hero.getElement();
 
     // Check for form containers - they should be in tab panels
@@ -89,21 +142,17 @@ describe('MuchandyHero', () => {
   });
 
   it('should pass config to forms', () => {
-    const repairConfig = {
-      onPriceChange: vi.fn(),
-    };
+    const { repairForm, buybackForm } = createMockForms();
 
-    const usedPhoneConfig = {
-      onPriceChange: vi.fn(),
-    };
+    // Add spies to forms
+    repairForm.props = { onPriceChange: vi.fn() };
+    buybackForm.props = { onPriceChange: vi.fn() };
 
     const hero = new MuchandyHero({
-      repairFormConfig: repairConfig,
-      usedPhoneFormConfig: usedPhoneConfig,
+      repairForm,
+      buybackForm,
     });
 
-    // This is a basic check - we'd need to mock the form components
-    // to fully test config passing
     expect(hero).toBeTruthy();
   });
 });

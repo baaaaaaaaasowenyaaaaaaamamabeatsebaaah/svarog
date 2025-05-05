@@ -29,7 +29,7 @@
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-4);
-  color: #64b5f6;
+  color: white;
 }
 
 .muchandy-hero__subtitle {
@@ -53,32 +53,32 @@
   justify-content: center;
   border-bottom: none;
   margin-bottom: var(--space-4);
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: var(--border-radius-md);
+  background: rgba(0, 0, 0, 0.2);
   display: inline-flex;
-  padding: 4px;
+  padding: 0;
+  border-radius: 0;
 }
 
 .muchandy-hero__tabs .tabs__button {
   color: rgba(255, 255, 255, 0.7);
   font-size: var(--font-size-base);
-  padding: var(--space-2) var(--space-6);
+  padding: var(--space-3) var(--space-6);
   min-width: 120px;
   border: none;
   background: transparent;
-  border-radius: var(--border-radius-md);
-  margin: 0 2px;
+  margin: 0;
   transition: all 0.2s ease;
+  border-radius: 0;
 }
 
 .muchandy-hero__tabs .tabs__button:hover {
   color: white;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .muchandy-hero__tabs .tabs__button--active {
   color: white;
-  background: var(--color-primary);
+  background: var(--color-primary, #007bff);
   border-bottom: none;
 }
 
@@ -89,11 +89,11 @@
 /* Form container styling */
 .muchandy-hero__form-container {
   background: white;
-  border-radius: var(--border-radius-lg);
   padding: var(--space-6);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-width: 600px;
   margin: 0 auto;
+  border-radius: 0;
 }
 
 /* Override form styles within hero */
@@ -107,7 +107,7 @@
 
 .muchandy-hero .phone-repair-form__title,
 .muchandy-hero .used-phone-price-form__title {
-  color: var(--color-primary);
+  color: var(--color-primary, #007bff);
   font-size: var(--font-size-xl);
   margin-bottom: var(--space-4);
   padding-bottom: var(--space-2);
