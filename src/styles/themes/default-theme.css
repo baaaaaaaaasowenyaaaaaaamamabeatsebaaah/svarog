@@ -241,6 +241,33 @@
   --form-actions-gap: var(--space-3);
   --form-actions-margin-top: var(--space-5);
   --form-actions-justify: flex-end;
+
+  /* ContactInfo Component */
+  --contact-info-gap: var(--space-4);
+  --contact-info-item-gap: var(--space-2);
+  --contact-info-mobile-gap: var(--space-2);
+  --contact-info-color: var(--color-text);
+  --contact-info-hover-color: var(--color-brand-primary);
+  --contact-info-font-size: var(--font-size-sm);
+  --contact-info-icon-size: 18px;
+
+  /* StickyContactIcons Variables */
+  --sticky-contact-icons-right: var(--space-4);
+  --sticky-contact-icons-gap: var(--space-3);
+  --sticky-contact-icons-padding: var(--space-3);
+  --sticky-contact-icons-bg: var(--color-white);
+  --sticky-contact-icons-radius: var(--border-radius-md);
+  --sticky-contact-icons-shadow: var(--shadow-md);
+  --sticky-contact-icons-size: 40px;
+  --sticky-contact-icons-color: var(--color-gray-700);
+  --sticky-contact-icons-hover-color: var(--color-primary);
+  --sticky-contact-icons-icon-size: 20px;
+
+  /* Mobile adjustments */
+  --sticky-contact-icons-mobile-right: var(--space-2);
+  --sticky-contact-icons-mobile-bottom: var(--space-4);
+  --sticky-contact-icons-mobile-size: 36px;
+  --sticky-contact-icons-mobile-icon-size: 18px;
 }
 
 .default-theme .card {
@@ -252,17 +279,6 @@
 .default-theme .card:hover {
   transform: translateY(-2px);
   box-shadow: var(--card-hover-shadow);
-}
-
-.default-theme {
-  /* ContactInfo Component */
-  --contact-info-gap: var(--space-4);
-  --contact-info-item-gap: var(--space-2);
-  --contact-info-mobile-gap: var(--space-2);
-  --contact-info-color: var(--color-text);
-  --contact-info-hover-color: var(--color-brand-primary);
-  --contact-info-font-size: var(--font-size-sm);
-  --contact-info-icon-size: 18px;
 }
 
 /* Improve typography readability */

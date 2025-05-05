@@ -51,9 +51,11 @@ import MuchandyHero from './components/MuchandyHero/MuchandyHero.js';
 import Tabs from './components/Tabs/Tabs.js';
 import ContactInfo from './components/ContactInfo/ContactInfo.js';
 import CollapsibleHeader from './components/CollapsibleHeader/CollapsibleHeader.js';
+import StickyContactIcons from './components/StickyContactIcons/StickyContactIcons.js';
 
 // Export components
 const Svarog = {
+  StickyContactIcons,
   CollapsibleHeader,
   ContactInfo,
   Tabs,

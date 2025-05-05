@@ -1604,6 +1604,40 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'StickyContactIcons',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithoutTooltips',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.WithoutTooltips),
+        },
+        {
+          name: 'WithCustomClass',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.WithCustomClass),
+        },
+        {
+          name: 'WithClickHandlers',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.WithClickHandlers),
+        },
+      ],
+    },
   ];
 
   return components;
