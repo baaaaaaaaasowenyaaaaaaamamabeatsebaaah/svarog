@@ -1,7 +1,6 @@
 // src/components/CollapsibleHeader/CollapsibleHeader.stories.js
 import CollapsibleHeader from './CollapsibleHeader.js';
 import StickyContactIcons from '../StickyContactIcons/StickyContactIcons.js';
-import Logo from '../Logo/Logo.js';
 import logoFarbe from '../../../.storybook/assets/svg/logo-farbe.svg';
 import logoIconFarbe from '../../../.storybook/assets/svg/logo-icon-farbe.svg';
 import { Component } from '../../utils/componentFactory.js';
