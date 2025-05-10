@@ -12,7 +12,7 @@
   --collapsible-header-logo-transition: transform 0.3s ease;
   --collapsible-header-contact-bg: var(--color-bg);
   --collapsible-header-contact-transition: height 0.3s ease, opacity 0.3s ease;
-  --sticky-icons-top-offset: 80px;
+  --sticky-icons-top-offset: 160px;
 }
 
 /* ====================
@@ -169,7 +169,7 @@
 /* Desktop positioning */
 @media (min-width: 769px) {
   .collapsible-header__sticky-icons {
-    top: 240px; /* Just below collapsed header */
+    top: 140px; /* Just below collapsed header */
     right: var(--space-4);
     flex-direction: column;
   }
