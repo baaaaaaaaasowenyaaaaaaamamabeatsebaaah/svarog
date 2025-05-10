@@ -153,7 +153,7 @@ export default class CollapsibleHeaderContainer extends Component {
     } else {
       iconElement.style.position = 'fixed';
       const headerHeight = this.header.getElement().offsetHeight || 160;
-      iconElement.style.top = `${headerHeight + 16}px`;
+      iconElement.style.top = `${headerHeight + 40}px`;
       iconElement.style.right = '16px';
       iconElement.style.bottom = 'auto';
       iconElement.style.flexDirection = 'column';

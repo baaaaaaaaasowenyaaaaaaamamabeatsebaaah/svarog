@@ -12,7 +12,6 @@
   --collapsible-header-logo-transition: transform 0.3s ease;
   --collapsible-header-contact-bg: var(--color-bg);
   --collapsible-header-contact-transition: height 0.3s ease, opacity 0.3s ease;
-  --sticky-icons-top-offset: 160px;
 }
 
 /* ====================

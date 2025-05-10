@@ -161,8 +161,8 @@ class HeaderContainer extends Component {
       iconElement.style.zIndex = '999';
     } else {
       iconElement.style.position = 'fixed';
-      const headerHeight = this.header.getElement().offsetHeight || 120;
-      iconElement.style.top = `${headerHeight + 16}px`;
+      const headerHeight = this.header.getElement().offsetHeight || 160;
+      iconElement.style.top = `${headerHeight + 40}px`;
       iconElement.style.right = '16px';
       iconElement.style.bottom = 'auto';
       iconElement.style.flexDirection = 'column';
