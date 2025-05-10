@@ -1,5 +1,6 @@
 // src/components/CollapsibleHeader/CollapsibleHeader.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import CollapsibleHeaderContainer from './CollapsibleHeaderContainer.js';
 import CollapsibleHeader from './CollapsibleHeader.js';
 
 describe('CollapsibleHeader', () => {
@@ -27,20 +28,10 @@ describe('CollapsibleHeader', () => {
     // Store original scrollY
     originalScrollY = window.scrollY;
 
-    // Mock the scroll event
-    vi.spyOn(window, 'addEventListener').mockImplementation(
-      (event, handler) => {
-        if (event === 'scroll') {
-          // Store the handler for later use
-          window.scrollHandler = handler;
-        }
-      }
-    );
-
-    vi.spyOn(window, 'removeEventListener').mockImplementation((event) => {
-      if (event === 'scroll') {
-        window.scrollHandler = null;
-      }
+    // Mock window.scrollY to control scroll position in tests
+    Object.defineProperty(window, 'scrollY', {
+      value: 0,
+      configurable: true,
     });
   });
 
@@ -106,7 +97,7 @@ describe('CollapsibleHeader', () => {
   });
 
   it('should collapse when scrolled past threshold', () => {
-    const header = new CollapsibleHeader({
+    const header = new CollapsibleHeaderContainer({
       ...defaultProps,
       collapseThreshold: 50,
     });
@@ -115,7 +106,7 @@ describe('CollapsibleHeader', () => {
     // Initially not collapsed
     expect(header.state.isCollapsed).toBe(false);
     expect(
-      header.element.classList.contains('collapsible-header--collapsed')
+      header.getElement().classList.contains('collapsible-header--collapsed')
     ).toBe(false);
 
     // Simulate scroll past threshold
@@ -124,22 +115,20 @@ describe('CollapsibleHeader', () => {
       configurable: true,
     });
 
-    // Call the scroll handler manually since we've mocked addEventListener
-    if (window.scrollHandler) {
-      window.scrollHandler();
-    }
+    // Manually trigger scroll event
+    header.handleScroll();
 
     // Should be collapsed
     expect(header.state.isCollapsed).toBe(true);
     expect(
-      header.element.classList.contains('collapsible-header--collapsed')
+      header.getElement().classList.contains('collapsible-header--collapsed')
     ).toBe(true);
 
-    document.body.removeChild(header.element);
+    document.body.removeChild(header.getElement());
   });
 
   it('should show sticky icons when collapsed if enabled', () => {
-    const header = new CollapsibleHeader({
+    const header = new CollapsibleHeaderContainer({
       ...defaultProps,
       collapseThreshold: 50,
       showStickyIcons: true,
@@ -149,38 +138,30 @@ describe('CollapsibleHeader', () => {
     // Initially not collapsed
     expect(header.state.isCollapsed).toBe(false);
 
-    // Check if sticky icons exist but are hidden
-    const stickyIcons = document.querySelector(
-      '.collapsible-header__sticky-icons'
-    );
-    expect(stickyIcons).not.toBeNull();
-
-    // Check initial style (direct style attribute takes precedence over CSS)
-    expect(stickyIcons.style.display).toBe('none');
-
     // Simulate scroll past threshold
     Object.defineProperty(window, 'scrollY', {
       value: 100,
       configurable: true,
     });
 
-    // Call the scroll handler manually since we've mocked addEventListener
-    if (window.scrollHandler) {
-      window.scrollHandler();
-    }
+    // Manually trigger scroll event
+    header.handleScroll();
 
-    // Should be collapsed but we don't check for display:flex directly
-    // since it's handled by CSS, not JS. Instead we check the state and class.
+    // Should be collapsed
     expect(header.state.isCollapsed).toBe(true);
-    expect(
-      header.element.classList.contains('collapsible-header--collapsed')
-    ).toBe(true);
 
-    document.body.removeChild(header.element);
+    // Sticky icons should be created and added to DOM
+    const stickyIcons = document.querySelector(
+      '.collapsible-header__sticky-icons'
+    );
+    expect(stickyIcons).not.toBeNull();
+    expect(stickyIcons.style.display).toBe('flex');
+
+    document.body.removeChild(header.getElement());
   });
 
   it('should not show sticky icons when disabled', () => {
-    const header = new CollapsibleHeader({
+    const header = new CollapsibleHeaderContainer({
       ...defaultProps,
       collapseThreshold: 50,
       showStickyIcons: false,
@@ -193,10 +174,8 @@ describe('CollapsibleHeader', () => {
       configurable: true,
     });
 
-    // Call the scroll handler manually
-    if (window.scrollHandler) {
-      window.scrollHandler();
-    }
+    // Manually trigger scroll event
+    header.handleScroll();
 
     // Should be collapsed but no sticky icons should be present
     expect(header.state.isCollapsed).toBe(true);
@@ -205,15 +184,22 @@ describe('CollapsibleHeader', () => {
     );
     expect(stickyIcons).toBeNull();
 
-    document.body.removeChild(header.element);
+    document.body.removeChild(header.getElement());
   });
 
   it('should clean up event listeners when destroyed', () => {
-    const header = new CollapsibleHeader({
+    const header = new CollapsibleHeaderContainer({
       ...defaultProps,
       showStickyIcons: true,
     });
     document.body.appendChild(header.getElement());
+
+    // Scroll to trigger sticky icons
+    Object.defineProperty(window, 'scrollY', {
+      value: 200,
+      configurable: true,
+    });
+    header.handleScroll();
 
     // Verify sticky icons are created
     const stickyIcons = document.querySelector(
@@ -221,12 +207,20 @@ describe('CollapsibleHeader', () => {
     );
     expect(stickyIcons).not.toBeNull();
 
-    // Verify removeEventListener is called with correct params
+    // Spy on removeEventListener
+    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+
+    // Call destroy
     header.destroy();
 
-    expect(window.removeEventListener).toHaveBeenCalledWith(
+    // Verify event listeners were removed
+    expect(removeEventListenerSpy).toHaveBeenCalledWith(
       'scroll',
       header.handleScroll
+    );
+    expect(removeEventListenerSpy).toHaveBeenCalledWith(
+      'resize',
+      header.handleResize
     );
 
     // Verify sticky icons are removed
@@ -235,7 +229,7 @@ describe('CollapsibleHeader', () => {
     );
     expect(stickyIconsAfterDestroy).toBeNull();
 
-    document.body.removeChild(header.element);
+    document.body.removeChild(header.getElement());
   });
 
   it('should throw error if required props are missing', () => {
