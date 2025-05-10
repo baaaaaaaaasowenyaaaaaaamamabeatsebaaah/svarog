@@ -83,11 +83,9 @@ export default class ContactInfo extends Component {
     const emailElement = this.createEmailElement();
 
     // Append all elements to the contact info container
-    this.appendChildren(contactInfoElement, [
-      locationElement,
-      phoneElement,
-      emailElement,
-    ]);
+    contactInfoElement.appendChild(locationElement);
+    contactInfoElement.appendChild(phoneElement);
+    contactInfoElement.appendChild(emailElement);
 
     return contactInfoElement;
   }
@@ -128,7 +126,8 @@ export default class ContactInfo extends Component {
       textContent: this.props.location,
     });
 
-    this.appendChildren(locationLink, [locationIcon, locationText]);
+    locationLink.appendChild(locationIcon);
+    locationLink.appendChild(locationText);
 
     return locationLink;
   }
@@ -171,7 +170,8 @@ export default class ContactInfo extends Component {
       textContent: this.props.phone,
     });
 
-    this.appendChildren(phoneLink, [phoneIcon, phoneText]);
+    phoneLink.appendChild(phoneIcon);
+    phoneLink.appendChild(phoneText);
 
     return phoneLink;
   }
@@ -212,7 +212,8 @@ export default class ContactInfo extends Component {
       textContent: this.props.email,
     });
 
-    this.appendChildren(emailLink, [emailIcon, emailText]);
+    emailLink.appendChild(emailIcon);
+    emailLink.appendChild(emailText);
 
     return emailLink;
   }
