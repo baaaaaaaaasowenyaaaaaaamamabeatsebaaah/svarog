@@ -1,21 +1,34 @@
 /* src/components/CollapsibleHeader/CollapsibleHeader.css */
 
-/* Base styles for the header component */
+/* ====================
+   1. Base Variables
+   ==================== */
+.collapsible-header {
+  --collapsible-header-height: 160px;
+  --collapsible-header-collapsed-height: 120px;
+  --collapsible-header-mobile-height: 80px;
+  --collapsible-header-transition: transform 0.3s ease, height 0.3s ease;
+  --collapsible-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --collapsible-header-logo-transition: transform 0.3s ease;
+  --collapsible-header-contact-bg: var(--color-bg);
+  --collapsible-header-contact-transition: height 0.3s ease, opacity 0.3s ease;
+  --sticky-icons-top-offset: 80px;
+}
+
+/* ====================
+     2. Base Layout 
+     ==================== */
 .collapsible-header {
   position: sticky;
   top: 0;
   z-index: var(--z-index-sticky);
-  transition: var(
-    --collapsible-header-transition,
-    transform 0.3s ease,
-    height 0.3s ease
-  );
+  transition: var(--collapsible-header-transition);
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg);
-  box-shadow: var(--collapsible-header-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
-  height: var(--collapsible-header-height, 160px);
+  box-shadow: var(--collapsible-header-shadow);
+  height: var(--collapsible-header-height);
   width: 100%;
 }
 
@@ -29,13 +42,15 @@
   display: flex;
 }
 
-/* Logo container - vertically centered and left-aligned */
+/* ====================
+     3. Logo Styles
+     ==================== */
 .collapsible-header__logo {
   display: flex;
   align-items: center;
   height: 100%;
   margin-right: var(--space-6);
-  transition: var(--collapsible-header-logo-transition, transform 0.3s ease);
+  transition: var(--collapsible-header-logo-transition);
 }
 
 /* Logo size and behavior */
@@ -50,7 +65,9 @@
   max-height: none;
 }
 
-/* Right content area - for contact and navigation */
+/* ====================
+     4. Content Area
+     ==================== */
 .collapsible-header__content {
   display: flex;
   flex-direction: column;
@@ -66,12 +83,8 @@
   justify-content: flex-end; /* Right-aligned */
   padding: var(--space-2) 0;
   border-bottom: 1px solid var(--color-border);
-  background-color: var(--collapsible-header-contact-bg, var(--color-bg));
-  transition: var(
-    --collapsible-header-contact-transition,
-    height 0.3s ease,
-    opacity 0.3s ease
-  );
+  background-color: var(--collapsible-header-contact-bg);
+  transition: var(--collapsible-header-contact-transition);
   overflow: hidden;
   height: auto;
 }
@@ -86,7 +99,9 @@
   margin-bottom: var(--space-2);
 }
 
-/* Call button styling */
+/* ====================
+     5. Call Button
+     ==================== */
 .collapsible-header__call-button {
   margin-left: var(--space-4);
 }
@@ -98,9 +113,11 @@
   border-color: var(--color-brand-primary, #4294d0);
 }
 
-/* Collapsed state styles */
+/* ====================
+     6. Collapsed State
+     ==================== */
 .collapsible-header--collapsed {
-  height: var(--collapsible-header-collapsed-height, 120px);
+  height: var(--collapsible-header-collapsed-height);
 }
 
 /* Hide contact info in collapsed state */
@@ -127,6 +144,9 @@
   transform: scale(0.85);
 }
 
+/* ====================
+     7. Navigation Adjustments
+     ==================== */
 /* Remove margin from last nav item to align with contact info */
 .collapsible-header .nav__item:last-child .nav__link {
   padding-right: 0;
@@ -138,27 +158,79 @@
   margin-top: var(--space-2);
 }
 
-/* Custom styles for sticky contact icons when displayed with header */
+/* ====================
+   8. Sticky Contact Icons
+   ==================== */
 .collapsible-header__sticky-icons {
-  --sticky-icons-top-offset: 80px; /* Default spacing from top */
   position: fixed;
-  top: var(--sticky-icons-top-offset);
-  transform: translateY(0);
-  z-index: 99; /* Just below the header */
+  z-index: 99;
+  /* Display is controlled by JavaScript */
 }
 
-/* Media queries for responsive behavior */
+/* Desktop positioning */
+@media (min-width: 769px) {
+  .collapsible-header__sticky-icons {
+    top: 140px; /* Just below collapsed header */
+    right: var(--space-4);
+    flex-direction: column;
+  }
+}
+
+/* Mobile positioning */
+@media (max-width: 768px) {
+  .collapsible-header__sticky-icons {
+    bottom: var(--space-4);
+    right: var(--space-2);
+    top: auto;
+    flex-direction: row;
+  }
+}
+
+/* ====================
+     9. Mobile Styles
+     ==================== */
 @media (max-width: 768px) {
   /* Mobile header styles */
-  .collapsible-header {
-    height: var(--collapsible-header-mobile-height, 80px);
+  .collapsible-header,
+  .collapsible-header--mobile {
+    height: var(--collapsible-header-mobile-height);
   }
 
   .collapsible-header__container {
     margin: 0 16px; /* Smaller margin on mobile */
-    flex-direction: row; /* Keep horizontal layout on mobile */
-    justify-content: space-between; /* Space between logo and burger/call button */
-    align-items: center;
+    display: flex;
+    flex-direction: row;
+    /* Replace space-between with fixed positioning for critical elements */
+    position: relative; /* Set relative positioning for absolute child elements */
+  }
+
+  /* Fixed position for logo on mobile */
+  .collapsible-header__logo {
+    margin-right: 0;
+    z-index: 3;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Fixed position for burger menu on mobile */
+  .collapsible-header .nav__burger {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+  }
+
+  /* Set logos to 100px on mobile */
+  .collapsible-header--mobile .logo-container,
+  .collapsible-header--mobile .logo-image,
+  .collapsible-header .logo-container,
+  .collapsible-header .logo-image {
+    width: 100px;
+    height: auto;
+    transition: none; /* Disable transitions for mobile logo */
   }
 
   /* Hide contact info on mobile */
@@ -166,31 +238,21 @@
     display: none;
   }
 
-  /* Mobile logo styling - smaller, left-aligned */
-  .collapsible-header__logo {
-    margin-right: 0;
-    z-index: 3; /* Ensure logo stays above menu when open */
-  }
-
-  /* Set logos to 100px on mobile (updated per requirement) */
-  .collapsible-header .logo-container,
-  .collapsible-header .logo-image {
-    width: 100px;
-    height: auto;
-  }
-
   /* Content area takes remaining space */
   .collapsible-header__content {
     flex: 1;
-    flex-direction: row; /* Horizontal layout on mobile */
-    justify-content: flex-end; /* Right-align navigation */
+    flex-direction: row;
+    justify-content: flex-end;
     align-items: center;
+    padding-right: var(--space-2);
   }
 
   /* Navigation container with burger menu */
   .collapsible-header__navigation {
     padding: 0;
-    order: 2; /* Make sure it appears after call button */
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
   }
 
   /* Hide call button on mobile */
@@ -198,10 +260,12 @@
     display: none;
   }
 
-  /* Burger menu button styling */
-  .collapsible-header .nav__burger {
-    position: relative;
-    z-index: 3; /* Ensure burger stays above menu when open */
+  /* Override collapsed state transforms for mobile */
+  .collapsible-header--mobile.collapsible-header--collapsed
+    .collapsible-header__logo,
+  .collapsible-header--collapsed.collapsible-header--mobile
+    .collapsible-header__logo {
+    transform: translateY(-50%); /* Only center vertically, don't scale */
   }
 
   /* Make sure burger menu appears on the right */
@@ -210,6 +274,9 @@
     order: 1;
   }
 
+  /* ====================
+       10. Mobile Menu Animation
+       ==================== */
   /* Hamburger lines animation */
   .collapsible-header .nav--open .nav__burger-line:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
@@ -235,7 +302,7 @@
     background-color: white;
     display: flex;
     flex-direction: column;
-    padding-top: calc(var(--collapsible-header-mobile-height, 80px) + 20px);
+    padding-top: calc(var(--collapsible-header-mobile-height) + 20px);
     z-index: 2;
     overflow-y: auto;
   }
@@ -263,14 +330,11 @@
   .collapsible-header .nav--open .nav__link:hover {
     background-color: #f9f9f9;
   }
-
-  /* Adjust sticky icons positioning on mobile */
-  .collapsible-header__sticky-icons {
-    --sticky-icons-top-offset: 90px; /* Just below the mobile header */
-  }
 }
 
-/* Small mobile screens */
+/* ====================
+     11. Small Mobile Screens
+     ==================== */
 @media (max-width: 480px) {
   .collapsible-header__container {
     margin: 0 12px; /* Even smaller margin on very small screens */
