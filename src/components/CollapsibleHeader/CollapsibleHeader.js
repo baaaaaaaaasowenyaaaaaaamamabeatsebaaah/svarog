@@ -83,6 +83,7 @@ export default class CollapsibleHeader extends Component {
     this.state = {
       isCollapsed: false,
       lastScrollY: 0,
+      isMobile: this.checkIsMobile(),
     };
 
     this.element = this.createCollapsibleHeaderElement();
@@ -94,6 +95,18 @@ export default class CollapsibleHeader extends Component {
 
     // Initialize scroll listener in constructor to fix tests
     this.setupScrollListener(scrollContainer);
+
+    // Set up resize listener for mobile detection
+    this.setupResizeListener();
+  }
+
+  /**
+   * Check if currently in mobile view
+   * @private
+   * @returns {boolean} true if in mobile view
+   */
+  checkIsMobile() {
+    return typeof window !== 'undefined' && window.innerWidth <= 768;
   }
 
   /**
@@ -128,35 +141,25 @@ export default class CollapsibleHeader extends Component {
       className: 'collapsible-header__container',
     });
 
-    // Create contact info container
-    const contactContainer = this.createElement('div', {
-      className: 'collapsible-header__contact-container',
-    });
-
-    const contactInfoComponent = new ContactInfo({
-      location: contactInfo.location,
-      phone: contactInfo.phone,
-      email: contactInfo.email,
-    });
-
-    contactContainer.appendChild(contactInfoComponent.getElement());
-    container.appendChild(contactContainer);
-
-    // Create navigation section
-    const navigationContainer = this.createElement('div', {
-      className: 'collapsible-header__navigation',
-    });
-
-    // Create logo container (left-aligned)
+    // Create logo container (left-aligned and vertically centered)
     const logoContainer = this.createElement('div', {
       className: 'collapsible-header__logo',
     });
 
+    // Determine which logo to use based on mobile state and collapsed state
+    const shouldUseCompactLogo = this.state.isMobile || this.state.isCollapsed;
+    let logoToUse =
+      shouldUseCompactLogo && this.props.compactLogo
+        ? this.props.compactLogo
+        : logo;
+
     // Add logo to logo container
-    if (logo) {
+    if (logoToUse) {
       const logoComponent = new Logo({
-        sources: [{ src: logo, theme: 'default' }],
+        sources: [{ src: logoToUse, theme: 'default' }],
         alt: siteName || 'Logo',
+        responsive: true,
+        width: this.state.isMobile ? 100 : 120, // Different width based on mobile state
       });
 
       const logoLink = new Link({
@@ -177,47 +180,71 @@ export default class CollapsibleHeader extends Component {
       logoContainer.appendChild(siteNameLink.getElement());
     }
 
-    // Create right container for navigation
-    const rightContainer = this.createElement('div', {
-      className: 'collapsible-header__right',
+    // Create content container for contact and navigation
+    const contentContainer = this.createElement('div', {
+      className: 'collapsible-header__content',
     });
 
-    // Add navigation to right container
+    // Create contact info container (top-right aligned)
+    const contactContainer = this.createElement('div', {
+      className: 'collapsible-header__contact-container',
+    });
+
+    const contactInfoComponent = new ContactInfo({
+      location: contactInfo.location,
+      phone: contactInfo.phone,
+      email: contactInfo.email,
+    });
+
+    contactContainer.appendChild(contactInfoComponent.getElement());
+
+    // Create navigation container (bottom-right aligned)
+    const navigationContainer = this.createElement('div', {
+      className: 'collapsible-header__navigation',
+    });
+
+    // Add navigation with proper mobile configuration
     if (navigation.items && navigation.items.length > 0) {
       const nav = new Navigation({
         items: navigation.items,
         responsive: true,
         burgerPosition: 'right',
+        mobileMenuStyle: 'fullscreen', // Configure for fullscreen mobile menu
       });
-      rightContainer.appendChild(nav.getElement());
+      navigationContainer.appendChild(nav.getElement());
+
+      // Only add call button if not on mobile
+      if (!this.state.isMobile) {
+        // Create call button
+        const callButtonContainer = this.createElement('div', {
+          className: 'collapsible-header__call-button',
+        });
+
+        // Default click handler that uses the phone number if no custom handler provided
+        const handleCallClick =
+          onCallButtonClick ||
+          (() => {
+            window.location.href = `tel:${contactInfo.phone.replace(/[\s()/-]/g, '')}`;
+          });
+
+        const callButton = new Button({
+          text: callButtonText,
+          variant: 'primary',
+          onClick: handleCallClick,
+        });
+
+        callButtonContainer.appendChild(callButton.getElement());
+        navigationContainer.appendChild(callButtonContainer);
+      }
     }
 
-    // Create call button container and button
-    const callButtonContainer = this.createElement('div', {
-      className: 'collapsible-header__call-button',
-    });
+    // Assemble the header
+    contentContainer.appendChild(contactContainer);
+    contentContainer.appendChild(navigationContainer);
 
-    // Default click handler that uses the phone number if no custom handler provided
-    const handleCallClick =
-      onCallButtonClick ||
-      (() => {
-        window.location.href = `tel:${contactInfo.phone.replace(/[\s()/-]/g, '')}`;
-      });
+    container.appendChild(logoContainer);
+    container.appendChild(contentContainer);
 
-    const callButton = new Button({
-      text: callButtonText,
-      variant: 'primary',
-      onClick: handleCallClick,
-    });
-
-    callButtonContainer.appendChild(callButton.getElement());
-    rightContainer.appendChild(callButtonContainer);
-
-    // Add logo and right containers to navigation container
-    navigationContainer.appendChild(logoContainer);
-    navigationContainer.appendChild(rightContainer);
-
-    container.appendChild(navigationContainer);
     headerElement.appendChild(container);
 
     return headerElement;
@@ -249,6 +276,50 @@ export default class CollapsibleHeader extends Component {
 
     // Add to body element to avoid z-index issues
     document.body.appendChild(stickyIconsElement);
+  }
+
+  /**
+   * Set up resize listener to handle mobile state changes
+   * @private
+   */
+  setupResizeListener() {
+    if (typeof window === 'undefined') return;
+
+    this.handleResize = () => {
+      const wasMobile = this.state.isMobile;
+      const isMobile = this.checkIsMobile();
+
+      // Only update if mobile state changed
+      if (wasMobile !== isMobile) {
+        this.state.isMobile = isMobile;
+
+        // When mobile state changes, we may need to recreate the element
+        // This is necessary because some mobile-specific config needs to be applied
+        // to components at creation time
+        this.resetHeader();
+      }
+    };
+
+    window.addEventListener('resize', this.handleResize);
+  }
+
+  /**
+   * Reset the header by recreating it
+   * This ensures all components are configured properly for current state
+   * @private
+   */
+  resetHeader() {
+    const oldElement = this.element;
+    this.element = this.createCollapsibleHeaderElement();
+
+    if (oldElement && oldElement.parentNode) {
+      oldElement.parentNode.replaceChild(this.element, oldElement);
+    }
+
+    // Re-apply collapsed state if necessary
+    if (this.state.isCollapsed) {
+      this.element.classList.add('collapsible-header--collapsed');
+    }
   }
 
   /**
@@ -318,9 +389,14 @@ export default class CollapsibleHeader extends Component {
     } else {
       this.element.classList.remove('collapsible-header--collapsed');
 
-      // Switch back to full logo if needed
+      // Switch back to full logo if needed and not in mobile
       if (this.props.compactLogo !== this.props.logo) {
-        this.updateLogo(this.props.logo);
+        if (this.state.isMobile) {
+          // Keep compact logo on mobile
+          this.updateLogo(this.props.compactLogo);
+        } else {
+          this.updateLogo(this.props.logo);
+        }
       }
 
       // Hide sticky contact icons when expanded
@@ -351,6 +427,10 @@ export default class CollapsibleHeader extends Component {
   destroy() {
     if (this.scrollContainer && this.handleScroll) {
       this.scrollContainer.removeEventListener('scroll', this.handleScroll);
+    }
+
+    if (this.handleResize) {
+      window.removeEventListener('resize', this.handleResize);
     }
 
     // Remove sticky icons if they exist

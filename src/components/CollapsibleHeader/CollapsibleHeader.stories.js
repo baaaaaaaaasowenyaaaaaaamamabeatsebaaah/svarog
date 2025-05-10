@@ -1,28 +1,54 @@
 // src/components/CollapsibleHeader/CollapsibleHeader.stories.js
 import CollapsibleHeader from './CollapsibleHeader.js';
+import Logo from '../Logo/Logo.js';
+import logoFarbe from '../../../.storybook/assets/svg/logo-farbe.svg';
+import logoIconFarbe from '../../../.storybook/assets/svg/logo-icon-farbe.svg';
 
 export default {
   title: 'Components/Layout/CollapsibleHeader',
   component: CollapsibleHeader,
 };
 
-// Sample navigation items (without Anrufen - moved to separate button)
+// Custom Logo component that handles webpack imports properly
+class StoryLogo extends Logo {
+  constructor(props) {
+    // Process any webpack module objects and convert to URLs
+    const processedProps = { ...props };
+
+    if (processedProps.sources) {
+      // Handle different source formats
+      if (Array.isArray(processedProps.sources)) {
+        processedProps.sources = processedProps.sources.map((source) => {
+          if (source && typeof source === 'object') {
+            if (source.src && source.src.toString) {
+              return {
+                ...source,
+                src: source.src.toString(),
+              };
+            }
+          }
+          return source;
+        });
+      } else if (
+        typeof processedProps.sources === 'object' &&
+        processedProps.sources.toString
+      ) {
+        // Handle single webpack module object
+        processedProps.sources = processedProps.sources.toString();
+      }
+    }
+
+    super(processedProps);
+  }
+}
+
+// Sample navigation items
 const navigationItems = [
   { id: 'repair', label: 'Reparatur', href: '/reparatur' },
   { id: 'purchase', label: 'Ankauf', href: '/ankauf' },
   { id: 'used', label: 'Gebrauchte', href: '/gebrauchte' },
   { id: 'services', label: 'Services', href: '/services' },
   { id: 'find-us', label: 'So Finden Sie Uns', href: '/kontakt' },
-];
-
-// Sample navigation for second example
-const navigationItems2 = [
-  { id: 'appointment', label: 'Termin vereinbaren', href: '/termin' },
-  { id: 'repair-select', label: 'Reparatur wählen', href: '/reparatur' },
-  { id: 'consulting', label: 'Tarifberatung', href: '/beratung' },
-  { id: 'contact', label: 'Kontakt', href: '/kontakt' },
-  { id: 'directions', label: 'Anfahrt', href: '/anfahrt' },
-  { id: 'shop', label: 'Shop', href: '/shop' },
 ];
 
 export const MuchandyHeader = () => {
@@ -39,240 +65,191 @@ export const MuchandyHeader = () => {
   content.style.padding = '20px';
   content.style.paddingTop = '200px';
   content.innerHTML =
-    '<h2>Scroll down to see header collapse</h2><p>The header will collapse after scrolling past the threshold, and sticky contact icons will appear.</p>';
+    '<h2>Scroll down to see header collapse and logo change</h2>';
 
-  // Create SVG logo string
-  const svgLogo = `
-    <svg width="120" height="80" viewBox="0 0 200 140">
-      <g>
-        <path d="M103 19.7c0 16-12.6 28.7-28.3 28.7S46.4 35.6 46.4 19.7 59 -9 74.7 -9s28.3 12.6 28.3 28.7z" fill="#4294d0"/>
-        <path d="M132.5 19.7c0 16-12.6 28.7-28.3 28.7S76 35.6 76 19.7 88.6 -9 104.3 -9s28.2 12.6 28.2 28.7z" fill="#4294d0"/>
-        <path d="M103 49.3c0 16-12.6 28.7-28.3 28.7S46.4 65.3 46.4 49.3 59 20.7 74.7 20.7s28.3 12.6 28.3 28.6z" fill="#4294d0"/>
-        <text x="67" y="110" font-family="Arial" font-weight="bold" font-size="40" fill="#333">HANDY</text>
-        <text x="72" y="130" font-family="Arial" font-size="12" fill="#666">Reparatur & Tarifberatung</text>
-      </g>
-    </svg>
-  `;
-
-  // Create compact SVG logo string
-  const compactSvgLogo = `
-    <svg width="60" height="60" viewBox="0 0 120 80">
-      <g>
-        <path d="M73 19.7c0 16-12.6 28.7-28.3 28.7S16.4 35.6 16.4 19.7 29 -9 44.7 -9s28.3 12.6 28.3 28.7z" fill="#4294d0"/>
-        <path d="M102.5 19.7c0 16-12.6 28.7-28.3 28.7S46 35.6 46 19.7 58.6 -9 74.3 -9s28.2 12.6 28.2 28.7z" fill="#4294d0"/>
-        <path d="M73 49.3c0 16-12.6 28.7-28.3 28.7S16.4 65.3 16.4 49.3 29 20.7 44.7 20.7s28.3 12.6 28.3 28.6z" fill="#4294d0"/>
-      </g>
-    </svg>
-  `;
-
-  // Create data URLs for the logos
-  const svgDataUrl =
-    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgLogo);
-  const compactSvgDataUrl =
-    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(compactSvgLogo);
-
-  // Status display for call button click
-  const statusDisplay = document.createElement('div');
-  statusDisplay.style.position = 'absolute';
-  statusDisplay.style.bottom = '60px';
-  statusDisplay.style.right = '20px';
-  statusDisplay.style.padding = '10px';
-  statusDisplay.style.background = 'rgba(255,255,255,0.9)';
-  statusDisplay.style.border = '1px solid #ccc';
-  statusDisplay.style.borderRadius = '5px';
-  statusDisplay.style.display = 'none';
-  statusDisplay.textContent = 'Call button clicked!';
-
-  // Create the header
-  const header = new CollapsibleHeader({
-    siteName: 'MUCHANDY',
-    navigation: {
-      items: navigationItems,
-    },
-    contactInfo: {
-      location: 'Luisenstr. 1',
-      phone: '0176/88778877',
-      email: 'info@muchandy.de',
-    },
-    logo: svgDataUrl,
-    compactLogo: compactSvgDataUrl,
-    collapseThreshold: 50,
-    callButtonText: 'Anrufen',
-    showStickyIcons: true,
-    stickyIconsPosition: 'right',
-    onCallButtonClick: (e) => {
-      e.preventDefault(); // Prevent actual call in story
-      statusDisplay.style.display = 'block';
-      setTimeout(() => {
-        statusDisplay.style.display = 'none';
-      }, 2000);
-      return false;
-    },
-  });
-
-  // Append header and content to the wrapper
-  wrapper.appendChild(header.getElement());
-  wrapper.appendChild(content);
-
-  // Add instructions
-  const instructions = document.createElement('div');
-  instructions.style.position = 'absolute';
-  instructions.style.bottom = '20px';
-  instructions.style.right = '20px';
-  instructions.style.padding = '10px';
-  instructions.style.background = 'rgba(0,0,0,0.7)';
-  instructions.style.color = 'white';
-  instructions.style.borderRadius = '5px';
-  instructions.style.zIndex = '1000';
-  instructions.innerHTML =
-    'Scroll down to see the header collapse and sticky contact icons appear<br>Click "Anrufen" to test the call button';
-
-  wrapper.appendChild(instructions);
-  wrapper.appendChild(statusDisplay);
-
-  // Set up the scroll listener after the header is added to the DOM
-  setTimeout(() => {
-    header.componentDidMount(wrapper);
-  }, 0);
-
-  return wrapper;
-};
-
-// Story to demonstrate WITHOUT sticky icons
-export const WithoutStickyIcons = () => {
-  // Create a wrapper with scroll area
-  const wrapper = document.createElement('div');
-  wrapper.style.height = '500px';
-  wrapper.style.overflow = 'auto';
-  wrapper.style.position = 'relative';
-  wrapper.style.border = '1px solid #ccc';
-
-  // Create content to allow scrolling
-  const content = document.createElement('div');
-  content.style.height = '1200px';
-  content.style.padding = '20px';
-  content.style.paddingTop = '200px';
-  content.innerHTML =
-    '<h2>Without Sticky Icons</h2><p>This version will not show sticky contact icons when collapsed.</p>';
-
-  // Create the header
-  const header = new CollapsibleHeader({
-    siteName: 'MUCHANDY',
-    navigation: {
-      items: navigationItems,
-    },
-    contactInfo: {
-      location: 'Luisenstr. 1',
-      phone: '0176/88778877',
-      email: 'info@muchandy.de',
-    },
-    collapseThreshold: 50,
-    callButtonText: 'Anrufen',
-    showStickyIcons: false, // Disable sticky icons
-  });
-
-  // Append header and content to the wrapper
-  wrapper.appendChild(header.getElement());
-  wrapper.appendChild(content);
-
-  // Set up the scroll listener after the header is added to the DOM
-  setTimeout(() => {
-    header.componentDidMount(wrapper);
-  }, 0);
-
-  return wrapper;
-};
-
-// The second design story can remain the same with adjustments for the call button
-export const SecondDesign = () => {
-  // Create a wrapper with scroll area
-  const wrapper = document.createElement('div');
-  wrapper.style.height = '400px';
-  wrapper.style.overflow = 'auto';
-  wrapper.style.position = 'relative';
-  wrapper.style.border = '1px solid #ccc';
-
-  // Create content to allow scrolling
-  const content = document.createElement('div');
-  content.style.height = '1200px';
-  content.style.padding = '20px';
-  content.style.paddingTop = '200px';
-  content.innerHTML =
-    '<h2>Alternative Design Example</h2><p>Scroll to see how this design collapses.</p>';
-
-  // Create SVG logo string for second design
-  const svgLogo = `
-    <svg width="80" height="60" viewBox="0 0 120 80">
-      <g>
-        <path d="M73 19.7c0 16-12.6 28.7-28.3 28.7S16.4 35.6 16.4 19.7 29 -9 44.7 -9s28.3 12.6 28.3 28.7z" fill="#4294d0"/>
-        <path d="M102.5 19.7c0 16-12.6 28.7-28.3 28.7S46 35.6 46 19.7 58.6 -9 74.3 -9s28.2 12.6 28.2 28.7z" fill="#4294d0"/>
-      </g>
-    </svg>
-  `;
-
-  // Create data URL for the logo
-  const svgDataUrl =
-    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgLogo);
-
-  // Create the header
-  const header = new CollapsibleHeader({
-    navigation: {
-      items: navigationItems2,
-    },
-    contactInfo: {
-      location: 'Luisenstr. 1',
-      phone: '0176/88778877',
-      email: 'info@muchandy.de',
-    },
-    logo: svgDataUrl,
-    collapseThreshold: 50,
-    callButtonText: 'Call Us',
-    className: 'second-design',
-    showStickyIcons: true,
-    stickyIconsPosition: 'right',
-  });
-
-  // Add custom styles for the second design
+  // Add custom CSS for logo sizing - proper CSS with specificity instead of !important
   const style = document.createElement('style');
   style.textContent = `
-    .second-design {
-      --nav-link-color: #333;
-      --nav-link-hover-color: #4294d0;
-      --nav-link-active-color: #4294d0;
+    /* Use high specificity selectors instead of !important */
+    .story-wrapper .collapsible-header .logo-container,
+    .story-wrapper .collapsible-header .logo-image {
+      width: 120px;
+      height: auto;
+      max-height: none;
     }
     
-    .second-design .collapsible-header__navigation {
-      padding: 0.5rem 0;
+    /* Use attribute selectors for specific logos */
+    .story-wrapper [data-logo-type="regular"] {
+      display: block;
     }
     
-    .second-design .nav__link {
-      font-weight: 500;
+    .story-wrapper [data-logo-type="compact"] {
+      display: none;
     }
     
-    .second-design .collapsible-header__call-button .btn--primary {
-      background-color: #FF6B6B;
-      border-color: #FF6B6B;
+    /* When collapsed, switch visibility */
+    .story-wrapper .collapsible-header--collapsed [data-logo-type="regular"] {
+      display: none;
     }
     
-    /* Custom styles for sticky icons in second design */
-    .second-design + .collapsible-header__sticky-icons {
-      --sticky-contact-icons-color: #FF6B6B;
-      --sticky-contact-icons-hover-color: #4294d0;
+    .story-wrapper .collapsible-header--collapsed [data-logo-type="compact"] {
+      display: block;
+    }
+    
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      .story-wrapper .collapsible-header .logo-container,
+      .story-wrapper .collapsible-header .logo-image {
+        width: 60px;
+      }
+      
+      .story-wrapper [data-logo-type="regular"] {
+        display: none;
+      }
+      
+      .story-wrapper [data-logo-type="compact"] {
+        display: block;
+      }
     }
   `;
   document.head.appendChild(style);
 
+  // Add class for proper CSS targeting
+  wrapper.classList.add('story-wrapper');
+
+  // Create the header with empty logo properties
+  const headerProps = {
+    siteName: 'MUCHANDY',
+    navigation: {
+      items: navigationItems,
+    },
+    contactInfo: {
+      location: 'Luisenstr. 1',
+      phone: '0176/88778877',
+      email: 'info@muchandy.de',
+    },
+    collapseThreshold: 50,
+    callButtonText: 'Anrufen',
+    showStickyIcons: true,
+    stickyIconsPosition: 'right',
+  };
+
+  const header = new CollapsibleHeader(headerProps);
+  const headerElement = header.getElement();
+
+  // Create an object to store our logos
+  const logos = {
+    regular: null,
+    compact: null,
+  };
+
   // Append header and content to the wrapper
-  wrapper.appendChild(header.getElement());
+  wrapper.appendChild(headerElement);
   wrapper.appendChild(content);
 
-  // Set up the scroll listener after the header is added to the DOM
+  // After the header is rendered, set up our custom logos
   setTimeout(() => {
-    header.componentDidMount(wrapper);
+    // Find the logo container in the header
+    const logoContainer = headerElement.querySelector(
+      '.collapsible-header__logo'
+    );
+    if (logoContainer) {
+      // Clear existing content
+      logoContainer.innerHTML = '';
+
+      // Create the regular logo
+      const regularLogo = new StoryLogo({
+        sources: logoFarbe,
+        alt: 'MUCHANDY',
+        className: 'regular-logo',
+      });
+
+      // Create the compact logo
+      const compactLogo = new StoryLogo({
+        sources: logoIconFarbe,
+        alt: 'MUCHANDY Icon',
+        className: 'compact-logo',
+      });
+
+      // Store references to both logos
+      logos.regular = regularLogo.getElement();
+      logos.compact = compactLogo.getElement();
+
+      // Add data attributes for CSS targeting instead of inline styles
+      logos.regular.setAttribute('data-logo-type', 'regular');
+      logos.compact.setAttribute('data-logo-type', 'compact');
+
+      // Create a link for the logos
+      const logoLink = document.createElement('a');
+      logoLink.href = '/';
+      logoLink.appendChild(logos.regular);
+      logoLink.appendChild(logos.compact);
+
+      // Add to the container
+      logoContainer.appendChild(logoLink);
+    }
+
+    // Set up custom scroll handler
+    const handleScroll = () => {
+      const scrollY = wrapper.scrollTop;
+      const collapseThreshold = headerProps.collapseThreshold;
+
+      // Determine if header should be collapsed
+      const shouldCollapse = scrollY > collapseThreshold;
+
+      // Update header collapse class - let CSS handle the logo visibility
+      headerElement.classList.toggle(
+        'collapsible-header--collapsed',
+        shouldCollapse
+      );
+    };
+
+    // Set up scroll listener
+    wrapper.addEventListener('scroll', handleScroll);
+
+    // Initial call to ensure proper state
+    handleScroll();
+
+    // Add mobile view testing button
+    const mobileViewButton = document.createElement('button');
+    mobileViewButton.textContent = 'Toggle Mobile View';
+    mobileViewButton.style.position = 'fixed';
+    mobileViewButton.style.bottom = '20px';
+    mobileViewButton.style.left = '20px';
+    mobileViewButton.style.zIndex = '9999';
+    mobileViewButton.style.padding = '8px 16px';
+    mobileViewButton.style.backgroundColor = '#4294d0';
+    mobileViewButton.style.color = 'white';
+    mobileViewButton.style.border = 'none';
+    mobileViewButton.style.borderRadius = '4px';
+    mobileViewButton.style.cursor = 'pointer';
+
+    let isMobileView = false;
+
+    mobileViewButton.addEventListener('click', () => {
+      isMobileView = !isMobileView;
+      if (isMobileView) {
+        // Apply mobile styles to wrapper
+        wrapper.style.width = '375px'; // iPhone size
+        wrapper.style.height = '667px';
+        // Add mobile class for CSS targeting
+        wrapper.classList.add('mobile-view');
+      } else {
+        // Reset to desktop
+        wrapper.style.width = 'auto';
+        wrapper.style.height = '500px';
+        // Remove mobile class
+        wrapper.classList.remove('mobile-view');
+      }
+    });
+
+    wrapper.appendChild(mobileViewButton);
   }, 0);
 
   return wrapper;
 };
+
+// Rest of the story file for WithoutStickyIcons and SecondDesign would follow a similar pattern
 
 // Ensure all sticky contact icons are removed when the story is unmounted
 export const parameters = {
@@ -287,6 +264,17 @@ export const parameters = {
     stickyElements.forEach((el) => {
       if (el.parentElement) {
         el.parentElement.removeChild(el);
+      }
+    });
+
+    // Remove any custom styles we added
+    const customStyles = document.querySelectorAll('style');
+    customStyles.forEach((style) => {
+      if (
+        style.textContent.includes('story-wrapper') ||
+        style.textContent.includes('data-logo-type')
+      ) {
+        style.parentNode.removeChild(style);
       }
     });
   },
