@@ -32,11 +32,7 @@ import {
 import Map from './components/Map/Map.js';
 import Head from './components/Head/Head.js';
 import Header from './components/Header/Header.js';
-import HeroSection from './components/HeroSection/HeroSection.js';
 import Footer from './components/Footer/Footer.js';
-import Image from './components/Image/Image.js';
-import List from './components/List/List.js';
-import Page from './components/Page/Page.js';
 import PhoneRepairForm from './components/PhoneRepairForm/PhoneRepairForm.js';
 import UsedPhonePriceForm from './components/UsedPhonePriceForm/UsedPhonePriceForm.js';
 import StepsIndicator from './components/StepsIndicator/StepsIndicator.js';
@@ -82,11 +78,7 @@ const Svarog = {
   Map,
   Head,
   Header,
-  HeroSection,
   Footer,
-  Image,
-  List,
-  Page,
   PhoneRepairForm,
   UsedPhonePriceForm,
   StepsIndicator,
@@ -127,11 +119,7 @@ export {
   Map,
   Head,
   Header,
-  HeroSection,
   Footer,
-  Image,
-  List,
-  Page,
   PhoneRepairForm,
   UsedPhonePriceForm,
   StepsIndicator,
@@ -143,6 +131,11 @@ export {
   Hero,
   Pagination,
   themeManager,
+  CollapsibleHeader,
+  StickyContactIcons,
+  ContactInfo,
+  Tabs,
+  MuchandyHero,
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
