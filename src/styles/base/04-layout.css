@@ -1,7 +1,7 @@
 /* src/styles/base/04-layout.css */
 :root {
   /* Containers */
-  --container-max-width: 1200px;
+  --container-max-width: 1440px;
   --container-padding: var(--space-4);
 
   /* Grid */

@@ -20,42 +20,144 @@ const countryOptions = [
   { value: 'br', label: 'Brazil' },
 ];
 
+// Default select without validation styling
 export const Default = () => {
-  return new Select({
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent = 'Default select with no validation state';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = new Select({
     options: countryOptions,
     placeholder: 'Select a country',
     onChange: (event, value) => console.log('Selected value:', value),
+    // Important: showValidation set to false to prevent automatic validation
+    showValidation: false,
   });
+
+  container.appendChild(select.getElement());
+  return container;
 };
 
+// Pre-selected value select
 export const WithValue = () => {
-  return new Select({
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent =
+    'Select with pre-selected value (no validation styling)';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = new Select({
     options: countryOptions,
     value: 'fr',
     onChange: (event, value) => console.log('Selected value:', value),
+    // Important: showValidation set to false to prevent automatic validation
+    showValidation: false,
   });
+
+  container.appendChild(select.getElement());
+  return container;
+};
+
+// Valid state select
+export const ValidState = () => {
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent = 'Valid state select (green border)';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = new Select({
+    options: countryOptions,
+    value: 'us',
+    required: true,
+    validationMessage: 'Valid selection',
+    showValidation: true,
+  });
+
+  // Explicitly validate to show valid state
+  select.validate();
+
+  container.appendChild(select.getElement());
+  return container;
+};
+
+// Invalid state select
+export const InvalidState = () => {
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent = 'Invalid state select (red border)';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = new Select({
+    options: countryOptions,
+    value: '', // Empty value for required field = invalid
+    required: true,
+    validationMessage: 'Please select a country',
+    showValidation: true,
+  });
+
+  // Explicitly validate to show invalid state
+  select.validate();
+
+  container.appendChild(select.getElement());
+  return container;
 };
 
 export const Required = () => {
-  return new Select({
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent =
+    'Required select (default state, no validation styling until interaction)';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = new Select({
     options: countryOptions,
     placeholder: 'Select a country (required)',
     required: true,
     onChange: (event, value) => console.log('Selected value:', value),
   });
+
+  container.appendChild(select.getElement());
+  return container;
 };
 
 export const Disabled = () => {
-  return new Select({
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent = 'Disabled select';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = new Select({
     options: countryOptions,
     value: 'us',
     disabled: true,
     onChange: (event, value) => console.log('Selected value:', value),
   });
+
+  container.appendChild(select.getElement());
+  return container;
 };
 
 export const WithValidation = () => {
   const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent =
+    'Interactive validation demo (click Validate button to see state change)';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
 
   const select = new Select({
     options: countryOptions,
@@ -63,6 +165,8 @@ export const WithValidation = () => {
     required: true,
     validationMessage: 'Please select a country',
     onChange: (event, value) => console.log('Selected value:', value),
+    // Important: Initially don't show validation styling
+    showValidation: true,
   });
 
   const button = document.createElement('button');
@@ -80,16 +184,34 @@ export const WithValidation = () => {
 };
 
 export const Multiple = () => {
-  return new Select({
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent = 'Multiple selection';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = new Select({
     options: countryOptions,
     placeholder: 'Select countries',
     multiple: true,
     value: ['ca', 'fr'],
     onChange: (event, value) => console.log('Selected values:', value),
+    showValidation: false,
   });
+
+  container.appendChild(select.getElement());
+  return container;
 };
 
 export const GroupedOptions = () => {
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent = 'Grouped options';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
   // Options with groups
   const groupedOptions = [
     { value: 'north-america', label: 'North America', disabled: true },
@@ -108,40 +230,13 @@ export const GroupedOptions = () => {
     { value: 'in', label: 'India' },
   ];
 
-  return new Select({
+  const select = new Select({
     options: groupedOptions,
     placeholder: 'Select a country',
     onChange: (event, value) => console.log('Selected value:', value),
-  });
-};
-
-export const CustomStyling = () => {
-  const container = document.createElement('div');
-
-  const select = new Select({
-    options: countryOptions,
-    placeholder: 'Custom styled select',
-    className: 'custom-select',
+    showValidation: false,
   });
 
-  // Add custom styles
-  const style = document.createElement('style');
-  style.textContent = `
-    .custom-select .select {
-      background-color: #f8f9fa;
-      border: 2px solid #6c757d;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-    
-    .custom-select .select:focus {
-      border-color: #007bff;
-      box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
-    }
-  `;
-
-  container.appendChild(style);
   container.appendChild(select.getElement());
-
   return container;
 };

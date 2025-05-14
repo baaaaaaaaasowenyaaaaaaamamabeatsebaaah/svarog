@@ -519,6 +519,7 @@ export const getComponents = () => {
         },
       ],
     },
+
     {
       name: 'Select',
       stories: [
@@ -536,6 +537,22 @@ export const getComponents = () => {
               (m) => m.WithValue
             ),
         },
+        // Add these new stories:
+        {
+          name: 'ValidState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.ValidState
+            ),
+        },
+        {
+          name: 'InvalidState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.InvalidState
+            ),
+        },
+        // Existing stories:
         {
           name: 'Required',
           module: () =>
@@ -571,15 +588,9 @@ export const getComponents = () => {
               (m) => m.GroupedOptions
             ),
         },
-        {
-          name: 'CustomStyling',
-          module: () =>
-            import('../components/Select/Select.stories.js').then(
-              (m) => m.CustomStyling
-            ),
-        },
       ],
     },
+
     {
       name: 'Checkbox',
       stories: [
