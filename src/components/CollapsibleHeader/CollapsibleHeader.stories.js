@@ -1,193 +1,100 @@
 // src/components/CollapsibleHeader/CollapsibleHeader.stories.js
-import CollapsibleHeader from './CollapsibleHeader.js';
-import StickyContactIcons from '../StickyContactIcons/StickyContactIcons.js';
+import CollapsibleHeaderContainer from './CollapsibleHeaderContainer.js';
 import logoFarbe from '../../../.storybook/assets/svg/logo-farbe.svg';
 import logoIconFarbe from '../../../.storybook/assets/svg/logo-icon-farbe.svg';
-import { Component } from '../../utils/componentFactory.js';
 
 export default {
   title: 'Components/Layout/CollapsibleHeader',
-  component: CollapsibleHeader,
+  component: CollapsibleHeaderContainer,
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'A collapsible header that changes on scroll with optional sticky contact icons.',
+      },
+    },
+  },
 };
 
 /**
- * Container component that manages state for the CollapsibleHeader
+ * Creates a story-specific version of the header container
+ * This is necessary to handle scrolling within the Storybook iframe
  */
-class HeaderContainer extends Component {
-  constructor(props) {
-    super();
+const createStoryHeader = (props) => {
+  // Create the container div for the entire story
+  const container = document.createElement('div');
+  container.style.height = '500px';
+  container.style.overflow = 'auto';
+  container.style.position = 'relative';
+  container.style.border = '1px solid #ccc';
 
-    this.state = {
-      isCollapsed: false,
-      isMobile: this.checkIsMobile(),
-      scrollY: 0,
-    };
+  // Create the header using CollapsibleHeaderContainer
+  const headerContainer = new CollapsibleHeaderContainer({
+    ...props,
+    // Override the default scroll handler to use our container
+    _storyMode: true, // Signal that we're in story mode
+  });
 
-    this.collapseThreshold = props.collapseThreshold || 100;
-    this.header = null;
-    this.stickyIcons = null;
+  // Get the header element and add it to our container
+  const headerElement = headerContainer.getElement();
+  container.appendChild(headerElement);
 
-    // Create wrapper for scrolling
-    this.wrapper = document.createElement('div');
-    this.wrapper.style.height = '500px';
-    this.wrapper.style.overflow = 'auto';
-    this.wrapper.style.position = 'relative';
-    this.wrapper.style.border = '1px solid #ccc';
-    this.wrapper.classList.add('story-wrapper');
+  // Create content for scrolling
+  const content = document.createElement('div');
+  content.style.height = '1200px';
+  content.style.padding = '20px';
+  content.style.paddingTop = '200px';
+  content.innerHTML =
+    '<h2>Scroll down to see header collapse</h2><p>The header will collapse and show sticky icons.</p>';
+  container.appendChild(content);
 
-    // Create content for scrolling
-    this.content = document.createElement('div');
-    this.content.style.height = '1200px';
-    this.content.style.padding = '20px';
-    this.content.style.paddingTop = '200px';
-    this.content.innerHTML =
-      '<h2>Scroll down to see header collapse</h2>' +
-      '<p>This is using a container component to manage state</p>';
+  // Special handling for story mode - use container scroll instead of window
+  container.addEventListener('scroll', () => {
+    // Use the container's scrollTop instead of window.scrollY
+    const scrollTop = container.scrollTop;
+    const shouldCollapse = scrollTop > (props.collapseThreshold || 100);
 
-    // Bind methods
-    this.handleScroll = this.handleScroll.bind(this);
-    this.handleResize = this.handleResize.bind(this);
-
-    // Initialize components
-    this.initialize(props);
-  }
-
-  /**
-   * Initialize components with props
-   */
-  initialize(props) {
-    // Create header component
-    this.header = new CollapsibleHeader({
-      ...props,
-      isCollapsed: this.state.isCollapsed,
-      isMobile: this.state.isMobile,
-    });
-
-    // Create sticky icons but don't add to DOM yet
-    this.stickyIcons = new StickyContactIcons({
-      location: props.contactInfo.location,
-      phone: props.contactInfo.phone,
-      email: props.contactInfo.email,
-      position: props.stickyIconsPosition || 'right',
-      className: 'collapsible-header__sticky-icons',
-    });
-
-    // Setup event listeners
-    this.wrapper.addEventListener('scroll', this.handleScroll);
-    window.addEventListener('resize', this.handleResize);
-
-    // Build DOM
-    this.wrapper.appendChild(this.header.getElement());
-    this.wrapper.appendChild(this.content);
-
-    // Initialize sticky icons
-    this.updateStickyIconsVisibility();
-  }
-
-  /**
-   * Check if the viewport is mobile
-   */
-  checkIsMobile() {
-    return typeof window !== 'undefined' && window.innerWidth <= 768;
-  }
-
-  /**
-   * Handle scroll events
-   */
-  handleScroll() {
-    const scrollY = this.wrapper.scrollTop;
-
-    // Check if we need to update state
-    const shouldCollapse = scrollY > this.collapseThreshold;
-
-    if (shouldCollapse !== this.state.isCollapsed) {
-      this.state.isCollapsed = shouldCollapse;
+    if (shouldCollapse !== headerContainer.state.isCollapsed) {
+      headerContainer.state.isCollapsed = shouldCollapse;
 
       // Update header
-      this.header.update({
+      headerContainer.header.update({
         isCollapsed: shouldCollapse,
       });
 
-      // Update sticky icons
-      this.updateStickyIconsVisibility();
+      // Update sticky icons manually
+      if (headerContainer.stickyIcons) {
+        const iconElement = headerContainer.stickyIcons.getElement();
+
+        // Make sure element is in the DOM
+        if (shouldCollapse && !iconElement.parentNode) {
+          container.appendChild(iconElement);
+        }
+
+        // Position the icons properly for the story
+        iconElement.style.display = shouldCollapse ? 'flex' : 'none';
+        iconElement.style.position = 'fixed';
+        iconElement.style.right = '0px';
+
+        if (headerContainer.state.isMobile) {
+          iconElement.style.bottom = '16px';
+          iconElement.style.top = 'auto';
+          iconElement.style.flexDirection = 'row';
+        } else {
+          const headerHeight = headerElement.offsetHeight || 300;
+          iconElement.style.top = `${headerHeight + 200}px`;
+          iconElement.style.bottom = 'auto';
+          iconElement.style.flexDirection = 'column';
+        }
+      }
     }
+  });
 
-    this.state.scrollY = scrollY;
-  }
+  // Store references to help with cleanup
+  container._headerContainer = headerContainer;
 
-  /**
-   * Handle resize events
-   */
-  handleResize() {
-    const isMobile = this.checkIsMobile();
-
-    if (isMobile !== this.state.isMobile) {
-      this.state.isMobile = isMobile;
-
-      // Update header
-      this.header.update({
-        isMobile: isMobile,
-      });
-
-      // Update sticky icons
-      this.updateStickyIconsVisibility();
-    }
-  }
-
-  /**
-   * Update sticky icons visibility based on state
-   */
-  updateStickyIconsVisibility() {
-    if (!this.stickyIcons) return;
-
-    const iconElement = this.stickyIcons.getElement();
-    const shouldShow = this.state.isCollapsed || this.state.isMobile;
-
-    // First time showing the icons, add to DOM
-    if (shouldShow && !iconElement.parentNode) {
-      document.body.appendChild(iconElement);
-    }
-
-    // Update visibility
-    iconElement.style.display = shouldShow ? 'flex' : 'none';
-
-    // Update position
-    if (this.state.isMobile) {
-      iconElement.style.position = 'fixed';
-      iconElement.style.bottom = '16px';
-      iconElement.style.right = '16px';
-      iconElement.style.top = 'auto';
-      iconElement.style.flexDirection = 'row';
-      iconElement.style.zIndex = '999';
-    } else {
-      iconElement.style.position = 'fixed';
-      const headerHeight = this.header.getElement().offsetHeight || 160;
-      iconElement.style.top = `${headerHeight + 40}px`;
-      iconElement.style.right = '16px';
-      iconElement.style.bottom = 'auto';
-      iconElement.style.flexDirection = 'column';
-      iconElement.style.zIndex = '999';
-    }
-  }
-
-  /**
-   * Clean up before component is destroyed
-   */
-  destroy() {
-    this.wrapper.removeEventListener('scroll', this.handleScroll);
-    window.removeEventListener('resize', this.handleResize);
-
-    // Remove sticky icons
-    const iconElement = this.stickyIcons.getElement();
-    if (iconElement.parentNode) {
-      iconElement.parentNode.removeChild(iconElement);
-    }
-  }
-
-  getElement() {
-    return this.wrapper;
-  }
-}
+  return container;
+};
 
 export const MuchandyHeader = () => {
   // Create a header container with custom logos
@@ -195,11 +102,11 @@ export const MuchandyHeader = () => {
     siteName: 'MUCHANDY',
     navigation: {
       items: [
-        { id: 'repair', label: 'Reparatur', href: '/reparatur' },
-        { id: 'purchase', label: 'Ankauf', href: '/ankauf' },
-        { id: 'used', label: 'Gebrauchte', href: '/gebrauchte' },
-        { id: 'services', label: 'Services', href: '/services' },
-        { id: 'find-us', label: 'So Finden Sie Uns', href: '/kontakt' },
+        { id: 'repair', label: 'Reparatur', href: '#' },
+        { id: 'purchase', label: 'Ankauf', href: '#' },
+        { id: 'used', label: 'Gebrauchte', href: '#' },
+        { id: 'services', label: 'Services', href: '#' },
+        { id: 'find-us', label: 'So Finden Sie Uns', href: '#' },
       ],
     },
     contactInfo: {
@@ -211,38 +118,56 @@ export const MuchandyHeader = () => {
     callButtonText: 'Anrufen',
     logo: logoFarbe,
     compactLogo: logoIconFarbe,
+    showStickyIcons: true,
     stickyIconsPosition: 'right',
   };
 
-  const container = new HeaderContainer(headerProps);
-  return container.getElement();
+  return createStoryHeader(headerProps);
 };
 
-// Ensure all sticky contact icons are removed when the story is unmounted
-export const parameters = {
-  docs: {
-    story: {
-      inline: false,
-    },
-  },
-  beforeDestroy: () => {
-    // Remove any sticky contact icons in the document
-    const stickyElements = document.querySelectorAll('.sticky-contact-icons');
-    stickyElements.forEach((el) => {
-      if (el.parentElement) {
-        el.parentElement.removeChild(el);
-      }
-    });
+MuchandyHeader.storyName = 'Muchandy Collapsible Header';
 
-    // Remove any custom styles we added
-    const customStyles = document.querySelectorAll('style');
-    customStyles.forEach((style) => {
-      if (
-        style.textContent.includes('story-wrapper') ||
-        style.textContent.includes('data-logo-type')
-      ) {
-        style.parentNode.removeChild(style);
-      }
-    });
-  },
+export const SecondDesign = () => {
+  const headerProps = {
+    siteName: 'SVAROG UI',
+    navigation: {
+      items: [
+        { id: 'home', label: 'Home', href: '#' },
+        { id: 'about', label: 'About', href: '#' },
+        { id: 'services', label: 'Services', href: '#' },
+        { id: 'contact', label: 'Contact', href: '#' },
+      ],
+    },
+    contactInfo: {
+      location: 'Main Street 123',
+      phone: '123-456-7890',
+      email: 'info@example.com',
+    },
+    collapseThreshold: 50,
+    showStickyIcons: true,
+  };
+
+  return createStoryHeader(headerProps);
+};
+
+SecondDesign.storyName = 'Simple Design';
+
+// We need to clean up event listeners and DOM elements when stories are unmounted
+const cleanup = () => {
+  // Remove any sticky icons from the DOM
+  const stickyElements = document.querySelectorAll('.sticky-contact-icons');
+  stickyElements.forEach((el) => {
+    if (el.parentNode) el.parentNode.removeChild(el);
+  });
+};
+
+// Attach the cleanup function to both stories
+MuchandyHeader.parameters = {
+  docs: { source: { type: 'dynamic' } },
+  beforeDestroy: cleanup,
+};
+
+SecondDesign.parameters = {
+  docs: { source: { type: 'dynamic' } },
+  beforeDestroy: cleanup,
 };

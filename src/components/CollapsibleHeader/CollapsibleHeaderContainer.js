@@ -25,6 +25,9 @@ export default class CollapsibleHeaderContainer extends Component {
     this.showStickyIcons = props.showStickyIcons !== false;
     this.stickyIconsPosition = props.stickyIconsPosition || 'right';
 
+    // Special flag for story mode
+    this.storyMode = props._storyMode === true;
+
     // Component state
     this.state = {
       isCollapsed: false,
@@ -54,8 +57,10 @@ export default class CollapsibleHeaderContainer extends Component {
     this.handleScroll = this.handleScroll.bind(this);
     this.handleResize = this.handleResize.bind(this);
 
-    // Add event listeners
-    this.addEventListeners();
+    // Add event listeners only if not in story mode
+    if (!this.storyMode) {
+      this.addEventListeners();
+    }
   }
 
   /**

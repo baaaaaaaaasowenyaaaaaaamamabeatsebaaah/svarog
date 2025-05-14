@@ -21,8 +21,8 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
   align-items: center;
+  display: flex;
 }
 
 .nav--vertical .nav__list {
@@ -34,6 +34,8 @@
 .nav__item {
   position: relative;
   margin-right: var(--nav-item-spacing, var(--space-2));
+  padding: var(--space-2) var(--space-4);
+  padding-bottom: 0;
 }
 
 .nav__item:last-child {
@@ -50,7 +52,6 @@
 .nav__link {
   display: inline-flex;
   align-items: center;
-  padding: var(--nav-link-padding, 0.5rem 1rem);
   color: var(--nav-link-color, var(--color-text));
   text-decoration: none;
   border: none;
@@ -58,30 +59,25 @@
   cursor: pointer;
   font-size: inherit;
   font-family: inherit;
-  transition: var(--nav-link-transition, var(--transition-fast));
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
   white-space: nowrap;
   position: relative;
   width: 100%;
   text-align: left;
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid transparent; /* Add transparent border by default */
 }
 
 .nav__link:hover {
   color: var(--nav-link-hover-color, var(--color-primary));
 }
 
-/* Active state with underline */
+/* Active state with border-bottom */
 .nav__item--active > .nav__link {
   color: var(--nav-link-active-color, var(--color-primary));
-}
-
-.nav__item--active > .nav__link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: var(--nav-link-padding, 0.5rem);
-  right: var(--nav-link-padding, 0.5rem);
-  height: 2px;
-  background-color: var(--nav-link-active-color, var(--color-primary));
+  border-bottom: 2px solid var(--nav-link-active-color, var(--color-primary));
 }
 
 /* Disabled state */
@@ -146,6 +142,22 @@
     --font-size-sm,
     0.875rem
   ); /* Smaller font size for submenu items */
+  border-bottom: none; /* No border for submenu items in vertical navigation */
+}
+
+/* Reset border for submenu items to avoid stacking borders */
+.nav__submenu .nav__link {
+  border-bottom: none;
+}
+
+.nav__submenu .nav__item--active > .nav__link {
+  border-bottom: none;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.03
+  ); /* Subtle background for active submenu items */
 }
 
 /* Burger button */
@@ -221,20 +233,17 @@
     width: 100%;
     padding: var(--nav-mobile-link-padding, var(--space-3) var(--space-4));
     font-size: var(--font-size-base);
+    border-bottom: none; /* Remove bottom border in mobile view */
   }
 
   .nav--responsive .nav__link:hover {
     background-color: var(--nav-mobile-hover-bg, var(--color-gray-100));
   }
 
-  /* Remove underline for active items in mobile */
-  .nav--responsive .nav__item--active > .nav__link::after {
-    display: none;
-  }
-
-  /* Show active state with background in mobile */
+  /* Replace underline with background in mobile */
   .nav--responsive .nav__item--active > .nav__link {
     background-color: var(--nav-mobile-active-bg, var(--color-gray-100));
+    border-bottom: none; /* Remove border in mobile and use background instead */
   }
 
   /* Mobile submenus */
