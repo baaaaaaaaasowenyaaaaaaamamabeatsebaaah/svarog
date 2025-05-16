@@ -1,5 +1,5 @@
 // src/components/Form/FormGroup.test.js
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import FormGroup from './FormGroup.js';
 import Input from '../Input/Input.js';
 
@@ -64,6 +64,55 @@ describe('FormGroup component', () => {
     }).toThrow(
       'FormGroup: labelPosition must be one of: top, left, right, bottom'
     );
+  });
+
+  it('should handle validation message updates', () => {
+    // Create a mock field component with validation
+    const mockField = {
+      getElement: () => document.createElement('input'),
+      validate: vi.fn().mockReturnValue(false),
+      validationMessageElement: {
+        textContent: 'Field is invalid',
+      },
+    };
+
+    const formGroup = new FormGroup({
+      label: 'Test Field',
+      field: mockField,
+    });
+
+    const element = formGroup.getElement();
+
+    // Validate should call the field's validate method
+    const isValid = formGroup.validate();
+    expect(isValid).toBe(false);
+    expect(mockField.validate).toHaveBeenCalled();
+
+    // FormGroup should have created a validation message element
+    const validationMessage = element.querySelector(
+      '.form-group__validation-message'
+    );
+    expect(validationMessage).not.toBeNull();
+
+    // It should have updated the validation message from the field
+    expect(validationMessage.textContent).toBe('Field is invalid');
+
+    // The container should have has-error class
+    expect(element.classList.contains('has-error')).toBe(true);
+
+    // Now mock a valid field
+    mockField.validate.mockReturnValue(true);
+    mockField.validationMessageElement.textContent = '';
+
+    // Validate again
+    formGroup.validate();
+
+    // The validation message should be cleared
+    expect(validationMessage.textContent).toBe('');
+
+    // The container should have has-success class instead
+    expect(element.classList.contains('has-error')).toBe(false);
+    expect(element.classList.contains('has-success')).toBe(true);
   });
 
   it('should apply label position class', () => {

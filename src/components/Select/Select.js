@@ -235,6 +235,7 @@ export default class Select extends Component {
   createValidationMessage() {
     return this.createElement('div', {
       className: 'select-validation-message',
+      // Only set text content if there's an initial validation message
       textContent: this.props.validationMessage || '',
       attributes: { 'aria-live': 'polite' },
     });
@@ -552,21 +553,25 @@ export default class Select extends Component {
   }
 
   updateValidationStyles(isValid) {
-    if (isValid) {
-      this.container.classList.remove('select-container--invalid');
-      this.container.classList.add('select-container--valid');
-      this.customSelect.classList.remove('select-custom--invalid');
-      this.customSelect.classList.add('select-custom--valid');
-    } else {
-      this.container.classList.add('select-container--invalid');
-      this.container.classList.remove('select-container--valid');
-      this.customSelect.classList.add('select-custom--invalid');
-      this.customSelect.classList.remove('select-custom--valid');
+    // Update container classes
+    this.container.classList.toggle('select-container--invalid', !isValid);
+    this.container.classList.toggle('select-container--valid', isValid);
+    this.container.classList.toggle('has-error', !isValid);
+    this.container.classList.toggle('has-success', isValid);
 
-      if (this.validationMessageElement) {
-        const message =
+    // Update custom select classes
+    this.customSelect.classList.toggle('select-custom--invalid', !isValid);
+    this.customSelect.classList.toggle('select-custom--valid', isValid);
+
+    // Update validation message
+    if (this.validationMessageElement) {
+      if (!isValid) {
+        // Only set validation message text if invalid
+        this.validationMessageElement.textContent =
           this.props.validationMessage || 'Please select an option';
-        this.validationMessageElement.textContent = message;
+      } else {
+        // Clear validation message when valid
+        this.validationMessageElement.textContent = '';
       }
     }
   }

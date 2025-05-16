@@ -854,6 +854,13 @@ export const getComponents = () => {
               (m) => m.FormWithDifferentLabelPositions
             ),
         },
+        {
+          name: 'NoLabelsValidation',
+          module: () =>
+            import('../components/Form/Form.stories.js').then(
+              (m) => m.NoLabelsValidation
+            ),
+        },
       ],
     },
     {

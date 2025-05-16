@@ -1,5 +1,6 @@
 // src/components/Form/Form.js
 import './Form.css';
+import './FormValidation.css';
 import { Component } from '../../utils/componentFactory.js';
 
 /**
@@ -125,9 +126,8 @@ export default class Form extends Component {
   /**
    * Handles input events
    * @private
-   * @param {Event} event - The input event
    */
-  handleInput(event) {
+  handleInput() {
     // This is mainly for real-time validation if needed
   }
 

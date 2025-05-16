@@ -416,7 +416,7 @@
   --form-group-margin-bottom: var(--space-2);
   --form-group-label-font-size: var(--font-size-sm);
   --form-group-label-color: var(--color-text);
-  --form-group-font-family: var(--font-family-secondary);
+  --form-group-font-family: var(--font-family-base);
   --form-group-label-font-weight: var(--font-weight-medium);
   --form-group-label-margin-bottom: var(--space-1);
   --form-group-required-color: var(--color-danger-light);

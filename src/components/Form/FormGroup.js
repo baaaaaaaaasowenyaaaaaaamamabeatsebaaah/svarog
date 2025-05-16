@@ -1,5 +1,6 @@
 // src/components/Form/FormGroup.js
 import './FormGroup.css';
+import './FormValidation.css';
 import { Component } from '../../utils/componentFactory.js';
 import Typography from '../Typography/Typography.js';
 import Input from '../Input/Input.js';
@@ -139,6 +140,13 @@ export default class FormGroup extends Component {
     // Add field to container
     fieldContainer.appendChild(fieldElement);
 
+    // Create validation message element - NEW
+    this.validationMessageElement = this.createElement('div', {
+      className: 'form-group__validation-message',
+      attributes: { 'aria-live': 'polite' },
+      // No textContent initially to ensure it doesn't take up space
+    });
+
     // Create help text if provided - still use Typography for this
     let helpTextElement = null;
     if (helpText) {
@@ -154,6 +162,7 @@ export default class FormGroup extends Component {
       case 'left':
         container.appendChild(labelElement);
         container.appendChild(fieldContainer);
+        container.appendChild(this.validationMessageElement); // Add validation message
         if (helpTextElement) {
           container.appendChild(helpTextElement);
         }
@@ -162,6 +171,7 @@ export default class FormGroup extends Component {
       case 'right':
         container.appendChild(fieldContainer);
         container.appendChild(labelElement);
+        container.appendChild(this.validationMessageElement); // Add validation message
         if (helpTextElement) {
           container.appendChild(helpTextElement);
         }
@@ -170,6 +180,7 @@ export default class FormGroup extends Component {
       case 'bottom':
         container.appendChild(fieldContainer);
         container.appendChild(labelElement);
+        container.appendChild(this.validationMessageElement); // Add validation message
         if (helpTextElement) {
           container.appendChild(helpTextElement);
         }
@@ -179,6 +190,7 @@ export default class FormGroup extends Component {
       default:
         container.appendChild(labelElement);
         container.appendChild(fieldContainer);
+        container.appendChild(this.validationMessageElement); // Add validation message
         if (helpTextElement) {
           container.appendChild(helpTextElement);
         }
@@ -189,6 +201,25 @@ export default class FormGroup extends Component {
     this.fieldElement = fieldElement;
 
     return container;
+  }
+
+  /**
+   * Updates the validation message for the field
+   * @param {string} message - The validation message to display
+   * @param {boolean} isValid - Whether the field is valid
+   * @returns {FormGroup} The form group instance for chaining
+   */
+
+  updateValidation(message, isValid) {
+    if (this.validationMessageElement) {
+      this.validationMessageElement.textContent = message || '';
+
+      // Always update the validation state classes based on isValid
+      // regardless of whether there's a message
+      this.container.classList.remove('has-error', 'has-success');
+      this.container.classList.add(isValid ? 'has-success' : 'has-error');
+    }
+    return this;
   }
 
   /**
@@ -216,7 +247,18 @@ export default class FormGroup extends Component {
       this.fieldComponent &&
       typeof this.fieldComponent.validate === 'function'
     ) {
-      return this.fieldComponent.validate();
+      const isValid = this.fieldComponent.validate();
+
+      // Get validation message from the field component if available
+      let message = '';
+      if (this.fieldComponent.validationMessageElement) {
+        message = this.fieldComponent.validationMessageElement.textContent;
+      }
+
+      // Update our own validation message
+      this.updateValidation(message, isValid);
+
+      return isValid;
     }
     return true;
   }

@@ -143,11 +143,24 @@ describe('Input component', () => {
       '.input-validation-message'
     );
 
+    // Initially, the message might not have content yet
+    expect(messageElement).not.toBeNull();
+
     // Validate the empty input
     input.validate();
 
-    expect(messageElement).not.toBeNull();
+    // After validation, the message should have content
     expect(messageElement.textContent).toBe(customMessage);
+
+    // Container should have has-error class
+    expect(containerElement.classList.contains('has-error')).toBe(true);
+
+    // When input becomes valid, message should clear
+    input.setValue('Valid input');
+    input.validate();
+    expect(messageElement.textContent).toBe('');
+    expect(containerElement.classList.contains('has-success')).toBe(true);
+    expect(containerElement.classList.contains('has-error')).toBe(false);
   });
 
   it('should handle disabled state', () => {

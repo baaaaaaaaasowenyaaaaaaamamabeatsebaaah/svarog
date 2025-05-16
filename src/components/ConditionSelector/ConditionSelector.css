@@ -7,7 +7,7 @@
 .condition-options {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2, 8px);
+  gap: var(--space-2);
   width: 100%;
 }
 
@@ -18,7 +18,7 @@
 }
 
 .condition-option:hover .condition-option__label {
-  border-color: var(--color-primary, #007bff);
+  border-color: var(--color-brand-secondary);
 }
 
 .condition-option input[type='radio'] {
@@ -30,24 +30,25 @@
 
 .condition-option__label {
   display: flex;
-  padding: var(--space-3, 12px);
-  border: 1px solid var(--color-gray-300, #dee2e6);
+  padding: var(--space-3);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-gray-300);
   border-radius: 0; /* Remove border radius */
   transition: all 0.2s ease;
   width: 100%;
 }
 
 .condition-option--selected .condition-option__label {
-  border-color: var(--color-primary, #007bff);
-  background-color: var(--color-primary-light, rgba(0, 123, 255, 0.1));
+  border-color: var(--color-brand-secondary);
+  background-color: var(--color-gray-200);
 }
 
 .condition-option__icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: var(--space-3, 12px);
-  font-size: var(--font-size-xl, 20px);
+  margin-right: var(--space-3);
+  font-size: var(--font-size-xl);
   min-width: 28px;
 }
 
@@ -56,14 +57,14 @@
 }
 
 .condition-option__title {
-  font-weight: var(--font-weight-bold, 700);
-  font-size: var(--font-size-base, 16px);
-  margin-bottom: var(--space-1, 4px);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-1);
 }
 
 .condition-option__description {
-  font-size: var(--font-size-sm, 14px);
-  color: var(--color-text-light, #6c757d);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
 }
 
 /* Loading state */
@@ -75,10 +76,10 @@
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .condition-option__label {
-    padding: var(--space-2, 8px);
+    padding: var(--space-2);
   }
 
   .condition-option__icon {
-    margin-right: var(--space-2, 8px);
+    margin-right: var(--space-2);
   }
 }

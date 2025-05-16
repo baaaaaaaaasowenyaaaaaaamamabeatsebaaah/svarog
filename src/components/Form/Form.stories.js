@@ -381,7 +381,7 @@ export const FormWithValidation = () => {
 
   const validateButton = new Button({
     text: 'Validate',
-    onClick: (event) => {
+    onClick: () => {
       const isValid = form.validate();
       console.log('Validation result:', isValid);
     },
@@ -444,6 +444,149 @@ export const FormWithDifferentLabelPositions = () => {
 
     container.appendChild(formGroup.getElement());
   });
+
+  return container;
+};
+
+export const NoLabelsValidation = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '1rem';
+
+  // Description
+  const description = document.createElement('h3');
+  description.textContent = 'Validation Without Labels';
+  container.appendChild(description);
+
+  const subDescription = document.createElement('p');
+  subDescription.textContent =
+    'Demonstrates fields without labels to clearly show zero-space validation messages.';
+  container.appendChild(subDescription);
+
+  // Create inputs directly without FormGroup to test validation messages without labels
+  const nameInput = new Input({
+    id: 'name-no-label',
+    name: 'name-no-label',
+    placeholder: 'Enter your name (required)',
+    required: true,
+    validationMessage: 'Name is required',
+  });
+
+  const emailInput = new Input({
+    id: 'email-no-label',
+    name: 'email-no-label',
+    type: 'email',
+    placeholder: 'Enter email (valid format required)',
+    required: true,
+    pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$',
+    validationMessage: 'Please enter a valid email address',
+  });
+
+  const selectInput = new Select({
+    options: [
+      { value: '', label: 'Select an option' },
+      { value: 'option1', label: 'Option 1' },
+      { value: 'option2', label: 'Option 2' },
+      { value: 'option3', label: 'Option 3' },
+    ],
+    id: 'select-no-label',
+    name: 'select-no-label',
+    required: true,
+    validationMessage: 'Please select an option',
+  });
+
+  // Container for inputs
+  const noLabelsContainer = document.createElement('div');
+  noLabelsContainer.style.padding = '1rem';
+  noLabelsContainer.style.border = '1px solid #ddd';
+  noLabelsContainer.style.borderRadius = '4px';
+  noLabelsContainer.style.display = 'flex';
+  noLabelsContainer.style.flexDirection = 'column';
+  noLabelsContainer.style.gap = '0.5rem';
+
+  // Add inputs with separators to highlight the spacing
+  noLabelsContainer.appendChild(nameInput.getElement());
+  noLabelsContainer.appendChild(emailInput.getElement());
+  noLabelsContainer.appendChild(selectInput.getElement());
+
+  // Button controls for validation
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.display = 'flex';
+  buttonContainer.style.gap = '0.5rem';
+  buttonContainer.style.marginTop = '1rem';
+
+  const validateButton = document.createElement('button');
+  validateButton.textContent = 'Validate All (Show Messages)';
+  validateButton.addEventListener('click', () => {
+    // Validate all fields - should show validation messages
+    nameInput.validate();
+    emailInput.validate();
+    selectInput.validate();
+  });
+
+  const makeValidButton = document.createElement('button');
+  makeValidButton.textContent = 'Make All Valid (Hide Messages)';
+  makeValidButton.addEventListener('click', () => {
+    // Make all fields valid - should hide validation messages
+    nameInput.setValue('John Doe');
+    emailInput.setValue('john@example.com');
+    selectInput.setValue('option1');
+
+    nameInput.validate();
+    emailInput.validate();
+    selectInput.validate();
+  });
+
+  const resetButton = document.createElement('button');
+  resetButton.textContent = 'Reset All';
+  resetButton.addEventListener('click', () => {
+    nameInput.setValue('');
+    emailInput.setValue('');
+    selectInput.setValue('');
+
+    // Don't validate after reset to show clean state
+  });
+
+  buttonContainer.appendChild(validateButton);
+  buttonContainer.appendChild(makeValidButton);
+  buttonContainer.appendChild(resetButton);
+
+  // Visual inspection guide
+  const guide = document.createElement('div');
+  guide.style.marginTop = '1rem';
+  guide.style.padding = '0.5rem';
+  guide.style.backgroundColor = '#f8f9fa';
+  guide.style.borderRadius = '4px';
+  guide.style.fontSize = '0.875rem';
+
+  const guideTitle = document.createElement('strong');
+  guideTitle.textContent = 'Visual Inspection Guide:';
+  guide.appendChild(guideTitle);
+
+  const guideList = document.createElement('ul');
+  guideList.style.margin = '0.5rem 0 0 0';
+  guideList.style.paddingLeft = '1.5rem';
+
+  const guideItems = [
+    'The grey separators should be directly adjacent to each input when no validation messages are shown',
+    'When you click "Validate All", error messages should appear and push down the grey separators',
+    'When you click "Make All Valid", the error messages should disappear and elements should return to their original positions',
+    'Inspect elements to verify that validation message elements have 0 height when empty',
+  ];
+
+  guideItems.forEach((item) => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    guideList.appendChild(li);
+  });
+
+  guide.appendChild(guideList);
+
+  // Add everything to main container
+  container.appendChild(noLabelsContainer);
+  container.appendChild(buttonContainer);
+  container.appendChild(guide);
 
   return container;
 };

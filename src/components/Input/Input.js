@@ -387,17 +387,26 @@ export default class Input extends Component {
   }
 
   updateValidationStyles(isValid) {
-    // For container
+    // Update container classes
     this.container.classList.toggle('input-container--invalid', !isValid);
     this.container.classList.toggle('input-container--valid', isValid);
+    this.container.classList.toggle('has-error', !isValid);
+    this.container.classList.toggle('has-success', isValid);
 
-    // For custom input
+    // Update custom input classes
     this.customInput.classList.toggle('input-custom--invalid', !isValid);
     this.customInput.classList.toggle('input-custom--valid', isValid);
 
-    if (!isValid && this.validationMessageElement) {
-      this.validationMessageElement.textContent =
-        this.props.validationMessage || this.input.validationMessage;
+    // Update validation message
+    if (this.validationMessageElement) {
+      if (!isValid) {
+        // Only set validation message text if invalid
+        this.validationMessageElement.textContent =
+          this.props.validationMessage || this.input.validationMessage;
+      } else {
+        // Clear validation message when valid
+        this.validationMessageElement.textContent = '';
+      }
     }
   }
 

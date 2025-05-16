@@ -203,11 +203,24 @@ describe('Select component', () => {
     const element = select.getElement();
     const messageElement = element.querySelector('.select-validation-message');
 
+    // Initially, the message element exists but may not have content
+    expect(messageElement).not.toBeNull();
+
     // Validate the empty select
     select.validate();
 
-    expect(messageElement).not.toBeNull();
+    // After validation, it should show the message
     expect(messageElement.textContent).toBe(customMessage);
+
+    // Container should have has-error class
+    expect(element.classList.contains('has-error')).toBe(true);
+
+    // When select becomes valid, message should clear
+    select.setValue('option1');
+    select.validate();
+    expect(messageElement.textContent).toBe('');
+    expect(element.classList.contains('has-success')).toBe(true);
+    expect(element.classList.contains('has-error')).toBe(false);
   });
 
   it('should handle disabled state', () => {
