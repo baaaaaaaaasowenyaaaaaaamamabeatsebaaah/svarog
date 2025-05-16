@@ -16,6 +16,7 @@ export default class PriceDisplay extends Component {
    * @param {boolean} [props.isLoading=false] - Whether the price is loading
    * @param {boolean} [props.isHighlighted=false] - Whether to highlight the price display
    * @param {boolean} [props.isPlaceholder=false] - Whether the value is a placeholder/hint
+   * @param {boolean} [props.isError=false] - Whether displaying an error
    * @param {string} [props.className=''] - Additional CSS class names
    */
   constructor({
@@ -24,6 +25,7 @@ export default class PriceDisplay extends Component {
     isLoading = false,
     isHighlighted = false,
     isPlaceholder = false,
+    isError = false,
     className = '',
   }) {
     super();
@@ -39,6 +41,7 @@ export default class PriceDisplay extends Component {
       isLoading,
       isHighlighted,
       isPlaceholder,
+      isError,
       className,
     };
 
@@ -52,14 +55,22 @@ export default class PriceDisplay extends Component {
    * @returns {HTMLElement} The price display element
    */
   createPriceDisplay() {
-    const { label, value, isLoading, isHighlighted, isPlaceholder, className } =
-      this.props;
+    const {
+      label,
+      value,
+      isLoading,
+      isHighlighted,
+      isPlaceholder,
+      isError,
+      className,
+    } = this.props;
 
     const container = this.createElement('div', {
       className: this.createClassNames('price-display', className, {
         'price-display--loading': isLoading,
         'price-display--highlighted': isHighlighted,
         'price-display--placeholder': isPlaceholder,
+        'price-display--error': isError,
       }),
     });
 
@@ -100,6 +111,7 @@ export default class PriceDisplay extends Component {
     this.props.value = value;
     this.props.isHighlighted = isHighlighted;
     this.props.isPlaceholder = isPlaceholder;
+    this.props.isError = false;
 
     // Update text content
     this.valueElement.textContent = value;
@@ -107,6 +119,7 @@ export default class PriceDisplay extends Component {
     // Update container classes
     this.element.classList.toggle('price-display--highlighted', isHighlighted);
     this.element.classList.toggle('price-display--placeholder', isPlaceholder);
+    this.element.classList.remove('price-display--error');
 
     return this;
   }
@@ -163,6 +176,7 @@ export default class PriceDisplay extends Component {
     this.props.value = errorMessage;
     this.props.isHighlighted = false;
     this.props.isPlaceholder = false;
+    this.props.isError = true;
 
     // Update text content
     this.valueElement.textContent = errorMessage;

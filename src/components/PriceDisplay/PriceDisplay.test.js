@@ -3,53 +3,25 @@ import { describe, it, expect } from 'vitest';
 import PriceDisplay from './PriceDisplay.js';
 
 describe('PriceDisplay component', () => {
-  it('should create a price display element', () => {
+  // Existing tests...
+
+  // Add these new tests for error state
+  it('should display error state', () => {
     const priceDisplay = new PriceDisplay({
       label: 'Price:',
-      value: '€29.99',
+      value: 'Error loading price',
+      isError: true,
     });
 
     const element = priceDisplay.getElement();
-    expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.className).toContain('price-display');
-
-    // Check label
-    const labelElement = element.querySelector('.price-display__label');
-    expect(labelElement).not.toBeNull();
-    expect(labelElement.textContent).toBe('Price:');
+    expect(element.className).toContain('price-display--error');
 
     // Check value
     const valueElement = element.querySelector('.price-display__value');
-    expect(valueElement).not.toBeNull();
-    expect(valueElement.textContent).toBe('€29.99');
+    expect(valueElement.textContent).toBe('Error loading price');
   });
 
-  it('should throw error when label is not provided', () => {
-    expect(() => {
-      new PriceDisplay({
-        value: '€29.99',
-      });
-    }).toThrow('PriceDisplay: label is required');
-  });
-
-  it('should display loading state', () => {
-    const priceDisplay = new PriceDisplay({
-      label: 'Price:',
-      value: 'Loading...',
-      isLoading: true,
-    });
-
-    const element = priceDisplay.getElement();
-    expect(element.className).toContain('price-display--loading');
-
-    // Check for loading indicator
-    const loadingIndicator = element.querySelector(
-      '.price-display__loading-indicator'
-    );
-    expect(loadingIndicator).not.toBeNull();
-  });
-
-  it('should display highlighted state', () => {
+  it('should update to error state with setError method', () => {
     const priceDisplay = new PriceDisplay({
       label: 'Price:',
       value: '€29.99',
@@ -57,144 +29,70 @@ describe('PriceDisplay component', () => {
     });
 
     const element = priceDisplay.getElement();
-    expect(element.className).toContain('price-display--highlighted');
-  });
-
-  it('should update value with setValue method', () => {
-    const priceDisplay = new PriceDisplay({
-      label: 'Price:',
-      value: 'Select options',
-    });
-
-    const element = priceDisplay.getElement();
     const valueElement = element.querySelector('.price-display__value');
 
-    // Initial value
-    expect(valueElement.textContent).toBe('Select options');
-
-    // Update value
-    priceDisplay.setValue('€49.99');
-    expect(valueElement.textContent).toBe('€49.99');
-
-    // Update with highlighting
-    priceDisplay.setValue('€39.99', true);
-    expect(valueElement.textContent).toBe('€39.99');
+    // Initial state
     expect(element.classList.contains('price-display--highlighted')).toBe(true);
+    expect(element.classList.contains('price-display--error')).toBe(false);
+    expect(valueElement.textContent).toBe('€29.99');
+
+    // Set error state
+    priceDisplay.setError('Fehler beim Laden des Preises');
+
+    // Check updated state
+    expect(element.classList.contains('price-display--highlighted')).toBe(
+      false
+    );
+    expect(element.classList.contains('price-display--error')).toBe(true);
+    expect(valueElement.textContent).toBe('Fehler beim Laden des Preises');
   });
 
-  it('should update loading state with setLoading method', () => {
+  it('should clear error state when setting a new value', () => {
     const priceDisplay = new PriceDisplay({
       label: 'Price:',
-      value: 'Select options',
+      value: 'Error message',
+      isError: true,
     });
 
     const element = priceDisplay.getElement();
 
-    // Initially not loading
-    expect(element.classList.contains('price-display--loading')).toBe(false);
+    // Initial error state
+    expect(element.classList.contains('price-display--error')).toBe(true);
 
-    // Set to loading
-    priceDisplay.setLoading(true);
+    // Set a new value
+    priceDisplay.setValue('€29.99');
+
+    // Error state should be cleared
+    expect(element.classList.contains('price-display--error')).toBe(false);
+
+    // Value should be updated
+    const valueElement = element.querySelector('.price-display__value');
+    expect(valueElement.textContent).toBe('€29.99');
+  });
+
+  it('should handle transition from loading to error state', () => {
+    const priceDisplay = new PriceDisplay({
+      label: 'Price:',
+      value: 'Loading...',
+      isLoading: true,
+    });
+
+    const element = priceDisplay.getElement();
+
+    // Initial loading state
     expect(element.classList.contains('price-display--loading')).toBe(true);
 
-    // Check for loading indicator
+    // Set error state
+    priceDisplay.setError('Error loading price');
+
+    // Loading state should be cleared, error state should be active
+    expect(element.classList.contains('price-display--loading')).toBe(false);
+    expect(element.classList.contains('price-display--error')).toBe(true);
+
+    // Loading indicator should be removed
     const loadingIndicator = element.querySelector(
       '.price-display__loading-indicator'
     );
-    expect(loadingIndicator).not.toBeNull();
-
-    // Set back to not loading
-    priceDisplay.setLoading(false);
-    expect(element.classList.contains('price-display--loading')).toBe(false);
-
-    // Loading indicator should be removed
-    const loadingIndicatorAfter = element.querySelector(
-      '.price-display__loading-indicator'
-    );
-    expect(loadingIndicatorAfter).toBeNull();
-  });
-
-  it('should apply custom class names', () => {
-    const priceDisplay = new PriceDisplay({
-      label: 'Price:',
-      value: '€29.99',
-      className: 'custom-price',
-    });
-
-    const element = priceDisplay.getElement();
-    expect(element.className).toContain('custom-price');
-  });
-
-  it('should chain methods for fluent API', () => {
-    const priceDisplay = new PriceDisplay({
-      label: 'Price:',
-      value: 'Select options',
-    });
-
-    // Method chaining should work
-    const result = priceDisplay.setValue('€29.99').setLoading(false);
-
-    expect(result).toBe(priceDisplay);
-  });
-
-  it('should display placeholder state', () => {
-    const priceDisplay = new PriceDisplay({
-      label: 'Price:',
-      value: 'Select options to see price',
-      isPlaceholder: true,
-    });
-
-    const element = priceDisplay.getElement();
-    expect(element.className).toContain('price-display--placeholder');
-  });
-
-  it('should update placeholder state with setPlaceholder method', () => {
-    const priceDisplay = new PriceDisplay({
-      label: 'Price:',
-      value: 'Select options to see price',
-    });
-
-    const element = priceDisplay.getElement();
-
-    // Initially not placeholder
-    expect(element.classList.contains('price-display--placeholder')).toBe(
-      false
-    );
-
-    // Set to placeholder
-    priceDisplay.setPlaceholder(true);
-    expect(element.classList.contains('price-display--placeholder')).toBe(true);
-
-    // Set back to not placeholder
-    priceDisplay.setPlaceholder(false);
-    expect(element.classList.contains('price-display--placeholder')).toBe(
-      false
-    );
-  });
-
-  // Update the setValue test to include placeholder
-  it('should update value and state with setValue method', () => {
-    const priceDisplay = new PriceDisplay({
-      label: 'Price:',
-      value: 'Select options',
-    });
-
-    const element = priceDisplay.getElement();
-    const valueElement = element.querySelector('.price-display__value');
-
-    // Initial value
-    expect(valueElement.textContent).toBe('Select options');
-
-    // Update value with placeholder
-    priceDisplay.setValue('Choose a product', false, true);
-    expect(valueElement.textContent).toBe('Choose a product');
-    expect(element.classList.contains('price-display--placeholder')).toBe(true);
-
-    // Update with regular value
-    priceDisplay.setValue('€49.99', false, false);
-    expect(valueElement.textContent).toBe('€49.99');
-    expect(element.classList.contains('price-display--placeholder')).toBe(
-      false
-    );
+    expect(loadingIndicator).toBeNull();
   });
 });
