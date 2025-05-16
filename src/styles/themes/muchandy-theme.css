@@ -252,32 +252,80 @@
   --input-disabled-opacity: var(--disabled-opacity);
 
   /* Component: Select */
-  --select-bg: var(--color-bg);
-  --select-color: var(--color-text);
-  --select-border: 1px solid var(--color-border-medium);
-  --select-radius: var(--border-radius-md);
+  --select-margin-bottom: var(--space-4);
   --select-padding: var(--space-2) var(--space-3);
-  --select-font-size: var(--font-size-base);
-  --select-font-family: var(--font-family-primary);
+  --select-font-size: var(--font-size-xl);
+  --select-font-family: var(--font-family-base);
+  --select-color: var(--color-text);
+  --select-bg: var(--color-bg);
+  --select-border: 1px solid var(--select-border-color);
+  --select-border-color: var(--color-border-medium);
+  --select-radius: 0;
   --select-shadow: var(--shadow-none);
   --select-transition: var(--transition-normal);
-  --select-option-color: var(--color-text);
-  --select-option-bg: var(--color-bg);
+  --select-line-height: 1.5;
+
+  /* Arrow Indicator */
+  --select-arrow-size: var(--font-size-xl);
+  --select-arrow-margin: var(--space-2);
+  --select-arrow-border: none;
+  --select-arrow-color: var(--color-text);
+  --select-arrow-transition: var(--transition-normal);
+
+  /* Dropdown */
+  --select-dropdown-bg: var(--color-bg);
+  --select-dropdown-border-color: var(--color-border-medium);
+  --select-dropdown-radius: 0;
+  --select-dropdown-z-index: var(--z-index-dropdown);
+  --select-dropdown-transition: var(--transition-normal);
+  --select-dropdown-shadow: var(--shadow-none);
+  --select-dropdown-max-height: var(--space-40);
+  --select-dropdown-mobile-max-height: var(--space-40);
+
+  /* Options */
+  --select-option-padding: var(--space-2) var(--space-3);
+  --select-option-transition: var(--transition-normal);
+  --select-option-hover-bg: var(--color-gray-200);
+  --select-option-selected-bg: var(--color-gray-200);
+  --select-option-selected-color: var(--color-text);
   --select-option-disabled-color: var(--color-text-disabled);
-  --select-focus-border-color: var(--color-brand-primary);
+  --select-option-disabled-bg: var(--color-gray-200);
+
+  /* Group Headers */
+  --select-group-header-padding: var(--space-1) var(--space-3);
+  --select-group-header-font-weight: bold;
+  --select-group-header-color: var(--color-text);
+  --select-group-header-bg: var(--color-bg);
+  --select-group-header-font-size: var(--font-size-base);
+  --select-group-header-border-bottom: 1px solid var(--color-border-light);
+  --select-group-header-border-top: 1px solid var(--color-border-light);
+
+  /* Multiple Selection Checkboxes */
+  --select-checkbox-size: var(--font-size-xl);
+  --select-checkbox-border: var(--color-border-medium);
+  --select-checkbox-radius: 0;
+  --select-checkbox-margin: var(--space-2);
+  --select-checkbox-check-border: var(--color-brand-secondary-light);
+
+  /* States */
+  --select-hover-border-color: var(--color-brand-secondary-light);
+  --select-focus-border-color: var(--color-brand-secondary-light);
   --select-focus-shadow: var(--focus-ring);
   --select-disabled-bg: var(--disabled-background);
   --select-disabled-opacity: var(--disabled-opacity);
-  --select-valid-border-color: var(--color-success);
-  --select-invalid-border-color: var(--color-danger);
-  --select-validation-color: var(--color-danger);
-  --select-validation-font-size: var(--font-size-sm);
-  --select-margin-bottom: var(--space-4);
-  --select-mobile-font-size: 16px;
+  --select-valid-border-color: var(--color-success-light);
+  --select-invalid-border-color: var(--color-danger-light);
+
+  /* Validation Message */
+  --select-validation-font-size: var(--font-size-base);
+  --select-validation-margin-top: var(--space-2);
+  --select-validation-color: var(--color-danger-light);
+  --select-validation-min-height: var(--space-4);
+  --select-valid-color: var(--color-success-light);
+
+  /* Mobile Adjustments */
+  --select-mobile-font-size: var(--font-size-base);
   --select-mobile-padding: var(--space-2);
-  --select-multiple-padding: var(--space-1);
-  --select-option-padding: var(--space-1) var(--space-2);
-  --select-option-margin: 2px 0;
 
   /* Component: Checkbox */
   --checkbox-bg: var(--color-bg);
@@ -441,11 +489,6 @@
   --section-bg-minor: inherit;
   /* TODO: Define value for 'section-color-minor' in muchandy theme */
   --section-color-minor: inherit;
-  /* TODO: Define value for 'select-valid-color' in muchandy theme */
-  --select-valid-color: inherit;
-
-  /* TODO: Define value for 'border-radius' in muchandy theme */
-  --border-radius: inherit;
 
   /* TODO: Define value for 'collapsible-header-collapsed-height' in muchandy theme */
   --collapsible-header-collapsed-height: inherit;
