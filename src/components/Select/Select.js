@@ -152,7 +152,7 @@ export default class Select extends Component {
 
     // Create selected value display
     const selectedDisplay = this.createElement('div', {
-      className: 'select-custom__selected',
+      className: 'select-custom__selected select-custom__selected--placeholder',
       textContent: placeholder,
     });
     this.selectedDisplay = selectedDisplay;

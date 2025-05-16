@@ -257,6 +257,7 @@
   --select-font-size: var(--font-size-xl);
   --select-font-family: var(--font-family-base);
   --select-color: var(--color-text);
+  --select-placeholder-color: var(--color-text-lighter);
   --select-bg: var(--color-bg);
   --select-border: 1px solid var(--select-border-color);
   --select-border-color: var(--color-border-medium);
@@ -266,11 +267,12 @@
   --select-line-height: 1.5;
 
   /* Arrow Indicator */
-  --select-arrow-size: var(--font-size-xl);
+  --select-arrow-size: var(--font-size-base);
   --select-arrow-margin: var(--space-2);
-  --select-arrow-border: none;
+  --select-arrow-border: 2px solid var(--select-arrow-color);
   --select-arrow-color: var(--color-text);
   --select-arrow-transition: var(--transition-normal);
+  --select-arrow-right: var(--space-4);
 
   /* Dropdown */
   --select-dropdown-bg: var(--color-bg);

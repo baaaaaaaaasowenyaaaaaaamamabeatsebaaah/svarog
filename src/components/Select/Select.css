@@ -57,21 +57,27 @@
   overflow: hidden;
 }
 
+.select-custom__selected--placeholder {
+  color: var(--select-placeholder-color);
+  font-style: normal;
+}
+
 .select-custom__arrow {
+  position: absolute;
+  top: 50%;
+  right: var(--select-arrow-right);
   width: var(--select-arrow-size);
   height: var(--select-arrow-size);
   margin-left: var(--select-arrow-margin);
-  border-right: var(--select-arrow-border, 2px solid var(--select-arrow-color));
-  border-bottom: var(
-    --select-arrow-border,
-    2px solid var(--select-arrow-color)
-  );
-  transform: rotate(45deg);
+  border-right: var(--select-arrow-border);
+  border-bottom: var(--select-arrow-border);
+  transform: translateY(-75%) rotate(45deg);
+  transform-origin: center;
   transition: var(--select-arrow-transition);
 }
 
 .select-custom--open .select-custom__arrow {
-  transform: rotate(-135deg);
+  transform: translateY(-25%) rotate(-135deg);
 }
 
 /* Dropdown */
