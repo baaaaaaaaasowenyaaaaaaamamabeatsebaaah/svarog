@@ -61,7 +61,7 @@ export const TextElements = () => {
   const inlineSpan = new Typography({
     children: 'inline span element',
     as: 'span',
-    color: '#0066cc',
+    color: 'var(--color-primary)',
     weight: 'bold',
   });
   spanContainer.appendChild(inlineSpan.getElement());
@@ -154,28 +154,83 @@ export const FontStyles = () => {
 };
 
 export const Colors = () => {
-  const container = createContainer('Text Colors');
+  const container = createContainer('Text Colors - Design System');
   const colors = [
-    { color: '#333333', name: 'Default Dark' },
-    { color: '#0066cc', name: 'Primary Blue' },
-    { color: '#28a745', name: 'Success Green' },
-    { color: '#dc3545', name: 'Danger Red' },
-    { color: '#ffc107', name: 'Warning Yellow' },
-    { color: '#6c757d', name: 'Secondary Gray' },
-    { color: '#6f42c1', name: 'Purple' },
-    { color: '#e83e8c', name: 'Pink' },
+    { color: 'var(--color-text)', name: 'Text' },
+    { color: 'var(--color-text-light)', name: 'Text Light' },
+    { color: 'var(--color-text-lighter)', name: 'Text Lighter' },
+    { color: 'var(--color-primary)', name: 'Primary' },
+    { color: 'var(--color-secondary)', name: 'Secondary' },
+    { color: 'var(--color-success)', name: 'Success' },
+    { color: 'var(--color-danger)', name: 'Danger' },
+    { color: 'var(--color-warning)', name: 'Warning' },
+    { color: 'var(--color-info)', name: 'Info' },
   ];
 
+  // Add grayscale colors
+  colors.push(
+    { color: 'var(--color-gray-900)', name: 'Gray 900' },
+    { color: 'var(--color-gray-700)', name: 'Gray 700' },
+    { color: 'var(--color-gray-500)', name: 'Gray 500' },
+    { color: 'var(--color-gray-300)', name: 'Gray 300' },
+    { color: 'var(--color-gray-100)', name: 'Gray 100' }
+  );
+
+  // Create a note about CSS variables
+  const note = document.createElement('p');
+  note.style.marginBottom = '1rem';
+  note.style.fontSize = '14px';
+  note.innerHTML =
+    '<strong>Note:</strong> These colors are using CSS variables from the design system.';
+  container.appendChild(note);
+
+  // Create a wrapper for the color samples
+  const colorWrapper = document.createElement('div');
+  colorWrapper.style.display = 'grid';
+  colorWrapper.style.gridTemplateColumns =
+    'repeat(auto-fill, minmax(250px, 1fr))';
+  colorWrapper.style.gap = '0.75rem';
+  container.appendChild(colorWrapper);
+
   colors.forEach(({ color, name }) => {
+    const colorCard = document.createElement('div');
+    colorCard.style.padding = '0.75rem';
+    colorCard.style.border = '1px solid #e0e0e0';
+    colorCard.style.borderRadius = '4px';
+    colorCard.style.display = 'flex';
+    colorCard.style.flexDirection = 'column';
+    colorCard.style.gap = '0.5rem';
+
+    // Color sample
+    const colorSample = document.createElement('div');
+    colorSample.style.height = '2rem';
+    colorSample.style.backgroundColor = color;
+    colorSample.style.borderRadius = '3px';
+    colorSample.style.border = '1px solid #e0e0e0';
+    colorCard.appendChild(colorSample);
+
+    // Color name
     const typography = new Typography({
-      children: `${name} - ${color}`,
+      children: name,
       as: 'div',
       color: color,
       block: true,
-      className: 'mb-2',
       weight: 'bold',
     });
-    container.appendChild(typography.getElement());
+    colorCard.appendChild(typography.getElement());
+
+    // Color variable
+    const colorVariable = new Typography({
+      children: color,
+      as: 'span',
+      block: true,
+      color: 'var(--color-gray-700)',
+      className: 'color-variable',
+      style: 'font-family: monospace; font-size: 0.9em;',
+    });
+    colorCard.appendChild(colorVariable.getElement());
+
+    colorWrapper.appendChild(colorCard);
   });
 
   return container;
@@ -210,7 +265,7 @@ export const InlineVsBlock = () => {
     children: 'Inline element 1',
     as: 'span',
     block: false,
-    color: '#0066cc',
+    color: 'var(--color-primary)',
     className: 'mr-2',
   });
 
@@ -218,7 +273,7 @@ export const InlineVsBlock = () => {
     children: 'Inline element 2',
     as: 'span',
     block: false,
-    color: '#28a745',
+    color: 'var(--color-success)',
     className: 'mr-2',
   });
 
@@ -226,7 +281,7 @@ export const InlineVsBlock = () => {
     children: 'Inline element 3',
     as: 'span',
     block: false,
-    color: '#dc3545',
+    color: 'var(--color-danger)',
   });
 
   inlineContainer.appendChild(inline1.getElement());
@@ -239,7 +294,7 @@ export const InlineVsBlock = () => {
     children: 'Block element 1',
     as: 'div',
     block: true,
-    color: '#0066cc',
+    color: 'var(--color-primary)',
     className: 'mb-2',
   });
 
@@ -247,7 +302,7 @@ export const InlineVsBlock = () => {
     children: 'Block element 2',
     as: 'div',
     block: true,
-    color: '#28a745',
+    color: 'var(--color-success)',
     className: 'mb-2',
   });
 
@@ -255,7 +310,7 @@ export const InlineVsBlock = () => {
     children: 'Block element 3',
     as: 'div',
     block: true,
-    color: '#dc3545',
+    color: 'var(--color-danger)',
   });
 
   container.appendChild(block1.getElement());
@@ -337,7 +392,7 @@ export const WithNestedElements = () => {
   const nestedTypography = new Typography({
     children: 'This is nested typography',
     as: 'p',
-    color: '#0066cc',
+    color: 'var(--color-primary)',
     italic: true,
   });
   nestedElement.appendChild(nestedTypography.getElement());
@@ -362,7 +417,7 @@ export const CombinedFeatures = () => {
     children: 'Welcome to Our Application',
     as: 'h1',
     textAlign: 'center',
-    color: '#2c3e50',
+    color: 'var(--color-gray-900)',
     weight: '700',
     block: true,
     className: 'mb-4',
@@ -372,7 +427,7 @@ export const CombinedFeatures = () => {
     children: 'Experience the power of typography',
     as: 'h3',
     textAlign: 'center',
-    color: '#34495e',
+    color: 'var(--color-gray-700)',
     weight: '400',
     italic: true,
     block: true,
@@ -398,7 +453,7 @@ export const CombinedFeatures = () => {
     children: '© 2024 Typography Component Demo',
     as: 'p',
     textAlign: 'center',
-    color: '#7f8c8d',
+    color: 'var(--color-gray-500)',
     weight: '300',
     block: true,
     className: 'mt-5',
@@ -419,7 +474,7 @@ export const ResponsiveTypography = () => {
   );
 
   const note = document.createElement('p');
-  note.style.color = '#ff6b6b';
+  note.style.color = 'var(--color-danger)';
   note.style.marginBottom = '1rem';
   note.textContent =
     'Note: The tabletSize and mobileSize props are accepted but not actively applied in the current component implementation.';
@@ -436,7 +491,7 @@ export const ResponsiveTypography = () => {
   container.appendChild(typography.getElement());
 
   const explanation = document.createElement('small');
-  explanation.style.color = '#666';
+  explanation.style.color = 'var(--color-gray-600)';
   explanation.textContent =
     "Check the component props. The tabletSize and mobileSize values are stored but need implementation in the component's setStyle method.";
   container.appendChild(explanation);
