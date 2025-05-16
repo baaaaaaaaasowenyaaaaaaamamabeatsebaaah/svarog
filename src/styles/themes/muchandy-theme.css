@@ -225,27 +225,31 @@
   --card-image-margin-bottom: var(--space-3);
 
   /* Component: Input */
+  --input-margin-bottom: var(--space-4);
+  --input-padding: var(--space-2) var(--space-3);
+  --input-mobile-padding: var(--space-2);
+
+  --input-font-size: var(--font-size-xl);
+  --input-font-family: var(--font-family-primary);
+  --input-mobile-font-size: var(--font-size-base);
+  --input-validation-font-size: var(--font-size-base);
+
   --input-bg: var(--color-bg);
   --input-color: var(--color-text);
-  --input-border: 1px solid var(--color-border-medium);
-  --input-radius: var(--border-radius-md);
-  --input-padding: var(--space-2) var(--space-3);
-  --input-font-size: var(--font-size-base);
-  --input-font-family: var(--font-family-primary);
-  --input-shadow: var(--shadow-none);
-  --input-transition: var(--transition-normal);
   --input-placeholder-color: var(--color-text-lighter);
-  --input-focus-border-color: var(--color-brand-primary);
-  --input-focus-shadow: var(--focus-ring);
+  --input-focus-border-color: var(--color-brand-secondary-light);
   --input-disabled-bg: var(--disabled-background);
+  --input-readonly-bg: var(--disabled-background);
+  --input-valid-border-color: var(--color-success-light);
+  --input-invalid-border-color: var(--color-danger-light);
+  --input-validation-color: var(--color-danger-light);
+
+  --input-border: 1px solid var(--color-border-medium);
+  --input-radius: 0;
+  --input-shadow: var(--shadow-none);
+  --input-focus-shadow: var(--focus-ring);
+  --input-transition: var(--transition-normal);
   --input-disabled-opacity: var(--disabled-opacity);
-  --input-valid-border-color: var(--color-success);
-  --input-invalid-border-color: var(--color-danger);
-  --input-validation-color: var(--color-danger);
-  --input-validation-font-size: var(--font-size-sm);
-  --input-margin-bottom: var(--space-4);
-  --input-mobile-font-size: 16px;
-  --input-mobile-padding: var(--space-2);
 
   /* Component: Select */
   --select-bg: var(--color-bg);
