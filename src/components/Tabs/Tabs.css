@@ -14,8 +14,8 @@
   background: none;
   border: none;
   padding: var(--space-3) var(--space-4);
-  font-size: var(--font-size-base);
-  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
+  font-family: var(--font-family-base);
   color: var(--color-text);
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -24,13 +24,13 @@
 }
 
 .tabs__button:hover {
-  color: var(--color-primary);
+  color: var(--color-brand-secondary);
 }
 
 .tabs__button--active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
-  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-secondary);
+  border-bottom-color: var(--color-brand-secondary);
+  font-weight: var(--font-weight-bold);
 }
 
 .tabs__panel {
@@ -63,35 +63,35 @@
 
 .tabs--border .tabs__button--bordered {
   background: none;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-brand-secondary-light);
   border-left: none;
   margin-bottom: 0;
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-brand-secondary-light);
   /* Styling similar to disabled button for inactive tabs */
-  background-color: var(--button-disabled-bg, #f5f5f5);
-  color: var(--button-disabled-color, #999);
+  background-color: var(--button-disabled-bg);
+  color: var(--button-disabled-color);
 }
 
 /* First button has left border */
 .tabs--border .tabs__button--first {
-  border-left: 1px solid var(--color-border-light);
-  border-top-left-radius: var(--button-radius-sm, 3px);
+  border-left: 1px solid var(--color-brand-secondary-light);
+  border-top-left-radius: 0;
 }
 
 /* Last button has rounded corner */
 .tabs--border .tabs__button--bordered:last-child {
-  border-top-right-radius: var(--button-radius-sm, 3px);
+  border-top-right-radius: 0;
 }
 
 .tabs--border .tabs__button--bordered:hover:not(.tabs__button--active) {
-  background-color: var(--button-disabled-bg, #f5f5f5);
-  color: var(--color-primary);
+  background-color: var(--color-bg-transparent);
+  color: var(--color-brand-secondary);
 }
 
 .tabs--border .tabs__button--active {
   background-color: var(--color-bg, white);
-  color: var(--color-primary);
-  font-weight: var(--font-weight-medium);
+  color: var(--color-brand-secondary);
+  font-weight: var(--font-weight-bold);
   border-bottom-color: transparent;
   position: relative;
 }
@@ -108,9 +108,8 @@
 
 .tabs--border .tabs__panel--bordered {
   padding: var(--space-4);
-  border: 1px solid var(--color-border-light);
-  border-radius: 0 var(--button-radius-sm, 3px) var(--button-radius-sm, 3px)
-    var(--button-radius-sm, 3px);
+  border: 1px solid var(--color-brand-secondary-light);
+  border-radius: 0;
   margin-top: -1px;
 }
 
