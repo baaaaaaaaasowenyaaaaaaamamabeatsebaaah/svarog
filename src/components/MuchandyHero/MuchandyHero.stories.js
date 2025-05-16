@@ -2,14 +2,9 @@
 import MuchandyHero from './MuchandyHero.js';
 import PhoneRepairForm from '../PhoneRepairForm/PhoneRepairForm.js';
 import UsedPhonePriceForm from '../UsedPhonePriceForm/UsedPhonePriceForm.js';
-import {
-  mockPhoneRepairData,
-  setupPhoneRepairMocks,
-} from '../../../__mocks__/phoneRepairData.js';
-import {
-  mockPhoneBuybackData,
-  setupPhoneBuybackMocks,
-} from '../../../__mocks__/phoneBuybackData.js';
+import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
+import { mockPhoneBuybackData } from '../../../__mocks__/phoneBuybackData.js';
+import MockUsedPhonePriceService from '../../services/MockUsedPhonePriceService.js';
 
 import muchandyHeroBg from '../../../.storybook/assets/muchandy-hero-bg.png';
 
@@ -31,7 +26,7 @@ function setupMocks() {
   // We need to mock the global fetch function
   const originalFetch = window.fetch;
 
-  window.fetch = (url, options) => {
+  window.fetch = (url) => {
     // Mock manufacturers endpoint
     if (url === '/api/manufacturers') {
       return Promise.resolve({
@@ -170,8 +165,13 @@ const createForms = () => {
     onPriceChange: (price) => console.log('Repair price:', price),
   });
 
+  // Create a proper mock service for UsedPhonePriceForm
+  const mockBuybackService = new MockUsedPhonePriceService(
+    mockPhoneBuybackData
+  );
+
   const buybackForm = new UsedPhonePriceForm({
-    service: { baseUrl: '/api' }, // Pass a baseUrl that matches our mocked endpoints
+    service: mockBuybackService,
     onPriceChange: (price) => console.log('Used phone price:', price),
   });
 
