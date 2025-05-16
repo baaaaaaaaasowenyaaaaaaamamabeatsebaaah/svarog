@@ -28,6 +28,13 @@
   --typography-body-size: var(--font-size-base);
   --typography-small-size: var(--font-size-sm);
 
+  /* Component: Link */
+  --link-margin-left: 0;
+  --link-margin-right: 0;
+  --link-color: var(--color-brand-secondary);
+  --link-transition: var(--transition-normal);
+  --link-hover-color: var(--color-brand-secondary-light);
+
   /* Component: Button */
   --button-bg: var(--color-transparent);
   --button-color: var(--color-brand-primary);
@@ -129,15 +136,6 @@
   --button-danger-border-color: none;
   --button-danger-hover-border-color: none;
   --button-danger-hover-color: var(--color-text-white);
-
-  /* Component: Link */
-  --link-color: var(--color-brand-primary);
-  --link-hover-color: var(--color-brand-primary-dark);
-  --link-active-color: var(--color-brand-primary-dark);
-  --link-margin-left: 0;
-  --link-margin-right: var(--space-1);
-  --link-font-family: var(--font-family-primary);
-  --link-transition: var(--transition-fast);
 
   /* Component: Navigation */
   --nav-bg: var(--color-bg);

@@ -161,16 +161,34 @@ export const getComponents = () => {
         },
       ],
     },
+
     {
       name: 'Grid',
       stories: [
         {
-          name: 'Default',
+          name: 'TwoColumns',
           module: () =>
-            import('../components/Grid/Grid.stories.js').then((m) => m.Default),
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.TwoColumns
+            ),
+        },
+        {
+          name: 'ThreeColumns',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.ThreeColumns
+            ),
+        },
+        {
+          name: 'ResponsiveGrid',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.ResponsiveGrid
+            ),
         },
       ],
     },
+
     {
       name: 'Link',
       stories: [
