@@ -14,7 +14,7 @@ export default class Typography extends Component {
     italic = false,
     className = '',
     weight,
-    block = false,
+    block = null, // Change default to null to detect when it's explicitly set
   }) {
     super();
 
@@ -54,7 +54,7 @@ export default class Typography extends Component {
       throw new Error('italic must be a boolean');
     }
 
-    if (typeof block !== 'boolean') {
+    if (block !== null && typeof block !== 'boolean') {
       throw new Error('block must be a boolean');
     }
 
@@ -127,10 +127,14 @@ export default class Typography extends Component {
   }
 
   createTypographyElement() {
+    // Determine if element should be block by default
+    const isHeadline = this.as.match(/^h[1-6]$/);
+    const shouldBeBlock = this.block !== null ? this.block : isHeadline;
+
     const classNames = this.createClassNames(
       'typography',
       `typography--${this.as}`,
-      this.block ? 'typography--block' : 'typography--inline',
+      shouldBeBlock ? 'typography--block' : 'typography--inline',
       this.textAlign ? `typography--align-${this.textAlign}` : '',
       this.italic ? 'typography--italic' : '',
       this.weight ? `typography--weight-${this.weight}` : '',
@@ -155,10 +159,9 @@ export default class Typography extends Component {
       element.style.textAlign = this.textAlign;
     }
 
-    if (this.block) {
-      element.style.display = 'block';
-    } else {
-      element.style.display = 'inline';
+    // Only apply display style if block is explicitly set or it's a headline
+    if (this.block !== null || isHeadline) {
+      element.style.display = shouldBeBlock ? 'block' : 'inline';
     }
 
     if (this.italic) {
