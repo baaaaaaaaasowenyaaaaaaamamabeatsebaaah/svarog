@@ -6,6 +6,11 @@
   background-repeat: no-repeat;
   background-color: var(--color-bg-dark);
   width: 100%;
+  padding: var(--space-8) 0;
+}
+
+.muchandy-hero__content-column {
+  min-height: 820px;
 }
 
 .muchandy-hero__title {
@@ -13,12 +18,13 @@
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-4);
   color: var(--color-brand-secondary);
+  line-height: 1.2; /* Better line height for titles with breaks */
 }
 
 .muchandy-hero__subtitle {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-12);
   color: var(--color-white);
 }
 
@@ -28,22 +34,30 @@
   border-radius: 0;
 }
 
-/* Tabs styling */
-.muchandy-hero__tabs-list {
-  display: flex;
-  justify-content: center; /* Center align tabs */
-  border-bottom: none;
-  margin-bottom: 0;
+/* Style overrides for tabs */
+.muchandy-hero .tabs__panels {
+  margin-top: var(--space-5);
+}
+
+.muchandy-hero__tabs.tabs--border .tabs__button--active {
+  color: var(--color-brand-secondary);
+}
+
+.muchandy-hero__tabs.tabs--border .tabs__panel--bordered {
+  border: 0;
+}
+
+.muchandy-hero .tabs__button {
+  min-width: 120px;
+}
+
+/* Style overrides for forms */
+.muchandy-hero .phone-repair-form,
+.muchandy-hero .used-phone-price-form {
+  box-shadow: none;
+  border: none;
   padding: 0;
-  border-radius: 0;
-}
-
-.muchandy-hero__tab-panel {
-  display: none;
-}
-
-.muchandy-hero__tab-panel--active {
-  display: block;
+  background: transparent;
 }
 
 .muchandy-hero .price-display .price-display__label,
@@ -61,5 +75,13 @@
 @media (max-width: 768px) {
   .muchandy-hero__content-column {
     grid-column: 1 / span 12 !important;
+  }
+
+  .muchandy-hero__title {
+    font-size: var(--font-size-4xl);
+  }
+
+  .muchandy-hero__subtitle {
+    font-size: var(--font-size-xl);
   }
 }

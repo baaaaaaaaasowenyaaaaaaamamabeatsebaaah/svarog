@@ -89,7 +89,7 @@
 }
 
 .tabs--border .tabs__button--active {
-  background-color: var(--color-bg, white);
+  background-color: var(--color-bg-transparent);
   color: var(--color-brand-secondary);
   font-weight: var(--font-weight-bold);
   border-bottom-color: transparent;
@@ -103,11 +103,11 @@
   left: 0;
   right: 0;
   height: 1px;
-  background-color: var(--color-bg, white);
+  background-color: var(--color-bg-transparent);
 }
 
 .tabs--border .tabs__panel--bordered {
-  padding: var(--space-4);
+  padding: var(--space-4) 0;
   border: 1px solid var(--color-brand-secondary-light);
   border-radius: 0;
   margin-top: -1px;
