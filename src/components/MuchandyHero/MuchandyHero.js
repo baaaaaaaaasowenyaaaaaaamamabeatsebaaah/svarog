@@ -5,7 +5,7 @@ import Tabs from '../Tabs/Tabs.js';
 
 export default class MuchandyHero extends Component {
   constructor({
-    backgroundImage = 'https://picsum.photos/1920/1080',
+    backgroundImage,
     title = 'Finden Sie<br>Ihren Preis',
     subtitle = 'Jetzt Preis berechnen.',
     repairForm,

@@ -5,6 +5,7 @@ import UsedPhonePriceForm from '../UsedPhonePriceForm/UsedPhonePriceForm.js';
 import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 import { mockPhoneBuybackData } from '../../../__mocks__/phoneBuybackData.js';
 import MockUsedPhonePriceService from '../../services/MockUsedPhonePriceService.js';
+import { switchTheme } from '../../utils/theme.js';
 
 import muchandyHeroBg from '../../../.storybook/assets/muchandy-hero-bg.png';
 
@@ -165,15 +166,15 @@ const createForms = () => {
   return { repairForm, buybackForm };
 };
 
-// Export default metadata with explicit component reference
-const meta = {
+// Export default metadata
+export default {
   title: 'Components/MuchandyHero',
-  // Don't include the component property to avoid circular reference
 };
-export default meta;
 
-// Define stories as functions for better compatibility with various Storybook versions
-export const Default = () => {
+// Define stories as named function declarations
+
+// Story 1: Default
+export function Default() {
   const { repairForm, buybackForm } = createForms();
 
   const hero = new MuchandyHero({
@@ -185,10 +186,10 @@ export const Default = () => {
   });
 
   return hero.getElement();
-};
-Default.storyName = 'Default';
+}
 
-export const WithSellTabDefault = () => {
+// Story 2: With Sell Tab Default
+export function WithSellTabDefault() {
   const { repairForm, buybackForm } = createForms();
 
   const hero = new MuchandyHero({
@@ -201,10 +202,10 @@ export const WithSellTabDefault = () => {
   });
 
   return hero.getElement();
-};
-WithSellTabDefault.storyName = 'With Sell Tab Default';
+}
 
-export const WithCustomBackground = () => {
+// Story 3: With Custom Background
+export function WithCustomBackground() {
   const { repairForm, buybackForm } = createForms();
 
   const hero = new MuchandyHero({
@@ -216,5 +217,97 @@ export const WithCustomBackground = () => {
   });
 
   return hero.getElement();
-};
-WithCustomBackground.storyName = 'With Custom Background';
+}
+
+// Story 4: Without Background Image
+export function WithoutBackgroundImage() {
+  const { repairForm, buybackForm } = createForms();
+
+  const hero = new MuchandyHero({
+    // No background image provided, will use default
+    title: 'Finden Sie<br>Ihren Preis:',
+    subtitle: 'Ohne Hintergrundbild.',
+    repairForm,
+    buybackForm,
+  });
+
+  return hero.getElement();
+}
+
+// Story 5: With Custom Text
+export function WithCustomText() {
+  const { repairForm, buybackForm } = createForms();
+
+  const hero = new MuchandyHero({
+    backgroundImage: muchandyHeroBg,
+    title: 'Custom<br>Title Text',
+    subtitle: 'This is a custom subtitle for demonstration.',
+    repairForm,
+    buybackForm,
+  });
+
+  return hero.getElement();
+}
+
+// Story 6: With Muchandy Theme
+export function WithMuchandyTheme() {
+  // Switch to Muchandy theme
+  switchTheme('muchandy');
+
+  const { repairForm, buybackForm } = createForms();
+
+  const hero = new MuchandyHero({
+    backgroundImage: muchandyHeroBg,
+    title: 'Muchandy<br>Theme Example',
+    subtitle: 'Using the Muchandy theme styling.',
+    repairForm,
+    buybackForm,
+  });
+
+  return hero.getElement();
+}
+
+// Story 7: With Callbacks
+export function WithCallbacks() {
+  const customRepairForm = new PhoneRepairForm({
+    onPriceChange: (price) => {
+      console.log('Custom callback - Repair price:', price);
+      alert(`Selected repair price: ${price.price}€`);
+    },
+  });
+
+  const mockBuybackService = new MockUsedPhonePriceService(
+    mockPhoneBuybackData
+  );
+  const customBuybackForm = new UsedPhonePriceForm({
+    service: mockBuybackService,
+    onPriceChange: (price) => {
+      console.log('Custom callback - Buyback price:', price);
+      alert(`Selected buyback price: ${price.price}€`);
+    },
+  });
+
+  const hero = new MuchandyHero({
+    backgroundImage: muchandyHeroBg,
+    title: 'With<br>Callbacks',
+    subtitle: 'Select options to see callback alerts.',
+    repairForm: customRepairForm,
+    buybackForm: customBuybackForm,
+  });
+
+  return hero.getElement();
+}
+
+// Story 8: Minimal Configuration
+export function MinimalConfiguration() {
+  const { repairForm, buybackForm } = createForms();
+
+  const hero = new MuchandyHero({
+    // Only provide required props
+    repairForm,
+    buybackForm,
+    // All other props will use defaults
+  });
+
+  return hero.getElement();
+}
