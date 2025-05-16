@@ -8,19 +8,6 @@ import MockUsedPhonePriceService from '../../services/MockUsedPhonePriceService.
 
 import muchandyHeroBg from '../../../.storybook/assets/muchandy-hero-bg.png';
 
-export default {
-  title: 'Components/MuchandyHero',
-  component: MuchandyHero,
-  // This ensures the mocks are set up before any stories run
-  parameters: {
-    docs: {
-      beforeScreenshot: () => {
-        setupMocks();
-      },
-    },
-  },
-};
-
 // Setup mocks for all API endpoints
 function setupMocks() {
   // We need to mock the global fetch function
@@ -155,11 +142,11 @@ function setupMocks() {
   };
 }
 
-// Call setupMocks immediately to ensure it's ready before stories render
-setupMocks();
-
 // Create forms directly without injecting services
 const createForms = () => {
+  // Setup mocks first
+  setupMocks();
+
   // Create forms (they will use the mocked fetch API)
   const repairForm = new PhoneRepairForm({
     onPriceChange: (price) => console.log('Repair price:', price),
@@ -178,7 +165,14 @@ const createForms = () => {
   return { repairForm, buybackForm };
 };
 
-// Simple story with default options
+// Export default metadata with explicit component reference
+const meta = {
+  title: 'Components/MuchandyHero',
+  // Don't include the component property to avoid circular reference
+};
+export default meta;
+
+// Define stories as functions for better compatibility with various Storybook versions
 export const Default = () => {
   const { repairForm, buybackForm } = createForms();
 
@@ -192,8 +186,8 @@ export const Default = () => {
 
   return hero.getElement();
 };
+Default.storyName = 'Default';
 
-// Story with sell tab active by default
 export const WithSellTabDefault = () => {
   const { repairForm, buybackForm } = createForms();
 
@@ -208,8 +202,8 @@ export const WithSellTabDefault = () => {
 
   return hero.getElement();
 };
+WithSellTabDefault.storyName = 'With Sell Tab Default';
 
-// Story with custom background
 export const WithCustomBackground = () => {
   const { repairForm, buybackForm } = createForms();
 
@@ -223,3 +217,4 @@ export const WithCustomBackground = () => {
 
   return hero.getElement();
 };
+WithCustomBackground.storyName = 'With Custom Background';
