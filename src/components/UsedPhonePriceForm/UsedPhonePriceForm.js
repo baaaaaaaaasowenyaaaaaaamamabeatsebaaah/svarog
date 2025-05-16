@@ -171,7 +171,7 @@ export default class UsedPhonePriceForm extends Component {
     this.submitButton = new Button({
       text: this.labels.submitButtonText,
       type: 'submit',
-      variant: 'primary',
+      variant: 'default',
       disabled: !this.canSubmit(),
     });
     buttonContainer.appendChild(this.submitButton.getElement());

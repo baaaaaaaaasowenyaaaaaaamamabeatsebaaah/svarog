@@ -4,6 +4,10 @@ import {
   mockPhoneBuybackData,
   setupPhoneBuybackMocks,
 } from '../../../__mocks__/phoneBuybackData.js';
+import {
+  defaultLabels,
+  conditionDescriptions,
+} from '../../config/UsedPhonePriceFormConfig.js';
 
 export default {
   title: 'Components/UsedPhonePriceForm',
@@ -42,11 +46,55 @@ const setupMocks = () => {
   }
 };
 
+// Function to update mock conditions with config labels and descriptions
+const updateMockConditionsWithConfig = (mockData) => {
+  // Create a deep copy of the mock data
+  const updatedMockData = JSON.parse(JSON.stringify(mockData));
+
+  // Map condition IDs to config labels
+  const conditionLabels = {
+    1: defaultLabels.conditionNewLabel || 'Neu', // New
+    2: defaultLabels.conditionGoodLabel || 'Gut', // Good
+    3: defaultLabels.conditionFairLabel || 'Akzeptabel', // Fair
+    4: defaultLabels.conditionPoorLabel || 'Beschädigt', // Poor
+  };
+
+  // Map condition IDs to config descriptions
+  const conditionDescs = {
+    1: conditionDescriptions.likeNew,
+    2: conditionDescriptions.good,
+    3: conditionDescriptions.fair,
+    4: conditionDescriptions.poor,
+  };
+
+  // Update conditions in the mock data
+  updatedMockData.manufacturers.forEach((manufacturer) => {
+    manufacturer.devices.forEach((device) => {
+      if (device.conditions) {
+        device.conditions.forEach((condition) => {
+          // Update name and description based on condition ID
+          if (conditionLabels[condition.id]) {
+            condition.name = conditionLabels[condition.id];
+          }
+          if (conditionDescs[condition.id]) {
+            condition.description = conditionDescs[condition.id];
+          }
+        });
+      }
+    });
+  });
+
+  return updatedMockData;
+};
+
 export const Default = () => {
   setupMocks();
 
+  // Update mock data with config labels and descriptions
+  const updatedMockData = updateMockConditionsWithConfig(mockPhoneBuybackData);
+
   return UsedPhonePriceFormFactory.createWithMockData({
-    mockData: mockPhoneBuybackData,
+    mockData: updatedMockData,
     onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
 };
@@ -54,8 +102,11 @@ export const Default = () => {
 export const WithoutSteps = () => {
   setupMocks();
 
+  // Update mock data with config labels and descriptions
+  const updatedMockData = updateMockConditionsWithConfig(mockPhoneBuybackData);
+
   return UsedPhonePriceFormFactory.createWithMockData({
-    mockData: mockPhoneBuybackData,
+    mockData: updatedMockData,
     showStepsIndicator: false,
     onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
@@ -64,13 +115,16 @@ export const WithoutSteps = () => {
 export const WithPreselectedData = () => {
   setupMocks();
 
+  // Update mock data with config labels and descriptions
+  const updatedMockData = updateMockConditionsWithConfig(mockPhoneBuybackData);
+
   // Create component container
   const container = document.createElement('div');
   container.style.maxWidth = '600px';
 
   // Create form component
   const buybackForm = UsedPhonePriceFormFactory.createWithMockData({
-    mockData: mockPhoneBuybackData,
+    mockData: updatedMockData,
     onPriceChange: (priceData) => {
       console.log('Preis ausgewählt:', priceData);
 
@@ -86,12 +140,26 @@ export const WithPreselectedData = () => {
           ]?.text;
         const condition = priceData.conditionName || 'Unbekannt';
 
+        // Find the condition description
+        let conditionDescription = '';
+        for (const manufacturer of updatedMockData.manufacturers) {
+          for (const device of manufacturer.devices) {
+            for (const cond of device.conditions || []) {
+              if (cond.name === condition) {
+                conditionDescription = cond.description || '';
+                break;
+              }
+            }
+          }
+        }
+
         summaryDisplay.innerHTML = `
           <div style="margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 4px; background-color: #f8f9fa;">
             <h3 style="margin-top: 0; font-size: 18px;">Verkaufszusammenfassung</h3>
             <p><strong>Marke:</strong> ${manufacturer || 'Nicht ausgewählt'}</p>
             <p><strong>Modell:</strong> ${device || 'Nicht ausgewählt'}</p>
             <p><strong>Zustand:</strong> ${condition}</p>
+            ${conditionDescription ? `<p><small>${conditionDescription}</small></p>` : ''}
             <p><strong>Angebotspreis:</strong> €${priceData.price}</p>
             <button id="confirmSale" style="background-color: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Verkauf bestätigen</button>
           </div>
@@ -145,7 +213,7 @@ export const WithPreselectedData = () => {
             const conditionElements =
               document.querySelectorAll('.condition-option');
             if (conditionElements.length > 0) {
-              // Select the second condition ("Good")
+              // Select the second condition ("Gut")
               const goodCondition = Array.from(conditionElements).find(
                 (el) => el.getAttribute('data-condition-id') === '2'
               );
@@ -165,6 +233,9 @@ export const WithPreselectedData = () => {
 
 export const WithCustomTheme = () => {
   setupMocks();
+
+  // Update mock data with config labels and descriptions
+  const updatedMockData = updateMockConditionsWithConfig(mockPhoneBuybackData);
 
   // Create container with custom styles
   const container = document.createElement('div');
@@ -210,6 +281,11 @@ export const WithCustomTheme = () => {
       background-color: #dbeafe;
     }
     
+    .custom-theme .condition-option__description {
+      color: #4b5563;
+      font-style: italic;
+    }
+    
     .custom-theme .btn--primary {
       background-color: #3b82f6;
       border-radius: 4px;
@@ -233,7 +309,7 @@ export const WithCustomTheme = () => {
 
   // Create form component
   const buybackForm = UsedPhonePriceFormFactory.createWithMockData({
-    mockData: mockPhoneBuybackData,
+    mockData: updatedMockData,
     onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
 
@@ -283,7 +359,26 @@ export const WithErrorHandling = () => {
           (d) => d.id.toString() === deviceId
         );
         if (device && device.conditions) {
-          conditions = device.conditions;
+          // Create a deep copy and update with config labels and descriptions
+          conditions = JSON.parse(JSON.stringify(device.conditions));
+
+          // Update labels and descriptions
+          conditions.forEach((condition) => {
+            if (condition.id === 1) {
+              condition.name = defaultLabels.conditionNewLabel || 'Neu';
+              condition.description = conditionDescriptions.likeNew;
+            } else if (condition.id === 2) {
+              condition.name = defaultLabels.conditionGoodLabel || 'Gut';
+              condition.description = conditionDescriptions.good;
+            } else if (condition.id === 3) {
+              condition.name = defaultLabels.conditionFairLabel || 'Akzeptabel';
+              condition.description = conditionDescriptions.fair;
+            } else if (condition.id === 4) {
+              condition.name = defaultLabels.conditionPoorLabel || 'Beschädigt';
+              condition.description = conditionDescriptions.poor;
+            }
+          });
+
           break;
         }
       }
@@ -299,6 +394,18 @@ export const WithErrorHandling = () => {
       const conditionId = priceMatch[1];
       // Find the condition and its price
       let priceData = null;
+      let conditionName = '';
+
+      // Map condition IDs to names from config
+      if (conditionId === '1')
+        conditionName = defaultLabels.conditionNewLabel || 'Neu';
+      else if (conditionId === '2')
+        conditionName = defaultLabels.conditionGoodLabel || 'Gut';
+      else if (conditionId === '3')
+        conditionName = defaultLabels.conditionFairLabel || 'Akzeptabel';
+      else if (conditionId === '4')
+        conditionName = defaultLabels.conditionPoorLabel || 'Beschädigt';
+
       searchLoop: for (const manufacturer of mockPhoneBuybackData.manufacturers) {
         for (const device of manufacturer.devices) {
           for (const condition of device.conditions) {
@@ -307,7 +414,7 @@ export const WithErrorHandling = () => {
                 priceData = {
                   price: condition.prices[0].price,
                   deviceName: device.name,
-                  conditionName: condition.name,
+                  conditionName: conditionName || condition.name,
                   manufacturerName: manufacturer.name,
                 };
                 break searchLoop;
@@ -358,9 +465,12 @@ export const WithErrorHandling = () => {
 export const WithCustomLabels = () => {
   setupMocks();
 
+  // Update mock data with config labels and descriptions
+  const updatedMockData = updateMockConditionsWithConfig(mockPhoneBuybackData);
+
   // Create form with custom labels
   const buybackForm = UsedPhonePriceFormFactory.createWithMockData({
-    mockData: mockPhoneBuybackData,
+    mockData: updatedMockData,
     labels: {
       title: 'Verkaufe dein Gerät',
       manufacturerStep: 'Marke',
@@ -371,7 +481,11 @@ export const WithCustomLabels = () => {
       conditionLabel: 'Gerätezustand:',
       priceLabel: 'Unser Angebot:',
       initialPriceText: 'Fülle alle Auswahlfelder aus, um ein Angebot zu sehen',
-      submitButtonText: 'Jetzt Bargeld erhalten',
+      submitButtonText: 'Verkaufen',
+      conditionNewLabel: 'Wie neu',
+      conditionGoodLabel: 'Gut',
+      conditionFairLabel: 'Normal',
+      conditionPoorLabel: 'Mit Mängeln',
     },
     onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
