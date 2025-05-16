@@ -58,10 +58,15 @@ export default class StepsIndicator extends Component {
     const sections = 3;
     for (let i = 0; i < sections; i++) {
       const isActive = this.isSectionActive(i, activeIndex, steps.length);
+      const isCompleted = this.isSectionCompleted(i, activeIndex, steps.length);
+      const isSuccess = this.isSectionSuccess(i, activeIndex, steps);
 
       const section = this.createElement('div', {
         className: this.createClassNames('steps-indicator__section', {
-          'steps-indicator__section--active': isActive,
+          'steps-indicator__section--active':
+            isActive && !isCompleted && !isSuccess,
+          'steps-indicator__section--completed': isCompleted && !isSuccess,
+          'steps-indicator__section--success': isSuccess,
         }),
       });
 
@@ -82,6 +87,11 @@ export default class StepsIndicator extends Component {
         }),
       });
 
+      // Container for the number to ensure fixed positioning
+      const numberContainer = this.createElement('div', {
+        className: 'steps-indicator__number-container',
+      });
+
       // Step number
       const number = this.createElement('div', {
         className: 'steps-indicator__number',
@@ -94,7 +104,8 @@ export default class StepsIndicator extends Component {
         textContent: step.name,
       });
 
-      stepEl.appendChild(number);
+      numberContainer.appendChild(number);
+      stepEl.appendChild(numberContainer);
       stepEl.appendChild(label);
       stepsRow.appendChild(stepEl);
     });
@@ -125,6 +136,68 @@ export default class StepsIndicator extends Component {
     const sectionThreshold = (sectionIndex + 1) / 3;
 
     return progressRatio >= sectionThreshold;
+  }
+
+  /**
+   * Determines if a progress section should be marked as completed
+   * @private
+   * @param {number} sectionIndex - Index of the section (0-2)
+   * @param {number} activeStepIndex - Index of the active step
+   * @param {number} totalSteps - Total number of steps
+   * @returns {boolean} Whether the section should be completed
+   */
+  isSectionCompleted(sectionIndex, activeStepIndex, totalSteps) {
+    // For 3 steps, map directly
+    if (totalSteps <= 3) {
+      return sectionIndex < activeStepIndex;
+    }
+
+    // For more than 3 steps, distribute progress proportionally
+    const progressRatio = activeStepIndex / totalSteps;
+    const sectionThreshold = sectionIndex / 3;
+
+    return progressRatio > sectionThreshold;
+  }
+
+  /**
+   * Determines if a progress section should be marked as success
+   * @private
+   * @param {number} sectionIndex - Index of the section (0-2)
+   * @param {number} activeStepIndex - Index of the active step
+   * @param {Array} steps - The steps array
+   * @returns {boolean} Whether the section should have success state
+   */
+  isSectionSuccess(sectionIndex, activeStepIndex, steps) {
+    // If we have 3 or fewer steps, check if this section's corresponding step is completed
+    if (steps.length <= 3) {
+      // If this exact section has a completed step and it's not the active one
+      return (
+        steps[sectionIndex] &&
+        steps[sectionIndex].completed &&
+        sectionIndex !== activeStepIndex
+      );
+    }
+
+    // For more steps, calculate which steps correspond to this section
+    const stepsPerSection = steps.length / 3;
+    const startStep = Math.floor(sectionIndex * stepsPerSection);
+    const endStep = Math.floor((sectionIndex + 1) * stepsPerSection) - 1;
+
+    // Check if all steps in this section are completed
+    let allCompleted = true;
+    for (let i = startStep; i <= endStep && i < steps.length; i++) {
+      // Skip the active step
+      if (i === activeStepIndex) continue;
+
+      if (!steps[i] || !steps[i].completed) {
+        allCompleted = false;
+        break;
+      }
+    }
+
+    return (
+      allCompleted && startStep <= activeStepIndex && endStep >= activeStepIndex
+    );
   }
 
   /**

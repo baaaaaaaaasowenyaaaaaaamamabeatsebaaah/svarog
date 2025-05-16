@@ -19,27 +19,102 @@
   --button-color: var(--color-brand-primary);
   --button-border: 2px solid var(--color-brand-primary);
   --button-radius: 0;
-  --button-hover-bg: var(--color-brand-primary-dark);
-  --button-active-bg: var(--color-brand-primary-dark);
-  --button-disabled-bg: var(--color-gray-400);
   --button-padding: var(--space-2) var(--space-4);
-  --button-font-size: var(--font-size-base);
+  --button-font-size: var(--font-size-xl);
   --button-font-family: var(--font-family-primary);
   --button-font-weight: var(--font-weight-medium);
   --button-transition: var(--transition-normal);
+  --button-shadow: none;
+
+  /* Hover state */
+  --button-hover-bg: var(--color-transparent);
+  --button-hover-border-color: var(--color-brand-primary-light);
+  --button-hover-color: var(--color-brand-primary-light);
+  --button-hover-shadow: none;
+  --button-hover-transform: var(--space-1);
+
+  /* Active state */
+  --button-active-bg: var(--color-brand-primary-dark);
+  --button-active-border-color: var(--color-brand-primary-dark);
+  --button-active-shadow: none;
+  --button-active-transform: none;
+
+  /* Disabled state */
+  --button-disabled-bg: var(--color-gray-400);
+  --button-disabled-border-color: inherit;
+  --button-disabled-color: inherit;
+  --button-disabled-opacity: inherit;
+
+  /* Focus state */
+  --button-focus-shadow: inherit;
+
+  /* Primary button styles */
   --button-primary-bg: var(--color-brand-primary);
   --button-primary-color: var(--color-text-white);
-  --buton-primary-hover-bg: var(--color-brand-primary-dark);
+  --button-primary-active-bg: var(--color-brand-primary-dark);
+  --button-primary-hover-bg: var(--color-brand-primary-light);
+  --buton-primary-hover-bg: var(--color-brand-primary-light);
+  --button-primary-active-border-color: none;
+  --button-primary-border-color: none;
+  --button-primary-hover-border-color: none;
+  --button-primary-hover-color: var(--color-text-white);
+
+  /* Secondary button styles */
   --button-secondary-bg: var(--color-brand-secondary);
   --button-secondary-color: var(--color-text-white);
-  --button-secondary-hover-bg: var(--color-brand-secondary-dark);
+  --button-secondary-hover-bg: var(--color-brand-secondary-light);
+  --button-secondary-active-bg: var(--color-brand-secondary-dark);
+  --button-secondary-hover-bg: var(--color-brand-secondary-light);
+  --button-secondary-active-border-color: none;
+  --button-secondary-border-color: none;
+  --button-secondary-hover-border-color: none;
+  --button-secondary-hover-color: var(--color-text-white);
+
+  /* Text button styles */
   --button-text-color: var(--color-brand-primary);
-  --button-text-hover-color: var(--color-brand-primary-dark);
+  --button-text-hover-color: var(--color-brand-primary-light);
+  --button-text-padding: inherit;
+
+  /* Small button styles */
   --button-padding-sm: var(--space-1) var(--space-3);
-  --button-padding-lg: var(--space-3) var(--space-5);
   --button-font-size-sm: var(--font-size-sm);
+  --button-radius-sm: none;
+
+  /* Large button styles */
+  --button-padding-lg: var(--space-3) var(--space-5);
   --button-font-size-lg: var(--font-size-lg);
-  --button-shadow: var(--shadow-md);
+  --button-radius-lg: none;
+
+  /* Icon button styles */
+  --button-icon-margin: var(--space-1);
+  --button-icon-padding: var(--space-1) var(--space-2);
+  --button-icon-radius: 0;
+  --button-icon-size: var(--font-size-xl);
+  --button-icon-size-lg: var(--font-size-lg);
+  --button-icon-size-sm: var(--font-size-sm);
+
+  /* Outlined button styles */
+  --button-outlined-color: var(--color-dark);
+  --button-outlined-hover-bg: var(--color-transparent);
+  --button-outlined-hover-color: var(--color-gray-600);
+  --button-outlined-border-color: none;
+  --button-outlined-hover-border-color: var(--color-gray-600);
+
+  /* Success button styles */
+  --button-success-bg: var(--color-success);
+  --button-success-color: var(--color-text-white);
+  --button-success-hover-bg: var(--color-success-light);
+  --button-success-border-color: none;
+  --button-success-hover-border-color: none;
+  --button-success-hover-color: var(--color-text-white);
+
+  /* Danger state */
+  --button-danger-bg: var(--color-danger);
+  --button-danger-color: var(--color-text-white);
+  --button-danger-hover-bg: var(--color-danger-light);
+  --button-danger-border-color: none;
+  --button-danger-hover-border-color: none;
+  --button-danger-hover-color: var(--color-text-white);
 
   /* Component: Link */
   --link-color: var(--color-brand-primary);
@@ -285,64 +360,6 @@
   --border-radius-default: inherit;
   /* TODO: Define value for 'box-shadow-sm' in muchandy theme */
   --box-shadow-sm: inherit;
-  /* TODO: Define value for 'button-active-border-color' in muchandy theme */
-  --button-active-border-color: inherit;
-  /* TODO: Define value for 'button-active-shadow' in muchandy theme */
-  --button-active-shadow: inherit;
-  /* TODO: Define value for 'button-active-transform' in muchandy theme */
-  --button-active-transform: inherit;
-  /* TODO: Define value for 'button-danger-bg' in muchandy theme */
-  --button-danger-bg: inherit;
-  /* TODO: Define value for 'button-danger-color' in muchandy theme */
-  --button-danger-color: inherit;
-  /* TODO: Define value for 'button-danger-hover-bg' in muchandy theme */
-  --button-danger-hover-bg: inherit;
-  /* TODO: Define value for 'button-disabled-border-color' in muchandy theme */
-  --button-disabled-border-color: inherit;
-  /* TODO: Define value for 'button-disabled-color' in muchandy theme */
-  --button-disabled-color: inherit;
-  /* TODO: Define value for 'button-disabled-opacity' in muchandy theme */
-  --button-disabled-opacity: inherit;
-  /* TODO: Define value for 'button-focus-shadow' in muchandy theme */
-  --button-focus-shadow: inherit;
-  /* TODO: Define value for 'button-hover-border-color' in muchandy theme */
-  --button-hover-border-color: inherit;
-  /* TODO: Define value for 'button-hover-color' in muchandy theme */
-  --button-hover-color: inherit;
-  /* TODO: Define value for 'button-hover-shadow' in muchandy theme */
-  --button-hover-shadow: inherit;
-  /* TODO: Define value for 'button-icon-margin' in muchandy theme */
-  --button-icon-margin: inherit;
-  /* TODO: Define value for 'button-icon-radius' in muchandy theme */
-  --button-icon-radius: inherit;
-  /* TODO: Define value for 'button-icon-size' in muchandy theme */
-  --button-icon-size: inherit;
-  /* TODO: Define value for 'button-icon-size-lg' in muchandy theme */
-  --button-icon-size-lg: inherit;
-  /* TODO: Define value for 'button-icon-size-sm' in muchandy theme */
-  --button-icon-size-sm: inherit;
-  /* TODO: Define value for 'button-outlined-color' in muchandy theme */
-  --button-outlined-color: inherit;
-  /* TODO: Define value for 'button-outlined-hover-bg' in muchandy theme */
-  --button-outlined-hover-bg: inherit;
-  /* TODO: Define value for 'button-outlined-hover-color' in muchandy theme */
-  --button-outlined-hover-color: inherit;
-  /* TODO: Define value for 'button-primary-active-bg' in muchandy theme */
-  --button-primary-active-bg: inherit;
-  /* TODO: Define value for 'button-primary-hover-bg' in muchandy theme */
-  --button-primary-hover-bg: inherit;
-  /* TODO: Define value for 'button-secondary-active-bg' in muchandy theme */
-  --button-secondary-active-bg: inherit;
-  /* TODO: Define value for 'button-secondary-hover-bg' in muchandy theme */
-  --button-secondary-hover-bg: inherit;
-  /* TODO: Define value for 'button-success-bg' in muchandy theme */
-  --button-success-bg: inherit;
-  /* TODO: Define value for 'button-success-color' in muchandy theme */
-  --button-success-color: inherit;
-  /* TODO: Define value for 'button-success-hover-bg' in muchandy theme */
-  --button-success-hover-bg: inherit;
-  /* TODO: Define value for 'button-text-padding' in muchandy theme */
-  --button-text-padding: inherit;
   /* TODO: Define value for 'checkbox-valid-color' in muchandy theme */
   --checkbox-valid-color: inherit;
   /* TODO: Define value for 'color-text-muted' in muchandy theme */
@@ -469,4 +486,86 @@
   --section-color-minor: inherit;
   /* TODO: Define value for 'select-valid-color' in muchandy theme */
   --select-valid-color: inherit;
+
+  /* TODO: Define value for 'border-radius' in muchandy theme */
+  --border-radius: inherit;
+
+  /* TODO: Define value for 'collapsible-header-collapsed-height' in muchandy theme */
+  --collapsible-header-collapsed-height: inherit;
+  /* TODO: Define value for 'collapsible-header-contact-bg' in muchandy theme */
+  --collapsible-header-contact-bg: inherit;
+  /* TODO: Define value for 'collapsible-header-contact-transition' in muchandy theme */
+  --collapsible-header-contact-transition: inherit;
+  /* TODO: Define value for 'collapsible-header-height' in muchandy theme */
+  --collapsible-header-height: inherit;
+  /* TODO: Define value for 'collapsible-header-logo-transition' in muchandy theme */
+  --collapsible-header-logo-transition: inherit;
+  /* TODO: Define value for 'collapsible-header-mobile-height' in muchandy theme */
+  --collapsible-header-mobile-height: inherit;
+  /* TODO: Define value for 'collapsible-header-shadow' in muchandy theme */
+  --collapsible-header-shadow: inherit;
+  /* TODO: Define value for 'collapsible-header-transition' in muchandy theme */
+  --collapsible-header-transition: inherit;
+  /* TODO: Define value for 'color-bg-secondary' in muchandy theme */
+  --color-bg-secondary: inherit;
+  /* TODO: Define value for 'color-border' in muchandy theme */
+  --color-border: inherit;
+  /* TODO: Define value for 'color-gray-50' in muchandy theme */
+  --color-gray-50: inherit;
+  /* TODO: Define value for 'contact-info-color' in muchandy theme */
+  --contact-info-color: inherit;
+  /* TODO: Define value for 'contact-info-font-size' in muchandy theme */
+  --contact-info-font-size: inherit;
+  /* TODO: Define value for 'contact-info-gap' in muchandy theme */
+  --contact-info-gap: inherit;
+  /* TODO: Define value for 'contact-info-hover-color' in muchandy theme */
+  --contact-info-hover-color: inherit;
+  /* TODO: Define value for 'contact-info-icon-size' in muchandy theme */
+  --contact-info-icon-size: inherit;
+  /* TODO: Define value for 'contact-info-item-gap' in muchandy theme */
+  --contact-info-item-gap: inherit;
+  /* TODO: Define value for 'contact-info-mobile-gap' in muchandy theme */
+  --contact-info-mobile-gap: inherit;
+  /* TODO: Define value for 'font-family-mono' in muchandy theme */
+  --font-family-mono: inherit;
+  /* TODO: Define value for 'footer-bg' in muchandy theme */
+  --footer-bg: inherit;
+  /* TODO: Define value for 'footer-link-hover' in muchandy theme */
+  --footer-link-hover: inherit;
+  /* TODO: Define value for 'footer-text' in muchandy theme */
+  --footer-text: inherit;
+  /* TODO: Define value for 'nav-mobile-active-bg' in muchandy theme */
+  --nav-mobile-active-bg: inherit;
+  /* TODO: Define value for 'nav-mobile-hover-bg' in muchandy theme */
+  --nav-mobile-hover-bg: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-bg' in muchandy theme */
+  --sticky-contact-icons-bg: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-color' in muchandy theme */
+  --sticky-contact-icons-color: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-gap' in muchandy theme */
+  --sticky-contact-icons-gap: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-hover-color' in muchandy theme */
+  --sticky-contact-icons-hover-color: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-icon-size' in muchandy theme */
+  --sticky-contact-icons-icon-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-bottom' in muchandy theme */
+  --sticky-contact-icons-mobile-bottom: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-icon-size' in muchandy theme */
+  --sticky-contact-icons-mobile-icon-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-right' in muchandy theme */
+  --sticky-contact-icons-mobile-right: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-size' in muchandy theme */
+  --sticky-contact-icons-mobile-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-padding' in muchandy theme */
+  --sticky-contact-icons-padding: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-right' in muchandy theme */
+  --sticky-contact-icons-right: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-shadow' in muchandy theme */
+  --sticky-contact-icons-shadow: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-size' in muchandy theme */
+  --sticky-contact-icons-size: inherit;
+  /* TODO: Define value for 'transition-duration' in muchandy theme */
+  --transition-duration: inherit;
+  /* TODO: Define value for 'transition-timing' in muchandy theme */
+  --transition-timing: inherit;
 }

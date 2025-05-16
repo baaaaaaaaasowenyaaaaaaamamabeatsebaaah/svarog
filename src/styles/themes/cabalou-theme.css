@@ -474,4 +474,114 @@
   /* TODO: Define value for 'select-option-margin' in cabalou theme */
   --select-option-margin: inherit;
   /* TODO: Define value for 'select-valid-color' in cabalou theme */
-  --select-valid-color: inherit;}
+  --select-valid-color: inherit;
+  /* TODO: Define value for 'border-radius' in cabalou theme */
+  --border-radius: inherit;
+  /* TODO: Define value for 'button-danger-border-color' in cabalou theme */
+  --button-danger-border-color: inherit;
+  /* TODO: Define value for 'button-danger-hover-border-color' in cabalou theme */
+  --button-danger-hover-border-color: inherit;
+  /* TODO: Define value for 'button-hover-transform' in cabalou theme */
+  --button-hover-transform: inherit;
+  /* TODO: Define value for 'button-outlined-border-color' in cabalou theme */
+  --button-outlined-border-color: inherit;
+  /* TODO: Define value for 'button-outlined-hover-border-color' in cabalou theme */
+  --button-outlined-hover-border-color: inherit;
+  /* TODO: Define value for 'button-primary-active-border-color' in cabalou theme */
+  --button-primary-active-border-color: inherit;
+  /* TODO: Define value for 'button-primary-border-color' in cabalou theme */
+  --button-primary-border-color: inherit;
+  /* TODO: Define value for 'button-primary-hover-border-color' in cabalou theme */
+  --button-primary-hover-border-color: inherit;
+  /* TODO: Define value for 'button-radius-lg' in cabalou theme */
+  --button-radius-lg: inherit;
+  /* TODO: Define value for 'button-radius-sm' in cabalou theme */
+  --button-radius-sm: inherit;
+  /* TODO: Define value for 'button-secondary-active-border-color' in cabalou theme */
+  --button-secondary-active-border-color: inherit;
+  /* TODO: Define value for 'button-secondary-border-color' in cabalou theme */
+  --button-secondary-border-color: inherit;
+  /* TODO: Define value for 'button-secondary-hover-border-color' in cabalou theme */
+  --button-secondary-hover-border-color: inherit;
+  /* TODO: Define value for 'button-success-border-color' in cabalou theme */
+  --button-success-border-color: inherit;
+  /* TODO: Define value for 'button-success-hover-border-color' in cabalou theme */
+  --button-success-hover-border-color: inherit;
+  /* TODO: Define value for 'collapsible-header-collapsed-height' in cabalou theme */
+  --collapsible-header-collapsed-height: inherit;
+  /* TODO: Define value for 'collapsible-header-contact-bg' in cabalou theme */
+  --collapsible-header-contact-bg: inherit;
+  /* TODO: Define value for 'collapsible-header-contact-transition' in cabalou theme */
+  --collapsible-header-contact-transition: inherit;
+  /* TODO: Define value for 'collapsible-header-height' in cabalou theme */
+  --collapsible-header-height: inherit;
+  /* TODO: Define value for 'collapsible-header-logo-transition' in cabalou theme */
+  --collapsible-header-logo-transition: inherit;
+  /* TODO: Define value for 'collapsible-header-mobile-height' in cabalou theme */
+  --collapsible-header-mobile-height: inherit;
+  /* TODO: Define value for 'collapsible-header-shadow' in cabalou theme */
+  --collapsible-header-shadow: inherit;
+  /* TODO: Define value for 'collapsible-header-transition' in cabalou theme */
+  --collapsible-header-transition: inherit;
+  /* TODO: Define value for 'color-bg-secondary' in cabalou theme */
+  --color-bg-secondary: inherit;
+  /* TODO: Define value for 'color-border' in cabalou theme */
+  --color-border: inherit;
+  /* TODO: Define value for 'color-gray-50' in cabalou theme */
+  --color-gray-50: inherit;
+  /* TODO: Define value for 'contact-info-color' in cabalou theme */
+  --contact-info-color: inherit;
+  /* TODO: Define value for 'contact-info-font-size' in cabalou theme */
+  --contact-info-font-size: inherit;
+  /* TODO: Define value for 'contact-info-gap' in cabalou theme */
+  --contact-info-gap: inherit;
+  /* TODO: Define value for 'contact-info-hover-color' in cabalou theme */
+  --contact-info-hover-color: inherit;
+  /* TODO: Define value for 'contact-info-icon-size' in cabalou theme */
+  --contact-info-icon-size: inherit;
+  /* TODO: Define value for 'contact-info-item-gap' in cabalou theme */
+  --contact-info-item-gap: inherit;
+  /* TODO: Define value for 'contact-info-mobile-gap' in cabalou theme */
+  --contact-info-mobile-gap: inherit;
+  /* TODO: Define value for 'font-family-mono' in cabalou theme */
+  --font-family-mono: inherit;
+  /* TODO: Define value for 'footer-bg' in cabalou theme */
+  --footer-bg: inherit;
+  /* TODO: Define value for 'footer-link-hover' in cabalou theme */
+  --footer-link-hover: inherit;
+  /* TODO: Define value for 'footer-text' in cabalou theme */
+  --footer-text: inherit;
+  /* TODO: Define value for 'nav-mobile-active-bg' in cabalou theme */
+  --nav-mobile-active-bg: inherit;
+  /* TODO: Define value for 'nav-mobile-hover-bg' in cabalou theme */
+  --nav-mobile-hover-bg: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-bg' in cabalou theme */
+  --sticky-contact-icons-bg: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-color' in cabalou theme */
+  --sticky-contact-icons-color: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-gap' in cabalou theme */
+  --sticky-contact-icons-gap: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-hover-color' in cabalou theme */
+  --sticky-contact-icons-hover-color: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-icon-size' in cabalou theme */
+  --sticky-contact-icons-icon-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-bottom' in cabalou theme */
+  --sticky-contact-icons-mobile-bottom: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-icon-size' in cabalou theme */
+  --sticky-contact-icons-mobile-icon-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-right' in cabalou theme */
+  --sticky-contact-icons-mobile-right: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-size' in cabalou theme */
+  --sticky-contact-icons-mobile-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-padding' in cabalou theme */
+  --sticky-contact-icons-padding: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-right' in cabalou theme */
+  --sticky-contact-icons-right: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-shadow' in cabalou theme */
+  --sticky-contact-icons-shadow: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-size' in cabalou theme */
+  --sticky-contact-icons-size: inherit;
+  /* TODO: Define value for 'transition-duration' in cabalou theme */
+  --transition-duration: inherit;
+  /* TODO: Define value for 'transition-timing' in cabalou theme */
+  --transition-timing: inherit;}
