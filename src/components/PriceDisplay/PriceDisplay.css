@@ -32,7 +32,8 @@
 }
 
 /* Loading state */
-.price-display--loading .price-display__value {
+.price-display--loading .price-display__value,
+.price-display--placeholder .price-display__value {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-light);

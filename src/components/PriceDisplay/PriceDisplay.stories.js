@@ -52,10 +52,11 @@ export const DynamicUpdate = () => {
   container.style.flexDirection = 'column';
   container.style.gap = '20px';
 
-  // Initial price display
+  // Initial price display with placeholder
   const priceDisplay = new PriceDisplay({
     label: 'Price:',
     value: 'Select options to see price',
+    isPlaceholder: true, // Mark as placeholder to apply the same styling as loading
   });
 
   container.appendChild(priceDisplay.getElement());
@@ -70,13 +71,14 @@ export const DynamicUpdate = () => {
   loadButton.textContent = 'Load Price';
   loadButton.onclick = () => {
     // Set loading state
-    priceDisplay.setValue('Loading price...');
-    priceDisplay.setLoading(true);
+    priceDisplay
+      .setValue('Loading price...')
+      .setLoading(true)
+      .setPlaceholder(false);
 
     // Simulate API call
     setTimeout(() => {
-      priceDisplay.setValue('€49.99', true);
-      priceDisplay.setLoading(false);
+      priceDisplay.setValue('€49.99', true, false).setLoading(false);
     }, 1500);
   };
 
@@ -84,8 +86,9 @@ export const DynamicUpdate = () => {
   const resetButton = document.createElement('button');
   resetButton.textContent = 'Reset';
   resetButton.onclick = () => {
-    priceDisplay.setValue('Select options to see price');
-    priceDisplay.setLoading(false);
+    priceDisplay
+      .setValue('Select options to see price', false, true)
+      .setLoading(false);
   };
 
   controls.appendChild(loadButton);

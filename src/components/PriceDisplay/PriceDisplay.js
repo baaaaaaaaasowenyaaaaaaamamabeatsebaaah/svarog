@@ -15,6 +15,7 @@ export default class PriceDisplay extends Component {
    * @param {string} [props.value=''] - Initial price value text
    * @param {boolean} [props.isLoading=false] - Whether the price is loading
    * @param {boolean} [props.isHighlighted=false] - Whether to highlight the price display
+   * @param {boolean} [props.isPlaceholder=false] - Whether the value is a placeholder/hint
    * @param {string} [props.className=''] - Additional CSS class names
    */
   constructor({
@@ -22,6 +23,7 @@ export default class PriceDisplay extends Component {
     value = '',
     isLoading = false,
     isHighlighted = false,
+    isPlaceholder = false,
     className = '',
   }) {
     super();
@@ -36,6 +38,7 @@ export default class PriceDisplay extends Component {
       value,
       isLoading,
       isHighlighted,
+      isPlaceholder,
       className,
     };
 
@@ -49,12 +52,14 @@ export default class PriceDisplay extends Component {
    * @returns {HTMLElement} The price display element
    */
   createPriceDisplay() {
-    const { label, value, isLoading, isHighlighted, className } = this.props;
+    const { label, value, isLoading, isHighlighted, isPlaceholder, className } =
+      this.props;
 
     const container = this.createElement('div', {
       className: this.createClassNames('price-display', className, {
         'price-display--loading': isLoading,
         'price-display--highlighted': isHighlighted,
+        'price-display--placeholder': isPlaceholder,
       }),
     });
 
@@ -88,17 +93,20 @@ export default class PriceDisplay extends Component {
    *
    * @param {string} value - New price value text
    * @param {boolean} [isHighlighted=false] - Whether to highlight the price
+   * @param {boolean} [isPlaceholder=false] - Whether the value is a placeholder/hint
    * @returns {PriceDisplay} This instance for chaining
    */
-  setValue(value, isHighlighted = false) {
+  setValue(value, isHighlighted = false, isPlaceholder = false) {
     this.props.value = value;
     this.props.isHighlighted = isHighlighted;
+    this.props.isPlaceholder = isPlaceholder;
 
     // Update text content
     this.valueElement.textContent = value;
 
-    // Update container class
+    // Update container classes
     this.element.classList.toggle('price-display--highlighted', isHighlighted);
+    this.element.classList.toggle('price-display--placeholder', isPlaceholder);
 
     return this;
   }
@@ -130,6 +138,18 @@ export default class PriceDisplay extends Component {
       this.valueElement.appendChild(loadingIndicator);
     }
 
+    return this;
+  }
+
+  /**
+   * Set placeholder state
+   *
+   * @param {boolean} isPlaceholder - Whether the value is a placeholder/hint
+   * @returns {PriceDisplay} This instance for chaining
+   */
+  setPlaceholder(isPlaceholder) {
+    this.props.isPlaceholder = isPlaceholder;
+    this.element.classList.toggle('price-display--placeholder', isPlaceholder);
     return this;
   }
 

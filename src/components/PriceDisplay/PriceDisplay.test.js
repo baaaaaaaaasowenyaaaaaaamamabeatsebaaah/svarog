@@ -136,4 +136,65 @@ describe('PriceDisplay component', () => {
 
     expect(result).toBe(priceDisplay);
   });
+
+  it('should display placeholder state', () => {
+    const priceDisplay = new PriceDisplay({
+      label: 'Price:',
+      value: 'Select options to see price',
+      isPlaceholder: true,
+    });
+
+    const element = priceDisplay.getElement();
+    expect(element.className).toContain('price-display--placeholder');
+  });
+
+  it('should update placeholder state with setPlaceholder method', () => {
+    const priceDisplay = new PriceDisplay({
+      label: 'Price:',
+      value: 'Select options to see price',
+    });
+
+    const element = priceDisplay.getElement();
+
+    // Initially not placeholder
+    expect(element.classList.contains('price-display--placeholder')).toBe(
+      false
+    );
+
+    // Set to placeholder
+    priceDisplay.setPlaceholder(true);
+    expect(element.classList.contains('price-display--placeholder')).toBe(true);
+
+    // Set back to not placeholder
+    priceDisplay.setPlaceholder(false);
+    expect(element.classList.contains('price-display--placeholder')).toBe(
+      false
+    );
+  });
+
+  // Update the setValue test to include placeholder
+  it('should update value and state with setValue method', () => {
+    const priceDisplay = new PriceDisplay({
+      label: 'Price:',
+      value: 'Select options',
+    });
+
+    const element = priceDisplay.getElement();
+    const valueElement = element.querySelector('.price-display__value');
+
+    // Initial value
+    expect(valueElement.textContent).toBe('Select options');
+
+    // Update value with placeholder
+    priceDisplay.setValue('Choose a product', false, true);
+    expect(valueElement.textContent).toBe('Choose a product');
+    expect(element.classList.contains('price-display--placeholder')).toBe(true);
+
+    // Update with regular value
+    priceDisplay.setValue('€49.99', false, false);
+    expect(valueElement.textContent).toBe('€49.99');
+    expect(element.classList.contains('price-display--placeholder')).toBe(
+      false
+    );
+  });
 });
