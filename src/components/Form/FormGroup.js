@@ -80,11 +80,12 @@ export default class FormGroup extends Component {
       fieldType,
     } = this.props;
 
-    // Create container div
+    // Create container div with has-help-text class if helpText is provided
     const container = this.createElement('div', {
       className: this.createClassNames(
         'form-group',
         `form-group--${labelPosition}`,
+        helpText ? 'has-help-text' : '',
         className
       ),
     });
