@@ -442,7 +442,7 @@
   --form-actions-justify: flex-end;
 
   /* Component: PriceDisplay */
-  --price-display-bg: var(--color-bg);
+  --price-display-bg: var(--color-bg-transparent);
   --price-display-border: none;
   --price-display-color: var(--color-brand-primary);
 }

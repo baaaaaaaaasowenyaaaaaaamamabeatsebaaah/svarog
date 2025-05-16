@@ -6,7 +6,7 @@
   width: 100%;
   padding: var(--space-5);
   border-radius: 0;
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-transparent);
   font-family: var(--font-family-base);
 }
 

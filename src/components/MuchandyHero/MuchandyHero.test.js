@@ -1,5 +1,5 @@
 // src/components/MuchandyHero/MuchandyHero.test.js
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import MuchandyHero from './MuchandyHero.js';
 
 describe('MuchandyHero', () => {
@@ -141,18 +141,33 @@ describe('MuchandyHero', () => {
     expect(tabPanels.length).toBe(2);
   });
 
-  it('should pass config to forms', () => {
+  it('should use a grid layout', () => {
     const { repairForm, buybackForm } = createMockForms();
-
-    // Add spies to forms
-    repairForm.props = { onPriceChange: vi.fn() };
-    buybackForm.props = { onPriceChange: vi.fn() };
-
     const hero = new MuchandyHero({
       repairForm,
       buybackForm,
     });
+    const element = hero.getElement();
 
-    expect(hero).toBeTruthy();
+    // Check that a grid is being used
+    const grid = element.querySelector('.grid');
+    expect(grid).toBeTruthy();
+
+    // Check that there's a column with width 6
+    const column = element.querySelector('.column');
+    expect(column).toBeTruthy();
+    expect(column.style.gridColumnEnd).toBe('span 6');
+  });
+
+  it('should apply left and right margins', () => {
+    const { repairForm, buybackForm } = createMockForms();
+    const hero = new MuchandyHero({
+      repairForm,
+      buybackForm,
+    });
+    const element = hero.getElement();
+
+    expect(element.style.paddingLeft).toBe('64px');
+    expect(element.style.paddingRight).toBe('64px');
   });
 });
