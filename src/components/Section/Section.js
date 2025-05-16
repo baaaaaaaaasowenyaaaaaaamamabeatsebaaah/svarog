@@ -16,6 +16,7 @@ class Section extends Component {
    * @param {string} [props.id] - Section ID for anchor links
    * @param {string} [props.variant] - Section variant ("minor" for alternative styling)
    * @param {HTMLElement} [props.backgroundImage] - Optional background image element
+   * @param {string} [props.backgroundColor] - Custom background color (CSS color value)
    * @param {boolean} [props.noPaddingBottom=false] - Whether to remove bottom padding
    * @param {string} [props.className=''] - Additional CSS class names
    * @param {string} [props.title] - Optional section title
@@ -27,6 +28,7 @@ class Section extends Component {
     id,
     variant,
     backgroundImage,
+    backgroundColor,
     noPaddingBottom = false,
     className = '',
     title,
@@ -50,6 +52,7 @@ class Section extends Component {
       id,
       variant,
       backgroundImage,
+      backgroundColor,
       noPaddingBottom,
       className,
       title,
@@ -69,6 +72,7 @@ class Section extends Component {
       id,
       variant,
       backgroundImage,
+      backgroundColor,
       noPaddingBottom,
       className,
       title,
@@ -83,6 +87,11 @@ class Section extends Component {
 
     // Create the main section element
     const section = this.createElement('div', { className: classNames });
+
+    // Apply custom background color if provided
+    if (backgroundColor) {
+      section.style.backgroundColor = backgroundColor;
+    }
 
     // Add ID anchor if specified
     if (id) {

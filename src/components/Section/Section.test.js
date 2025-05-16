@@ -48,4 +48,13 @@ describe('Section component', () => {
     const element = section.getElement();
     expect(element.querySelector('.section__background-image')).not.toBeNull();
   });
+
+  it('should apply custom background color', () => {
+    const section = new Section({
+      backgroundColor: '#ff0000',
+      children: 'This is a section.',
+    });
+    const element = section.getElement();
+    expect(element.style.backgroundColor).toBe('rgb(255, 0, 0)');
+  });
 });

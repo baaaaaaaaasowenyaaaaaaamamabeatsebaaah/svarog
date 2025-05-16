@@ -309,6 +309,7 @@ export const getComponents = () => {
         },
       ],
     },
+
     {
       name: 'Section',
       stories: [
@@ -338,6 +339,41 @@ export const getComponents = () => {
           module: () =>
             import('../components/Section/Section.stories.js').then(
               (m) => m.NoPaddingBottom
+            ),
+        },
+        {
+          name: 'WithTitleAndDescription',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.WithTitleAndDescription
+            ),
+        },
+        {
+          name: 'WithBackgroundColor',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.WithCustomBackgroundColor
+            ),
+        },
+        {
+          name: 'WithIdForAnchor',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.WithIdForAnchor
+            ),
+        },
+        {
+          name: 'BackgroundColorAndImage',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.BackgroundColorAndImage
+            ),
+        },
+        {
+          name: 'ComprehensiveExample',
+          module: () =>
+            import('../components/Section/Section.stories.js').then(
+              (m) => m.ComprehensiveExample
             ),
         },
       ],
