@@ -184,6 +184,7 @@
   --nav-mobile-shadow: none;
   --nav-mobile-submenu-bg: var(--color-bg);
   --nav-mobile-active-bg: var(--color-border-light);
+  --nav-mobile-hover-bg: var(--color-border-light);
 
   /* Component: Section */
   --section-bg: var(--color-bg);
@@ -194,10 +195,17 @@
   --section-padding-tablet: var(--space-3);
   --section-gap-tablet: var(--space-2);
   --section-padding-mobile: var(--space-2);
+  --section-bg-minor: var(--color-bg);
+  --section-color-minor: var(--color-text-light);
 
   /* Component: Logo */
   --logo-width: 120px;
-  --logo-height: 120px;
+  --logo-height: auto;
+  --logo-height-tablet: var(--logo-height);
+  --logo-hover-opacity: var(--hover-opacity);
+  --logo-max-height: var(--logo-height);
+  --logo-max-width: var(--logo-width);
+  --logo-width-tablet: var(--logo-width);
 
   /* Component: Card */
   --card-bg: var(--color-bg);
@@ -229,10 +237,10 @@
   --input-padding: var(--space-2) var(--space-3);
   --input-mobile-padding: var(--space-2);
 
-  --input-font-size: var(--font-size-xl);
+  --input-font-size: var(--font-size-sm);
   --input-font-family: var(--font-family-primary);
-  --input-mobile-font-size: var(--font-size-base);
-  --input-validation-font-size: var(--font-size-base);
+  --input-mobile-font-size: var(--font-size-xs);
+  --input-validation-font-size: var(--font-size-xs);
 
   --input-bg: var(--color-bg);
   --input-color: var(--color-text);
@@ -243,6 +251,7 @@
   --input-valid-border-color: var(--color-success-light);
   --input-invalid-border-color: var(--color-danger-light);
   --input-validation-color: var(--color-danger-light);
+  --input-valid-color: var(--color-success-light);
 
   --input-border: 1px solid var(--color-border-medium);
   --input-radius: 0;
@@ -254,7 +263,7 @@
   /* Component: Select */
   --select-margin-bottom: var(--space-4);
   --select-padding: var(--space-2) var(--space-3);
-  --select-font-size: var(--font-size-xl);
+  --select-font-size: var(--font-size-sm);
   --select-font-family: var(--font-family-base);
   --select-color: var(--color-text);
   --select-placeholder-color: var(--color-text-lighter);
@@ -267,9 +276,9 @@
   --select-line-height: 1.5;
 
   /* Arrow Indicator */
-  --select-arrow-size: var(--font-size-base);
+  --select-arrow-size: var(--font-size-sm);
   --select-arrow-margin: var(--space-2);
-  --select-arrow-border: 2px solid var(--select-arrow-color);
+  --select-arrow-border: 1px solid var(--select-arrow-color);
   --select-arrow-color: var(--color-text);
   --select-arrow-transition: var(--transition-normal);
   --select-arrow-right: var(--space-4);
@@ -298,12 +307,12 @@
   --select-group-header-font-weight: bold;
   --select-group-header-color: var(--color-text);
   --select-group-header-bg: var(--color-bg);
-  --select-group-header-font-size: var(--font-size-base);
+  --select-group-header-font-size: var(--font-size-sm);
   --select-group-header-border-bottom: 1px solid var(--color-border-light);
   --select-group-header-border-top: 1px solid var(--color-border-light);
 
   /* Multiple Selection Checkboxes */
-  --select-checkbox-size: var(--font-size-xl);
+  --select-checkbox-size: var(--font-size-sm);
   --select-checkbox-border: var(--color-border-medium);
   --select-checkbox-radius: 0;
   --select-checkbox-margin: var(--space-2);
@@ -319,46 +328,47 @@
   --select-invalid-border-color: var(--color-danger-light);
 
   /* Validation Message */
-  --select-validation-font-size: var(--font-size-base);
+  --select-validation-font-size: var(--font-size-xs);
   --select-validation-margin-top: var(--space-2);
   --select-validation-color: var(--color-danger-light);
   --select-validation-min-height: var(--space-4);
   --select-valid-color: var(--color-success-light);
 
   /* Mobile Adjustments */
-  --select-mobile-font-size: var(--font-size-base);
+  --select-mobile-font-size: var(--font-size-xs);
   --select-mobile-padding: var(--space-2);
 
   /* Component: Checkbox */
   --checkbox-bg: var(--color-bg);
   --checkbox-border: 2px solid var(--color-border-medium);
-  --checkbox-radius: var(--border-radius-sm);
-  --checkbox-size: 20px;
+  --checkbox-radius: 0;
+  --checkbox-size: var(--font-size-sm);
   --checkbox-color: var(--color-text);
   --checkbox-indicator-margin: var(--space-2);
-  --checkbox-font-size: var(--font-size-base);
+  --checkbox-font-size: var(--font-size-sm);
   --checkbox-font-family: var(--font-family-primary);
   --checkbox-transition: var(--transition-normal);
   --checkbox-padding: var(--space-1);
-  --checkbox-hover-border-color: var(--color-brand-primary);
-  --checkbox-checked-bg: var(--color-brand-primary);
-  --checkbox-checked-border-color: var(--color-brand-primary);
+  --checkbox-hover-border-color: var(--color-brand-secondary-light);
+  --checkbox-checked-bg: var(--color-brand-secondary);
+  --checkbox-checked-border-color: var(--color-brand-secondary);
   --checkbox-focus-shadow: var(--focus-ring);
   --checkbox-disabled-bg: var(--disabled-background);
   --checkbox-disabled-border-color: var(--color-border-light);
   --checkbox-disabled-color: var(--color-text-disabled);
-  --checkbox-valid-border-color: var(--color-success);
-  --checkbox-invalid-border-color: var(--color-danger);
-  --checkbox-validation-color: var(--color-danger);
-  --checkbox-validation-font-size: var(--font-size-sm);
+  --checkbox-valid-border-color: var(--color-success-light);
+  --checkbox-invalid-border-color: var(--color-danger-light);
+  --checkbox-validation-color: var(--color-danger-light);
+  --checkbox-validation-font-size: var(--font-size-xs);
   --checkbox-margin-bottom: var(--space-3);
-  --checkbox-indicator-width: 6px;
-  --checkbox-indicator-height: 10px;
-  --checkbox-required-color: var(--color-danger);
-  --checkbox-indeterminate-bg: var(--color-brand-primary);
-  --checkbox-indeterminate-border-color: var(--color-brand-primary);
-  --checkbox-indeterminate-width: 10px;
+  --checkbox-indicator-width: 4px;
+  --checkbox-indicator-height: 8px;
+  --checkbox-required-color: var(--color-danger-light);
+  --checkbox-indeterminate-bg: var(--color-brand-secondary-light);
+  --checkbox-indeterminate-border-color: var(--color-brand-secondary-light);
+  --checkbox-indeterminate-width: 8px;
   --checkbox-indeterminate-height: 2px;
+  --checkbox-valid-color: var(--color-success-light);
 
   /* Component: Radio */
   --radio-bg: var(--color-bg);
@@ -433,9 +443,6 @@
 }
 
 .muchandy-theme {
-  /* TODO: Define value for 'checkbox-valid-color' in muchandy theme */
-  --checkbox-valid-color: inherit;
-
   --header-bg: inherit;
   /* TODO: Define value for 'header-bg-scrolled' in muchandy theme */
   --header-bg-scrolled: inherit;
@@ -469,28 +476,13 @@
   --header-transparent-color: inherit;
   /* TODO: Define value for 'header-z-index' in muchandy theme */
   --header-z-index: inherit;
-  /* TODO: Define value for 'input-valid-color' in muchandy theme */
-  --input-valid-color: inherit;
-  /* TODO: Define value for 'logo-height-tablet' in muchandy theme */
-  --logo-height-tablet: inherit;
-  /* TODO: Define value for 'logo-hover-opacity' in muchandy theme */
-  --logo-hover-opacity: inherit;
-  /* TODO: Define value for 'logo-max-height' in muchandy theme */
-  --logo-max-height: inherit;
-  /* TODO: Define value for 'logo-max-width' in muchandy theme */
-  --logo-max-width: inherit;
-  /* TODO: Define value for 'logo-width-tablet' in muchandy theme */
-  --logo-width-tablet: inherit;
+
   /* TODO: Define value for 'price-display-bg' in muchandy theme */
   --price-display-bg: inherit;
   /* TODO: Define value for 'price-display-border' in muchandy theme */
   --price-display-border: inherit;
   /* TODO: Define value for 'price-display-color' in muchandy theme */
   --price-display-color: inherit;
-  /* TODO: Define value for 'section-bg-minor' in muchandy theme */
-  --section-bg-minor: inherit;
-  /* TODO: Define value for 'section-color-minor' in muchandy theme */
-  --section-color-minor: inherit;
 
   /* TODO: Define value for 'collapsible-header-collapsed-height' in muchandy theme */
   --collapsible-header-collapsed-height: inherit;
@@ -536,10 +528,6 @@
   --footer-link-hover: inherit;
   /* TODO: Define value for 'footer-text' in muchandy theme */
   --footer-text: inherit;
-  /* TODO: Define value for 'nav-mobile-active-bg' in muchandy theme */
-  --nav-mobile-active-bg: inherit;
-  /* TODO: Define value for 'nav-mobile-hover-bg' in muchandy theme */
-  --nav-mobile-hover-bg: inherit;
   /* TODO: Define value for 'sticky-contact-icons-bg' in muchandy theme */
   --sticky-contact-icons-bg: inherit;
   /* TODO: Define value for 'sticky-contact-icons-color' in muchandy theme */
