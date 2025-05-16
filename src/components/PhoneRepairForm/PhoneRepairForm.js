@@ -3,9 +3,9 @@ import './PhoneRepairForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
-import FormGroup from '../Form/FormGroup.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 import PhoneRepairService from '../../services/PhoneRepairService.js';
+import Button from '../Button/Button.js';
 
 /**
  * PhoneRepairForm component for selecting phone repair options and viewing prices
@@ -17,6 +17,8 @@ export default class PhoneRepairForm extends Component {
    *
    * @param {Object} props - PhoneRepairForm properties
    * @param {Function} [props.onPriceChange] - Callback when a price is selected
+   * @param {Function} [props.onScheduleClick] - Callback when schedule button is clicked
+   * @param {string} [props.usedPhoneUrl='#'] - URL for used phone link
    * @param {Object} [props.labels] - Custom labels for form elements
    * @param {Object} [props.apiOptions] - API service configuration options
    * @param {boolean} [props.autoInitialize=true] - Whether to automatically load manufacturers
@@ -24,6 +26,8 @@ export default class PhoneRepairForm extends Component {
    */
   constructor({
     onPriceChange,
+    onScheduleClick,
+    usedPhoneUrl = '#',
     labels = {},
     apiOptions = {},
     autoInitialize = true,
@@ -33,25 +37,25 @@ export default class PhoneRepairForm extends Component {
 
     // Set default labels
     this.labels = {
-      title: 'Reparatur anfragen',
       manufacturerStep: 'Hersteller',
       deviceStep: 'Modell',
       serviceStep: 'Service',
-      manufacturerLabel: 'Hersteller:',
-      deviceLabel: 'Modell:',
-      serviceLabel: 'Service:',
-      priceLabel: 'Preis:',
       manufacturerPlaceholder: 'Hersteller auswählen',
       devicePlaceholder: 'Zuerst Hersteller auswählen',
       servicePlaceholder: 'Zuerst Modell auswählen',
       initialPriceText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
       loadingPriceText: 'Preis wird geladen...',
+      priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
+      usedPhoneText: 'Zu teuer? Finde hier ein günstiges Gebrauchtes!',
+      scheduleButtonText: 'Jetzt Termin vereinbaren',
       ...labels,
     };
 
     // Store props
     this.props = {
       onPriceChange,
+      onScheduleClick,
+      usedPhoneUrl,
       className,
       autoInitialize,
     };
@@ -115,13 +119,6 @@ export default class PhoneRepairForm extends Component {
       },
     });
 
-    // Add title
-    const title = this.createElement('h2', {
-      className: 'phone-repair-form__title',
-      textContent: this.labels.title,
-    });
-    form.appendChild(title);
-
     // Add step indicator
     this.stepsIndicator = new StepsIndicator({
       steps: [
@@ -133,23 +130,16 @@ export default class PhoneRepairForm extends Component {
     });
     form.appendChild(this.stepsIndicator.getElement());
 
-    // Create manufacturer select
+    // Create manufacturer select - directly without form group
     this.manufacturerSelect = new Select({
       id: 'manufacturer',
       name: 'manufacturer',
       placeholder: this.labels.manufacturerPlaceholder,
       onChange: (event, value) => this.handleManufacturerChange(value),
     });
+    form.appendChild(this.manufacturerSelect.getElement());
 
-    // Add manufacturer form group
-    this.manufacturerGroup = new FormGroup({
-      label: this.labels.manufacturerLabel, // Changed from labelText to label
-      id: 'manufacturer',
-      field: this.manufacturerSelect, // Changed from fieldElement to field
-    });
-    form.appendChild(this.manufacturerGroup.getElement());
-
-    // Create device select
+    // Create device select - directly without form group
     this.deviceSelect = new Select({
       id: 'device',
       name: 'device',
@@ -157,16 +147,9 @@ export default class PhoneRepairForm extends Component {
       disabled: true,
       onChange: (event, value) => this.handleDeviceChange(value),
     });
+    form.appendChild(this.deviceSelect.getElement());
 
-    // Add device form group
-    this.deviceGroup = new FormGroup({
-      label: this.labels.deviceLabel, // Changed from labelText to label
-      id: 'device',
-      field: this.deviceSelect, // Changed from fieldElement to field
-    });
-    form.appendChild(this.deviceGroup.getElement());
-
-    // Create action select
+    // Create action select - directly without form group
     this.actionSelect = new Select({
       id: 'action',
       name: 'action',
@@ -174,23 +157,138 @@ export default class PhoneRepairForm extends Component {
       disabled: true,
       onChange: (event, value) => this.handleActionChange(value),
     });
-
-    // Add action form group
-    this.actionGroup = new FormGroup({
-      label: this.labels.serviceLabel, // Changed from labelText to label
-      id: 'action',
-      field: this.actionSelect, // Changed from fieldElement to field
-    });
-    form.appendChild(this.actionGroup.getElement());
+    form.appendChild(this.actionSelect.getElement());
 
     // Add price display
     this.priceDisplay = new PriceDisplay({
       label: this.labels.priceLabel,
       value: this.labels.initialPriceText,
+      isPlaceholder: true,
     });
     form.appendChild(this.priceDisplay.getElement());
 
+    // Create actions container
+    const actionsContainer = this.createElement('div', {
+      className: 'phone-repair-form__actions',
+    });
+
+    // Create link to used phones
+    const usedPhoneLink = this.createElement('a', {
+      className: 'phone-repair-form__link',
+      textContent: this.labels.usedPhoneText,
+      attributes: {
+        href: this.props.usedPhoneUrl,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      },
+    });
+    actionsContainer.appendChild(usedPhoneLink);
+
+    // Create schedule button
+    this.scheduleButton = new Button({
+      text: this.labels.scheduleButtonText,
+      onClick: () => this.handleScheduleClick(),
+      disabled: !this.canSchedule(),
+    });
+    actionsContainer.appendChild(this.scheduleButton.getElement());
+
+    // Add actions container to form
+    form.appendChild(actionsContainer);
+
     return form;
+  }
+
+  /**
+   * Check if scheduling is possible (all selections made)
+   * @private
+   * @returns {boolean} Whether all selections are made
+   */
+  canSchedule() {
+    return (
+      !!this.state.selectedManufacturer &&
+      !!this.state.selectedDevice &&
+      !!this.state.selectedAction &&
+      !!this.state.currentPrice
+    );
+  }
+
+  /**
+   * Handle schedule button click
+   * @private
+   */
+  handleScheduleClick() {
+    // Build repair info object with all selections
+    const repairInfo = {
+      manufacturer: {
+        id: this.state.selectedManufacturer,
+        name: this.getSelectedManufacturerName(),
+      },
+      device: {
+        id: this.state.selectedDevice,
+        name: this.getSelectedDeviceName(),
+      },
+      service: {
+        id: this.state.selectedAction,
+        name: this.getSelectedActionName(),
+      },
+      price: this.state.currentPrice,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Log repair info for demo purposes
+    console.log('Repair appointment scheduled:', repairInfo);
+
+    // Call onScheduleClick callback if provided
+    if (typeof this.props.onScheduleClick === 'function') {
+      this.props.onScheduleClick(repairInfo);
+    }
+  }
+
+  /**
+   * Get the name of the selected manufacturer
+   * @private
+   * @returns {string} Name of the selected manufacturer
+   */
+  getSelectedManufacturerName() {
+    const manufacturer = this.state.manufacturers.find(
+      (m) => m.id.toString() === this.state.selectedManufacturer
+    );
+    return manufacturer ? manufacturer.name : '';
+  }
+
+  /**
+   * Get the name of the selected device
+   * @private
+   * @returns {string} Name of the selected device
+   */
+  getSelectedDeviceName() {
+    const device = this.state.devices.find(
+      (d) => d.id.toString() === this.state.selectedDevice
+    );
+    return device ? device.name : '';
+  }
+
+  /**
+   * Get the name of the selected action
+   * @private
+   * @returns {string} Name of the selected action
+   */
+  getSelectedActionName() {
+    const action = this.state.actions.find(
+      (a) => a.id.toString() === this.state.selectedAction
+    );
+    return action ? action.name : '';
+  }
+
+  /**
+   * Update the schedule button state
+   * @private
+   */
+  updateScheduleButton() {
+    if (this.scheduleButton) {
+      const canSchedule = this.canSchedule();
+      this.scheduleButton.setDisabled(!canSchedule);
+    }
   }
 
   /**
@@ -244,6 +342,9 @@ export default class PhoneRepairForm extends Component {
 
     // Update steps indicator
     this.stepsIndicator.update({ steps, activeIndex });
+
+    // Update schedule button state
+    this.updateScheduleButton();
   }
 
   /**
@@ -314,7 +415,7 @@ export default class PhoneRepairForm extends Component {
     this.deviceSelect.setValue('');
     this.actionSelect.setValue('');
     this.actionSelect.getElement().querySelector('select').disabled = true;
-    this.priceDisplay.setValue(this.labels.initialPriceText);
+    this.priceDisplay.setValue(this.labels.initialPriceText, false, true);
 
     try {
       // Fetch devices from API
@@ -342,7 +443,9 @@ export default class PhoneRepairForm extends Component {
         loading: { ...this.state.loading, devices: false },
         error: { ...this.state.error, devices: error.message },
       });
-      this.priceDisplay.setValue('Fehler beim Laden der Geräte');
+
+      // Display error in the price display
+      this.priceDisplay.setError('Fehler beim Laden der Geräte');
 
       // Update form state to reflect error
       this.updateFormState();
@@ -368,7 +471,7 @@ export default class PhoneRepairForm extends Component {
 
     // Reset action field
     this.actionSelect.setValue('');
-    this.priceDisplay.setValue('Bitte Service auswählen');
+    this.priceDisplay.setValue('Bitte Service auswählen', false, true);
 
     try {
       // Fetch actions from API
@@ -396,7 +499,9 @@ export default class PhoneRepairForm extends Component {
         loading: { ...this.state.loading, actions: false },
         error: { ...this.state.error, actions: error.message },
       });
-      this.priceDisplay.setValue('Fehler beim Laden der Services');
+
+      // Display error in the price display
+      this.priceDisplay.setError('Fehler beim Laden der Services');
 
       // Update form state to reflect error
       this.updateFormState();
@@ -432,7 +537,7 @@ export default class PhoneRepairForm extends Component {
 
       // Format and display price
       const formattedPrice = this.formatPrice(priceData.price);
-      this.priceDisplay.setValue(formattedPrice, true);
+      this.priceDisplay.setValue(formattedPrice, true, false);
       this.priceDisplay.setLoading(false);
 
       // Call onPriceChange callback if provided
@@ -448,8 +553,9 @@ export default class PhoneRepairForm extends Component {
         loading: { ...this.state.loading, price: false },
         error: { ...this.state.error, price: error.message },
       });
-      this.priceDisplay.setValue('Fehler beim Laden des Preises');
-      this.priceDisplay.setLoading(false);
+
+      // Display error in the price display
+      this.priceDisplay.setError('Fehler beim Laden des Preises');
 
       // Update form state to reflect error
       this.updateFormState();

@@ -2,28 +2,51 @@
 .phone-repair-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4, 16px);
   max-width: 550px;
   width: 100%;
-  padding: var(--space-5, 20px);
-  border-radius: var(--border-radius-lg, 8px);
-  background-color: var(--color-bg, #ffffff);
-  box-shadow: var(--shadow-md, 0 4px 10px rgba(0, 0, 0, 0.1));
-  border: var(
-    --phone-repair-form-border,
-    1px solid var(--color-gray-200, #e9ecef)
-  );
-  font-family: var(--font-family-primary, sans-serif);
+  padding: var(--space-5);
+  border-radius: 0;
+  background-color: var(--color-bg);
+  font-family: var(--font-family-base);
 }
 
-/* Form title */
-.phone-repair-form__title {
-  font-size: var(--font-size-xl, 20px);
-  font-weight: var(--font-weight-bold, 700);
-  margin-bottom: var(--space-4, 16px);
-  color: var(--color-primary, #3182ce);
-  border-bottom: 1px solid var(--color-gray-200, #e9ecef);
-  padding-bottom: var(--space-3, 12px);
+.phone-repair-form .steps-indicator {
+  padding-bottom: var(--space-12);
+}
+
+.phone-repair-form .price-display {
+  min-height: 36px;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+/* Actions container (link and button) */
+.phone-repair-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  align-items: flex-end;
+}
+
+/* Used phone link */
+.phone-repair-form__link {
+  color: var(--color-brand-primary);
+  text-decoration: none;
+  font-size: var(--font-size-sm, 14px);
+  align-self: flex-end;
+  transition: color 0.2s ease;
+}
+
+.phone-repair-form__link:hover {
+  color: var(--color-brand-primary-light);
+  text-decoration: underline;
+}
+
+/* Error state */
+.price-display--error .price-display__value {
+  color: var(--color-danger-light);
+  font-size: var(--font-size-base);
 }
 
 /* Loading and error states */
@@ -39,12 +62,12 @@
 /* Responsive adjustments */
 @media (min-width: 768px) {
   .phone-repair-form {
-    padding: var(--space-6, 24px);
+    padding: var(--space-6);
   }
 }
 
 @media (max-width: 480px) {
   .phone-repair-form {
-    padding: var(--space-3, 12px);
+    padding: var(--space-3);
   }
 }

@@ -27,8 +27,6 @@
 
 /* Highlighted state */
 .price-display--highlighted {
-  background-color: var(--color-gray-200);
-  border-color: var(--color-primary);
 }
 
 /* Loading state */

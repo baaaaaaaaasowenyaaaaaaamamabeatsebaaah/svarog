@@ -61,9 +61,9 @@
   --button-active-transform: none;
 
   /* Disabled state */
-  --button-disabled-bg: var(--color-gray-400);
-  --button-disabled-border-color: inherit;
-  --button-disabled-color: inherit;
+  --button-disabled-bg: var(--disabled-background);
+  --button-disabled-border-color: var(--disabled-background);
+  --button-disabled-color: var(--color-text-disabled);
   --button-disabled-opacity: inherit;
 
   /* Focus state */

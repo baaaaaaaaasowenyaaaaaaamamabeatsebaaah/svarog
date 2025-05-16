@@ -154,6 +154,31 @@ export default class PriceDisplay extends Component {
   }
 
   /**
+   * Set error state
+   *
+   * @param {string} errorMessage - The error message to display
+   * @returns {PriceDisplay} This instance for chaining
+   */
+  setError(errorMessage) {
+    this.props.value = errorMessage;
+    this.props.isHighlighted = false;
+    this.props.isPlaceholder = false;
+
+    // Update text content
+    this.valueElement.textContent = errorMessage;
+
+    // Update container classes
+    this.element.classList.remove('price-display--highlighted');
+    this.element.classList.remove('price-display--placeholder');
+    this.element.classList.add('price-display--error');
+
+    // Clear loading state if it's active
+    this.setLoading(false);
+
+    return this;
+  }
+
+  /**
    * Gets the price display element
    * @returns {HTMLElement} The price display element
    */
