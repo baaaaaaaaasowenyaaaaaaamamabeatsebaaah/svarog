@@ -48,9 +48,11 @@ import Tabs from './components/Tabs/Tabs.js';
 import ContactInfo from './components/ContactInfo/ContactInfo.js';
 import CollapsibleHeader from './components/CollapsibleHeader/CollapsibleHeader.js';
 import StickyContactIcons from './components/StickyContactIcons/StickyContactIcons.js';
+import ProductCard from './components/ProductCard/ProductCard.js';
 
 // Export components
 const Svarog = {
+  ProductCard,
   StickyContactIcons,
   CollapsibleHeader,
   ContactInfo,

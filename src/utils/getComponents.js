@@ -1649,6 +1649,47 @@ export const getComponents = () => {
         },
       ],
     },
+
+    {
+      name: 'ProductCard',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.DefaultProductCard
+            ),
+        },
+        {
+          name: 'WithCustomCurrency',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithCustomCurrency
+            ),
+        },
+        {
+          name: 'MuchandyThemed',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.MuchandyThemed
+            ),
+        },
+        {
+          name: 'WithMultipleSpecs',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithMultipleSpecs
+            ),
+        },
+        {
+          name: 'ProductGrid',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.ProductGrid
+            ),
+        },
+      ],
+    },
   ];
 
   return components;

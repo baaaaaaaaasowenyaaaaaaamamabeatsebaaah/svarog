@@ -5,6 +5,7 @@
   /* Typography */
   --font-family-primary: 'Montserrat', sans-serif;
   --font-family-heading: 'Montserrat', sans-serif;
+  --font-family-base: 'Montserrat', sans-serif;
 
   /* Colors - Brand */
   --color-brand-primary: #ff7f50;
@@ -13,6 +14,19 @@
   --color-brand-secondary: #4aa2d9;
   --color-brand-secondary-dark: #3881b0;
   --color-brand-secondary-light: #7cc0ed;
+
+  /* Component: Typography */
+  --typography-color: var(--color-text);
+  --typography-muted-color: var(--color-text-light);
+  --typography-margin-bottom: var(--space-4);
+  --typography-h1-size: var(--font-size-6xl);
+  --typography-h2-size: var(--font-size-4xl);
+  --typography-h3-size: var(--font-size-3xl);
+  --typography-h4-size: var(--font-size-2xl);
+  --typography-h5-size: var(--font-size-xl);
+  --typography-h6-size: var(--font-size-lg);
+  --typography-body-size: var(--font-size-base);
+  --typography-small-size: var(--font-size-sm);
 
   /* Component: Button */
   --button-bg: var(--color-transparent);
@@ -149,19 +163,6 @@
   --section-gap-tablet: var(--space-2);
   --section-padding-mobile: var(--space-2);
 
-  /* Component: Typography */
-  --typography-color: var(--color-text);
-  --typography-muted-color: var(--color-text-light);
-  --typography-margin-bottom: var(--space-4);
-  --typography-h1-size: var(--font-size-6xl);
-  --typography-h2-size: var(--font-size-4xl);
-  --typography-h3-size: var(--font-size-3xl);
-  --typography-h4-size: var(--font-size-2xl);
-  --typography-h5-size: var(--font-size-xl);
-  --typography-h6-size: var(--font-size-lg);
-  --typography-body-size: var(--font-size-base);
-  --typography-small-size: var(--font-size-sm);
-
   /* Component: Logo */
   --logo-width: 120px;
   --logo-height: 120px;
@@ -169,23 +170,27 @@
   /* Component: Card */
   --card-bg: var(--color-bg);
   --card-color: var(--color-text);
-  --card-radius: var(--border-radius-lg);
+  --card-radius: 0;
   --card-border: 1px solid var(--color-border-light);
-  --card-border-color: var(--color-brand-primary-light);
+  --card-border-color: var(--color-border-medium);
   --card-shadow: var(--shadow-md);
-  --card-hover-border-color: var(--color-brand-primary);
-  --card-title-padding: var(--space-4);
-  --card-title-font-size: var(--font-size-xl);
+  --card-padding: var(--space-6);
+  --card-hover-border-color: var(--color-border-medium);
+  --card-title-padding: 0 0 var(--space-6) 0;
+  --card-title-font-size: var(--font-size-4xl);
   --card-title-font-weight: var(--font-weight-bold);
-  --card-title-border: 1px solid var(--color-brand-primary-light);
-  --card-content-padding: var(--space-4);
-  --card-footer-padding: var(--space-3) var(--space-4);
+  --card-title-border: 1px solid var(--color-border-light);
+  --card-title-margin-bottom: var(--space-6);
+  --card-content-padding: 0;
+  --card-footer-margin-top: var(--space-6);
+  --card-footer-padding: var(--space-6) 0 0 0;
   --card-footer-bg: var(--color-gray-100);
-  --card-footer-border: 1px solid var(--color-brand-primary-light);
+  --card-footer-border: 1px solid var(--color-border-light);
   --card-footer-font-size: var(--font-size-sm);
   --card-title-padding-mobile: var(--space-3);
   --card-content-padding-mobile: var(--space-3);
   --card-footer-padding-mobile: var(--space-2) var(--space-3);
+  --card-image-margin-bottom: var(--space-3);
 
   /* Component: Input */
   --input-bg: var(--color-bg);
@@ -341,46 +346,10 @@
   --form-actions-justify: flex-end;
 }
 
-/* Custom styles for the muchandy theme */
-.muchandy-theme .card__title {
-  border-bottom: 2px solid var(--color-brand-primary-light);
-  padding-bottom: var(--space-2);
-}
-
-.muchandy-theme .button {
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.muchandy-theme .form-section__title {
-  color: var(--color-brand-primary);
-  font-weight: var(--font-weight-bold);
-
-  /* TODO: Define value for 'border-radius-default' in muchandy theme */
-  --border-radius-default: inherit;
-  /* TODO: Define value for 'box-shadow-sm' in muchandy theme */
-  --box-shadow-sm: inherit;
+.muchandy-theme {
   /* TODO: Define value for 'checkbox-valid-color' in muchandy theme */
   --checkbox-valid-color: inherit;
-  /* TODO: Define value for 'color-text-muted' in muchandy theme */
-  --color-text-muted: inherit;
-  /* TODO: Define value for 'color-yellow' in muchandy theme */
-  --color-yellow: inherit;
-  /* TODO: Define value for 'font-family-base' in muchandy theme */
-  --font-family-base: inherit;
-  /* TODO: Define value for 'font-size-14' in muchandy theme */
-  --font-size-14: inherit;
-  /* TODO: Define value for 'font-size-16' in muchandy theme */
-  --font-size-16: inherit;
-  /* TODO: Define value for 'font-size-18' in muchandy theme */
-  --font-size-18: inherit;
-  /* TODO: Define value for 'font-size-20' in muchandy theme */
-  --font-size-20: inherit;
-  /* TODO: Define value for 'font-size-24' in muchandy theme */
-  --font-size-24: inherit;
-  /* TODO: Define value for 'font-size-32' in muchandy theme */
-  --font-size-32: inherit;
-  /* TODO: Define value for 'header-bg' in muchandy theme */
+
   --header-bg: inherit;
   /* TODO: Define value for 'header-bg-scrolled' in muchandy theme */
   --header-bg-scrolled: inherit;

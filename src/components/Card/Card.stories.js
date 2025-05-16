@@ -17,7 +17,7 @@ export const Default = () => {
 export const WithImage = () => {
   return new Card({
     title: 'Card with Image',
-    image: 'https://via.placeholder.com/300x200',
+    image: 'https://picsum.photos/300/200',
     children: 'This card includes an image at the top.',
   });
 };
@@ -94,7 +94,7 @@ export const ComplexCard = () => {
 
   return new Card({
     title: 'Complex Card Example',
-    image: 'https://via.placeholder.com/400x200',
+    image: 'https://picsum.photos/400/200',
     children: contentContainer,
     footer: footerContainer,
     elevated: true,
