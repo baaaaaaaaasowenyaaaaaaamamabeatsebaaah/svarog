@@ -52,7 +52,7 @@
   --button-hover-border-color: var(--color-brand-primary-light);
   --button-hover-color: var(--color-brand-primary-light);
   --button-hover-shadow: none;
-  --button-hover-transform: var(--space-1);
+  --button-hover-transform: -4px;
 
   /* Active state */
   --button-active-bg: var(--color-brand-primary-dark);
@@ -413,14 +413,14 @@
   --radio-group-disabled-bg: var(--color-gray-100);
 
   /* Component: Form Group */
-  --form-group-margin-bottom: var(--space-4);
-  --form-group-label-font-size: var(--font-size-base);
+  --form-group-margin-bottom: var(--space-2);
+  --form-group-label-font-size: var(--font-size-sm);
   --form-group-label-color: var(--color-text);
-  --form-group-font-family: var(--font-family-primary);
+  --form-group-font-family: var(--font-family-secondary);
   --form-group-label-font-weight: var(--font-weight-medium);
   --form-group-label-margin-bottom: var(--space-1);
-  --form-group-required-color: var(--color-danger);
-  --form-group-help-font-size: var(--font-size-sm);
+  --form-group-required-color: var(--color-danger-light);
+  --form-group-help-font-size: var(--font-size-xs);
   --form-group-help-color: var(--color-text-light);
   --form-group-label-margin-right: var(--space-3);
   --form-group-label-margin-left: var(--space-3);
@@ -429,15 +429,15 @@
   /* Component: Form */
   --form-label-width: 30%;
   --form-section-margin-bottom: var(--space-6);
-  --form-section-title-font-size: var(--font-size-lg);
+  --form-section-title-font-size: var(--font-size-xl);
   --form-section-title-color: var(--color-text);
   --form-section-title-font-weight: var(--font-weight-semibold);
   --form-section-title-margin-bottom: var(--space-3);
-  --form-section-title-border: 1px solid var(--color-brand-primary-light);
-  --form-section-description-font-size: var(--font-size-base);
+  --form-section-title-border: 1px solid var(---border-color-light);
+  --form-section-description-font-size: var(--font-size-sm);
   --form-section-description-color: var(--color-text-light);
   --form-section-description-margin-bottom: var(--space-3);
-  --form-actions-gap: var(--space-3);
+  --form-actions-gap: var(--space-2);
   --form-actions-margin-top: var(--space-5);
   --form-actions-justify: flex-end;
 }
