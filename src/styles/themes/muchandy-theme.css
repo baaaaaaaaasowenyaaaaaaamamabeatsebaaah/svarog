@@ -440,6 +440,11 @@
   --form-actions-gap: var(--space-2);
   --form-actions-margin-top: var(--space-5);
   --form-actions-justify: flex-end;
+
+  /* Component: PriceDisplay */
+  --price-display-bg: var(--color-bg);
+  --price-display-border: none;
+  --price-display-color: var(--color-brand-primary);
 }
 
 .muchandy-theme {
@@ -476,13 +481,6 @@
   --header-transparent-color: inherit;
   /* TODO: Define value for 'header-z-index' in muchandy theme */
   --header-z-index: inherit;
-
-  /* TODO: Define value for 'price-display-bg' in muchandy theme */
-  --price-display-bg: inherit;
-  /* TODO: Define value for 'price-display-border' in muchandy theme */
-  --price-display-border: inherit;
-  /* TODO: Define value for 'price-display-color' in muchandy theme */
-  --price-display-color: inherit;
 
   /* TODO: Define value for 'collapsible-header-collapsed-height' in muchandy theme */
   --collapsible-header-collapsed-height: inherit;
