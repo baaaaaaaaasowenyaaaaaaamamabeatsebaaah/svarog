@@ -3,7 +3,6 @@ import './UsedPhonePriceForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
-import FormGroup from '../Form/FormGroup.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 import ConditionSelector from '../ConditionSelector/ConditionSelector.js';
 import Button from '../Button/Button.js';
@@ -77,14 +76,6 @@ export default class UsedPhonePriceForm extends Component {
       },
     };
 
-    // Create component references (will be set in createFormElement)
-    this.manufacturerSelect = null;
-    this.deviceSelect = null;
-    this.conditionSelector = null;
-    this.priceDisplay = null;
-    this.submitButton = null;
-    this.stepsIndicator = null;
-
     // Create form element
     this.form = this.createFormElement();
 
@@ -116,13 +107,6 @@ export default class UsedPhonePriceForm extends Component {
       },
     });
 
-    // Add title
-    const title = this.createElement('h2', {
-      className: 'used-phone-price-form__title',
-      textContent: this.labels.title,
-    });
-    form.appendChild(title);
-
     // Add step indicator if enabled
     if (this.props.showStepsIndicator) {
       const steps = [
@@ -138,23 +122,16 @@ export default class UsedPhonePriceForm extends Component {
       form.appendChild(this.stepsIndicator.getElement());
     }
 
-    // Create manufacturer select
+    // Create manufacturer select - directly without form group
     this.manufacturerSelect = new Select({
       id: 'manufacturer',
       name: 'manufacturer',
       placeholder: this.labels.manufacturerPlaceholder,
-      disabled: true,
       onChange: (event, value) => this.handleManufacturerChange(value),
     });
+    form.appendChild(this.manufacturerSelect.getElement());
 
-    const manufacturerGroup = new FormGroup({
-      label: this.labels.manufacturerLabel,
-      field: this.manufacturerSelect,
-      id: 'manufacturer',
-    });
-    form.appendChild(manufacturerGroup.getElement());
-
-    // Create device select
+    // Create device select - directly without form group
     this.deviceSelect = new Select({
       id: 'device',
       name: 'device',
@@ -162,24 +139,9 @@ export default class UsedPhonePriceForm extends Component {
       disabled: true,
       onChange: (event, value) => this.handleDeviceChange(value),
     });
-
-    const deviceGroup = new FormGroup({
-      label: this.labels.deviceLabel,
-      field: this.deviceSelect,
-      id: 'device',
-    });
-    form.appendChild(deviceGroup.getElement());
+    form.appendChild(this.deviceSelect.getElement());
 
     // Create condition section
-    const conditionGroup = this.createElement('div', {
-      className: 'form-group',
-    });
-
-    const conditionLabel = this.createElement('label', {
-      className: 'form-group__label',
-      textContent: this.labels.conditionLabel,
-    });
-
     const conditionField = this.createElement('div', {
       className: 'form-group__field',
     });
@@ -190,21 +152,19 @@ export default class UsedPhonePriceForm extends Component {
       onSelect: (conditionId) => this.handleConditionChange(conditionId),
     });
     conditionField.appendChild(this.conditionSelector.getElement());
-
-    conditionGroup.appendChild(conditionLabel);
-    conditionGroup.appendChild(conditionField);
-    form.appendChild(conditionGroup);
+    form.appendChild(conditionField);
 
     // Create price display
     this.priceDisplay = new PriceDisplay({
       label: this.labels.priceLabel,
       value: this.labels.initialPriceText,
+      isPlaceholder: true,
     });
     form.appendChild(this.priceDisplay.getElement());
 
     // Create submit button container
     const buttonContainer = this.createElement('div', {
-      className: 'used-phone-price-form__button-container',
+      className: 'used-phone-price-form__actions',
     });
 
     // Create submit button
@@ -212,7 +172,7 @@ export default class UsedPhonePriceForm extends Component {
       text: this.labels.submitButtonText,
       type: 'submit',
       variant: 'primary',
-      disabled: true,
+      disabled: !this.canSubmit(),
     });
     buttonContainer.appendChild(this.submitButton.getElement());
     form.appendChild(buttonContainer);
@@ -391,9 +351,7 @@ export default class UsedPhonePriceForm extends Component {
         label: m.name,
       }));
 
-      // Enable select and set options
-      this.manufacturerSelect.getElement().querySelector('select').disabled =
-        false;
+      // Update select with options
       this.updateSelectOptions(this.manufacturerSelect, options);
 
       // Update form state after loading completes
@@ -437,8 +395,7 @@ export default class UsedPhonePriceForm extends Component {
     this.conditionSelector.updateConditions([]);
 
     // Reset price display
-    this.priceDisplay.setValue(this.labels.initialPriceText);
-    this.priceDisplay.setLoading(false);
+    this.priceDisplay.setValue(this.labels.initialPriceText, false, true);
 
     try {
       // Fetch devices from service
@@ -468,9 +425,8 @@ export default class UsedPhonePriceForm extends Component {
         error: { ...this.state.error, devices: error.message },
       });
 
-      // Show error message in price display
-      this.priceDisplay.setValue(this.labels.deviceLoadError);
-      this.priceDisplay.setLoading(false);
+      // Display error in the price display
+      this.priceDisplay.setError('Fehler beim Laden der Geräte');
 
       // Update form state to reflect error
       this.updateFormState();
@@ -498,8 +454,7 @@ export default class UsedPhonePriceForm extends Component {
     this.conditionSelector.setLoading(true);
 
     // Reset price display
-    this.priceDisplay.setValue(this.labels.initialPriceText);
-    this.priceDisplay.setLoading(false);
+    this.priceDisplay.setValue('Bitte Gerätezustand auswählen', false, true);
 
     try {
       // Fetch conditions from service
@@ -526,9 +481,8 @@ export default class UsedPhonePriceForm extends Component {
       // Update condition selector to show error state
       this.conditionSelector.setLoading(false);
 
-      // Show error message in price display
-      this.priceDisplay.setValue(this.labels.conditionLoadError);
-      this.priceDisplay.setLoading(false);
+      // Display error in the price display
+      this.priceDisplay.setError('Fehler beim Laden der Gerätezustände');
 
       // Update form state to reflect error
       this.updateFormState();
@@ -565,7 +519,7 @@ export default class UsedPhonePriceForm extends Component {
 
       // Format and display price
       const formattedPrice = this.formatPrice(priceData.price);
-      this.priceDisplay.setValue(formattedPrice, true);
+      this.priceDisplay.setValue(formattedPrice, true, false);
       this.priceDisplay.setLoading(false);
 
       // Call onPriceChange callback if provided
@@ -582,9 +536,8 @@ export default class UsedPhonePriceForm extends Component {
         error: { ...this.state.error, price: error.message },
       });
 
-      // Show error message in price display
-      this.priceDisplay.setValue(this.labels.priceLoadError);
-      this.priceDisplay.setLoading(false);
+      // Display error in the price display
+      this.priceDisplay.setError('Fehler beim Laden des Preises');
 
       // Update form state to reflect error
       this.updateFormState();

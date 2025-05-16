@@ -12,7 +12,7 @@ export default {
     docs: {
       description: {
         component:
-          'Form component for estimating the value of a used phone for selling.',
+          'Formular-Komponente zur Wertermittlung eines gebrauchten Handys für den Verkauf.',
       },
     },
   },
@@ -23,7 +23,7 @@ const setupMocks = () => {
   try {
     setupPhoneBuybackMocks();
   } catch (error) {
-    console.warn('Error setting up mocks:', error.message);
+    console.warn('Fehler beim Einrichten der Mocks:', error.message);
     // Provide fallback mock directly
     window.fetch = (url) => {
       if (url === '/api/manufacturers') {
@@ -36,7 +36,7 @@ const setupMocks = () => {
       return Promise.resolve({
         ok: false,
         status: 404,
-        json: () => Promise.resolve({ error: 'Not found' }),
+        json: () => Promise.resolve({ error: 'Nicht gefunden' }),
       });
     };
   }
@@ -47,7 +47,7 @@ export const Default = () => {
 
   return UsedPhonePriceFormFactory.createWithMockData({
     mockData: mockPhoneBuybackData,
-    onPriceChange: (priceData) => console.log('Price selected:', priceData),
+    onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
 };
 
@@ -57,7 +57,7 @@ export const WithoutSteps = () => {
   return UsedPhonePriceFormFactory.createWithMockData({
     mockData: mockPhoneBuybackData,
     showStepsIndicator: false,
-    onPriceChange: (priceData) => console.log('Price selected:', priceData),
+    onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
 };
 
@@ -72,7 +72,7 @@ export const WithPreselectedData = () => {
   const buybackForm = UsedPhonePriceFormFactory.createWithMockData({
     mockData: mockPhoneBuybackData,
     onPriceChange: (priceData) => {
-      console.log('Price selected:', priceData);
+      console.log('Preis ausgewählt:', priceData);
 
       // Update summary display
       if (summaryDisplay) {
@@ -84,16 +84,16 @@ export const WithPreselectedData = () => {
           document.getElementById('device')?.options[
             document.getElementById('device')?.selectedIndex
           ]?.text;
-        const condition = priceData.conditionName || 'Unknown';
+        const condition = priceData.conditionName || 'Unbekannt';
 
         summaryDisplay.innerHTML = `
           <div style="margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 4px; background-color: #f8f9fa;">
-            <h3 style="margin-top: 0; font-size: 18px;">Sell Summary</h3>
-            <p><strong>Brand:</strong> ${manufacturer || 'Not selected'}</p>
-            <p><strong>Model:</strong> ${device || 'Not selected'}</p>
-            <p><strong>Condition:</strong> ${condition}</p>
-            <p><strong>Offer Price:</strong> €${priceData.price}</p>
-            <button id="confirmSale" style="background-color: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Confirm Sale</button>
+            <h3 style="margin-top: 0; font-size: 18px;">Verkaufszusammenfassung</h3>
+            <p><strong>Marke:</strong> ${manufacturer || 'Nicht ausgewählt'}</p>
+            <p><strong>Modell:</strong> ${device || 'Nicht ausgewählt'}</p>
+            <p><strong>Zustand:</strong> ${condition}</p>
+            <p><strong>Angebotspreis:</strong> €${priceData.price}</p>
+            <button id="confirmSale" style="background-color: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Verkauf bestätigen</button>
           </div>
         `;
 
@@ -103,7 +103,7 @@ export const WithPreselectedData = () => {
           if (confirmButton) {
             confirmButton.addEventListener('click', () => {
               alert(
-                'Thank you for selling your phone to us! We will contact you soon with shipping details.'
+                'Vielen Dank für den Verkauf deines Handys! Wir werden dich in Kürze mit Versanddetails kontaktieren.'
               );
             });
           }
@@ -111,9 +111,9 @@ export const WithPreselectedData = () => {
       }
     },
     onSubmit: (formData) => {
-      console.log('Form submitted:', formData);
+      console.log('Formular abgesendet:', formData);
       alert(
-        `Your ${formData.deviceName} (${formData.conditionName}) has been submitted for sale at €${formData.price}!`
+        `Dein ${formData.deviceName} (${formData.conditionName}) wurde zum Verkauf für €${formData.price} eingereicht!`
       );
     },
   });
@@ -234,7 +234,7 @@ export const WithCustomTheme = () => {
   // Create form component
   const buybackForm = UsedPhonePriceFormFactory.createWithMockData({
     mockData: mockPhoneBuybackData,
-    onPriceChange: (priceData) => console.log('Price selected:', priceData),
+    onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
 
   themeContainer.appendChild(buybackForm.getElement());
@@ -259,7 +259,7 @@ export const WithErrorHandling = () => {
       return Promise.resolve({
         ok: false,
         status: 500,
-        json: () => Promise.resolve({ error: 'Server error' }),
+        json: () => Promise.resolve({ error: 'Serverfehler' }),
       });
     } else if (deviceMatch) {
       const manufacturerId = deviceMatch[1];
@@ -327,7 +327,7 @@ export const WithErrorHandling = () => {
     return Promise.resolve({
       ok: false,
       status: 404,
-      json: () => Promise.resolve({ error: 'Not found' }),
+      json: () => Promise.resolve({ error: 'Nicht gefunden' }),
     });
   };
 
@@ -337,8 +337,8 @@ export const WithErrorHandling = () => {
   const instructions = document.createElement('div');
   instructions.innerHTML = `
     <div style="margin-bottom: 20px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;">
-      <p><strong>Test Instructions:</strong></p>
-      <p>Select "Google" as brand to see error handling in action.</p>
+      <p><strong>Testanleitung:</strong></p>
+      <p>Wähle "Google" als Marke, um die Fehlerbehandlung in Aktion zu sehen.</p>
     </div>
   `;
 
@@ -347,7 +347,7 @@ export const WithErrorHandling = () => {
   // Create form component with UsedPhonePriceService (not MockService)
   const buybackForm = UsedPhonePriceFormFactory.createStandard({
     apiOptions: { baseUrl: '/api' },
-    onPriceChange: (priceData) => console.log('Price selected:', priceData),
+    onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
 
   container.appendChild(buybackForm.getElement());
@@ -362,18 +362,18 @@ export const WithCustomLabels = () => {
   const buybackForm = UsedPhonePriceFormFactory.createWithMockData({
     mockData: mockPhoneBuybackData,
     labels: {
-      title: 'Sell Your Device',
-      manufacturerStep: 'Brand',
-      deviceStep: 'Device',
-      conditionStep: 'Condition',
-      manufacturerLabel: 'Select Brand:',
-      deviceLabel: 'Select Device:',
-      conditionLabel: 'Device Condition:',
-      priceLabel: 'We Offer:',
-      initialPriceText: 'Complete all selections to see offer',
-      submitButtonText: 'Get Cash Now',
+      title: 'Verkaufe dein Gerät',
+      manufacturerStep: 'Marke',
+      deviceStep: 'Gerät',
+      conditionStep: 'Zustand',
+      manufacturerLabel: 'Marke auswählen:',
+      deviceLabel: 'Gerät auswählen:',
+      conditionLabel: 'Gerätezustand:',
+      priceLabel: 'Unser Angebot:',
+      initialPriceText: 'Fülle alle Auswahlfelder aus, um ein Angebot zu sehen',
+      submitButtonText: 'Jetzt Bargeld erhalten',
     },
-    onPriceChange: (priceData) => console.log('Price selected:', priceData),
+    onPriceChange: (priceData) => console.log('Preis ausgewählt:', priceData),
   });
 
   return buybackForm;

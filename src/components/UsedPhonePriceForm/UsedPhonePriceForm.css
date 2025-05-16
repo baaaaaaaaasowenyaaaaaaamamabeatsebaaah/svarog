@@ -2,112 +2,58 @@
 .used-phone-price-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4, 16px);
   max-width: 550px;
   width: 100%;
-  padding: var(--space-5, 20px);
-  border-radius: var(--border-radius-lg, 8px);
-  background-color: var(--color-bg, #ffffff);
-  box-shadow: var(--shadow-md, 0 4px 10px rgba(0, 0, 0, 0.1));
-  border: var(
-    --used-phone-price-form-border,
-    1px solid var(--color-gray-200, #e9ecef)
-  );
-  font-family: var(--font-family-primary, sans-serif);
+  padding: var(--space-5);
+  border-radius: 0;
+  background-color: var(--color-bg);
+  font-family: var(--font-family-base);
 }
 
-/* Form title */
-.used-phone-price-form__title {
-  font-size: var(--font-size-xl, 20px);
-  font-weight: var(--font-weight-bold, 700);
-  margin-bottom: var(--space-4, 16px);
-  color: var(--color-primary, #3182ce);
-  border-bottom: 1px solid var(--color-gray-200, #e9ecef);
-  padding-bottom: var(--space-3, 12px);
+.used-phone-price-form .steps-indicator {
+  padding-bottom: var(--space-12);
 }
 
-/* Form Group - similar styles to FormGroup but defined here for compatibility */
-.used-phone-price-form .form-group {
+.used-phone-price-form .price-display {
+  min-height: 36px;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+/* Actions container (button) */
+.used-phone-price-form__actions {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--space-4, 16px);
-  width: 100%;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  align-items: flex-end;
 }
 
-.used-phone-price-form .form-group__label {
-  font-size: var(--font-size-base, 16px);
-  font-weight: var(--font-weight-medium, 500);
-  margin-bottom: var(--space-2, 8px);
-  color: var(--color-text, #212529);
-  display: block;
+/* Error state */
+.price-display--error .price-display__value {
+  color: var(--color-danger-light);
+  font-size: var(--font-size-base);
 }
 
-.used-phone-price-form .form-group__field {
-  width: 100%;
-  position: relative;
-}
-
-/* Button container for submit button */
-.used-phone-price-form__button-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: var(--space-4, 16px);
-}
-
-/* Loading states and transitions */
-.used-phone-price-form--loading {
-  position: relative;
-}
-
-.used-phone-price-form--loading::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.7);
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.used-phone-price-form--loading.full-opacity::after {
-  opacity: 1;
-}
-
-.used-phone-price-form--loading select,
-.used-phone-price-form--loading button:not(.loading) {
+/* Loading and error states */
+.used-phone-price-form--loading select {
   opacity: 0.7;
   pointer-events: none;
 }
 
-/* Error states */
-.used-phone-price-form--error .used-phone-price-form__error-message {
-  display: block;
-  color: var(--color-danger, #dc3545);
-  font-size: var(--font-size-sm, 14px);
-  margin-top: var(--space-1, 4px);
+.used-phone-price-form--error {
+  /* Add any error state styles here */
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .used-phone-price-form {
-    padding: var(--space-4, 16px);
+    padding: var(--space-6);
   }
 }
 
 @media (max-width: 480px) {
   .used-phone-price-form {
-    padding: var(--space-3, 12px);
-  }
-
-  .used-phone-price-form__button-container {
-    justify-content: center;
-  }
-
-  .used-phone-price-form .form-group {
-    margin-bottom: var(--space-3, 12px);
+    padding: var(--space-3);
   }
 }

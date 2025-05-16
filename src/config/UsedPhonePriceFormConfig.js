@@ -10,8 +10,7 @@ export const defaultLabels = {
   conditionStep: 'Zustand',
   manufacturerLabel: 'Hersteller:',
   deviceLabel: 'Modell:',
-  conditionLabel: 'Zustand:',
-  priceLabel: 'Auszahlungspreis:',
+  priceLabel: 'Ihr unverbindlicher Auszahlungspreis:',
   manufacturerPlaceholder: 'Hersteller auswählen',
   devicePlaceholder: 'Zuerst Hersteller auswählen',
   conditionPlaceholder: 'Zuerst Modell auswählen',
@@ -21,8 +20,14 @@ export const defaultLabels = {
   deviceLoadError: 'Fehler beim Laden der Geräte',
   conditionLoadError: 'Fehler beim Laden der Zustandsoptionen',
   priceLoadError: 'Fehler beim Laden des Preises',
-  submitButtonText: 'Weiter',
+  submitButtonText: 'Jetzt Termin vereinbaren',
   submitButtonLoadingText: 'Laden...',
+  conditionLabel: 'Zustand deines Geräts', // The label above condition options
+  conditionNewLabel: 'Neu', // Text for "New" condition
+  conditionGoodLabel: 'Gut', // Text for "Good" condition
+  conditionFairLabel: 'Akzeptabel', // Text for "Fair" condition
+  conditionPoorLabel: 'Beschädigt', // Text for "Poor" condition
+  conditionDescriptionNew: 'Originalverpackt, unbenutzt', // Description for new condition
 };
 
 /**
