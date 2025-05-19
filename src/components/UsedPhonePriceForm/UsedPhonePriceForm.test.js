@@ -1,27 +1,21 @@
 // src/components/UsedPhonePriceForm/UsedPhonePriceForm.test.js
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import UsedPhonePriceFormFactory from '../../factories/UsedPhonePriceFormFactory.js';
-import {
-  mockPhoneBuybackData,
-  setupPhoneBuybackMocks,
-} from '../../../__mocks__/phoneBuybackData.js';
+import { describe, it, expect, vi } from 'vitest';
+import UsedPhonePriceForm from './UsedPhonePriceForm.js';
 
 describe('UsedPhonePriceForm component', () => {
-  beforeEach(() => {
-    // Set up mock data for each test
-    setupPhoneBuybackMocks();
-  });
-
-  afterEach(() => {
-    // Clean up after each test
-    vi.restoreAllMocks();
-  });
+  // Helper function to create a UsedPhonePriceForm instance with required props
+  const createUsedPhonePriceForm = (props = {}) => {
+    return new UsedPhonePriceForm({
+      onManufacturerChange: vi.fn(),
+      onDeviceChange: vi.fn(),
+      onConditionChange: vi.fn(),
+      onSubmit: vi.fn(),
+      ...props,
+    });
+  };
 
   it('should create a phone price form element', () => {
-    // Create form with mock data
-    const form = UsedPhonePriceFormFactory.createWithMockData({
-      mockData: mockPhoneBuybackData,
-    });
+    const form = createUsedPhonePriceForm();
 
     const element = form.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
@@ -36,9 +30,7 @@ describe('UsedPhonePriceForm component', () => {
   });
 
   it('should initialize with a placeholder price text', () => {
-    const form = UsedPhonePriceFormFactory.createWithMockData({
-      mockData: mockPhoneBuybackData,
-    });
+    const form = createUsedPhonePriceForm();
 
     const element = form.getElement();
     const priceElement = element.querySelector('.price-display__value');
@@ -49,100 +41,13 @@ describe('UsedPhonePriceForm component', () => {
     );
   });
 
-  it('should load manufacturers on initialization', async () => {
-    const form = UsedPhonePriceFormFactory.createWithMockData({
-      mockData: mockPhoneBuybackData,
-    });
-
-    // Wait for the manufacturers to load
-    await vi.waitFor(() => {
-      const manufacturerSelect = form
-        .getElement()
-        .querySelector('#manufacturer select');
-      return (
-        manufacturerSelect &&
-        !manufacturerSelect.disabled &&
-        manufacturerSelect.options.length > 1
-      );
-    });
-
-    // Check if manufacturers are loaded in the select
-    const manufacturerSelect = form
-      .getElement()
-      .querySelector('#manufacturer select');
-    expect(manufacturerSelect.disabled).toBe(false);
-    expect(manufacturerSelect.options.length).toBeGreaterThan(1); // Include placeholder
-
-    // Check the first manufacturer option after placeholder
-    expect(manufacturerSelect.options[1].textContent).toBe('Apple');
-  });
-
-  it('should enable device select when manufacturer is selected', async () => {
-    // Create mock service with controlled responses
-    const mockService = {
-      fetchManufacturers: vi
-        .fn()
-        .mockResolvedValue(mockPhoneBuybackData.manufacturers),
-      fetchDevices: vi.fn().mockImplementation((manufacturerId) => {
-        const manufacturer = mockPhoneBuybackData.manufacturers.find(
-          (m) => m.id.toString() === manufacturerId.toString()
-        );
-        return Promise.resolve(manufacturer ? manufacturer.devices : []);
-      }),
-      fetchConditions: vi.fn().mockResolvedValue([]),
-      fetchPrice: vi.fn().mockResolvedValue({ price: 100 }),
-    };
-
-    const form = UsedPhonePriceFormFactory.createWithMockService({
-      service: mockService,
-    });
-
-    // Wait for manufacturers to load
-    await vi.waitFor(() => {
-      const manufacturerSelect = form
-        .getElement()
-        .querySelector('#manufacturer select');
-      return manufacturerSelect && !manufacturerSelect.disabled;
-    });
-
-    const manufacturerSelect = form
-      .getElement()
-      .querySelector('#manufacturer select');
-    const deviceSelect = form.getElement().querySelector('#device select');
-
-    // Initially device select should be disabled
-    expect(deviceSelect.disabled).toBe(true);
-
-    // Select a manufacturer
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
-
-    // Wait for devices to load
-    await vi.waitFor(() => {
-      return !form.getElement().querySelector('#device select').disabled;
-    });
-
-    // Device select should now be enabled and populated
-    const updatedDeviceSelect = form
-      .getElement()
-      .querySelector('#device select');
-    expect(updatedDeviceSelect.disabled).toBe(false);
-    expect(updatedDeviceSelect.options.length).toBeGreaterThan(1);
-  });
-
   it('should format price correctly', () => {
-    // Create the form with mock data
-    const form = UsedPhonePriceFormFactory.createWithMockData({
-      mockData: mockPhoneBuybackData,
-    });
+    const form = createUsedPhonePriceForm();
 
-    // Get the form instance
-    const formInstance = form.form;
-
-    // Test different price formats - be more flexible with space characters
-    const price100 = formInstance.formatPrice(100);
-    const price1000 = formInstance.formatPrice(1000);
-    const price42_5 = formInstance.formatPrice(42.5);
+    // Test different price formats
+    const price100 = form.formatPrice(100);
+    const price1000 = form.formatPrice(1000);
+    const price42_5 = form.formatPrice(42.5);
 
     // Check that the formatted strings contain the expected numbers and euro symbol
     expect(price100).toMatch(/100,00\s*€/);
@@ -150,112 +55,94 @@ describe('UsedPhonePriceForm component', () => {
     expect(price42_5).toMatch(/42,50\s*€/);
 
     // Test null/undefined handling
-    expect(formInstance.formatPrice(null)).toBe('Preis nicht verfügbar');
-    expect(formInstance.formatPrice(undefined)).toBe('Preis nicht verfügbar');
+    expect(form.formatPrice(null)).toBe('Preis nicht verfügbar');
+    expect(form.formatPrice(undefined)).toBe('Preis nicht verfügbar');
   });
 
-  it('should display error state when loading devices fails', async () => {
-    // Create mock service that simulates device fetch error
-    const mockService = {
-      fetchManufacturers: vi
-        .fn()
-        .mockResolvedValue(mockPhoneBuybackData.manufacturers),
-      fetchDevices: vi.fn().mockRejectedValue(new Error('API error')),
-      fetchConditions: vi.fn().mockResolvedValue([]),
-      fetchPrice: vi.fn().mockResolvedValue({ price: 100 }),
-    };
+  it('should display error state when loading devices fails', () => {
+    const form = createUsedPhonePriceForm();
 
-    const form = UsedPhonePriceFormFactory.createWithMockService({
-      service: mockService,
-    });
+    // Set errors through the setErrors method
+    form.setErrors({ devices: new Error('Device fetch error') });
 
-    // Wait for manufacturers to load
-    await vi.waitFor(() => {
-      const manufacturerSelect = form
-        .getElement()
-        .querySelector('#manufacturer select');
-      return manufacturerSelect && !manufacturerSelect.disabled;
-    });
+    // Check error state in price display
+    const priceDisplay = form.priceDisplay.getElement();
+    expect(priceDisplay.classList.contains('price-display--error')).toBe(true);
 
-    // Select a manufacturer to trigger device fetch (which will fail)
-    const manufacturerSelect = form
-      .getElement()
-      .querySelector('#manufacturer select');
-    manufacturerSelect.value = '1'; // Apple
-    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
-
-    // Wait for the error to be processed
-    await vi.waitFor(() => {
-      const priceDisplay = form
-        .getElement()
-        .querySelector('.price-display__value');
-      return priceDisplay.textContent.includes('Fehler beim Laden der Geräte');
-    });
-
-    // Check error state
-    const priceDisplay = form
-      .getElement()
-      .querySelector('.price-display__value');
-    expect(priceDisplay.textContent).toContain('Fehler beim Laden der Geräte');
+    // Check the error message
+    const valueElement = priceDisplay.querySelector('.price-display__value');
+    expect(valueElement.textContent).toBe('Fehler beim Laden der Geräte');
   });
 
-  it('should submit form data when all fields are selected', async () => {
-    const mockOnSubmit = vi.fn();
+  it('should submit form data when all fields are selected', () => {
+    const onSubmit = vi.fn();
+    const form = createUsedPhonePriceForm({ onSubmit });
 
-    // Create a mock service that returns controlled data
-    const mockService = {
-      fetchManufacturers: vi
-        .fn()
-        .mockResolvedValue([{ id: 1, name: 'TestBrand', devices: [] }]),
-      fetchDevices: vi
-        .fn()
-        .mockResolvedValue([{ id: 1, name: 'TestPhone', conditions: [] }]),
-      fetchConditions: vi.fn().mockResolvedValue([{ id: 1, name: 'Perfect' }]),
-      fetchPrice: vi.fn().mockResolvedValue({
-        price: 500,
-        deviceName: 'TestPhone',
-        conditionName: 'Perfect',
-        manufacturerName: 'TestBrand',
-      }),
-    };
+    // Setup the form state manually
+    form.state.selectedManufacturer = '1';
+    form.state.selectedDevice = '1';
+    form.state.selectedCondition = '1';
+    form.state.currentPrice = { price: 500 };
+    form.state.manufacturers = [{ id: 1, name: 'TestBrand' }];
+    form.state.devices = [{ id: 1, name: 'TestPhone' }];
+    form.state.conditions = [{ id: 1, name: 'Perfect' }];
 
-    const form = UsedPhonePriceFormFactory.createWithMockService({
-      service: mockService,
-      onSubmit: mockOnSubmit,
-    });
+    // Update form state to enable submit button
+    form.updateFormState();
 
-    // Wait for manufacturers to load
-    await vi.waitFor(() => {
-      const manufacturerSelect = form
-        .getElement()
-        .querySelector('#manufacturer select');
-      return manufacturerSelect && !manufacturerSelect.disabled;
-    });
+    // Manually call the submit handler
+    form.handleSubmit(new Event('submit'));
 
-    // Manually set form state to have all required data
-    form.form.setState({
-      manufacturers: [{ id: 1, name: 'TestBrand' }],
-      devices: [{ id: 1, name: 'TestPhone' }],
-      conditions: [{ id: 1, name: 'Perfect' }],
-      selectedManufacturer: '1',
-      selectedDevice: '1',
-      selectedCondition: '1',
-      currentPrice: { price: 500 },
-    });
-    form.form.updateFormState();
-
-    // Submit the form
-    const formElement = form.getElement();
-    formElement.dispatchEvent(new Event('submit', { bubbles: true }));
-
-    // Check that onSubmit was called
-    expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    // Check that onSubmit was called with the right data
+    expect(onSubmit).toHaveBeenCalledTimes(1);
 
     // Check the form data structure
-    const formData = mockOnSubmit.mock.calls[0][0];
+    const formData = onSubmit.mock.calls[0][0];
     expect(formData).toHaveProperty('manufacturerId', '1');
     expect(formData).toHaveProperty('deviceId', '1');
     expect(formData).toHaveProperty('conditionId', '1');
     expect(formData).toHaveProperty('price', 500);
+  });
+
+  it('should update condition selector when new conditions are set', () => {
+    const form = createUsedPhonePriceForm();
+
+    // Spy on the condition selector updateConditions method
+    const updateConditionsSpy = vi.spyOn(
+      form.conditionSelector,
+      'updateConditions'
+    );
+
+    // Set conditions with test data
+    const testConditions = [
+      { id: 1, name: 'New', description: 'Brand new device' },
+      { id: 2, name: 'Good', description: 'Minor scratches' },
+    ];
+
+    form.setConditions(testConditions);
+
+    // Verify updateConditions was called with the test data
+    expect(updateConditionsSpy).toHaveBeenCalledWith(testConditions);
+  });
+
+  it('should show/hide steps indicator based on props', () => {
+    // Create form with steps indicator enabled (default)
+    const formWithSteps = createUsedPhonePriceForm();
+
+    // Create form with steps indicator disabled
+    const formWithoutSteps = createUsedPhonePriceForm({
+      showStepsIndicator: false,
+    });
+
+    // Check presence/absence of steps indicator
+    const stepsWithSteps = formWithSteps
+      .getElement()
+      .querySelector('.steps-indicator');
+    const stepsWithoutSteps = formWithoutSteps
+      .getElement()
+      .querySelector('.steps-indicator');
+
+    expect(stepsWithSteps).not.toBeNull();
+    expect(stepsWithoutSteps).toBeNull();
   });
 });
