@@ -2,7 +2,7 @@
 .phone-repair-form {
   display: flex;
   flex-direction: column;
-  max-width: 550px;
+  max-width: 800px;
   width: 100%;
   padding: var(--space-5);
   border-radius: 0;
