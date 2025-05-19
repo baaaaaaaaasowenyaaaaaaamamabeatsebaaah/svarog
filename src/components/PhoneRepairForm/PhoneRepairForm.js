@@ -1,14 +1,15 @@
-// src/components/PhoneRepairForm/PhoneRepairForm.js
+// src/components/PhoneRepairForm/PhoneRepairForm.js - Simplified version
+
 import './PhoneRepairForm.css';
 import { Component } from '../../utils/componentFactory.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
-import PhoneRepairService from '../../services/PhoneRepairService.js';
 import Button from '../Button/Button.js';
 
 /**
  * PhoneRepairForm component for selecting phone repair options and viewing prices
+ * This is a presentational component with no API calls or state management
  * @extends Component
  */
 export default class PhoneRepairForm extends Component {
@@ -16,21 +17,20 @@ export default class PhoneRepairForm extends Component {
    * Creates a new PhoneRepairForm instance
    *
    * @param {Object} props - PhoneRepairForm properties
-   * @param {Function} [props.onPriceChange] - Callback when a price is selected
+   * @param {Function} [props.onManufacturerChange] - Callback when manufacturer changes
+   * @param {Function} [props.onDeviceChange] - Callback when device changes
+   * @param {Function} [props.onActionChange] - Callback when action changes
    * @param {Function} [props.onScheduleClick] - Callback when schedule button is clicked
-   * @param {string} [props.usedPhoneUrl='#'] - URL for used phone link
-   * @param {Object} [props.labels] - Custom labels for form elements
-   * @param {Object} [props.apiOptions] - API service configuration options
-   * @param {boolean} [props.autoInitialize=true] - Whether to automatically load manufacturers
+   * @param {Object} [props.labels={}] - Custom labels for form elements
    * @param {string} [props.className=''] - Additional CSS class names
    */
   constructor({
-    onPriceChange,
+    onManufacturerChange,
+    onDeviceChange,
+    onActionChange,
     onScheduleClick,
     usedPhoneUrl = '#',
     labels = {},
-    apiOptions = {},
-    autoInitialize = true,
     className = '',
   }) {
     super();
@@ -51,20 +51,24 @@ export default class PhoneRepairForm extends Component {
       ...labels,
     };
 
-    // Store props
-    this.props = {
-      onPriceChange,
+    // Store callbacks
+    this.callbacks = {
+      onManufacturerChange,
+      onDeviceChange,
+      onActionChange,
       onScheduleClick,
-      usedPhoneUrl,
-      className,
-      autoInitialize,
     };
 
-    // Initialize service
-    this.service = new PhoneRepairService(apiOptions);
+    // Store props
+    this.props = {
+      usedPhoneUrl,
+      className,
+    };
 
-    // Component state
+    // UI state (visual state only, not including data)
     this.state = {
+      loading: {},
+      error: {},
       manufacturers: [],
       devices: [],
       actions: [],
@@ -72,31 +76,14 @@ export default class PhoneRepairForm extends Component {
       selectedDevice: '',
       selectedAction: '',
       currentPrice: null,
-      loading: {
-        manufacturers: false,
-        devices: false,
-        actions: false,
-        price: false,
-      },
-      error: {
-        manufacturers: null,
-        devices: null,
-        actions: null,
-        price: null,
-      },
     };
 
     // Create form element
     this.form = this.createFormElement();
-
-    // Initialize form only if autoInitialize is true
-    if (autoInitialize) {
-      this.loadManufacturers();
-    }
   }
 
   /**
-   * Creates the form element
+   * Creates the form element with all components
    * @private
    * @returns {HTMLElement} The form element
    */
@@ -130,7 +117,7 @@ export default class PhoneRepairForm extends Component {
     });
     form.appendChild(this.stepsIndicator.getElement());
 
-    // Create manufacturer select - directly without form group
+    // Create manufacturer select
     this.manufacturerSelect = new Select({
       id: 'manufacturer',
       name: 'manufacturer',
@@ -139,7 +126,7 @@ export default class PhoneRepairForm extends Component {
     });
     form.appendChild(this.manufacturerSelect.getElement());
 
-    // Create device select - directly without form group
+    // Create device select
     this.deviceSelect = new Select({
       id: 'device',
       name: 'device',
@@ -149,7 +136,7 @@ export default class PhoneRepairForm extends Component {
     });
     form.appendChild(this.deviceSelect.getElement());
 
-    // Create action select - directly without form group
+    // Create action select
     this.actionSelect = new Select({
       id: 'action',
       name: 'action',
@@ -199,6 +186,262 @@ export default class PhoneRepairForm extends Component {
   }
 
   /**
+   * Set form loading state
+   * @param {Object} loading - Loading state object
+   */
+  setLoading(loading) {
+    this.state.loading = loading;
+    this.updateFormState();
+
+    // Update price display loading state
+    if (loading.price) {
+      this.priceDisplay.setValue(this.labels.loadingPriceText);
+      this.priceDisplay.setLoading(true);
+    }
+  }
+
+  /**
+   * Set form error state
+   * @param {Object} error - Error state object
+   */
+  setErrors(error) {
+    this.state.error = error;
+    this.updateFormState();
+
+    // Update price display error state if needed
+    if (error.price) {
+      this.priceDisplay.setError(error.price);
+    }
+  }
+
+  /**
+   * Set manufacturers data
+   * @param {Array} manufacturers - Manufacturers array
+   */
+  setManufacturers(manufacturers) {
+    this.state.manufacturers = manufacturers;
+
+    // Update manufacturer select options
+    const options = manufacturers.map((m) => ({
+      value: m.id.toString(),
+      label: m.name,
+    }));
+
+    // Update select with options
+    this.manufacturerSelect.setValue('');
+    this.updateSelectOptions(this.manufacturerSelect, options);
+  }
+
+  /**
+   * Set devices data
+   * @param {Array} devices - Devices array
+   */
+  setDevices(devices) {
+    this.state.devices = devices;
+
+    // Update device select options
+    const options = devices.map((d) => ({
+      value: d.id.toString(),
+      label: d.name,
+    }));
+
+    // Enable select and set options
+    this.deviceSelect.setValue('');
+    this.updateSelectOptions(this.deviceSelect, options);
+    this.deviceSelect.getElement().querySelector('select').disabled =
+      !devices.length;
+  }
+
+  /**
+   * Set actions data
+   * @param {Array} actions - Actions array
+   */
+  setActions(actions) {
+    this.state.actions = actions;
+
+    // Update action select options
+    const options = actions.map((a) => ({
+      value: a.id.toString(),
+      label: a.name,
+    }));
+
+    // Enable select and set options
+    this.actionSelect.setValue('');
+    this.updateSelectOptions(this.actionSelect, options);
+    this.actionSelect.getElement().querySelector('select').disabled =
+      !actions.length;
+  }
+
+  /**
+   * Set price data
+   * @param {Object} price - Price data object
+   */
+  setPrice(price) {
+    this.state.currentPrice = price;
+
+    if (price) {
+      // Format and display price
+      const formattedPrice = this.formatPrice(price.price);
+      this.priceDisplay.setValue(formattedPrice, true, false);
+    } else {
+      this.priceDisplay.setValue(this.labels.initialPriceText, false, true);
+    }
+
+    this.priceDisplay.setLoading(false);
+    this.updateScheduleButton();
+  }
+
+  /**
+   * Format price for display
+   * @private
+   * @param {number} price - Price in cents or as a decimal
+   * @returns {string} Formatted price
+   */
+  formatPrice(price) {
+    // Check if price is valid
+    if (price === undefined || price === null) {
+      return 'Preis nicht verfügbar';
+    }
+
+    // Determine if price is in cents or euros
+    let priceInEuros = price;
+    if (price > 1000) {
+      // Assuming price is in cents if it's a large number
+      priceInEuros = price / 100;
+    }
+
+    // Format price with euro sign
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(priceInEuros);
+  }
+
+  /**
+   * Optimized method to update select options
+   * @private
+   * @param {Object} selectComponent - Select component
+   * @param {Array} options - Options array with value and label properties
+   */
+  updateSelectOptions(selectComponent, options) {
+    // Don't recreate the select if we can just update options
+    if (selectComponent.getElement().parentNode) {
+      const select = selectComponent.getElement().querySelector('select');
+
+      // Only proceed if we found the select element
+      if (select) {
+        // Save current value
+        const currentValue = select.value;
+
+        // Clear existing options (but keep placeholder if present)
+        const placeholder = select.querySelector('option[value=""]');
+        select.innerHTML = '';
+
+        // Re-add placeholder if it existed
+        if (placeholder) {
+          select.appendChild(placeholder);
+        }
+
+        // Add new options
+        options.forEach((option) => {
+          const optionEl = document.createElement('option');
+          optionEl.value = option.value;
+          optionEl.textContent = option.label || option.value;
+
+          if (option.disabled) {
+            optionEl.disabled = true;
+          }
+
+          select.appendChild(optionEl);
+        });
+
+        // Restore previous value if it exists in new options
+        if (options.some((opt) => opt.value === currentValue)) {
+          select.value = currentValue;
+        }
+
+        // Update component's internal options reference
+        selectComponent.props.options = options;
+
+        return;
+      }
+    }
+
+    // Fall back to the old method of replacing the entire component
+    const selectElement = selectComponent.getElement();
+    const parentNode = selectElement.parentNode;
+
+    if (parentNode) {
+      const newSelect = new Select({
+        ...selectComponent.props,
+        options,
+      });
+
+      parentNode.replaceChild(newSelect.getElement(), selectElement);
+
+      // Update the reference
+      if (selectComponent === this.manufacturerSelect) {
+        this.manufacturerSelect = newSelect;
+      } else if (selectComponent === this.deviceSelect) {
+        this.deviceSelect = newSelect;
+      } else if (selectComponent === this.actionSelect) {
+        this.actionSelect = newSelect;
+      }
+    }
+  }
+
+  /**
+   * Handle manufacturer selection change
+   * @private
+   * @param {string} manufacturerId - Selected manufacturer ID
+   */
+  handleManufacturerChange(manufacturerId) {
+    if (!manufacturerId) return;
+
+    this.state.selectedManufacturer = manufacturerId;
+    this.updateFormState();
+
+    // Call callback if provided
+    if (this.callbacks.onManufacturerChange) {
+      this.callbacks.onManufacturerChange(manufacturerId);
+    }
+  }
+
+  /**
+   * Handle device selection change
+   * @private
+   * @param {string} deviceId - Selected device ID
+   */
+  handleDeviceChange(deviceId) {
+    if (!deviceId) return;
+
+    this.state.selectedDevice = deviceId;
+    this.updateFormState();
+
+    // Call callback if provided
+    if (this.callbacks.onDeviceChange) {
+      this.callbacks.onDeviceChange(deviceId);
+    }
+  }
+
+  /**
+   * Handle action selection change
+   * @private
+   * @param {string} actionId - Selected action ID
+   */
+  handleActionChange(actionId) {
+    if (!actionId) return;
+
+    this.state.selectedAction = actionId;
+    this.updateFormState();
+
+    // Call callback if provided
+    if (this.callbacks.onActionChange) {
+      this.callbacks.onActionChange(actionId);
+    }
+  }
+
+  /**
    * Check if scheduling is possible (all selections made)
    * @private
    * @returns {boolean} Whether all selections are made
@@ -235,12 +478,9 @@ export default class PhoneRepairForm extends Component {
       timestamp: new Date().toISOString(),
     };
 
-    // Log repair info for demo purposes
-    console.log('Repair appointment scheduled:', repairInfo);
-
     // Call onScheduleClick callback if provided
-    if (typeof this.props.onScheduleClick === 'function') {
-      this.props.onScheduleClick(repairInfo);
+    if (this.callbacks.onScheduleClick) {
+      this.callbacks.onScheduleClick(repairInfo);
     }
   }
 
@@ -314,7 +554,7 @@ export default class PhoneRepairForm extends Component {
    * @private
    */
   updateFormState() {
-    // Update loading states
+    // Update loading/error classes
     const formElement = this.getElement();
     formElement.classList.toggle(
       'phone-repair-form--loading',
@@ -325,14 +565,17 @@ export default class PhoneRepairForm extends Component {
       this.hasAnyError()
     );
 
-    // Update step indicator
+    // Update steps indicator
     const steps = [
       {
         name: this.labels.manufacturerStep,
         completed: !!this.state.selectedManufacturer,
       },
       { name: this.labels.deviceStep, completed: !!this.state.selectedDevice },
-      { name: this.labels.serviceStep, completed: !!this.state.selectedAction },
+      {
+        name: this.labels.serviceStep,
+        completed: !!this.state.selectedAction,
+      },
     ];
 
     // Determine active step
@@ -345,343 +588,6 @@ export default class PhoneRepairForm extends Component {
 
     // Update schedule button state
     this.updateScheduleButton();
-  }
-
-  /**
-   * Load manufacturers from API
-   * @private
-   */
-  async loadManufacturers() {
-    this.setState({
-      loading: { ...this.state.loading, manufacturers: true },
-      error: { ...this.state.error, manufacturers: null },
-    });
-
-    // Update form state to reflect loading
-    this.updateFormState();
-
-    try {
-      // Fetch manufacturers from API
-      const manufacturers = await this.service.fetchManufacturers();
-
-      this.setState({
-        manufacturers,
-        loading: { ...this.state.loading, manufacturers: false },
-      });
-
-      // Update manufacturer select options
-      const options = manufacturers.map((m) => ({
-        value: m.id.toString(),
-        label: m.name,
-      }));
-
-      this.manufacturerSelect.setValue('');
-      this.updateSelectOptions(this.manufacturerSelect, options);
-
-      // Update form state after loading completes
-      this.updateFormState();
-    } catch (error) {
-      console.error('Error loading manufacturers:', error);
-      this.setState({
-        loading: { ...this.state.loading, manufacturers: false },
-        error: { ...this.state.error, manufacturers: error.message },
-      });
-
-      // Update form state to reflect error
-      this.updateFormState();
-    }
-  }
-
-  /**
-   * Load devices for a manufacturer from API
-   * @private
-   * @param {string} manufacturerId - Manufacturer ID
-   */
-  async loadDevices(manufacturerId) {
-    this.setState({
-      devices: [],
-      actions: [],
-      selectedDevice: '',
-      selectedAction: '',
-      currentPrice: null,
-      loading: { ...this.state.loading, devices: true },
-      error: { ...this.state.error, devices: null },
-    });
-
-    // Update form state to reflect loading
-    this.updateFormState();
-
-    // Reset dependent fields
-    this.deviceSelect.setValue('');
-    this.actionSelect.setValue('');
-    this.actionSelect.getElement().querySelector('select').disabled = true;
-    this.priceDisplay.setValue(this.labels.initialPriceText, false, true);
-
-    try {
-      // Fetch devices from API
-      const devices = await this.service.fetchDevices(manufacturerId);
-
-      this.setState({
-        devices,
-        loading: { ...this.state.loading, devices: false },
-      });
-
-      // Update device select options
-      const options = devices.map((d) => ({
-        value: d.id.toString(),
-        label: d.name,
-      }));
-
-      this.deviceSelect.getElement().querySelector('select').disabled = false;
-      this.updateSelectOptions(this.deviceSelect, options);
-
-      // Update form state after loading completes
-      this.updateFormState();
-    } catch (error) {
-      console.error('Error loading devices:', error);
-      this.setState({
-        loading: { ...this.state.loading, devices: false },
-        error: { ...this.state.error, devices: error.message },
-      });
-
-      // Display error in the price display
-      this.priceDisplay.setError('Fehler beim Laden der Geräte');
-
-      // Update form state to reflect error
-      this.updateFormState();
-    }
-  }
-
-  /**
-   * Load actions for a device from API
-   * @private
-   * @param {string} deviceId - Device ID
-   */
-  async loadActions(deviceId) {
-    this.setState({
-      actions: [],
-      selectedAction: '',
-      currentPrice: null,
-      loading: { ...this.state.loading, actions: true },
-      error: { ...this.state.error, actions: null },
-    });
-
-    // Update form state to reflect loading
-    this.updateFormState();
-
-    // Reset action field
-    this.actionSelect.setValue('');
-    this.priceDisplay.setValue('Bitte Service auswählen', false, true);
-
-    try {
-      // Fetch actions from API
-      const actions = await this.service.fetchActions(deviceId);
-
-      this.setState({
-        actions,
-        loading: { ...this.state.loading, actions: false },
-      });
-
-      // Update action select options
-      const options = actions.map((a) => ({
-        value: a.id.toString(),
-        label: a.name,
-      }));
-
-      this.actionSelect.getElement().querySelector('select').disabled = false;
-      this.updateSelectOptions(this.actionSelect, options);
-
-      // Update form state after loading completes
-      this.updateFormState();
-    } catch (error) {
-      console.error('Error loading actions:', error);
-      this.setState({
-        loading: { ...this.state.loading, actions: false },
-        error: { ...this.state.error, actions: error.message },
-      });
-
-      // Display error in the price display
-      this.priceDisplay.setError('Fehler beim Laden der Services');
-
-      // Update form state to reflect error
-      this.updateFormState();
-    }
-  }
-
-  /**
-   * Load price for an action from API
-   * @private
-   * @param {string} actionId - Action ID
-   */
-  async loadPrice(actionId) {
-    this.setState({
-      currentPrice: null,
-      loading: { ...this.state.loading, price: true },
-      error: { ...this.state.error, price: null },
-    });
-
-    // Update form state to reflect loading
-    this.updateFormState();
-
-    this.priceDisplay.setValue(this.labels.loadingPriceText);
-    this.priceDisplay.setLoading(true);
-
-    try {
-      // Fetch price from API
-      const priceData = await this.service.fetchPrice(actionId);
-
-      this.setState({
-        currentPrice: priceData,
-        loading: { ...this.state.loading, price: false },
-      });
-
-      // Format and display price
-      const formattedPrice = this.formatPrice(priceData.price);
-      this.priceDisplay.setValue(formattedPrice, true, false);
-      this.priceDisplay.setLoading(false);
-
-      // Call onPriceChange callback if provided
-      if (typeof this.props.onPriceChange === 'function') {
-        this.props.onPriceChange(priceData);
-      }
-
-      // Update form state after loading completes
-      this.updateFormState();
-    } catch (error) {
-      console.error('Error loading price:', error);
-      this.setState({
-        loading: { ...this.state.loading, price: false },
-        error: { ...this.state.error, price: error.message },
-      });
-
-      // Display error in the price display
-      this.priceDisplay.setError('Fehler beim Laden des Preises');
-
-      // Update form state to reflect error
-      this.updateFormState();
-    }
-  }
-
-  /**
-   * Format price for display
-   * @private
-   * @param {number} price - Price in cents or as a decimal
-   * @returns {string} Formatted price
-   */
-  formatPrice(price) {
-    // Check if price is valid
-    if (price === undefined || price === null) {
-      return 'Preis nicht verfügbar';
-    }
-
-    // Determine if price is in cents or euros
-    let priceInEuros = price;
-    if (price > 1000) {
-      // Assuming price is in cents if it's a large number
-      priceInEuros = price / 100;
-    }
-
-    // Format price with euro sign
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(priceInEuros);
-  }
-
-  /**
-   * Update select options
-   * @private
-   * @param {Object} selectComponent - Select component
-   * @param {Array} options - Options array with value and label properties
-   */
-  updateSelectOptions(selectComponent, options) {
-    // Update select component with new options
-    selectComponent.props.options = options;
-
-    // Re-render the select component
-    const selectElement = selectComponent.getElement();
-    const parentNode = selectElement.parentNode;
-
-    if (parentNode) {
-      // Create a new select component with updated options
-      const newSelect = new Select({
-        ...selectComponent.props,
-        options,
-        disabled: false, // Explicitly set disabled to false
-      });
-
-      // Replace the old select with the new one
-      parentNode.replaceChild(newSelect.getElement(), selectElement);
-
-      // Update the reference
-      if (selectComponent === this.manufacturerSelect) {
-        this.manufacturerSelect = newSelect;
-      } else if (selectComponent === this.deviceSelect) {
-        this.deviceSelect = newSelect;
-      } else if (selectComponent === this.actionSelect) {
-        this.actionSelect = newSelect;
-      }
-    }
-  }
-
-  /**
-   * Handle manufacturer selection change
-   * @private
-   * @param {string} manufacturerId - Selected manufacturer ID
-   */
-  handleManufacturerChange(manufacturerId) {
-    if (!manufacturerId) return;
-
-    this.setState({ selectedManufacturer: manufacturerId });
-
-    // Update form state for step indicator
-    this.updateFormState();
-
-    // Load devices for selected manufacturer
-    this.loadDevices(manufacturerId);
-  }
-
-  /**
-   * Handle device selection change
-   * @private
-   * @param {string} deviceId - Selected device ID
-   */
-  handleDeviceChange(deviceId) {
-    if (!deviceId) return;
-
-    this.setState({ selectedDevice: deviceId });
-
-    // Update form state for step indicator
-    this.updateFormState();
-
-    // Load actions for selected device
-    this.loadActions(deviceId);
-  }
-
-  /**
-   * Handle action selection change
-   * @private
-   * @param {string} actionId - Selected action ID
-   */
-  handleActionChange(actionId) {
-    if (!actionId) return;
-
-    this.setState({ selectedAction: actionId });
-
-    // Update form state for step indicator
-    this.updateFormState();
-
-    // Load price for selected action
-    this.loadPrice(actionId);
-  }
-
-  /**
-   * Update component state
-   * @private
-   * @param {Object} newState - New state object to merge with current state
-   */
-  setState(newState) {
-    this.state = { ...this.state, ...newState };
   }
 
   /**

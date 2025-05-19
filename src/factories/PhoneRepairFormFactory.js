@@ -1,5 +1,5 @@
-// src/factories/PhoneRepairFormFactory.js
-import PhoneRepairForm from '../components/PhoneRepairForm/PhoneRepairForm.js';
+import PhoneRepairFormContainer from '../components/PhoneRepairForm/PhoneRepairFormContainer.js';
+import PhoneRepairService from '../services/PhoneRepairService.js';
 import MockPhoneRepairService from '../services/MockPhoneRepairService.js';
 import {
   defaultLabels,
@@ -20,7 +20,7 @@ export default class PhoneRepairFormFactory {
    * @param {Object} [options.labels] - Custom labels to override defaults
    * @param {Object} [options.apiOptions] - API service configuration options
    * @param {string} [options.className=''] - Additional CSS class names
-   * @returns {PhoneRepairForm} A new PhoneRepairForm instance
+   * @returns {PhoneRepairFormContainer} A new PhoneRepairFormContainer instance
    */
   static createStandard({
     onPriceChange,
@@ -30,12 +30,19 @@ export default class PhoneRepairFormFactory {
     apiOptions = {},
     className = '',
   } = {}) {
-    return new PhoneRepairForm({
+    // Create service
+    const service = new PhoneRepairService({
+      ...defaultApiConfig,
+      ...apiOptions,
+    });
+
+    // Create container with service
+    return new PhoneRepairFormContainer({
+      service,
       onPriceChange,
       onScheduleClick,
       usedPhoneUrl,
       labels: { ...defaultLabels, ...labels },
-      apiOptions: { ...defaultApiConfig, ...apiOptions },
       className,
     });
   }
@@ -51,7 +58,7 @@ export default class PhoneRepairFormFactory {
    * @param {Object} [options.labels] - Custom labels to override defaults
    * @param {number} [options.mockDelay=300] - Simulated API delay in milliseconds
    * @param {string} [options.className=''] - Additional CSS class names
-   * @returns {PhoneRepairForm} A new PhoneRepairForm instance with mock service
+   * @returns {PhoneRepairFormContainer} A new PhoneRepairFormContainer instance with mock service
    */
   static createWithMockData({
     mockData,
@@ -59,6 +66,7 @@ export default class PhoneRepairFormFactory {
     onScheduleClick,
     usedPhoneUrl,
     labels = {},
+    mockDelay = 300,
     className = '',
   }) {
     if (!mockData || !mockData.manufacturers) {
@@ -68,22 +76,17 @@ export default class PhoneRepairFormFactory {
     }
 
     // Create mock service instance
-    const mockService = new MockPhoneRepairService(mockData);
+    const service = new MockPhoneRepairService(mockData, mockDelay);
 
-    // Create form with autoInitialize set to false for testing
-    const form = new PhoneRepairForm({
+    // Create container with mock service
+    return new PhoneRepairFormContainer({
+      service,
       onPriceChange,
       onScheduleClick,
       usedPhoneUrl,
       labels: { ...defaultLabels, ...labels },
       className,
-      autoInitialize: false, // Don't auto-load in tests
     });
-
-    // Replace service with mock service
-    form.service = mockService;
-
-    return form;
   }
 
   /**
@@ -96,7 +99,7 @@ export default class PhoneRepairFormFactory {
    * @param {string} [options.usedPhoneUrl] - URL for used phone link
    * @param {Object} [options.labels] - Custom labels to override defaults
    * @param {string} [options.className=''] - Additional CSS class names
-   * @returns {PhoneRepairForm} A new PhoneRepairForm instance with custom mock service
+   * @returns {PhoneRepairFormContainer} A new PhoneRepairFormContainer instance with custom mock service
    */
   static createWithMockService({
     service,
@@ -110,19 +113,14 @@ export default class PhoneRepairFormFactory {
       throw new Error('Custom service is required for createWithMockService');
     }
 
-    // Create form with autoInitialize set to false for testing
-    const form = new PhoneRepairForm({
+    // Create container with custom service
+    return new PhoneRepairFormContainer({
+      service,
       onPriceChange,
       onScheduleClick,
       usedPhoneUrl,
       labels: { ...defaultLabels, ...labels },
       className,
-      autoInitialize: false, // Don't auto-load in tests
     });
-
-    // Replace service with provided custom service
-    form.service = service;
-
-    return form;
   }
 }

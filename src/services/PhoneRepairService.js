@@ -1,19 +1,11 @@
 // src/services/PhoneRepairService.js
 
+import BaseService from './BaseService.js';
+
 /**
  * Service class for handling phone repair API requests
  */
-export default class PhoneRepairService {
-  /**
-   * Creates a new PhoneRepairService instance
-   *
-   * @param {Object} options - Configuration options
-   * @param {string} [options.baseUrl='/api'] - Base URL for API requests
-   */
-  constructor({ baseUrl = '/api' } = {}) {
-    this.baseUrl = baseUrl;
-  }
-
+export default class PhoneRepairService extends BaseService {
   /**
    * Fetch manufacturers from API
    * @returns {Promise<Array>} Array of manufacturer objects
@@ -49,26 +41,5 @@ export default class PhoneRepairService {
    */
   async fetchPrice(actionId) {
     return this.fetchData(`${this.baseUrl}/actions/${actionId}/price`);
-  }
-
-  /**
-   * Generic fetch method with error handling
-   * @private
-   * @param {string} url - URL to fetch
-   * @returns {Promise<any>} Response data
-   */
-  async fetchData(url) {
-    try {
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error(`API fetch error (${url}):`, error);
-      throw error;
-    }
   }
 }

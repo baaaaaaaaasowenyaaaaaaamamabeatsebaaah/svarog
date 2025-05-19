@@ -54,13 +54,28 @@ export default class CollapsibleHeaderContainer extends Component {
     }
 
     // Bind event handlers to maintain proper this context
-    this.handleScroll = this.handleScroll.bind(this);
-    this.handleResize = this.handleResize.bind(this);
+    this.handleScroll = this.debounce(this.handleScroll.bind(this), 10);
+    this.handleResize = this.debounce(this.handleResize.bind(this), 100);
 
     // Add event listeners only if not in story mode
     if (!this.storyMode) {
       this.addEventListeners();
     }
+  }
+
+  /**
+   * Debounce utility to limit function calls
+   * @param {Function} func - Function to debounce
+   * @param {number} wait - Milliseconds to wait between calls
+   * @returns {Function} Debounced function
+   * @private
+   */
+  debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
   }
 
   /**
@@ -78,8 +93,8 @@ export default class CollapsibleHeaderContainer extends Component {
    */
   addEventListeners() {
     if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', this.handleScroll);
-      window.addEventListener('resize', this.handleResize);
+      window.addEventListener('scroll', this.handleScroll, { passive: true });
+      window.addEventListener('resize', this.handleResize, { passive: true });
     }
   }
 
@@ -172,8 +187,12 @@ export default class CollapsibleHeaderContainer extends Component {
   destroy() {
     // Remove event listeners
     if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', this.handleScroll);
-      window.removeEventListener('resize', this.handleResize);
+      window.removeEventListener('scroll', this.handleScroll, {
+        passive: true,
+      });
+      window.removeEventListener('resize', this.handleResize, {
+        passive: true,
+      });
     }
 
     // Remove sticky icons from DOM

@@ -34,6 +34,7 @@ export default class Navigation extends Component {
       expandedId: null, // Only one submenu open at a time
     };
 
+    this._initialized = false;
     this.element = this.createNavigationElement();
     this.setupEventListeners();
   }
@@ -87,6 +88,7 @@ export default class Navigation extends Component {
 
     nav.appendChild(navList);
 
+    this._initialized = true;
     return nav;
   }
 
@@ -109,7 +111,10 @@ export default class Navigation extends Component {
       ...(item.href && !hasChildren ? { href: item.href } : {}),
       ...(item.disabled ? { 'aria-disabled': 'true' } : {}),
       ...(hasChildren
-        ? { 'aria-expanded': isExpanded ? 'true' : 'false' }
+        ? {
+            'aria-expanded': isExpanded ? 'true' : 'false',
+            'aria-haspopup': 'true',
+          }
         : {}),
     };
 
@@ -126,67 +131,39 @@ export default class Navigation extends Component {
 
     // Create submenu if has children
     if (hasChildren) {
-      const submenu = this.createElement('ul', {
-        className: 'nav__submenu',
-        attributes: { role: 'menu' },
-      });
+      // Only create submenu content if it's expanded or first render
+      // This lazy-loads submenu content only when needed
+      if (isExpanded || !this._initialized) {
+        const submenu = this.createElement('ul', {
+          className: 'nav__submenu',
+          attributes: { role: 'menu' },
+        });
 
-      item.items.forEach((childItem) => {
-        submenu.appendChild(this.createNavigationItem(childItem));
-      });
+        // Use DocumentFragment for batch DOM operations
+        const fragment = document.createDocumentFragment();
 
-      navItem.appendChild(submenu);
+        item.items.forEach((childItem) => {
+          fragment.appendChild(this.createNavigationItem(childItem));
+        });
+
+        submenu.appendChild(fragment);
+        navItem.appendChild(submenu);
+      } else {
+        // Just create an empty submenu container - we'll populate it when expanded
+        const submenu = this.createElement('ul', {
+          className: 'nav__submenu',
+          attributes: { role: 'menu' },
+        });
+        navItem.appendChild(submenu);
+      }
     }
 
     return navItem;
   }
 
   setupEventListeners() {
-    const burger = this.element.querySelector('.nav__burger');
-    if (burger) {
-      burger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.toggleMobileMenu();
-      });
-    }
-
-    this.element.addEventListener('click', (e) => {
-      const navLink = e.target.closest('.nav__link');
-      if (!navLink) return;
-
-      const navItem = navLink.closest('.nav__item');
-      if (!navItem) return;
-
-      const itemId = navItem.dataset.id;
-      const hasChildren = navItem.classList.contains('nav__item--has-children');
-
-      if (hasChildren && this.props.expandable) {
-        e.preventDefault();
-        // Toggle submenu - if clicking the same item, close it. Otherwise open the new one.
-        this.state.expandedId =
-          this.state.expandedId === itemId ? null : itemId;
-        this.updateExpandedStates();
-      } else {
-        // Close any open submenu when clicking non-parent items
-        this.state.expandedId = null;
-        this.updateExpandedStates();
-      }
-
-      // Set active item
-      this.state.activeId = itemId;
-      this.updateActiveStates();
-
-      // Callback
-      if (this.props.onItemSelect) {
-        const item = this.findItemById(itemId);
-        if (item) this.props.onItemSelect(item);
-      }
-
-      // Close mobile menu on item click
-      if (this.state.isOpen && this.props.responsive && !hasChildren) {
-        this.closeMobileMenu();
-      }
-    });
+    // Replace multiple event listeners with delegation
+    this.element.addEventListener('click', this.handleClick.bind(this));
 
     // Close menu on outside click
     document.addEventListener('click', (e) => {
@@ -203,17 +180,90 @@ export default class Navigation extends Component {
 
     // Close menu on escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.state.isOpen) {
-        this.closeMobileMenu();
+      if (e.key === 'Escape') {
+        if (this.state.isOpen) {
+          this.closeMobileMenu();
+        }
+        if (this.state.expandedId) {
+          const expandedId = this.state.expandedId;
+          this.state.expandedId = null;
+          this.updateExpandedStates();
+          // Return focus to the parent item
+          const parentItem = this.element.querySelector(
+            `.nav__item[data-id="${expandedId}"] > .nav__link`
+          );
+          if (parentItem) {
+            parentItem.focus();
+          }
+        }
       }
     });
 
-    // Handle window resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768 && this.state.isOpen) {
-        this.closeMobileMenu();
-      }
-    });
+    // Handle window resize with debounce
+    window.addEventListener(
+      'resize',
+      this.debounce(() => {
+        if (window.innerWidth > 768 && this.state.isOpen) {
+          this.closeMobileMenu();
+        }
+      }, 100),
+      { passive: true }
+    );
+  }
+
+  // New delegated click handler
+  handleClick(e) {
+    // Handle burger menu click
+    if (e.target.closest('.nav__burger')) {
+      e.stopPropagation();
+      this.toggleMobileMenu();
+      return;
+    }
+
+    // Handle nav link click
+    const navLink = e.target.closest('.nav__link');
+    if (!navLink) return;
+
+    const navItem = navLink.closest('.nav__item');
+    if (!navItem) return;
+
+    const itemId = navItem.dataset.id;
+    const hasChildren = navItem.classList.contains('nav__item--has-children');
+
+    if (hasChildren && this.props.expandable) {
+      e.preventDefault();
+      // Toggle submenu - if clicking the same item, close it. Otherwise open the new one.
+      this.state.expandedId = this.state.expandedId === itemId ? null : itemId;
+      this.updateExpandedStates();
+    } else {
+      // Close any open submenu when clicking non-parent items
+      this.state.expandedId = null;
+      this.updateExpandedStates();
+    }
+
+    // Set active item
+    this.state.activeId = itemId;
+    this.updateActiveStates();
+
+    // Callback
+    if (this.props.onItemSelect) {
+      const item = this.findItemById(itemId);
+      if (item) this.props.onItemSelect(item);
+    }
+
+    // Close mobile menu on item click
+    if (this.state.isOpen && this.props.responsive && !hasChildren) {
+      this.closeMobileMenu();
+    }
+  }
+
+  // Add debounce utility method
+  debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
   }
 
   toggleMobileMenu() {
@@ -251,6 +301,25 @@ export default class Navigation extends Component {
       const link = item.querySelector('.nav__link');
       if (link) {
         link.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+      }
+
+      // If this item is now expanded and has an empty submenu, populate it
+      if (isExpanded) {
+        const submenu = item.querySelector('.nav__submenu');
+        if (submenu && submenu.children.length === 0) {
+          // Find the corresponding item data
+          const itemData = this.findItemById(item.dataset.id);
+          if (itemData && itemData.items) {
+            // Use DocumentFragment for batch DOM operations
+            const fragment = document.createDocumentFragment();
+
+            itemData.items.forEach((childItem) => {
+              fragment.appendChild(this.createNavigationItem(childItem));
+            });
+
+            submenu.appendChild(fragment);
+          }
+        }
       }
     });
   }

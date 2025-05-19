@@ -1,16 +1,20 @@
-// src/services/MockPhoneRepairService.js
+import BaseService from './BaseService.js';
 
 /**
  * Mock service class for handling phone repair API requests in testing/development
+ * @extends BaseService
  */
-export default class MockPhoneRepairService {
+export default class MockPhoneRepairService extends BaseService {
   /**
    * Creates a new MockPhoneRepairService instance
    *
    * @param {Object} mockData - Mock data for the service
+   * @param {number} [delay=300] - Simulated API delay in milliseconds
    */
-  constructor(mockData) {
+  constructor(mockData, delay = 300) {
+    super();
     this.mockData = mockData;
+    this.delay = delay;
 
     if (!mockData || !mockData.manufacturers) {
       console.warn(
@@ -120,10 +124,9 @@ export default class MockPhoneRepairService {
    * Helper to simulate API delay and async behavior
    * @private
    * @param {Function} dataCallback - Function that returns data or throws an error
-   * @param {number} [delay=300] - Simulated API delay in milliseconds
    * @returns {Promise<any>} Promise that resolves with the data or rejects with an error
    */
-  simulateApiCall(dataCallback, delay = 300) {
+  simulateApiCall(dataCallback) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         try {
@@ -132,7 +135,7 @@ export default class MockPhoneRepairService {
         } catch (error) {
           reject(error);
         }
-      }, delay);
+      }, this.delay);
     });
   }
 }

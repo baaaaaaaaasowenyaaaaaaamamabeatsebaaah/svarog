@@ -1,19 +1,10 @@
-// src/services/UsedPhonePriceService.js
+import BaseService from './BaseService.js';
 
 /**
  * Service class for handling used phone price API requests
+ * @extends BaseService
  */
-export default class UsedPhonePriceService {
-  /**
-   * Creates a new UsedPhonePriceService instance
-   *
-   * @param {Object} options - Configuration options
-   * @param {string} [options.baseUrl='/api'] - Base URL for API requests
-   */
-  constructor({ baseUrl = '/api' } = {}) {
-    this.baseUrl = baseUrl;
-  }
-
+export default class UsedPhonePriceService extends BaseService {
   /**
    * Fetch manufacturers from API
    * @returns {Promise<Array>} Array of manufacturer objects
@@ -49,26 +40,5 @@ export default class UsedPhonePriceService {
    */
   async fetchPrice(conditionId) {
     return this.fetchData(`${this.baseUrl}/conditions/${conditionId}/price`);
-  }
-
-  /**
-   * Generic fetch method with error handling
-   * @private
-   * @param {string} url - URL to fetch
-   * @returns {Promise<any>} Response data
-   */
-  async fetchData(url) {
-    try {
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error(`API fetch error (${url}):`, error);
-      throw error;
-    }
   }
 }

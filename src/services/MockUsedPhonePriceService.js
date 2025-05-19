@@ -1,9 +1,10 @@
-// src/services/MockUsedPhonePriceService.js
+import BaseService from './BaseService.js';
 
 /**
  * Mock service class for handling used phone price API requests in testing/development
+ * @extends BaseService
  */
-export default class MockUsedPhonePriceService {
+export default class MockUsedPhonePriceService extends BaseService {
   /**
    * Creates a new MockUsedPhonePriceService instance
    *
@@ -11,6 +12,7 @@ export default class MockUsedPhonePriceService {
    * @param {number} [delay=300] - Simulated API delay in milliseconds
    */
   constructor(mockData, delay = 300) {
+    super();
     this.mockData = mockData;
     this.delay = delay;
 

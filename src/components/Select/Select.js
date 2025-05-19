@@ -603,6 +603,106 @@ export default class Select extends Component {
     return this;
   }
 
+  /**
+   * Updates the options of the select component without recreating the entire component
+   * @param {Array} options - New options array
+   * @param {boolean} [keepValue=true] - Whether to try to keep the current value if it exists in new options
+   * @returns {Select} The updated component for chaining
+   */
+  updateOptions(options, keepValue = true) {
+    if (!Array.isArray(options)) {
+      throw new Error('Select: options must be an array');
+    }
+
+    // Save current value if needed
+    const currentValue = keepValue ? this.getValue() : null;
+
+    // Update internal options reference
+    this.props.options = options;
+
+    // Update native select element options
+    this.updateNativeSelectOptions(options, currentValue);
+
+    // Update custom UI dropdown options
+    this.updateCustomDropdownOptions(options);
+
+    // Update selected display and option states
+    this.updateCustomSelectedDisplay();
+    this.updateCustomOptionStates();
+
+    // Re-validate if necessary
+    if (this.props.showValidation && this.isValid !== null) {
+      this.validate();
+    }
+
+    return this;
+  }
+
+  /**
+   * Updates the native select element's options
+   * @param {Array} options - New options array
+   * @param {string|Array|null} currentValue - Current value(s) to try to preserve
+   * @private
+   */
+  updateNativeSelectOptions(options, currentValue) {
+    // Clear existing options (but keep placeholder if present)
+    const placeholder = this.select.querySelector('option[value=""]');
+    this.select.innerHTML = '';
+
+    // Re-add placeholder if it existed
+    if (placeholder) {
+      this.select.appendChild(placeholder);
+    }
+
+    // Add new options
+    options.forEach((option) => {
+      const optionEl = this.createElement('option', {
+        attributes: {
+          value: option.value,
+          disabled: option.disabled,
+        },
+        textContent: option.label || option.value,
+      });
+
+      this.select.appendChild(optionEl);
+    });
+
+    // Restore previous value if it exists in new options
+    if (currentValue !== null) {
+      if (this.props.multiple && Array.isArray(currentValue)) {
+        // For multiple select, set selected on matching options
+        Array.from(this.select.options).forEach((option) => {
+          option.selected = currentValue.includes(option.value);
+        });
+        this.props.value = Array.from(this.select.selectedOptions).map(
+          (opt) => opt.value
+        );
+      } else if (!this.props.multiple) {
+        // For single select, try to set the value directly
+        if (options.some((opt) => opt.value === currentValue)) {
+          this.select.value = currentValue;
+          this.props.value = currentValue;
+        } else {
+          // If value not found in new options, reset to placeholder or first option
+          this.props.value = placeholder ? '' : options[0]?.value || '';
+        }
+      }
+    }
+  }
+
+  /**
+   * Updates the custom dropdown UI with new options
+   * @param {Array} options - New options array
+   * @private
+   */
+  updateCustomDropdownOptions() {
+    // Clear existing options
+    this.dropdown.innerHTML = '';
+
+    // Recreate custom options
+    this.createCustomOptions(this.dropdown);
+  }
+
   getElement() {
     return this.container;
   }
