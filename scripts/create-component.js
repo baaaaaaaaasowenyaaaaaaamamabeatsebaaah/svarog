@@ -69,48 +69,295 @@ async function createComponent(componentName) {
     // Create directory
     await fs.mkdir(componentDir, { recursive: true });
 
-    // Read template files
-    const templatesDir = path.resolve(__dirname, 'templates');
+    // Create index.js file
+    await fs.writeFile(
+      path.join(componentDir, 'index.js'),
+      `// src/components/${ComponentName}/index.js
+import ${ComponentName} from './${ComponentName}.js';
 
-    const jsTemplate = await fs.readFile(
-      path.join(templatesDir, 'ComponentJS.template'),
-      'utf-8'
-    );
-    const cssTemplate = await fs.readFile(
-      path.join(templatesDir, 'ComponentCSS.template'),
-      'utf-8'
-    );
-    const storiesTemplate = await fs.readFile(
-      path.join(templatesDir, 'ComponentStories.template'),
-      'utf-8'
-    );
-    const testTemplate = await fs.readFile(
-      path.join(templatesDir, 'ComponentTest.template'),
-      'utf-8'
+export default ${ComponentName};
+export { ${ComponentName} };
+`
     );
 
-    // Replace placeholders in templates
-    const replacePlaceholders = (template) => {
-      return template
-        .replace(/\{\{ComponentName\}\}/g, ComponentName)
-        .replace(/\{\{componentName\}\}/g, componentNameLower);
+    // Create main component file
+    const jsContent = `// src/components/${ComponentName}/${ComponentName}.js
+import './${ComponentName}.css';
+import {
+  createComponent,
+  createElement,
+} from '../../utils/componentFactory.js';
+
+/**
+ * Creates a ${ComponentName} component
+ * @param {Object} props - ${ComponentName} properties
+ * @returns {Object} ${ComponentName} component
+ */
+const create${ComponentName} = (props) => {
+  // Destructure props with defaults
+  const {
+    className = '',
+    id,
+    // Add component-specific props here
+  } = props;
+
+  // Component state
+  const state = {
+    className,
+    id,
+    // Add component-specific state here
+  };
+
+  /**
+   * Build the ${componentNameLower} element
+   * @returns {HTMLElement} ${ComponentName} element
+   */
+  const build${ComponentName}Element = () => {
+    // Build class names
+    const classNames = [
+      '${componentNameLower}',
+      state.className ? state.className : '',
+    ].filter(Boolean);
+
+    // Create element attributes
+    const attributes = {
+      id: state.id || null,
     };
 
-    // Create component files
+    // Create element
+    const element = createElement('div', {
+      attributes,
+      classes: classNames,
+    });
+
+    return element;
+  };
+
+  // Create initial element
+  let element = build${ComponentName}Element();
+
+  // Public API
+  return {
+    /**
+     * Get the ${componentNameLower} element
+     * @returns {HTMLElement} ${ComponentName} element
+     */
+    getElement() {
+      return element;
+    },
+
+    /**
+     * Update ${componentNameLower} properties
+     * @param {Object} newProps - New properties
+     * @returns {Object} ${ComponentName} component (for chaining)
+     */
+    update(newProps) {
+      // Update state
+      Object.assign(state, newProps);
+
+      // Rebuild element
+      const oldElement = element;
+      element = build${ComponentName}Element();
+
+      // Replace in DOM if inserted
+      if (oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(element, oldElement);
+      }
+
+      return this;
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      // Remove event listeners
+      if (element._listeners) {
+        Object.entries(element._listeners).forEach(([event, handler]) => {
+          element.removeEventListener(event, handler);
+        });
+        element._listeners = {};
+      }
+      
+      element = null;
+    },
+  };
+};
+
+// Define required props for validation
+create${ComponentName}.requiredProps = [];
+
+// Export as a factory function
+export default createComponent('${ComponentName}', create${ComponentName});
+`;
+
+    // Create CSS file
+    const cssContent = `/**
+ * ${ComponentName} component styles
+ */
+
+.${componentNameLower} {
+  /* Base styles */
+  display: block;
+  
+  /* Use theme variables when appropriate */
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  
+  /* Add more styling as needed */
+}
+
+/* Component states and variants can be added here */
+`;
+
+    // Create Stories file
+    const storiesContent = `// src/components/${ComponentName}/${ComponentName}.stories.js
+import ${ComponentName} from './${ComponentName}.js';
+
+export default {
+  title: 'Components/${ComponentName}',
+  component: ${ComponentName},
+};
+
+export const Default = () => {
+  const ${componentNameLower} = ${ComponentName}({
+    // Add default props here
+  });
+  
+  return ${componentNameLower}.getElement();
+};
+
+// Add more story examples below
+`;
+
+    // Create Test file
+    const testContent = `// src/components/${ComponentName}/${ComponentName}.test.js
+import { describe, it, expect, vi } from 'vitest';
+import ${ComponentName} from './${ComponentName}.js';
+
+describe('${ComponentName} component', () => {
+  it('should render correctly with basic props', () => {
+    const ${componentNameLower} = ${ComponentName}({
+      className: 'custom-class',
+    });
+
+    const element = ${componentNameLower}.getElement();
+
+    expect(element).toBeInstanceOf(HTMLElement);
+    expect(element.className).toContain('${componentNameLower}');
+    expect(element.className).toContain('custom-class');
+  });
+
+  it('should update props correctly', () => {
+    const ${componentNameLower} = ${ComponentName}({});
+
+    ${componentNameLower}.update({
+      className: 'updated-class',
+    });
+
+    // Get the element AFTER the update
+    const updatedElement = ${componentNameLower}.getElement();
+    
+    expect(updatedElement.className).toContain('updated-class');
+  });
+
+  it('should clean up event listeners when destroyed', () => {
+    const ${componentNameLower} = ${ComponentName}({});
+    const element = ${componentNameLower}.getElement();
+
+    // Add a test event listener
+    const mockHandler = vi.fn();
+    element.addEventListener('click', mockHandler);
+    element._listeners = { click: mockHandler };
+
+    // Mock removeEventListener to verify it's called
+    const originalRemoveEventListener = element.removeEventListener;
+    element.removeEventListener = vi.fn();
+
+    ${componentNameLower}.destroy();
+
+    expect(element.removeEventListener).toHaveBeenCalled();
+
+    // Restore original method
+    element.removeEventListener = originalRemoveEventListener;
+  });
+});
+`;
+
+    // Create README file
+    const readmeContent = `# ${ComponentName} Component
+
+The ${ComponentName} component provides...
+
+## Usage
+
+\`\`\`javascript
+import { ${ComponentName} } from '@svarog-ui/core';
+
+// Create a ${componentNameLower}
+const ${componentNameLower} = ${ComponentName}({
+  // Add props here
+});
+
+// Add to DOM
+document.body.appendChild(${componentNameLower}.getElement());
+\`\`\`
+
+## Props
+
+| Prop      | Type     | Default    | Description                   |
+| --------- | -------- | ---------- | ----------------------------- |
+| className | string   | ''         | Additional CSS classes        |
+| id        | string   | null       | HTML ID attribute             |
+<!-- Add more props here -->
+
+## Methods
+
+### getElement()
+
+Returns the ${componentNameLower} DOM element.
+
+\`\`\`javascript
+const element = ${componentNameLower}.getElement();
+\`\`\`
+
+### update(props)
+
+Updates multiple ${componentNameLower} properties at once.
+
+\`\`\`javascript
+${componentNameLower}.update({
+  className: 'new-class',
+  // Add more props to update
+});
+\`\`\`
+
+### destroy()
+
+Cleans up resources. Call when removing the ${componentNameLower}.
+
+\`\`\`javascript
+${componentNameLower}.destroy();
+\`\`\`
+
+## CSS Customization
+
+${ComponentName} styles can be customized using CSS variables:
+
+\`\`\`css
+:root {
+  /* Add CSS variables here */
+}
+\`\`\`
+`;
+
+    // Write files
     const files = [
-      { name: `${ComponentName}.js`, content: replacePlaceholders(jsTemplate) },
-      {
-        name: `${ComponentName}.css`,
-        content: replacePlaceholders(cssTemplate),
-      },
-      {
-        name: `${ComponentName}.stories.js`,
-        content: replacePlaceholders(storiesTemplate),
-      },
-      {
-        name: `${ComponentName}.test.js`,
-        content: replacePlaceholders(testTemplate),
-      },
+      { name: `${ComponentName}.js`, content: jsContent },
+      { name: `${ComponentName}.css`, content: cssContent },
+      { name: `${ComponentName}.stories.js`, content: storiesContent },
+      { name: `${ComponentName}.test.js`, content: testContent },
+      { name: 'README.md', content: readmeContent },
     ];
 
     for (const file of files) {

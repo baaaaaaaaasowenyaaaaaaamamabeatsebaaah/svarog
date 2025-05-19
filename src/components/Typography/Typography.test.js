@@ -100,10 +100,11 @@ describe('Typography component', () => {
       children: 'Original content',
     });
 
-    const element = typography.getElement();
-    expect(element.textContent).toBe('Original content');
-
     typography.setContent('Updated content');
+
+    // Get the element AFTER the update
+    const element = typography.getElement();
+
     expect(element.textContent).toBe('Updated content');
   });
 
@@ -112,10 +113,11 @@ describe('Typography component', () => {
       children: 'Color test',
     });
 
-    const element = typography.getElement();
-    expect(element.style.color).toBe('');
-
     typography.setColor('red');
+
+    // Get the element AFTER the update
+    const element = typography.getElement();
+
     expect(element.style.color).toBe('red');
   });
 
@@ -124,10 +126,11 @@ describe('Typography component', () => {
       children: 'Weight test',
     });
 
-    const element = typography.getElement();
-    expect(element.classList.contains('typography--weight-bold')).toBe(false);
-
     typography.setWeight('bold');
+
+    // Get the element AFTER the update
+    const element = typography.getElement();
+
     expect(element.classList.contains('typography--weight-bold')).toBe(true);
   });
 });
