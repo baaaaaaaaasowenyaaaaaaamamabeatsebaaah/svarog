@@ -4,7 +4,7 @@ import Input from './Input.js';
 
 describe('Input component', () => {
   it('should create an input element', () => {
-    const input = new Input({});
+    const input = Input({});
 
     const element = input.getElement();
     const inputElement = element.querySelector('input');
@@ -12,13 +12,12 @@ describe('Input component', () => {
     expect(element).toBeInstanceOf(HTMLElement);
     expect(element.className).toContain('input-container');
     expect(inputElement).not.toBeNull();
-    // Updated: Check for 'input-native' class instead of 'input'
     expect(inputElement.className).toContain('input-native');
   });
 
   it('should set initial value', () => {
     const initialValue = 'Initial value';
-    const input = new Input({ value: initialValue });
+    const input = Input({ value: initialValue });
 
     const inputElement = input.getElement().querySelector('input');
     expect(inputElement.value).toBe(initialValue);
@@ -26,7 +25,7 @@ describe('Input component', () => {
   });
 
   it('should update value with setValue method', () => {
-    const input = new Input({});
+    const input = Input({});
     const newValue = 'New value';
 
     input.setValue(newValue);
@@ -38,7 +37,7 @@ describe('Input component', () => {
 
   it('should call onChange when input changes', () => {
     const mockOnChange = vi.fn();
-    const input = new Input({ onChange: mockOnChange });
+    const input = Input({ onChange: mockOnChange });
 
     const inputElement = input.getElement().querySelector('input');
     inputElement.value = 'Test';
@@ -58,7 +57,7 @@ describe('Input component', () => {
   it('should call onFocus and onBlur callbacks', () => {
     const mockOnFocus = vi.fn();
     const mockOnBlur = vi.fn();
-    const input = new Input({ onFocus: mockOnFocus, onBlur: mockOnBlur });
+    const input = Input({ onFocus: mockOnFocus, onBlur: mockOnBlur });
 
     const inputElement = input.getElement().querySelector('input');
 
@@ -74,7 +73,7 @@ describe('Input component', () => {
   });
 
   it('should apply focused class when input is focused', () => {
-    const input = new Input({});
+    const input = Input({});
     const containerElement = input.getElement();
     const inputElement = containerElement.querySelector('input');
     const customInput = containerElement.querySelector('.input-custom');
@@ -97,7 +96,7 @@ describe('Input component', () => {
   });
 
   it('should validate required input', () => {
-    const input = new Input({ required: true });
+    const input = Input({ required: true });
     const containerElement = input.getElement();
     const customInput = containerElement.querySelector('.input-custom');
 
@@ -120,7 +119,7 @@ describe('Input component', () => {
   });
 
   it('should validate against pattern', () => {
-    const input = new Input({ pattern: '[0-9]{3}' });
+    const input = Input({ pattern: '[0-9]{3}' });
 
     // Invalid input
     input.setValue('abc');
@@ -133,7 +132,7 @@ describe('Input component', () => {
 
   it('should show validation message', () => {
     const customMessage = 'This field is required';
-    const input = new Input({
+    const input = Input({
       required: true,
       validationMessage: customMessage,
     });
@@ -164,7 +163,7 @@ describe('Input component', () => {
   });
 
   it('should handle disabled state', () => {
-    const input = new Input({ disabled: true });
+    const input = Input({ disabled: true });
     const inputElement = input.getElement().querySelector('input');
     const customInput = input.getElement().querySelector('.input-custom');
 
@@ -173,7 +172,7 @@ describe('Input component', () => {
   });
 
   it('should handle readonly state', () => {
-    const input = new Input({ readonly: true });
+    const input = Input({ readonly: true });
     const inputElement = input.getElement().querySelector('input');
     const customInput = input.getElement().querySelector('.input-custom');
 
@@ -181,9 +180,9 @@ describe('Input component', () => {
     expect(customInput.classList.contains('input-custom--readonly')).toBe(true);
   });
 
-  // New test for password toggle functionality
+  // Test for password toggle functionality
   it('should toggle password visibility', () => {
-    const input = new Input({ type: 'password' });
+    const input = Input({ type: 'password' });
     const containerElement = input.getElement();
     const inputElement = containerElement.querySelector('input');
     const toggleButton = containerElement.querySelector(
@@ -215,9 +214,9 @@ describe('Input component', () => {
     }
   });
 
-  // New test for search clear button
+  // Test for search clear button
   it('should clear search input when clear button is clicked', () => {
-    const input = new Input({ type: 'search' });
+    const input = Input({ type: 'search' });
     const containerElement = input.getElement();
     const clearButton = containerElement.querySelector('.input-custom__clear');
 
@@ -233,5 +232,39 @@ describe('Input component', () => {
       // Value should be cleared
       expect(input.getValue()).toBe('');
     }
+  });
+
+  it('should update with new props', () => {
+    const input = Input({ value: 'Initial' });
+
+    input.update({
+      value: 'Updated',
+      disabled: true,
+      validationMessage: 'New message',
+    });
+
+    const element = input.getElement();
+    const inputElement = element.querySelector('input');
+    const customInput = element.querySelector('.input-custom');
+
+    expect(inputElement.value).toBe('Updated');
+    expect(inputElement.disabled).toBe(true);
+    expect(customInput.classList.contains('input-custom--disabled')).toBe(true);
+    expect(input.getValue()).toBe('Updated');
+  });
+
+  it('should clean up event listeners when destroyed', () => {
+    const input = Input({});
+
+    // Mock document.removeEventListener
+    const originalRemoveEventListener = document.removeEventListener;
+    document.removeEventListener = vi.fn();
+
+    input.destroy();
+
+    expect(document.removeEventListener).toHaveBeenCalled();
+
+    // Restore original
+    document.removeEventListener = originalRemoveEventListener;
   });
 });

@@ -1,9 +1,13 @@
 // src/components/Input/Input.js
 import './Input.css';
-import { Component } from '../../utils/componentFactory.js';
 
-export default class Input extends Component {
-  constructor({
+/**
+ * Create an Input component
+ * @param {Object} props - Input properties
+ * @returns {Object} Input component
+ */
+const Input = (props) => {
+  const {
     type = 'text',
     id,
     name,
@@ -21,417 +25,457 @@ export default class Input extends Component {
     onBlur,
     validationMessage = '',
     showValidation = true,
-  }) {
-    super();
+  } = props;
 
-    this.props = {
-      type,
-      id,
-      name,
-      value,
-      placeholder,
-      required,
-      disabled,
-      readonly,
-      pattern,
-      minLength,
-      maxLength,
-      className,
-      onChange,
-      onFocus,
-      onBlur,
-      validationMessage,
-      showValidation,
-    };
+  // State
+  let inputState = {
+    type,
+    id,
+    name,
+    value,
+    placeholder,
+    required,
+    disabled,
+    readonly,
+    pattern,
+    minLength,
+    maxLength,
+    className,
+    onChange,
+    onFocus,
+    onBlur,
+    validationMessage,
+    showValidation,
+    isValid: null, // Start with no validation state
+    isPasswordVisible: false,
+  };
 
-    this.container = this.createInputContainer();
-    this.isValid = null; // Start with no validation state
-
-    if (this.props.showValidation) {
-      this.validationMessageElement = this.createValidationMessage();
-      this.container.appendChild(this.validationMessageElement);
-    }
-
-    // Set initial value correctly
-    this.setValue(this.props.value);
-
-    // Adds document event listeners for better interaction
-    this.documentClickHandler = this.handleDocumentClick.bind(this);
-    document.addEventListener('click', this.documentClickHandler);
+  // Create the input container
+  const container = document.createElement('div');
+  container.className = 'input-container';
+  if (className) {
+    container.className += ' ' + className;
   }
 
-  createInputContainer() {
-    const container = this.createElement('div', {
-      className: this.createClassNames('input-container', this.props.className),
-    });
+  // Create input wrapper
+  const inputWrapper = document.createElement('div');
+  inputWrapper.className = 'input-wrapper';
+  container.appendChild(inputWrapper);
 
-    // Create both the native input (for accessibility/form submission) and custom UI
-    const inputWrapper = this.createElement('div', {
-      className: 'input-wrapper',
-    });
+  // Create native input
+  const input = document.createElement('input');
+  input.className = 'input-native';
+  input.type = type;
+  if (id) input.id = id;
+  if (name) input.name = name;
+  if (placeholder) input.placeholder = placeholder;
+  if (required) input.required = true;
+  if (pattern) input.pattern = pattern;
+  if (minLength !== undefined) input.minLength = minLength;
+  if (maxLength !== undefined) input.maxLength = maxLength;
+  if (disabled) input.disabled = true;
+  if (readonly) input.readOnly = true;
+  input.value = value;
 
-    // Create native input (hidden visually but accessible)
-    const nativeInput = this.createNativeInput();
-    inputWrapper.appendChild(nativeInput);
-    this.input = nativeInput; // Maintain backward compatibility
+  // Add event listeners
+  input.addEventListener('input', handleInput);
+  input.addEventListener('change', handleChange);
+  input.addEventListener('focus', handleFocus);
+  input.addEventListener('blur', handleBlur);
+  input.addEventListener('keydown', handleKeydown);
 
-    // Create custom UI elements
-    const customInput = this.createCustomInput();
-    inputWrapper.appendChild(customInput);
-    this.customInput = customInput;
+  inputWrapper.appendChild(input);
 
-    container.appendChild(inputWrapper);
+  // Create custom input UI
+  const customInput = document.createElement('div');
+  customInput.className = `input-custom input-custom--${type}`;
+  if (disabled) customInput.classList.add('input-custom--disabled');
+  if (readonly) customInput.classList.add('input-custom--readonly');
+  customInput.setAttribute('tabindex', '-1');
+  customInput.setAttribute('role', 'textbox');
+  customInput.setAttribute('aria-readonly', readonly ? 'true' : 'false');
+  customInput.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+  inputWrapper.appendChild(customInput);
 
-    return container;
+  // Create value display element
+  const valueDisplay = document.createElement('div');
+  valueDisplay.className = 'input-custom__value';
+  valueDisplay.setAttribute('data-placeholder', placeholder);
+  customInput.appendChild(valueDisplay);
+
+  // Add type-specific elements
+  if (type === 'search') {
+    // Add clear button for search
+    const clearButton = document.createElement('button');
+    clearButton.className = 'input-custom__clear';
+    clearButton.type = 'button';
+    clearButton.setAttribute('aria-label', 'Clear search');
+    clearButton.setAttribute('tabindex', '-1');
+    clearButton.addEventListener('click', handleClearClick);
+    customInput.appendChild(clearButton);
+  } else if (type === 'password') {
+    // Add toggle password visibility button
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'input-custom__toggle';
+    toggleButton.type = 'button';
+    toggleButton.setAttribute('aria-label', 'Toggle password visibility');
+    toggleButton.setAttribute('tabindex', '-1');
+    toggleButton.addEventListener('click', handleTogglePassword);
+    customInput.appendChild(toggleButton);
+  } else if (type === 'number') {
+    // Add increment/decrement buttons
+    const controlsWrapper = document.createElement('div');
+    controlsWrapper.className = 'input-custom__number-controls';
+
+    const incrementButton = document.createElement('button');
+    incrementButton.className = 'input-custom__increment';
+    incrementButton.type = 'button';
+    incrementButton.setAttribute('aria-label', 'Increment value');
+    incrementButton.setAttribute('tabindex', '-1');
+    incrementButton.addEventListener('click', handleIncrement);
+
+    const decrementButton = document.createElement('button');
+    decrementButton.className = 'input-custom__decrement';
+    decrementButton.type = 'button';
+    decrementButton.setAttribute('aria-label', 'Decrement value');
+    decrementButton.setAttribute('tabindex', '-1');
+    decrementButton.addEventListener('click', handleDecrement);
+
+    controlsWrapper.appendChild(incrementButton);
+    controlsWrapper.appendChild(decrementButton);
+    customInput.appendChild(controlsWrapper);
   }
 
-  createNativeInput() {
-    const {
-      type,
-      id,
-      name,
-      value,
-      placeholder,
-      required,
-      pattern,
-      minLength,
-      maxLength,
-      disabled,
-      readonly,
-    } = this.props;
-
-    const attributes = { type };
-    if (id) attributes.id = id;
-    if (name) attributes.name = name;
-    if (placeholder) attributes.placeholder = placeholder;
-    if (required) attributes.required = true;
-    if (pattern) attributes.pattern = pattern;
-    if (minLength !== undefined) attributes.minLength = minLength;
-    if (maxLength !== undefined) attributes.maxLength = maxLength;
-    if (disabled) attributes.disabled = true;
-    if (readonly) attributes.readOnly = true;
-
-    return this.createElement('input', {
-      className: 'input-native',
-      attributes,
-      value,
-      events: {
-        input: this.handleInput.bind(this),
-        change: this.handleChange.bind(this),
-        focus: this.handleFocus.bind(this),
-        blur: this.handleBlur.bind(this),
-        keydown: this.handleKeydown.bind(this),
-      },
-    });
+  // Create validation message element
+  const validationMessageElement = document.createElement('div');
+  validationMessageElement.className = 'input-validation-message';
+  validationMessageElement.textContent = validationMessage || '';
+  validationMessageElement.setAttribute('aria-live', 'polite');
+  if (!showValidation) {
+    validationMessageElement.style.display = 'none';
   }
+  container.appendChild(validationMessageElement);
 
-  createCustomInput() {
-    const { placeholder, disabled, readonly, type } = this.props;
+  // Document event handler for click handling
+  const documentClickHandler = () => {
+    // For future use - for handling clicks outside the input
+  };
+  document.addEventListener('click', documentClickHandler);
 
-    // Create custom input container
-    const customInput = this.createElement('div', {
-      className: this.createClassNames(
-        'input-custom',
-        disabled ? 'input-custom--disabled' : '',
-        readonly ? 'input-custom--readonly' : '',
-        `input-custom--${type}`
-      ),
-      attributes: {
-        tabindex: '-1', // Make non-focusable as the native input handles focus
-        role: 'textbox',
-        'aria-readonly': readonly ? 'true' : 'false',
-        'aria-disabled': disabled ? 'true' : 'false',
-      },
-    });
+  // Set initial value display
+  updateValueDisplay();
 
-    // Create value display area
-    const valueDisplay = this.createElement('div', {
-      className: 'input-custom__value',
-      attributes: {
-        'data-placeholder': placeholder,
-      },
-    });
-    this.valueDisplay = valueDisplay;
-    customInput.appendChild(valueDisplay);
+  /**
+   * Handle input event
+   * @param {Event} event - Input event
+   */
+  function handleInput(event) {
+    inputState.value = event.target.value;
+    updateValueDisplay();
 
-    // Add type-specific elements (like clear button for search, password toggle, etc.)
-    this.addTypeSpecificElements(customInput, type);
-
-    return customInput;
-  }
-
-  addTypeSpecificElements(customInput, type) {
-    switch (type) {
-      case 'search': {
-        // Add clear button for search
-        const clearButton = this.createElement('button', {
-          className: 'input-custom__clear',
-          type: 'button',
-          attributes: {
-            'aria-label': 'Clear search',
-            tabindex: '-1',
-          },
-          events: {
-            click: this.handleClearClick.bind(this),
-          },
-        });
-        customInput.appendChild(clearButton);
-        break;
-      }
-
-      case 'password': {
-        // Add toggle password visibility button
-        const toggleButton = this.createElement('button', {
-          className: 'input-custom__toggle',
-          type: 'button',
-          attributes: {
-            'aria-label': 'Toggle password visibility',
-            tabindex: '-1',
-          },
-          events: {
-            click: this.handleTogglePassword.bind(this),
-          },
-        });
-        customInput.appendChild(toggleButton);
-        this.isPasswordVisible = false;
-        break;
-      }
-
-      case 'number': {
-        // Add increment/decrement buttons
-        const controlsWrapper = this.createElement('div', {
-          className: 'input-custom__number-controls',
-        });
-
-        const incrementButton = this.createElement('button', {
-          className: 'input-custom__increment',
-          type: 'button',
-          attributes: {
-            'aria-label': 'Increment value',
-            tabindex: '-1',
-          },
-          events: {
-            click: this.handleIncrement.bind(this),
-          },
-        });
-
-        const decrementButton = this.createElement('button', {
-          className: 'input-custom__decrement',
-          type: 'button',
-          attributes: {
-            'aria-label': 'Decrement value',
-            tabindex: '-1',
-          },
-          events: {
-            click: this.handleDecrement.bind(this),
-          },
-        });
-
-        controlsWrapper.appendChild(incrementButton);
-        controlsWrapper.appendChild(decrementButton);
-        customInput.appendChild(controlsWrapper);
-        break;
-      }
+    if (inputState.showValidation && inputState.isValid !== null) {
+      validate();
     }
   }
 
-  createValidationMessage() {
-    return this.createElement('div', {
-      className: 'input-validation-message',
-      textContent: this.props.validationMessage || '',
-      attributes: { 'aria-live': 'polite' },
-    });
-  }
-
-  handleInput(event) {
-    this.props.value = event.target.value;
-    this.updateValueDisplay();
-
-    if (this.props.showValidation && this.isValid !== null) {
-      this.validate();
+  /**
+   * Handle change event
+   * @param {Event} event - Change event
+   */
+  function handleChange(event) {
+    if (typeof onChange === 'function') {
+      onChange(event, getValue());
     }
   }
 
-  handleChange(event) {
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(event, this.getValue());
+  /**
+   * Handle focus event
+   * @param {Event} event - Focus event
+   */
+  function handleFocus(event) {
+    container.classList.add('input-container--focused');
+    customInput.classList.add('input-custom--focused');
+    if (typeof onFocus === 'function') {
+      onFocus(event);
     }
   }
 
-  handleFocus(event) {
-    this.container.classList.add('input-container--focused');
-    this.customInput.classList.add('input-custom--focused');
-    if (typeof this.props.onFocus === 'function') {
-      this.props.onFocus(event);
+  /**
+   * Handle blur event
+   * @param {Event} event - Blur event
+   */
+  function handleBlur(event) {
+    container.classList.remove('input-container--focused');
+    customInput.classList.remove('input-custom--focused');
+
+    if (inputState.showValidation && inputState.isValid !== null) {
+      validate();
+    }
+
+    if (typeof onBlur === 'function') {
+      onBlur(event);
     }
   }
 
-  handleBlur(event) {
-    this.container.classList.remove('input-container--focused');
-    this.customInput.classList.remove('input-custom--focused');
-
-    if (this.props.showValidation && this.isValid !== null) {
-      this.validate();
-    }
-
-    if (typeof this.props.onBlur === 'function') {
-      this.props.onBlur(event);
-    }
-  }
-
-  handleKeydown(event) {
+  /**
+   * Handle keydown event
+   * @param {Event} event - Keydown event
+   */
+  function handleKeydown(event) {
     // Handle special keys based on input type
-    switch (this.props.type) {
+    switch (type) {
       case 'number':
         if (event.key === 'ArrowUp') {
           event.preventDefault();
-          this.handleIncrement();
+          handleIncrement();
         } else if (event.key === 'ArrowDown') {
           event.preventDefault();
-          this.handleDecrement();
+          handleDecrement();
         }
         break;
 
       case 'search':
         if (event.key === 'Escape') {
           event.preventDefault();
-          this.setValue('');
+          setValue('');
         }
         break;
     }
   }
 
-  handleClearClick(event) {
-    event.preventDefault();
-    this.setValue('');
-    this.input.focus();
+  /**
+   * Update the displayed value
+   */
+  function updateValueDisplay() {
+    const value = getValue();
+
+    if (value) {
+      valueDisplay.textContent = value;
+      valueDisplay.classList.add('input-custom__value--has-value');
+    } else {
+      valueDisplay.textContent = '';
+      valueDisplay.classList.remove('input-custom__value--has-value');
+    }
+
+    // Update password input visibility if needed
+    if (type === 'password' && inputState.isPasswordVisible) {
+      input.type = 'text';
+    }
+
+    // Update other type-specific displays
+    if (type === 'search' && value) {
+      customInput.classList.add('input-custom--has-value');
+    } else if (type === 'search') {
+      customInput.classList.remove('input-custom--has-value');
+    }
   }
 
-  handleTogglePassword(event) {
+  /**
+   * Handle clear button click for search inputs
+   * @param {Event} event - Click event
+   */
+  function handleClearClick(event) {
     event.preventDefault();
-    this.isPasswordVisible = !this.isPasswordVisible;
+    setValue('');
+    input.focus();
+  }
+
+  /**
+   * Handle toggle password visibility
+   * @param {Event} event - Click event
+   */
+  function handleTogglePassword(event) {
+    event.preventDefault();
+    inputState.isPasswordVisible = !inputState.isPasswordVisible;
 
     // Update the native input type
-    if (this.isPasswordVisible) {
-      this.input.type = 'text';
+    if (inputState.isPasswordVisible) {
+      input.type = 'text';
       event.currentTarget.setAttribute('aria-label', 'Hide password');
       event.currentTarget.classList.add('input-custom__toggle--visible');
     } else {
-      this.input.type = 'password';
+      input.type = 'password';
       event.currentTarget.setAttribute('aria-label', 'Show password');
       event.currentTarget.classList.remove('input-custom__toggle--visible');
     }
 
-    this.input.focus();
+    input.focus();
   }
 
-  handleIncrement() {
-    if (this.props.disabled || this.props.readonly) return;
+  /**
+   * Handle increment button click for number inputs
+   */
+  function handleIncrement() {
+    if (inputState.disabled || inputState.readonly) return;
 
-    let value = parseFloat(this.getValue()) || 0;
-    const step = parseFloat(this.input.step) || 1;
-    const max = this.input.max ? parseFloat(this.input.max) : Infinity;
+    let value = parseFloat(getValue()) || 0;
+    const step = parseFloat(input.step) || 1;
+    const max = input.max ? parseFloat(input.max) : Infinity;
 
     value = Math.min(value + step, max);
-    this.setValue(value.toString());
-    this.input.focus();
+    setValue(value.toString());
+    input.focus();
   }
 
-  handleDecrement() {
-    if (this.props.disabled || this.props.readonly) return;
+  /**
+   * Handle decrement button click for number inputs
+   */
+  function handleDecrement() {
+    if (inputState.disabled || inputState.readonly) return;
 
-    let value = parseFloat(this.getValue()) || 0;
-    const step = parseFloat(this.input.step) || 1;
-    const min = this.input.min ? parseFloat(this.input.min) : -Infinity;
+    let value = parseFloat(getValue()) || 0;
+    const step = parseFloat(input.step) || 1;
+    const min = input.min ? parseFloat(input.min) : -Infinity;
 
     value = Math.max(value - step, min);
-    this.setValue(value.toString());
-    this.input.focus();
+    setValue(value.toString());
+    input.focus();
   }
 
-  handleDocumentClick() {
-    // For future use - keeping the method as a placeholder
-    // This might be used for handling clicks outside the input for advanced features
-  }
+  /**
+   * Validate the input
+   * @returns {boolean} Whether the input is valid
+   */
+  function validate() {
+    const isValid = input.checkValidity();
+    inputState.isValid = isValid;
 
-  updateValueDisplay() {
-    const value = this.getValue();
+    // Update container classes
+    container.classList.toggle('input-container--invalid', !isValid);
+    container.classList.toggle('input-container--valid', isValid);
+    container.classList.toggle('has-error', !isValid);
+    container.classList.toggle('has-success', isValid);
 
-    if (value) {
-      this.valueDisplay.textContent = value;
-      this.valueDisplay.classList.add('input-custom__value--has-value');
-    } else {
-      this.valueDisplay.textContent = '';
-      this.valueDisplay.classList.remove('input-custom__value--has-value');
+    // Update custom input classes
+    customInput.classList.toggle('input-custom--invalid', !isValid);
+    customInput.classList.toggle('input-custom--valid', isValid);
+
+    // Update validation message
+    if (validationMessageElement) {
+      if (!isValid) {
+        // Only set validation message text if invalid
+        validationMessageElement.textContent =
+          inputState.validationMessage || input.validationMessage;
+      } else {
+        // Clear validation message when valid
+        validationMessageElement.textContent = '';
+      }
     }
 
-    // Update password input visibility if needed
-    if (this.props.type === 'password' && this.isPasswordVisible) {
-      this.input.type = 'text';
-    }
-
-    // Update other type-specific displays
-    if (this.props.type === 'search' && value) {
-      this.customInput.classList.add('input-custom--has-value');
-    } else if (this.props.type === 'search') {
-      this.customInput.classList.remove('input-custom--has-value');
-    }
-  }
-
-  validate() {
-    const isValid = this.input.checkValidity();
-    this.isValid = isValid;
-
-    this.updateValidationStyles(isValid);
     return isValid;
   }
 
-  updateValidationStyles(isValid) {
-    // Update container classes
-    this.container.classList.toggle('input-container--invalid', !isValid);
-    this.container.classList.toggle('input-container--valid', isValid);
-    this.container.classList.toggle('has-error', !isValid);
-    this.container.classList.toggle('has-success', isValid);
+  /**
+   * Get the input value
+   * @returns {string} Current input value
+   */
+  function getValue() {
+    return inputState.value;
+  }
 
-    // Update custom input classes
-    this.customInput.classList.toggle('input-custom--invalid', !isValid);
-    this.customInput.classList.toggle('input-custom--valid', isValid);
+  /**
+   * Set the input value
+   * @param {string} newValue - New input value
+   * @returns {Object} Input component (for chaining)
+   */
+  function setValue(newValue) {
+    inputState.value = newValue;
+    input.value = newValue;
+    updateValueDisplay();
 
-    // Update validation message
-    if (this.validationMessageElement) {
-      if (!isValid) {
-        // Only set validation message text if invalid
-        this.validationMessageElement.textContent =
-          this.props.validationMessage || this.input.validationMessage;
-      } else {
-        // Clear validation message when valid
-        this.validationMessageElement.textContent = '';
+    if (inputState.showValidation && inputState.isValid !== null) {
+      validate();
+    }
+
+    return api;
+  }
+
+  // Create public API
+  const api = {
+    /**
+     * Get the input element
+     * @returns {HTMLElement} Input container element
+     */
+    getElement() {
+      return container;
+    },
+
+    /**
+     * Get the input value
+     * @returns {string} Current input value
+     */
+    getValue,
+
+    /**
+     * Set the input value
+     * @param {string} newValue - New input value
+     * @returns {Object} Input component (for chaining)
+     */
+    setValue,
+
+    /**
+     * Validate the input
+     * @returns {boolean} Whether the input is valid
+     */
+    validate,
+
+    /**
+     * Update multiple props at once
+     * @param {Object} newProps - New properties
+     * @returns {Object} Input component (for chaining)
+     */
+    update(newProps) {
+      // Update state with new props
+      Object.assign(inputState, newProps);
+
+      // Update simple properties
+      if (newProps.value !== undefined) {
+        setValue(newProps.value);
       }
-    }
-  }
 
-  getValue() {
-    return this.props.value;
-  }
+      if (newProps.disabled !== undefined) {
+        input.disabled = inputState.disabled;
+        customInput.classList.toggle(
+          'input-custom--disabled',
+          inputState.disabled
+        );
+        customInput.setAttribute(
+          'aria-disabled',
+          inputState.disabled ? 'true' : 'false'
+        );
+      }
 
-  setValue(value) {
-    this.props.value = value;
-    this.input.value = value;
-    this.updateValueDisplay();
+      if (newProps.readonly !== undefined) {
+        input.readOnly = inputState.readonly;
+        customInput.classList.toggle(
+          'input-custom--readonly',
+          inputState.readonly
+        );
+        customInput.setAttribute(
+          'aria-readonly',
+          inputState.readonly ? 'true' : 'false'
+        );
+      }
 
-    if (this.props.showValidation && this.isValid !== null) {
-      this.validate();
-    }
+      if (newProps.validationMessage !== undefined) {
+        if (inputState.isValid === false) {
+          validationMessageElement.textContent = inputState.validationMessage;
+        }
+      }
 
-    return this;
-  }
+      return api;
+    },
 
-  getElement() {
-    return this.container;
-  }
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      document.removeEventListener('click', documentClickHandler);
+    },
+  };
 
-  // Clean up event listeners to prevent memory leaks
-  destroy() {
-    document.removeEventListener('click', this.documentClickHandler);
-  }
-}
+  return api;
+};
+
+// Export component
+export default Input;
