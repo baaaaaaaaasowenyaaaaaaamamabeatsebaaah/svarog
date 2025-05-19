@@ -1,28 +1,15 @@
 // src/components/Checkbox/Checkbox.js
 import './Checkbox.css';
-import { Component } from '../../utils/componentFactory.js';
+import { createComponent } from '../../utils/componentFactory.js';
 
 /**
- * Checkbox component
- * @extends Component
+ * Creates a Checkbox component
+ * @param {Object} props - Checkbox properties
+ * @returns {Object} Checkbox component
  */
-export default class Checkbox extends Component {
-  /**
-   * Creates a new Checkbox instance
-   *
-   * @param {Object} props - Checkbox properties
-   * @param {string} props.label - Checkbox label
-   * @param {string} [props.id] - Checkbox id
-   * @param {string} [props.name] - Checkbox name
-   * @param {boolean} [props.checked=false] - Whether the checkbox is checked
-   * @param {boolean} [props.required=false] - Whether the checkbox is required
-   * @param {boolean} [props.disabled=false] - Whether the checkbox is disabled
-   * @param {string} [props.className=''] - Additional CSS class names
-   * @param {Function} [props.onChange] - Change event handler
-   * @param {string} [props.validationMessage] - Custom validation message
-   * @param {boolean} [props.showValidation=true] - Whether to show validation messages
-   */
-  constructor({
+const createCheckbox = (props) => {
+  // Destructure props with defaults
+  const {
     label,
     id,
     name,
@@ -31,75 +18,100 @@ export default class Checkbox extends Component {
     disabled = false,
     className = '',
     onChange,
-    validationMessage,
+    validationMessage = '',
     showValidation = true,
-  }) {
-    super();
+    indeterminate = false,
+  } = props;
 
-    // Validation
-    if (!label) {
-      throw new Error('Checkbox: label is required');
-    }
-
-    // Store props
-    this.props = {
-      label,
-      id,
-      name,
-      checked,
-      required,
-      disabled,
-      className,
-      onChange,
-      validationMessage,
-      showValidation,
-    };
-
-    // Create element
-    this.container = this.createCheckboxContainer();
-
-    // Set initial validation state
-    this.isValid = true;
-    this.validationMessageElement = null;
-
-    if (this.props.showValidation) {
-      this.validationMessageElement = this.createValidationMessage();
-      this.container.appendChild(this.validationMessageElement);
-    }
-  }
+  // Component state
+  const state = {
+    label,
+    id,
+    name,
+    checked,
+    required,
+    disabled,
+    className,
+    onChange,
+    validationMessage,
+    showValidation,
+    indeterminate,
+    isValid: true,
+  };
 
   /**
-   * Creates the checkbox container
-   * @private
+   * Handles change events
+   * @param {Event} event - The change event
+   */
+  const handleChange = (event) => {
+    // Call onChange callback if provided
+    if (typeof state.onChange === 'function') {
+      state.onChange(event, event.target.checked);
+    }
+
+    // Create a new component with updated state
+    componentApi.update({ checked: event.target.checked });
+  };
+
+  /**
+   * Validates the checkbox
+   * @returns {boolean} Whether the checkbox is valid
+   */
+  const validateCheckbox = () => {
+    return !state.required || state.checked;
+  };
+
+  /**
+   * Build the checkbox element
    * @returns {HTMLElement} The checkbox container element
    */
-  createCheckboxContainer() {
-    // Create container div
-    const container = this.createElement('div', {
-      className: this.createClassNames(
-        'checkbox-container',
-        this.props.className
-      ),
-    });
+  const buildCheckboxElement = () => {
+    // Determine validation state
+    const isValid = validateCheckbox();
 
-    // Create the checkbox wrapper
-    const wrapper = this.createElement('label', {
-      className: 'checkbox-wrapper',
-    });
+    // Create container div with appropriate classes
+    const containerClasses = ['checkbox-container'];
+    if (state.className) containerClasses.push(state.className);
+    if (state.required && isValid)
+      containerClasses.push('checkbox-container--valid');
+    if (!isValid) containerClasses.push('checkbox-container--invalid');
 
-    // Create the actual checkbox input
-    const input = this.createCheckboxInput();
+    // Create container element
+    const container = document.createElement('div');
+    container.className = containerClasses.join(' ');
 
-    // Create custom checkbox indicator
-    const indicator = this.createElement('span', {
-      className: 'checkbox-indicator',
-    });
+    // Create label wrapper
+    const wrapper = document.createElement('label');
+    wrapper.className = 'checkbox-wrapper';
 
-    // Create label text
-    const labelText = this.createElement('span', {
-      className: 'checkbox-label',
-      textContent: this.props.label,
-    });
+    // Create input element - CRITICAL: Must have className set to 'checkbox-input'
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.className = 'checkbox-input'; // This must be exactly 'checkbox-input'
+
+    // Set input attributes
+    if (state.id) input.id = state.id;
+    if (state.name) input.name = state.name;
+    if (state.required) input.required = true;
+
+    // Set properties
+    input.checked = state.checked;
+    input.disabled = state.disabled;
+
+    // Add event listener
+    input.addEventListener('change', handleChange);
+
+    // Store listener reference for cleanup
+    input._listeners = { change: handleChange };
+
+    // Create custom indicator
+    const indicator = document.createElement('span');
+    indicator.className = 'checkbox-indicator';
+
+    // Create label text element - CRITICAL: Must have className set to 'checkbox-label'
+    const labelText = document.createElement('span');
+    labelText.className = 'checkbox-label'; // This must be exactly 'checkbox-label'
+    labelText.textContent = state.label;
 
     // Assemble the component
     wrapper.appendChild(input);
@@ -107,147 +119,137 @@ export default class Checkbox extends Component {
     wrapper.appendChild(labelText);
     container.appendChild(wrapper);
 
-    // Store reference to the input element
-    this.input = input;
+    // Add validation message if needed
+    if (state.showValidation) {
+      const validationMessage = document.createElement('div');
+      validationMessage.className = 'checkbox-validation-message';
+
+      // Only show message text when invalid
+      if (!isValid) {
+        validationMessage.textContent =
+          state.validationMessage || 'This field is required';
+      }
+
+      validationMessage.setAttribute('aria-live', 'polite');
+      container.appendChild(validationMessage);
+    }
+
+    // Set indeterminate state after creation since it can't be set as an attribute
+    if (state.indeterminate) {
+      setTimeout(() => {
+        input.indeterminate = true;
+      }, 0);
+    }
 
     return container;
-  }
+  };
 
-  /**
-   * Creates the checkbox input element
-   * @private
-   * @returns {HTMLInputElement} The checkbox input element
-   */
-  createCheckboxInput() {
-    const { id, name, checked, required, disabled } = this.props;
+  // Build the initial element
+  let element = buildCheckboxElement();
 
-    // Create attributes object with only defined properties
-    const attributes = {};
-    if (id) attributes.id = id;
-    if (name) attributes.name = name;
-    if (required) attributes.required = required;
+  // Public API
+  const componentApi = {
+    /**
+     * Get the checkbox element
+     * @returns {HTMLElement} The checkbox container element
+     */
+    getElement() {
+      return element;
+    },
 
-    // Create input element
-    const input = this.createElement('input', {
-      className: 'checkbox-input',
-      attributes: {
-        type: 'checkbox',
-        ...attributes,
-      },
-      events: {
-        change: this.handleChange.bind(this),
-      },
-    });
+    /**
+     * Update checkbox properties
+     * @param {Object} newProps - New properties
+     * @returns {Object} Checkbox component (for chaining)
+     */
+    update(newProps) {
+      // Update state
+      Object.assign(state, newProps);
 
-    // Set properties that can't be set via attributes
-    input.checked = checked;
-    if (disabled) input.disabled = true;
+      // Rebuild element
+      const oldElement = element;
+      element = buildCheckboxElement();
 
-    return input;
-  }
-
-  /**
-   * Creates the validation message element
-   * @private
-   * @returns {HTMLElement} The validation message element
-   */
-  createValidationMessage() {
-    return this.createElement('div', {
-      className: 'checkbox-validation-message',
-      textContent: this.props.validationMessage || '',
-      attributes: {
-        'aria-live': 'polite',
-      },
-    });
-  }
-
-  /**
-   * Handles change events
-   * @private
-   * @param {Event} event - The change event
-   */
-  handleChange(event) {
-    // Update internal state
-    this.props.checked = event.target.checked;
-
-    // Validate if needed
-    if (this.props.showValidation) {
-      this.validate();
-    }
-
-    // Call onChange callback if provided
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(event, this.isChecked());
-    }
-  }
-
-  /**
-   * Validates the checkbox value
-   * @private
-   * @returns {boolean} Whether the checkbox is valid
-   */
-  validate() {
-    const input = this.input;
-    const isValid = input.checkValidity();
-
-    // Update validation state
-    this.isValid = isValid;
-
-    // Update validation classes
-    if (isValid) {
-      this.container.classList.remove('checkbox-container--invalid');
-      this.container.classList.add('checkbox-container--valid');
-    } else {
-      this.container.classList.add('checkbox-container--invalid');
-      this.container.classList.remove('checkbox-container--valid');
-
-      // Update validation message
-      if (this.validationMessageElement) {
-        const message = this.props.validationMessage || input.validationMessage;
-        this.validationMessageElement.textContent = message;
+      // Replace in DOM if inserted
+      if (oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(element, oldElement);
       }
-    }
 
-    return isValid;
-  }
+      return this;
+    },
 
-  /**
-   * Checks if the checkbox is checked
-   * @returns {boolean} Whether the checkbox is checked
-   */
-  isChecked() {
-    return this.props.checked;
-  }
+    /**
+     * Set checked state
+     * @param {boolean} isChecked - Whether the checkbox should be checked
+     * @returns {Object} Checkbox component (for chaining)
+     */
+    setChecked(isChecked) {
+      return this.update({ checked: isChecked });
+    },
 
-  /**
-   * Sets the checked state
-   * @param {boolean} checked - The new checked state
-   */
-  setChecked(checked) {
-    this.props.checked = checked;
-    this.input.checked = checked;
+    /**
+     * Set indeterminate state
+     * @param {boolean} isIndeterminate - Whether the checkbox should be indeterminate
+     * @returns {Object} Checkbox component (for chaining)
+     */
+    setIndeterminate(isIndeterminate) {
+      return this.update({ indeterminate: isIndeterminate });
+    },
 
-    // Validate if needed
-    if (this.props.showValidation) {
-      this.validate();
-    }
+    /**
+     * Get checked state
+     * @returns {boolean} Whether the checkbox is checked
+     */
+    isChecked() {
+      return state.checked;
+    },
 
-    return this;
-  }
+    /**
+     * Validate the checkbox
+     * @returns {boolean} Whether the checkbox is valid
+     */
+    validate() {
+      const isValid = validateCheckbox();
 
-  /**
-   * Checks if the checkbox is valid
-   * @returns {boolean} Whether the checkbox is valid
-   */
-  isValid() {
-    return this.validate();
-  }
+      // Update validation state and trigger rebuild only if validation state changed
+      if (state.isValid !== isValid) {
+        this.update({ isValid });
+      }
 
-  /**
-   * Gets the checkbox element
-   * @returns {HTMLElement} The checkbox container element
-   */
-  getElement() {
-    return this.container;
-  }
-}
+      return isValid;
+    },
+
+    /**
+     * Check if the checkbox is valid
+     * @returns {boolean} Whether the checkbox is valid
+     */
+    isValid() {
+      return validateCheckbox();
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      // Explicitly remove the event listener
+      const input = element?.querySelector('input');
+      if (input && input._listeners) {
+        Object.entries(input._listeners).forEach(([event, handler]) => {
+          input.removeEventListener(event, handler);
+        });
+        input._listeners = {};
+      }
+
+      // Clear reference to element
+      element = null;
+    },
+  };
+
+  return componentApi;
+};
+
+// Define required props for validation
+createCheckbox.requiredProps = ['label'];
+
+// Export as a factory function
+export default createComponent('Checkbox', createCheckbox);

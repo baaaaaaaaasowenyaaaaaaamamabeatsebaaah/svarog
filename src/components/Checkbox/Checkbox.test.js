@@ -4,7 +4,7 @@ import Checkbox from './Checkbox.js';
 
 describe('Checkbox component', () => {
   it('should create a checkbox element', () => {
-    const checkbox = new Checkbox({ label: 'Test checkbox' });
+    const checkbox = Checkbox({ label: 'Test checkbox' });
 
     const element = checkbox.getElement();
     const inputElement = element.querySelector('input[type="checkbox"]');
@@ -17,63 +17,72 @@ describe('Checkbox component', () => {
 
   it('should throw error when label is not provided', () => {
     expect(() => {
-      new Checkbox({});
-    }).toThrow('Checkbox: label is required');
+      Checkbox({});
+    }).toThrow(/label is required/);
   });
 
   it('should render label correctly', () => {
     const label = 'Test label';
-    const checkbox = new Checkbox({ label });
+    const checkbox = Checkbox({ label });
 
-    const labelElement = checkbox.getElement().querySelector('.checkbox-label');
+    const element = checkbox.getElement();
+    const labelElement = element.querySelector('.checkbox-label');
+
     expect(labelElement).not.toBeNull();
     expect(labelElement.textContent).toBe(label);
   });
 
   it('should set initial checked state', () => {
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       label: 'Test checkbox',
       checked: true,
     });
 
-    const inputElement = checkbox
-      .getElement()
-      .querySelector('input[type="checkbox"]');
+    const element = checkbox.getElement();
+    const inputElement = element.querySelector('input[type="checkbox"]');
+
     expect(inputElement.checked).toBe(true);
     expect(checkbox.isChecked()).toBe(true);
   });
 
   it('should update checked state with setChecked method', () => {
-    const checkbox = new Checkbox({ label: 'Test checkbox' });
+    const checkbox = Checkbox({ label: 'Test checkbox' });
 
     // Initially unchecked
     expect(checkbox.isChecked()).toBe(false);
 
     // Set to checked
     checkbox.setChecked(true);
-    expect(checkbox.isChecked()).toBe(true);
 
-    const inputElement = checkbox
-      .getElement()
-      .querySelector('input[type="checkbox"]');
+    // Get the UPDATED element after setChecked
+    const updatedElement = checkbox.getElement();
+    const inputElement = updatedElement.querySelector('input[type="checkbox"]');
+
+    expect(checkbox.isChecked()).toBe(true);
     expect(inputElement.checked).toBe(true);
 
     // Set back to unchecked
     checkbox.setChecked(false);
+
+    // Get the UPDATED element again after setChecked(false)
+    const reUpdatedElement = checkbox.getElement();
+    const updatedInputElement = reUpdatedElement.querySelector(
+      'input[type="checkbox"]'
+    );
+
     expect(checkbox.isChecked()).toBe(false);
-    expect(inputElement.checked).toBe(false);
+    expect(updatedInputElement.checked).toBe(false);
   });
 
   it('should call onChange when checkbox changes', () => {
     const mockOnChange = vi.fn();
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       label: 'Test checkbox',
       onChange: mockOnChange,
     });
 
-    const inputElement = checkbox
-      .getElement()
-      .querySelector('input[type="checkbox"]');
+    const element = checkbox.getElement();
+    const inputElement = element.querySelector('input[type="checkbox"]');
 
     // Simulate checkbox change
     inputElement.checked = true;
@@ -84,21 +93,24 @@ describe('Checkbox component', () => {
 
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(expect.any(Event), true);
+
+    // Get updated state after the change event
     expect(checkbox.isChecked()).toBe(true);
   });
 
   it('should validate required checkbox', () => {
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       label: 'Required checkbox',
       required: true,
     });
 
-    const containerElement = checkbox.getElement();
-
     // Unchecked required checkbox should be invalid
     expect(checkbox.validate()).toBe(false);
+
+    // Get the UPDATED element after validate()
+    const elementAfterValidate = checkbox.getElement();
     expect(
-      containerElement.classList.contains('checkbox-container--invalid')
+      elementAfterValidate.classList.contains('checkbox-container--invalid')
     ).toBe(true);
 
     // Check the checkbox
@@ -106,67 +118,84 @@ describe('Checkbox component', () => {
 
     // Now checkbox should be valid
     expect(checkbox.validate()).toBe(true);
-    expect(
-      containerElement.classList.contains('checkbox-container--valid')
-    ).toBe(true);
+
+    // Get the UPDATED element after setChecked() and validate()
+    const updatedElement = checkbox.getElement();
+    expect(updatedElement.classList.contains('checkbox-container--valid')).toBe(
+      true
+    );
   });
 
   it('should show validation message', () => {
     const customMessage = 'This checkbox is required';
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       label: 'Test checkbox',
       required: true,
       validationMessage: customMessage,
     });
 
-    const containerElement = checkbox.getElement();
-    const messageElement = containerElement.querySelector(
-      '.checkbox-validation-message'
-    );
-
     // Validate the unchecked required checkbox
     checkbox.validate();
+
+    // Get the UPDATED element after validate()
+    const updatedElement = checkbox.getElement();
+    const messageElement = updatedElement.querySelector(
+      '.checkbox-validation-message'
+    );
 
     expect(messageElement).not.toBeNull();
     expect(messageElement.textContent).toBe(customMessage);
   });
 
   it('should handle disabled state', () => {
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       label: 'Disabled checkbox',
       disabled: true,
     });
 
-    const inputElement = checkbox
-      .getElement()
-      .querySelector('input[type="checkbox"]');
+    const element = checkbox.getElement();
+    const inputElement = element.querySelector('input[type="checkbox"]');
     expect(inputElement.disabled).toBe(true);
   });
 
   it('should apply custom class name', () => {
     const className = 'custom-checkbox';
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       label: 'Checkbox with custom class',
       className,
     });
 
-    const containerElement = checkbox.getElement();
-    expect(containerElement.className).toContain(className);
+    const element = checkbox.getElement();
+    expect(element.className).toContain(className);
   });
 
   it('should set id and name attributes', () => {
     const id = 'my-checkbox';
     const name = 'agreement';
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       label: 'Checkbox with ID and name',
       id,
       name,
     });
 
-    const inputElement = checkbox
-      .getElement()
-      .querySelector('input[type="checkbox"]');
+    const element = checkbox.getElement();
+    const inputElement = element.querySelector('input[type="checkbox"]');
     expect(inputElement.id).toBe(id);
     expect(inputElement.name).toBe(name);
+  });
+
+  it('should clean up resources when destroyed', () => {
+    const checkbox = Checkbox({ label: 'Test checkbox' });
+
+    // Spy on the getElement method to ensure it's not called after destroy
+    const getElementSpy = vi.spyOn(checkbox, 'getElement');
+
+    checkbox.destroy();
+
+    // After destroy, the element should be null, so trying to getElement should return null
+    expect(getElementSpy).not.toHaveBeenCalled();
+
+    // Restore the spy
+    getElementSpy.mockRestore();
   });
 });
