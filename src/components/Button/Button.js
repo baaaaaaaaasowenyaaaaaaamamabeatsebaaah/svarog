@@ -1,4 +1,4 @@
-// src/components/Button/Button.js - Improved Version
+// src/components/Button/Button.js
 import './Button.css';
 import { Component } from '../../utils/componentFactory.js';
 
@@ -63,7 +63,16 @@ export default class Button extends Component {
     return this;
   }
 
-  getElement() {
-    return this.element;
-  }
-}
+  // Add the update method to update multiple properties at once
+  update(newProps) {
+    // Update props with new values
+    this.props = { ...this.props, ...newProps };
+    
+    // Update text content if provided
+    if (newProps.text !== undefined) {
+      this.element.textContent = newProps.text;
+    }
+    
+    // Update disabled state if provided
+    if (newProps.disabled !== undefined) {
+      this.set

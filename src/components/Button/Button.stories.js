@@ -7,14 +7,14 @@ export default {
 };
 
 export const Default = () => {
-  return new Button({
+  return Button({
     text: 'Default Button',
     onClick: () => console.log('Button clicked'),
   });
 };
 
 export const Primary = () => {
-  return new Button({
+  return Button({
     text: 'Primary Button',
     variant: 'primary',
     onClick: () => console.log('Primary button clicked'),
@@ -22,7 +22,7 @@ export const Primary = () => {
 };
 
 export const Secondary = () => {
-  return new Button({
+  return Button({
     text: 'Secondary Button',
     variant: 'secondary',
     onClick: () => console.log('Secondary button clicked'),
@@ -30,7 +30,7 @@ export const Secondary = () => {
 };
 
 export const Text = () => {
-  return new Button({
+  return Button({
     text: 'Text Button',
     variant: 'text',
     onClick: () => console.log('Text button clicked'),
@@ -38,7 +38,7 @@ export const Text = () => {
 };
 
 export const Success = () => {
-  return new Button({
+  return Button({
     text: 'Success Button',
     variant: 'success',
     onClick: () => console.log('Success button clicked'),
@@ -46,7 +46,7 @@ export const Success = () => {
 };
 
 export const Danger = () => {
-  return new Button({
+  return Button({
     text: 'Danger Button',
     variant: 'danger',
     onClick: () => console.log('Danger button clicked'),
@@ -54,7 +54,7 @@ export const Danger = () => {
 };
 
 export const Outlined = () => {
-  return new Button({
+  return Button({
     text: 'Outlined Button',
     variant: 'outlined',
     onClick: () => console.log('Outlined button clicked'),
@@ -62,7 +62,7 @@ export const Outlined = () => {
 };
 
 export const IconButton = () => {
-  return new Button({
+  return Button({
     text: '✓',
     variant: 'icon',
     onClick: () => console.log('Icon button clicked'),
@@ -70,7 +70,7 @@ export const IconButton = () => {
 };
 
 export const Small = () => {
-  return new Button({
+  return Button({
     text: 'Small Button',
     size: 'sm',
     onClick: () => console.log('Small button clicked'),
@@ -78,7 +78,7 @@ export const Small = () => {
 };
 
 export const Large = () => {
-  return new Button({
+  return Button({
     text: 'Large Button',
     size: 'lg',
     onClick: () => console.log('Large button clicked'),
@@ -86,7 +86,7 @@ export const Large = () => {
 };
 
 export const Disabled = () => {
-  return new Button({
+  return Button({
     text: 'Disabled Button',
     disabled: true,
     onClick: () => console.log('This should not log'),
@@ -94,7 +94,7 @@ export const Disabled = () => {
 };
 
 export const WithCustomClass = () => {
-  return new Button({
+  return Button({
     text: 'Custom Class Button',
     className: 'custom-button-class',
     onClick: () => console.log('Custom class button clicked'),
@@ -135,7 +135,7 @@ export const AllVariants = () => {
   ];
 
   variants.forEach(({ name, text, variant }) => {
-    const button = new Button({
+    const button = Button({
       text: text,
       variant: variant,
       onClick: () => console.log(`${name} button clicked`),
@@ -160,7 +160,7 @@ export const AllVariants = () => {
 
   // Add different button sizes
   ['sm', '', 'lg'].forEach((size) => {
-    const button = new Button({
+    const button = Button({
       text: size ? `${size.toUpperCase()} Size` : 'Default Size',
       size: size,
       variant: 'primary',
@@ -184,7 +184,7 @@ export const AllVariants = () => {
   statesSection.style.marginBottom = '32px';
 
   // Regular button
-  const regularButton = new Button({
+  const regularButton = Button({
     text: 'Regular Button',
     variant: 'primary',
     onClick: () => console.log('Regular button clicked'),
@@ -199,7 +199,7 @@ export const AllVariants = () => {
   statesSection.appendChild(hoverInfo);
 
   // Disabled button
-  const disabledButton = new Button({
+  const disabledButton = Button({
     text: 'Disabled Button',
     variant: 'primary',
     disabled: true,
@@ -209,66 +209,13 @@ export const AllVariants = () => {
 
   container.appendChild(statesSection);
 
-  // Add heading for icon button sizes
-  const iconSizesHeading = document.createElement('h3');
-  iconSizesHeading.textContent = 'Icon Button Sizes';
-  iconSizesHeading.style.marginBottom = '12px';
-  container.appendChild(iconSizesHeading);
-
-  // Add section for icon button sizes
-  const iconSizesSection = document.createElement('div');
-  iconSizesSection.style.display = 'flex';
-  iconSizesSection.style.gap = '12px';
-  iconSizesSection.style.alignItems = 'center';
-  iconSizesSection.style.marginBottom = '32px';
-
-  // Add icon buttons of different sizes
-  ['sm', '', 'lg'].forEach((size) => {
-    const button = new Button({
-      text: '✓',
-      size: size,
-      variant: 'icon',
-      onClick: () => console.log(`${size || 'default'} icon button clicked`),
-    });
-    iconSizesSection.appendChild(button.getElement());
-  });
-
-  container.appendChild(iconSizesSection);
-
-  // Add heading for combined variants
-  const combinedHeading = document.createElement('h3');
-  combinedHeading.textContent = 'Combined Variants & Sizes';
-  combinedHeading.style.marginBottom = '12px';
-  container.appendChild(combinedHeading);
-
-  // Add section for combined variants
-  const combinedSection = document.createElement('div');
-  combinedSection.style.display = 'flex';
-  combinedSection.style.flexWrap = 'wrap';
-  combinedSection.style.gap = '12px';
-
-  // Show each variant in different sizes
-  ['primary', 'secondary', 'success', 'danger'].forEach((variant) => {
-    ['sm', '', 'lg'].forEach((size) => {
-      const button = new Button({
-        text: `${size ? size.toUpperCase() : 'MD'} ${variant}`,
-        variant: variant,
-        size: size,
-        onClick: () => console.log(`${variant} ${size || 'medium'} clicked`),
-      });
-      combinedSection.appendChild(button.getElement());
-    });
-  });
-
-  container.appendChild(combinedSection);
-
   return container;
 };
 
 export const ButtonWithIcon = () => {
   // This would need updates to the Button component to support icon + text
   // For now, showing a simple example with emoji
-  return new Button({
+  return Button({
     text: '🔍 Search',
     onClick: () => console.log('Button with icon clicked'),
   });
@@ -277,7 +224,7 @@ export const ButtonWithIcon = () => {
 export const ButtonIconRight = () => {
   // This would need updates to the Button component to support icon + text
   // For now, showing a simple example with emoji
-  return new Button({
+  return Button({
     text: 'Next →',
     onClick: () => console.log('Button with right icon clicked'),
   });
