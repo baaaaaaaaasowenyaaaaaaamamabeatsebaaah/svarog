@@ -1,9 +1,17 @@
 // src/components/Button/Button.js
 import './Button.css';
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createComponent,
+  createElement,
+} from '../../utils/componentFactory.js';
 
-export default class Button extends Component {
-  constructor({
+/**
+ * Create a Button component
+ * @param {Object} props - Button properties
+ * @returns {Object} Button component
+ */
+const createButton = (props) => {
+  const {
     text,
     onClick,
     className = '',
@@ -11,68 +19,183 @@ export default class Button extends Component {
     type = 'button',
     size = '',
     variant = '',
-  }) {
-    super();
+  } = props;
 
-    this.validateRequiredProps({ text, onClick }, ['text'], 'Button');
+  // State
+  let buttonState = {
+    text,
+    disabled,
+    className,
+    type,
+    size,
+    variant,
+    onClick,
+  };
 
-    this.props = { text, onClick, className, disabled, type, size, variant };
-    this.element = this.createButtonElement();
-  }
+  // Create the button element
+  const buildButtonElement = () => {
+    // Build class names
+    const classNames = ['btn'];
+    if (buttonState.className) classNames.push(buttonState.className);
+    if (buttonState.size) classNames.push(`btn--${buttonState.size}`);
+    if (buttonState.variant) classNames.push(`btn--${buttonState.variant}`);
 
-  createButtonElement() {
-    const { text, type, disabled, size, variant } = this.props;
-
-    const classNames = this.createClassNames(
-      'btn',
-      {
-        [`btn--${size}`]: size,
-        [`btn--${variant}`]: variant,
+    // Create button
+    return createElement('button', {
+      attributes: {
+        type: buttonState.type,
+        disabled: buttonState.disabled ? '' : null,
       },
-      this.props.className
-    );
-
-    return this.createElement('button', {
-      className: classNames,
-      textContent: text,
-      attributes: { type },
-      disabled,
+      classes: classNames,
+      text: buttonState.text,
       events: {
-        click: !disabled && this.props.onClick,
+        click:
+          !buttonState.disabled && buttonState.onClick
+            ? buttonState.onClick
+            : null,
       },
     });
-  }
+  };
 
-  setText(text) {
-    this.props.text = text;
-    this.element.textContent = text;
-    return this;
-  }
+  // Initial button element
+  let buttonElement = buildButtonElement();
 
-  setDisabled(disabled) {
-    this.props.disabled = disabled;
-    this.element.disabled = disabled;
+  // Public API
+  return {
+    /**
+     * Get the button element
+     * @returns {HTMLButtonElement} Button element
+     */
+    getElement() {
+      return buttonElement;
+    },
 
-    // Update click handler
-    if (disabled) {
-      this.element.removeEventListener('click', this.props.onClick);
-    } else if (this.props.onClick) {
-      this.element.addEventListener('click', this.props.onClick);
-    }
+    /**
+     * Set button text
+     * @param {string} newText - New button text
+     * @returns {Object} Button component (for chaining)
+     */
+    setText(newText) {
+      buttonState.text = newText;
+      buttonElement.textContent = newText;
+      return this;
+    },
 
-    return this;
-  }
+    /**
+     * Set button disabled state
+     * @param {boolean} isDisabled - Whether button should be disabled
+     * @returns {Object} Button component (for chaining)
+     */
+    setDisabled(isDisabled) {
+      // Only update if state changes
+      if (buttonState.disabled !== isDisabled) {
+        buttonState.disabled = isDisabled;
+        buttonElement.disabled = isDisabled;
 
-  // Add the update method to update multiple properties at once
-  update(newProps) {
-    // Update props with new values
-    this.props = { ...this.props, ...newProps };
-    
-    // Update text content if provided
-    if (newProps.text !== undefined) {
-      this.element.textContent = newProps.text;
-    }
-    
-    // Update disabled state if provided
-    if (newProps.disabled !== undefined) {
-      this.set
+        // Update click event handler
+        if (isDisabled) {
+          if (
+            buttonState.onClick &&
+            buttonElement._listeners &&
+            buttonElement._listeners.click
+          ) {
+            buttonElement.removeEventListener('click', buttonState.onClick);
+            delete buttonElement._listeners.click;
+          }
+        } else if (buttonState.onClick) {
+          buttonElement.addEventListener('click', buttonState.onClick);
+          if (buttonElement._listeners) {
+            buttonElement._listeners.click = buttonState.onClick;
+          } else {
+            buttonElement._listeners = { click: buttonState.onClick };
+          }
+        }
+      }
+
+      return this;
+    },
+
+    /**
+     * Update multiple props at once
+     * @param {Object} newProps - New properties
+     * @returns {Object} Button component (for chaining)
+     */
+    update(newProps) {
+      // Update state with new props
+      Object.assign(buttonState, newProps);
+
+      // Determine if we need full rebuild or simple updates
+      const needsRebuild =
+        newProps.className !== undefined ||
+        newProps.size !== undefined ||
+        newProps.variant !== undefined ||
+        newProps.type !== undefined ||
+        newProps.onClick !== undefined;
+
+      if (needsRebuild) {
+        // Store reference to the old element for replacement
+        const oldElement = buttonElement;
+
+        // Remove old event listeners
+        this.destroy();
+
+        // Create new element
+        buttonElement = buildButtonElement();
+
+        // Replace in DOM if the old element was inserted
+        if (oldElement.parentNode) {
+          oldElement.parentNode.replaceChild(buttonElement, oldElement);
+        }
+      } else {
+        // Update simple properties without rebuilding
+        if (newProps.text !== undefined) {
+          buttonElement.textContent = buttonState.text;
+        }
+
+        if (newProps.disabled !== undefined) {
+          buttonElement.disabled = buttonState.disabled;
+
+          // Update click event handler
+          if (buttonState.disabled) {
+            if (
+              buttonState.onClick &&
+              buttonElement._listeners &&
+              buttonElement._listeners.click
+            ) {
+              buttonElement.removeEventListener('click', buttonState.onClick);
+              delete buttonElement._listeners.click;
+            }
+          } else if (buttonState.onClick) {
+            buttonElement.addEventListener('click', buttonState.onClick);
+            if (buttonElement._listeners) {
+              buttonElement._listeners.click = buttonState.onClick;
+            } else {
+              buttonElement._listeners = { click: buttonState.onClick };
+            }
+          }
+        }
+      }
+
+      return this;
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      // Remove event listeners
+      if (buttonElement._listeners) {
+        Object.entries(buttonElement._listeners).forEach(([event, handler]) => {
+          buttonElement.removeEventListener(event, handler);
+        });
+        buttonElement._listeners = {};
+      }
+    },
+  };
+};
+
+// Define required props for validation
+createButton.requiredProps = ['text'];
+
+// Export as a factory function
+export default createComponent('Button', createButton);
