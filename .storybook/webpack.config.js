@@ -75,7 +75,7 @@ export default (env, argv) => {
         process.env.NODE_ENV === 'production'
           ? ['localhost', '.railway.app', '.up.railway.app']
           : 'auto',
-      hot: true,
+      hot: 'only',
       historyApiFallback: true,
       open: false,
       client: {

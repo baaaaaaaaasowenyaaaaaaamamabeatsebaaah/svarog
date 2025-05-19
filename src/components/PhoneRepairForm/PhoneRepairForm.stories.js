@@ -1,13 +1,10 @@
 // src/components/PhoneRepairForm/PhoneRepairForm.stories.js
-import PhoneRepairForm from './PhoneRepairForm.js';
-import {
-  mockPhoneRepairData,
-  setupPhoneRepairMocks,
-} from '../../../__mocks__/phoneRepairData.js';
+import PhoneRepairFormFactory from '../../factories/PhoneRepairFormFactory.js';
+import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 
 export default {
   title: 'Components/PhoneRepairForm',
-  component: PhoneRepairForm,
+  component: 'PhoneRepairForm',
   parameters: {
     docs: {
       description: {
@@ -18,88 +15,52 @@ export default {
   },
 };
 
-// Helper function to setup mock data for all stories
-const setupMocks = () => {
-  try {
-    setupPhoneRepairMocks();
-  } catch (error) {
-    console.warn('Error setting up mocks:', error.message);
-    // Provide fallback mock directly
-    window.fetch = (url) => {
-      if (url === '/api/manufacturers') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockPhoneRepairData.manufacturers),
-        });
-      }
-      // Add other mocks as needed
-      return Promise.resolve({
-        ok: false,
-        status: 404,
-        json: () => Promise.resolve({ error: 'Not found' }),
-      });
-    };
-  }
-};
-
 export const Default = () => {
-  setupMocks();
-
-  return new PhoneRepairForm({
-    useMockData: true,
+  // Use factory to create form with mock data directly
+  return PhoneRepairFormFactory.createWithMockData({
+    mockData: mockPhoneRepairData,
     onPriceChange: (priceData) => console.log('Price selected:', priceData),
   });
 };
 
 export const WithoutSteps = () => {
-  setupMocks();
-
-  return new PhoneRepairForm({
-    useMockData: true,
+  return PhoneRepairFormFactory.createWithMockData({
+    mockData: mockPhoneRepairData,
     showStepsIndicator: false,
     onPriceChange: (priceData) => console.log('Price selected:', priceData),
   });
 };
 
 export const WithPreselectedData = () => {
-  setupMocks();
-
   // Create component container
   const container = document.createElement('div');
   container.style.maxWidth = '600px';
 
-  // Create form component
-  const repairForm = new PhoneRepairForm({
-    useMockData: true,
+  // Create form component with factory
+  const repairForm = PhoneRepairFormFactory.createWithMockData({
+    mockData: mockPhoneRepairData,
     onPriceChange: (priceData) => {
       console.log('Price selected:', priceData);
 
       // Update summary display
       if (summaryDisplay) {
-        const manufacturer =
-          document.getElementById('manufacturer')?.options[
-            document.getElementById('manufacturer')?.selectedIndex
-          ]?.text;
-        const device =
-          document.getElementById('device')?.options[
-            document.getElementById('device')?.selectedIndex
-          ]?.text;
-        const action =
-          document.getElementById('action')?.options[
-            document.getElementById('action')?.selectedIndex
-          ]?.text;
+        const manufacturer = priceData.manufacturerName || 'Not selected';
+        const device = priceData.deviceName || 'Not selected';
+        const service = priceData.actionName || 'Not selected';
 
         summaryDisplay.innerHTML = `
           <div style="margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 4px; background-color: #f8f9fa;">
             <h3 style="margin-top: 0; font-size: 18px;">Repair Summary</h3>
-            <p><strong>Manufacturer:</strong> ${manufacturer || 'Not selected'}</p>
-            <p><strong>Device:</strong> ${device || 'Not selected'}</p>
-            <p><strong>Service:</strong> ${action || 'Not selected'}</p>
+            <p><strong>Manufacturer:</strong> ${manufacturer}</p>
+            <p><strong>Device:</strong> ${device}</p>
+            <p><strong>Service:</strong> ${service}</p>
             <p><strong>Price:</strong> €${priceData.price}</p>
           </div>
         `;
       }
     },
+    // Use a very short mock delay to make the preselection work more reliably
+    mockDelay: 50,
   });
 
   // Add form to container
@@ -133,18 +94,16 @@ export const WithPreselectedData = () => {
                 new Event('change', { bubbles: true })
               );
             }
-          }, 400);
+          }, 200);
         }
-      }, 400);
+      }, 200);
     }
-  }, 300);
+  }, 100);
 
   return container;
 };
 
 export const WithCustomTheme = () => {
-  setupMocks();
-
   // Create container with custom styles
   const container = document.createElement('div');
 
@@ -163,12 +122,12 @@ export const WithCustomTheme = () => {
       font-weight: bold;
     }
     
-    .custom-theme .phone-repair-form__price-container {
+    .custom-theme .price-display {
       background-color: #e6f3ff;
       border: 1px solid #007bff;
     }
     
-    .custom-theme .phone-repair-form__price-value {
+    .custom-theme .price-display__value {
       color: #007bff;
       font-weight: bold;
       font-size: 18px;
@@ -182,9 +141,9 @@ export const WithCustomTheme = () => {
   themeContainer.className = 'custom-theme';
   container.appendChild(themeContainer);
 
-  // Create form component
-  const repairForm = new PhoneRepairForm({
-    useMockData: true,
+  // Create form component with factory
+  const repairForm = PhoneRepairFormFactory.createWithMockData({
+    mockData: mockPhoneRepairData,
     onPriceChange: (priceData) => console.log('Price selected:', priceData),
   });
 
@@ -194,41 +153,57 @@ export const WithCustomTheme = () => {
 };
 
 export const WithErrorHandling = () => {
-  // Setup mock with deliberate errors
-  window.fetch = (url) => {
-    if (url === '/api/manufacturers') {
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockPhoneRepairData.manufacturers),
-      });
-    }
+  // Create a custom mock service that simulates errors
+  const errorMockService = {
+    fetchManufacturers: () => {
+      return Promise.resolve(mockPhoneRepairData.manufacturers);
+    },
+    fetchDevices: (manufacturerId) => {
+      // Simulate error for Huawei (id: 3)
+      if (manufacturerId === '3') {
+        return Promise.reject(new Error('Server error when fetching devices'));
+      }
 
-    // Simulate error for any device fetch
-    const deviceMatch = url.match(/\/api\/manufacturers\/(\d+)\/devices/);
-    if (deviceMatch && deviceMatch[1] === '3') {
-      // Error only for Huawei
-      return Promise.resolve({
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({ error: 'Server error' }),
-      });
-    } else if (deviceMatch) {
-      const manufacturerId = deviceMatch[1];
       const manufacturer = mockPhoneRepairData.manufacturers.find(
-        (m) => m.id.toString() === manufacturerId
+        (m) => m.id.toString() === manufacturerId.toString()
       );
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(manufacturer ? manufacturer.devices : []),
-      });
-    }
+      return Promise.resolve(manufacturer?.devices || []);
+    },
+    fetchActions: (deviceId) => {
+      let foundDevice = null;
+      for (const manufacturer of mockPhoneRepairData.manufacturers) {
+        foundDevice = manufacturer.devices.find(
+          (d) => d.id.toString() === deviceId.toString()
+        );
+        if (foundDevice) break;
+      }
+      return Promise.resolve(foundDevice?.actions || []);
+    },
+    fetchPrice: (actionId) => {
+      let foundPrice = null;
 
-    // Default response
-    return Promise.resolve({
-      ok: false,
-      status: 404,
-      json: () => Promise.resolve({ error: 'Not found' }),
-    });
+      searchLoop: for (const manufacturer of mockPhoneRepairData.manufacturers) {
+        for (const device of manufacturer.devices) {
+          for (const action of device.actions) {
+            if (
+              action.id.toString() === actionId.toString() &&
+              action.prices &&
+              action.prices.length > 0
+            ) {
+              foundPrice = {
+                price: action.prices[0].price,
+                deviceName: device.name,
+                actionName: action.name,
+                manufacturerName: manufacturer.name,
+              };
+              break searchLoop;
+            }
+          }
+        }
+      }
+
+      return Promise.resolve(foundPrice || { price: 0 });
+    },
   };
 
   // Create container with instructions
@@ -244,13 +219,34 @@ export const WithErrorHandling = () => {
 
   container.appendChild(instructions);
 
-  // Create form component
-  const repairForm = new PhoneRepairForm({
-    useMockData: false, // Use our custom fetch mock above
+  // Create form component using the custom mock service
+  const repairForm = PhoneRepairFormFactory.createWithMockService({
+    service: errorMockService,
     onPriceChange: (priceData) => console.log('Price selected:', priceData),
   });
 
   container.appendChild(repairForm.getElement());
 
   return container;
+};
+
+export const WithCustomLabels = () => {
+  return PhoneRepairFormFactory.createWithMockData({
+    mockData: mockPhoneRepairData,
+    labels: {
+      title: 'Request a Repair',
+      manufacturerStep: 'Brand',
+      deviceStep: 'Device',
+      serviceStep: 'Repair Type',
+      manufacturerLabel: 'Select Brand:',
+      deviceLabel: 'Select Device:',
+      serviceLabel: 'Select Repair:',
+      priceLabel: 'Your estimated price:',
+      initialPriceText: 'Please complete all selections to see price',
+      loadingPriceText: 'Loading price...',
+      usedPhoneText: 'Looking for a better deal? Try our used phones!',
+      scheduleButtonText: 'Schedule Repair Now',
+    },
+    onPriceChange: (priceData) => console.log('Price selected:', priceData),
+  });
 };

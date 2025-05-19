@@ -318,65 +318,28 @@ export default class PhoneRepairForm extends Component {
   }
 
   /**
-   * Optimized method to update select options
+   * Update select options
    * @private
    * @param {Object} selectComponent - Select component
    * @param {Array} options - Options array with value and label properties
    */
   updateSelectOptions(selectComponent, options) {
-    // Don't recreate the select if we can just update options
-    if (selectComponent.getElement().parentNode) {
-      const select = selectComponent.getElement().querySelector('select');
+    // Update select component with new options
+    selectComponent.props.options = options;
 
-      // Only proceed if we found the select element
-      if (select) {
-        // Save current value
-        const currentValue = select.value;
-
-        // Clear existing options (but keep placeholder if present)
-        const placeholder = select.querySelector('option[value=""]');
-        select.innerHTML = '';
-
-        // Re-add placeholder if it existed
-        if (placeholder) {
-          select.appendChild(placeholder);
-        }
-
-        // Add new options
-        options.forEach((option) => {
-          const optionEl = document.createElement('option');
-          optionEl.value = option.value;
-          optionEl.textContent = option.label || option.value;
-
-          if (option.disabled) {
-            optionEl.disabled = true;
-          }
-
-          select.appendChild(optionEl);
-        });
-
-        // Restore previous value if it exists in new options
-        if (options.some((opt) => opt.value === currentValue)) {
-          select.value = currentValue;
-        }
-
-        // Update component's internal options reference
-        selectComponent.props.options = options;
-
-        return;
-      }
-    }
-
-    // Fall back to the old method of replacing the entire component
+    // Re-render the select component
     const selectElement = selectComponent.getElement();
     const parentNode = selectElement.parentNode;
 
     if (parentNode) {
+      // Create a new select component with updated options
       const newSelect = new Select({
         ...selectComponent.props,
         options,
+        disabled: false, // Explicitly set disabled to false
       });
 
+      // Replace the old select with the new one
       parentNode.replaceChild(newSelect.getElement(), selectElement);
 
       // Update the reference
@@ -391,6 +354,15 @@ export default class PhoneRepairForm extends Component {
   }
 
   /**
+   * Update component state
+   * @private
+   * @param {Object} newState - New state object to merge with current state
+   */
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
+  }
+
+  /**
    * Handle manufacturer selection change
    * @private
    * @param {string} manufacturerId - Selected manufacturer ID
@@ -398,7 +370,7 @@ export default class PhoneRepairForm extends Component {
   handleManufacturerChange(manufacturerId) {
     if (!manufacturerId) return;
 
-    this.state.selectedManufacturer = manufacturerId;
+    this.setState({ selectedManufacturer: manufacturerId });
     this.updateFormState();
 
     // Call callback if provided
@@ -415,7 +387,7 @@ export default class PhoneRepairForm extends Component {
   handleDeviceChange(deviceId) {
     if (!deviceId) return;
 
-    this.state.selectedDevice = deviceId;
+    this.setState({ selectedDevice: deviceId });
     this.updateFormState();
 
     // Call callback if provided
@@ -432,7 +404,7 @@ export default class PhoneRepairForm extends Component {
   handleActionChange(actionId) {
     if (!actionId) return;
 
-    this.state.selectedAction = actionId;
+    this.setState({ selectedAction: actionId });
     this.updateFormState();
 
     // Call callback if provided

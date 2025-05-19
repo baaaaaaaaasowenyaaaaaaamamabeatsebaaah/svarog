@@ -202,7 +202,7 @@ export default class CollapsibleHeader extends Component {
 
         const callButton = new Button({
           text: callButtonText,
-          variant: 'primary',
+          variant: 'default',
           onClick: handleCallClick,
         });
 

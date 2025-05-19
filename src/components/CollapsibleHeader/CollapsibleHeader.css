@@ -168,8 +168,8 @@
 /* Desktop positioning */
 @media (min-width: 769px) {
   .collapsible-header__sticky-icons {
-    top: 140px; /* Just below collapsed header */
-    right: var(--space-4);
+    top: 160px; /* Just below collapsed header */
+    right: 0;
     flex-direction: column;
   }
 }

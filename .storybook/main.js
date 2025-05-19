@@ -23,10 +23,16 @@ const components = getComponents();
 const prototypes = getPrototypes();
 const stage = new Stage();
 
+let currentStoryLoadToken = null;
+
 const onStorySelect = (story) => {
+  const loadToken = {};
+  currentStoryLoadToken = loadToken;
+
   story
     .module()
     .then((module) => {
+      if (currentStoryLoadToken !== loadToken) return;
       console.log('Story module loaded:', module);
       const storyFunction = module();
       console.log('Story function result:', storyFunction);
@@ -48,6 +54,7 @@ const onStorySelect = (story) => {
       }
     })
     .catch((error) => {
+      if (currentStoryLoadToken !== loadToken) return;
       console.error('Error loading story module', error);
       const errorElement = document.createElement('div');
       errorElement.style.padding = '20px';
@@ -135,41 +142,28 @@ const initializeApp = () => {
 
       // Allow the DOM to render fully before attempting to find and select the story
       setTimeout(() => {
-        // Find the matching story in our components and prototypes
-        const findAndSelectStory = (items) => {
-          for (const component of items) {
-            for (const story of component.stories) {
-              if (story.name === storyData.name) {
-                console.log('Found last story, loading it:', story.name);
-
-                // Find the component item and expand it
-                const componentItems =
-                  document.querySelectorAll('.component-item');
-                componentItems.forEach((item) => {
-                  const storyLinks = item.querySelectorAll('.story-link');
-                  storyLinks.forEach((link) => {
-                    if (link.textContent === story.name) {
-                      // Expand the component
-                      item.classList.add('expanded');
-
-                      // Click the story link
-                      link.click();
+        const activeStoryLink = document.querySelector('.story-link.active');
+        if (activeStoryLink) {
+          console.log('Main: Refreshing current story with new theme');
+          // Instead of clicking, get the story data and call onStorySelect directly
+          const storyElements = document.querySelectorAll('.story-link');
+          storyElements.forEach((el) => {
+            if (el.classList.contains('active')) {
+              // Find the story data
+              for (const category of [components, prototypes]) {
+                for (const component of category) {
+                  for (const story of component.stories) {
+                    if (story.name === el.textContent) {
+                      onStorySelect(story);
+                      return;
                     }
-                  });
-                });
-
-                return true;
+                  }
+                }
               }
             }
-          }
-          return false;
-        };
-
-        // Try to find the story in both components and prototypes
-        if (!findAndSelectStory(components)) {
-          findAndSelectStory(prototypes);
+          });
         }
-      }, 100); // Small delay to ensure DOM is ready
+      }, 100);
     }
   } catch (error) {
     console.debug('Could not restore last story', error);

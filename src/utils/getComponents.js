@@ -1013,6 +1013,13 @@ export const getComponents = () => {
               '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
             ).then((m) => m.WithoutSteps),
         },
+        {
+          name: 'WithCustomLabels',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithCustomLabels),
+        },
       ],
     },
 

@@ -40,7 +40,7 @@
   --button-color: var(--color-brand-primary);
   --button-border: 2px solid var(--color-brand-primary);
   --button-radius: 0;
-  --button-padding: var(--space-2) var(--space-4);
+  --button-padding: var(--space-2) var(--space-5);
   --button-font-size: var(--font-size-xl);
   --button-font-family: var(--font-family-primary);
   --button-font-weight: var(--font-weight-medium);
