@@ -1,5 +1,6 @@
 // src/factories/UsedPhonePriceFormFactory.js
-import UsedPhonePriceForm from '../components/UsedPhonePriceForm/UsedPhonePriceForm.js';
+
+import UsedPhonePriceFormContainer from '../components/UsedPhonePriceForm/UsedPhonePriceFormContainer.js';
 import UsedPhonePriceService from '../services/UsedPhonePriceService.js';
 import MockUsedPhonePriceService from '../services/MockUsedPhonePriceService.js';
 import {
@@ -21,7 +22,7 @@ export default class UsedPhonePriceFormFactory {
    * @param {Object} [options.apiOptions] - API service configuration options
    * @param {boolean} [options.showStepsIndicator=true] - Whether to show steps indicator
    * @param {string} [options.className=''] - Additional CSS class names
-   * @returns {UsedPhonePriceForm} A new UsedPhonePriceForm instance
+   * @returns {UsedPhonePriceFormContainer} A new UsedPhonePriceFormContainer instance
    */
   static createStandard({
     onPriceChange,
@@ -37,8 +38,8 @@ export default class UsedPhonePriceFormFactory {
       ...apiOptions,
     });
 
-    // Create form
-    return new UsedPhonePriceForm({
+    // Create container with service
+    return new UsedPhonePriceFormContainer({
       service,
       onPriceChange,
       onSubmit,
@@ -59,7 +60,7 @@ export default class UsedPhonePriceFormFactory {
    * @param {number} [options.mockDelay=300] - Simulated API delay in milliseconds
    * @param {boolean} [options.showStepsIndicator=true] - Whether to show steps indicator
    * @param {string} [options.className=''] - Additional CSS class names
-   * @returns {UsedPhonePriceForm} A new UsedPhonePriceForm instance with mock service
+   * @returns {UsedPhonePriceFormContainer} A new UsedPhonePriceFormContainer instance with mock service
    */
   static createWithMockData({
     mockData,
@@ -79,8 +80,8 @@ export default class UsedPhonePriceFormFactory {
     // Create mock service instance
     const service = new MockUsedPhonePriceService(mockData, mockDelay);
 
-    // Create form with mock service
-    return new UsedPhonePriceForm({
+    // Create container with mock service
+    return new UsedPhonePriceFormContainer({
       service,
       onPriceChange,
       onSubmit,
