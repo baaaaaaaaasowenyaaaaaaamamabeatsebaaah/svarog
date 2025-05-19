@@ -2,7 +2,33 @@
 import './Select.css';
 import { Component } from '../../utils/componentFactory.js';
 
-export default class Select extends Component {
+/**
+ * Presentational Select component
+ * @extends Component
+ */
+export class Select extends Component {
+  /**
+   * Create a Select component
+   * @param {Object} props - Select properties
+   * @param {Array} props.options - Select options
+   * @param {string} [props.id] - Select ID attribute
+   * @param {string} [props.name] - Select name attribute
+   * @param {string|Array} [props.value=''] - Selected value(s)
+   * @param {string} [props.placeholder='Select an option'] - Placeholder text
+   * @param {boolean} [props.required=false] - Whether selection is required
+   * @param {boolean} [props.disabled=false] - Whether select is disabled
+   * @param {boolean} [props.multiple=false] - Whether multiple selection is allowed
+   * @param {string} [props.className=''] - Additional CSS class names
+   * @param {Function} [props.onChange] - Change event handler
+   * @param {Function} [props.onFocus] - Focus event handler
+   * @param {Function} [props.onBlur] - Blur event handler
+   * @param {string} [props.validationMessage] - Custom validation message
+   * @param {boolean} [props.showValidation=true] - Whether to show validation messages
+   * @param {boolean} [props.isOpen=false] - Whether dropdown is open
+   * @param {boolean} [props.isValid=null] - Validation state
+   * @param {Function} [props.onToggleDropdown] - Dropdown toggle handler
+   * @param {Function} [props.onSelectOption] - Option selection handler
+   */
   constructor({
     options = [],
     id,
@@ -16,8 +42,12 @@ export default class Select extends Component {
     onChange,
     onFocus,
     onBlur,
-    validationMessage,
+    validationMessage = '',
     showValidation = true,
+    isOpen = false,
+    isValid = null,
+    onToggleDropdown,
+    onSelectOption,
   }) {
     super();
 
@@ -40,49 +70,86 @@ export default class Select extends Component {
       onBlur,
       validationMessage,
       showValidation,
+      isOpen,
+      isValid,
+      onToggleDropdown,
+      onSelectOption,
     };
 
-    this.container = this.createSelectContainer();
-    this.isValid = null; // Start with no validation state
+    // UI elements references
+    this.container = null;
+    this.select = null;
+    this.customSelect = null;
+    this.dropdown = null;
+    this.selectedDisplay = null;
     this.validationMessageElement = null;
-    this.isOpen = false;
-
-    if (this.props.showValidation) {
-      this.validationMessageElement = this.createValidationMessage();
-      this.container.appendChild(this.validationMessageElement);
-    }
-
-    // Set initial value correctly
-    this.setValue(this.props.value);
-
-    // Add document click listener to close dropdown when clicking outside
-    this.documentClickHandler = this.handleDocumentClick.bind(this);
-    document.addEventListener('click', this.documentClickHandler);
   }
 
+  /**
+   * Initialize component
+   * @override
+   */
+  initialize() {
+    // Create DOM elements
+    this.container = this.createSelectContainer();
+
+    super.initialize();
+  }
+
+  /**
+   * Create select container with all elements
+   * @private
+   * @returns {HTMLElement} Select container element
+   */
   createSelectContainer() {
     const container = this.createElement('div', {
       className: this.createClassNames(
         'select-container',
-        this.props.className
+        this.props.className,
+        {
+          'select-container--invalid': this.props.isValid === false,
+          'select-container--valid': this.props.isValid === true,
+          'has-error': this.props.isValid === false,
+          'has-success': this.props.isValid === true,
+        }
       ),
     });
 
     // Create both the native select and custom UI
     const nativeSelect = this.createSelectElement();
     container.appendChild(nativeSelect);
-    this.select = nativeSelect; // Maintain backward compatibility
+    this.select = nativeSelect;
 
     // Create custom UI elements
     const customSelect = this.createCustomUI();
     container.appendChild(customSelect);
     this.customSelect = customSelect;
 
+    // Add validation message if needed
+    if (this.props.showValidation) {
+      this.validationMessageElement = this.createValidationMessage();
+      container.appendChild(this.validationMessageElement);
+    }
+
     return container;
   }
 
+  /**
+   * Create the native select element
+   * @private
+   * @returns {HTMLElement} Select element
+   */
   createSelectElement() {
-    const { options, id, name, required, disabled, multiple } = this.props;
+    const {
+      options,
+      id,
+      name,
+      value,
+      required,
+      disabled,
+      multiple,
+      placeholder,
+    } = this.props;
 
     const attributes = {};
     if (id) attributes.id = id;
@@ -94,27 +161,27 @@ export default class Select extends Component {
       className: 'select-native',
       attributes,
       events: {
-        change: this.handleChange.bind(this),
-        focus: this.handleFocus.bind(this),
-        blur: this.handleBlur.bind(this),
+        change: this.handleNativeChange.bind(this),
+        focus: this.handleNativeFocus.bind(this),
+        blur: this.handleNativeBlur.bind(this),
       },
+      disabled,
     });
 
-    if (disabled) select.disabled = true;
-
     // Placeholder for single select only
-    if (!multiple && this.props.placeholder) {
+    if (!multiple && placeholder) {
       const placeholderOption = this.createElement('option', {
         attributes: {
           value: '',
           disabled: true,
-          selected: true,
+          selected: !value,
         },
-        textContent: this.props.placeholder,
+        textContent: placeholder,
       });
       select.appendChild(placeholderOption);
     }
 
+    // Add options
     options.forEach((option) => {
       const optionElement = this.createElement('option', {
         attributes: {
@@ -123,22 +190,41 @@ export default class Select extends Component {
         },
         textContent: option.label || option.value,
       });
+
+      // Set selected state
+      if (multiple && Array.isArray(value)) {
+        optionElement.selected = value.includes(option.value);
+      } else {
+        optionElement.selected = option.value === value;
+      }
+
       select.appendChild(optionElement);
     });
 
     return select;
   }
 
+  /**
+   * Create custom UI for select
+   * @private
+   * @returns {HTMLElement} Custom select UI
+   */
   createCustomUI() {
-    const { disabled, placeholder, multiple } = this.props;
+    const { disabled, placeholder, multiple, isOpen } = this.props;
 
     // Create custom select container
     const customSelect = this.createElement('div', {
-      className: 'select-custom',
+      className: this.createClassNames('select-custom', {
+        'select-custom--disabled': disabled,
+        'select-custom--open': isOpen,
+        'select-custom--valid': this.props.isValid === true,
+        'select-custom--invalid': this.props.isValid === false,
+      }),
       attributes: {
         tabindex: disabled ? '-1' : '0',
         'aria-haspopup': 'listbox',
         role: 'combobox',
+        'aria-expanded': isOpen ? 'true' : 'false',
       },
       events: {
         click: this.handleCustomSelectClick.bind(this),
@@ -146,14 +232,13 @@ export default class Select extends Component {
       },
     });
 
-    if (disabled) {
-      customSelect.classList.add('select-custom--disabled');
-    }
-
     // Create selected value display
+    const selectedText = this.getSelectedText();
     const selectedDisplay = this.createElement('div', {
-      className: 'select-custom__selected select-custom__selected--placeholder',
-      textContent: placeholder,
+      className: this.createClassNames('select-custom__selected', {
+        'select-custom__selected--placeholder': !selectedText,
+      }),
+      textContent: selectedText || placeholder,
     });
     this.selectedDisplay = selectedDisplay;
     customSelect.appendChild(selectedDisplay);
@@ -166,7 +251,9 @@ export default class Select extends Component {
 
     // Create dropdown with options
     const dropdown = this.createElement('div', {
-      className: 'select-custom__dropdown',
+      className: this.createClassNames('select-custom__dropdown', {
+        'select-custom__dropdown--open': isOpen,
+      }),
       attributes: {
         role: 'listbox',
         'aria-multiselectable': multiple ? 'true' : 'false',
@@ -180,11 +267,20 @@ export default class Select extends Component {
     return customSelect;
   }
 
+  /**
+   * Create custom options for dropdown
+   * @private
+   * @param {HTMLElement} dropdown - Dropdown container
+   */
   createCustomOptions(dropdown) {
-    const { options, multiple } = this.props;
+    const { options, multiple, value } = this.props;
 
     options.forEach((option) => {
       const isDisabled = !!option.disabled;
+      const isSelected =
+        multiple && Array.isArray(value)
+          ? value.includes(option.value)
+          : option.value === value;
 
       // For disabled headers, create a group header instead of an option
       if (
@@ -201,16 +297,16 @@ export default class Select extends Component {
       }
 
       const optionElement = this.createElement('div', {
-        className: this.createClassNames(
-          'select-custom__option',
-          isDisabled ? 'select-custom__option--disabled' : ''
-        ),
+        className: this.createClassNames('select-custom__option', {
+          'select-custom__option--disabled': isDisabled,
+          'select-custom__option--selected': isSelected,
+        }),
         textContent: option.label || option.value,
         attributes: {
           'data-value': option.value,
           role: 'option',
           'aria-disabled': isDisabled ? 'true' : 'false',
-          'aria-selected': 'false',
+          'aria-selected': isSelected ? 'true' : 'false',
           tabindex: isDisabled ? '-1' : '0',
         },
         events: {
@@ -223,7 +319,9 @@ export default class Select extends Component {
 
       if (multiple) {
         const checkbox = this.createElement('span', {
-          className: 'select-custom__checkbox',
+          className: this.createClassNames('select-custom__checkbox', {
+            'select-custom__checkbox--checked': isSelected,
+          }),
         });
         optionElement.insertBefore(checkbox, optionElement.firstChild);
       }
@@ -232,51 +330,95 @@ export default class Select extends Component {
     });
   }
 
+  /**
+   * Create validation message element
+   * @private
+   * @returns {HTMLElement} Validation message element
+   */
   createValidationMessage() {
+    const isInvalid = this.props.isValid === false;
+
     return this.createElement('div', {
       className: 'select-validation-message',
-      // Only set text content if there's an initial validation message
-      textContent: this.props.validationMessage || '',
+      textContent: isInvalid ? this.props.validationMessage : '',
       attributes: { 'aria-live': 'polite' },
     });
   }
 
-  handleChange(event) {
-    if (this.props.multiple) {
-      const selectedOptions = Array.from(event.target.selectedOptions);
-      this.props.value = selectedOptions.map((option) => option.value);
-    } else {
-      this.props.value = event.target.value;
+  /**
+   * Get display text for selected option(s)
+   * @private
+   * @returns {string} Selected text
+   */
+  getSelectedText() {
+    const { value, options, multiple } = this.props;
+
+    if (multiple && Array.isArray(value) && value.length > 0) {
+      // Find corresponding labels for selected values
+      const selectedLabels = value.map((val) => {
+        const option = options.find((opt) => opt.value === val);
+        return option ? option.label || option.value : val;
+      });
+
+      if (selectedLabels.length <= 2) {
+        return selectedLabels.join(', ');
+      } else {
+        return `${selectedLabels.length} items selected`;
+      }
+    } else if (!multiple && value) {
+      const selectedOption = options.find((opt) => opt.value === value);
+      return selectedOption
+        ? selectedOption.label || selectedOption.value
+        : value;
     }
 
-    this.updateCustomSelectedDisplay();
+    return '';
+  }
 
-    if (this.props.showValidation && this.isValid !== null) {
-      this.validate();
-    }
+  /**
+   * Handle native select change
+   * @private
+   * @param {Event} event - Change event
+   */
+  handleNativeChange(event) {
+    const { onChange, multiple } = this.props;
 
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(event, this.getValue());
+    // Call onChange callback
+    if (typeof onChange === 'function') {
+      if (multiple) {
+        const selectedOptions = Array.from(event.target.selectedOptions);
+        const selectedValues = selectedOptions.map((option) => option.value);
+        onChange(event, selectedValues);
+      } else {
+        onChange(event, event.target.value);
+      }
     }
   }
 
-  handleFocus(event) {
+  /**
+   * Handle native select focus
+   * @private
+   * @param {Event} event - Focus event
+   */
+  handleNativeFocus(event) {
     this.container.classList.add('select-container--focused');
     this.customSelect.classList.add('select-custom--focused');
+
     if (typeof this.props.onFocus === 'function') {
       this.props.onFocus(event);
     }
   }
 
-  handleBlur(event) {
+  /**
+   * Handle native select blur
+   * @private
+   * @param {Event} event - Blur event
+   */
+  handleNativeBlur(event) {
     // Don't remove focused class if clicking on dropdown or options
     if (!this.customSelect.contains(event.relatedTarget)) {
       this.container.classList.remove('select-container--focused');
       this.customSelect.classList.remove('select-custom--focused');
-
-      if (this.props.showValidation && this.isValid !== null) {
-        this.validate();
-      }
 
       if (typeof this.props.onBlur === 'function') {
         this.props.onBlur(event);
@@ -284,15 +426,28 @@ export default class Select extends Component {
     }
   }
 
+  /**
+   * Handle custom select click
+   * @private
+   * @param {Event} event - Click event
+   */
   handleCustomSelectClick(event) {
     event.stopPropagation();
 
     if (this.props.disabled) return;
 
-    this.toggleDropdown();
+    if (typeof this.props.onToggleDropdown === 'function') {
+      this.props.onToggleDropdown();
+    }
+
     this.select.focus();
   }
 
+  /**
+   * Handle custom select keydown
+   * @private
+   * @param {Event} event - Keydown event
+   */
   handleCustomSelectKeydown(event) {
     if (this.props.disabled) return;
 
@@ -300,39 +455,69 @@ export default class Select extends Component {
       case 'Enter':
       case ' ':
         event.preventDefault();
-        this.toggleDropdown();
+        if (typeof this.props.onToggleDropdown === 'function') {
+          this.props.onToggleDropdown();
+        }
         break;
       case 'ArrowDown':
         event.preventDefault();
-        this.openDropdown();
+        if (
+          !this.props.isOpen &&
+          typeof this.props.onToggleDropdown === 'function'
+        ) {
+          this.props.onToggleDropdown(true); // Force open
+        }
         this.focusNextOption();
         break;
       case 'ArrowUp':
         event.preventDefault();
-        this.openDropdown();
+        if (
+          !this.props.isOpen &&
+          typeof this.props.onToggleDropdown === 'function'
+        ) {
+          this.props.onToggleDropdown(true); // Force open
+        }
         this.focusPreviousOption();
         break;
       case 'Escape':
         event.preventDefault();
-        this.closeDropdown();
+        if (
+          this.props.isOpen &&
+          typeof this.props.onToggleDropdown === 'function'
+        ) {
+          this.props.onToggleDropdown(false); // Force close
+        }
         break;
       case 'Tab':
-        this.closeDropdown();
+        if (
+          this.props.isOpen &&
+          typeof this.props.onToggleDropdown === 'function'
+        ) {
+          this.props.onToggleDropdown(false); // Force close
+        }
         break;
     }
   }
 
+  /**
+   * Handle option click
+   * @private
+   * @param {string} value - Option value
+   * @param {Event} event - Click event
+   */
   handleOptionClick(value, event) {
     event.stopPropagation();
 
-    if (this.props.multiple) {
-      this.toggleOptionSelection(value);
-    } else {
-      this.selectOption(value);
-      this.closeDropdown();
+    if (typeof this.props.onSelectOption === 'function') {
+      this.props.onSelectOption(value);
     }
   }
 
+  /**
+   * Handle option keydown
+   * @private
+   * @param {Event} event - Keydown event
+   */
   handleOptionKeydown(event) {
     const value = event.currentTarget.getAttribute('data-value');
 
@@ -340,11 +525,8 @@ export default class Select extends Component {
       case 'Enter':
       case ' ':
         event.preventDefault();
-        if (this.props.multiple) {
-          this.toggleOptionSelection(value);
-        } else {
-          this.selectOption(value);
-          this.closeDropdown();
+        if (typeof this.props.onSelectOption === 'function') {
+          this.props.onSelectOption(value);
         }
         break;
       case 'ArrowDown':
@@ -357,51 +539,23 @@ export default class Select extends Component {
         break;
       case 'Escape':
         event.preventDefault();
-        this.closeDropdown();
+        if (typeof this.props.onToggleDropdown === 'function') {
+          this.props.onToggleDropdown(false); // Force close
+        }
         this.customSelect.focus();
         break;
       case 'Tab':
-        this.closeDropdown();
+        if (typeof this.props.onToggleDropdown === 'function') {
+          this.props.onToggleDropdown(false); // Force close
+        }
         break;
     }
   }
 
-  handleDocumentClick(event) {
-    if (this.isOpen && !this.container.contains(event.target)) {
-      this.closeDropdown();
-    }
-  }
-
-  toggleDropdown() {
-    if (this.isOpen) {
-      this.closeDropdown();
-    } else {
-      this.openDropdown();
-    }
-  }
-
-  openDropdown() {
-    if (!this.isOpen && !this.props.disabled) {
-      this.isOpen = true;
-      this.customSelect.classList.add('select-custom--open');
-      this.dropdown.classList.add('select-custom__dropdown--open');
-
-      // Set aria-expanded
-      this.customSelect.setAttribute('aria-expanded', 'true');
-    }
-  }
-
-  closeDropdown() {
-    if (this.isOpen) {
-      this.isOpen = false;
-      this.customSelect.classList.remove('select-custom--open');
-      this.dropdown.classList.remove('select-custom__dropdown--open');
-
-      // Set aria-expanded
-      this.customSelect.setAttribute('aria-expanded', 'false');
-    }
-  }
-
+  /**
+   * Focus the next option in the dropdown
+   * @private
+   */
   focusNextOption() {
     const options = this.getSelectableOptions();
     if (!options.length) return;
@@ -419,6 +573,10 @@ export default class Select extends Component {
     options[nextIndex].focus();
   }
 
+  /**
+   * Focus the previous option in the dropdown
+   * @private
+   */
   focusPreviousOption() {
     const options = this.getSelectableOptions();
     if (!options.length) return;
@@ -436,61 +594,129 @@ export default class Select extends Component {
     options[prevIndex].focus();
   }
 
+  /**
+   * Get selectable options in the dropdown
+   * @private
+   * @returns {NodeList} Selectable options
+   */
   getSelectableOptions() {
     return this.dropdown.querySelectorAll(
       '.select-custom__option:not(.select-custom__option--disabled)'
     );
   }
 
-  selectOption(value) {
-    // Update native select
-    this.select.value = value;
-
-    // Create and dispatch change event to trigger the handleChange
-    const changeEvent = new Event('change');
-    this.select.dispatchEvent(changeEvent);
+  /**
+   * Get the select container element
+   * @override
+   * @returns {HTMLElement} Select container element
+   */
+  getElement() {
+    return this.container;
   }
 
-  toggleOptionSelection(value) {
-    // Get current values
-    const currentValues = Array.from(this.select.selectedOptions).map(
-      (option) => option.value
-    );
+  /**
+   * Update the component with new props
+   * @param {Object} props - New props
+   */
+  update(props) {
+    // Merge new props
+    this.props = { ...this.props, ...props };
 
-    // Toggle the value
-    const newValues = currentValues.includes(value)
-      ? currentValues.filter((v) => v !== value)
-      : [...currentValues, value];
-
-    // Update native select
-    Array.from(this.select.options).forEach((option) => {
-      option.selected = newValues.includes(option.value);
-    });
-
-    // Create and dispatch change event to trigger the handleChange
-    const changeEvent = new Event('change');
-    this.select.dispatchEvent(changeEvent);
+    // Update native select value
+    if (this.props.multiple && Array.isArray(this.props.value)) {
+      Array.from(this.select.options).forEach((option) => {
+        option.selected = this.props.value.includes(option.value);
+      });
+    } else {
+      this.select.value = this.props.value;
+    }
 
     // Update custom UI
-    this.updateCustomOptionStates();
+    this.updateCustomUI();
+
+    // Update validation message if applicable
+    if (this.validationMessageElement) {
+      if (this.props.isValid === false && this.props.validationMessage) {
+        this.validationMessageElement.textContent =
+          this.props.validationMessage;
+      } else {
+        this.validationMessageElement.textContent = '';
+      }
+    }
+
+    // Update container classes
+    this.container.classList.toggle(
+      'select-container--invalid',
+      this.props.isValid === false
+    );
+    this.container.classList.toggle(
+      'select-container--valid',
+      this.props.isValid === true
+    );
+    this.container.classList.toggle('has-error', this.props.isValid === false);
+    this.container.classList.toggle('has-success', this.props.isValid === true);
   }
 
-  updateCustomOptionStates() {
-    const selectedValues = this.getValue();
-    const values = Array.isArray(selectedValues)
-      ? selectedValues
-      : [selectedValues];
+  /**
+   * Update custom UI elements
+   * @private
+   */
+  updateCustomUI() {
+    // Update selected display
+    const selectedText = this.getSelectedText();
+    this.selectedDisplay.textContent = selectedText || this.props.placeholder;
+    this.selectedDisplay.classList.toggle(
+      'select-custom__selected--placeholder',
+      !selectedText
+    );
 
-    // Update all options
+    // Update dropdown open state
+    this.customSelect.classList.toggle(
+      'select-custom--open',
+      this.props.isOpen
+    );
+    this.dropdown.classList.toggle(
+      'select-custom__dropdown--open',
+      this.props.isOpen
+    );
+    this.customSelect.setAttribute(
+      'aria-expanded',
+      this.props.isOpen ? 'true' : 'false'
+    );
+
+    // Update validation classes
+    this.customSelect.classList.toggle(
+      'select-custom--invalid',
+      this.props.isValid === false
+    );
+    this.customSelect.classList.toggle(
+      'select-custom--valid',
+      this.props.isValid === true
+    );
+
+    // Update selected options
+    this.updateSelectedOptions();
+  }
+
+  /**
+   * Update selected state of custom options
+   * @private
+   */
+  updateSelectedOptions() {
+    const { multiple, value } = this.props;
     const options = this.dropdown.querySelectorAll('.select-custom__option');
+
     options.forEach((option) => {
-      const value = option.getAttribute('data-value');
-      const isSelected = values.includes(value);
+      const optionValue = option.getAttribute('data-value');
+      const isSelected =
+        multiple && Array.isArray(value)
+          ? value.includes(optionValue)
+          : optionValue === value;
 
       option.classList.toggle('select-custom__option--selected', isSelected);
       option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
 
-      if (this.props.multiple) {
+      if (multiple) {
         const checkbox = option.querySelector('.select-custom__checkbox');
         if (checkbox) {
           checkbox.classList.toggle(
@@ -501,114 +727,18 @@ export default class Select extends Component {
       }
     });
   }
+}
 
-  updateCustomSelectedDisplay() {
-    const value = this.getValue();
+// For backward compatibility
+export default Select;
 
-    if (this.props.multiple) {
-      if (Array.isArray(value) && value.length) {
-        // Find corresponding labels for selected values
-        const selectedLabels = value.map((val) => {
-          const option = this.props.options.find((opt) => opt.value === val);
-          return option ? option.label || option.value : val;
-        });
-
-        if (selectedLabels.length <= 2) {
-          this.selectedDisplay.textContent = selectedLabels.join(', ');
-        } else {
-          this.selectedDisplay.textContent = `${selectedLabels.length} items selected`;
-        }
-      } else {
-        this.selectedDisplay.textContent = this.props.placeholder;
-      }
-    } else {
-      if (value) {
-        const selectedOption = this.props.options.find(
-          (opt) => opt.value === value
-        );
-        this.selectedDisplay.textContent = selectedOption
-          ? selectedOption.label || selectedOption.value
-          : value;
-      } else {
-        this.selectedDisplay.textContent = this.props.placeholder;
-      }
-    }
-  }
-
-  validate() {
-    let isValid = true;
-
-    if (this.props.required) {
-      if (this.props.multiple) {
-        isValid =
-          Array.isArray(this.props.value) && this.props.value.length > 0;
-      } else {
-        isValid = !!this.props.value && this.props.value !== '';
-      }
-    }
-
-    this.isValid = isValid;
-    this.updateValidationStyles(isValid);
-    return isValid;
-  }
-
-  updateValidationStyles(isValid) {
-    // Update container classes
-    this.container.classList.toggle('select-container--invalid', !isValid);
-    this.container.classList.toggle('select-container--valid', isValid);
-    this.container.classList.toggle('has-error', !isValid);
-    this.container.classList.toggle('has-success', isValid);
-
-    // Update custom select classes
-    this.customSelect.classList.toggle('select-custom--invalid', !isValid);
-    this.customSelect.classList.toggle('select-custom--valid', isValid);
-
-    // Update validation message
-    if (this.validationMessageElement) {
-      if (!isValid) {
-        // Only set validation message text if invalid
-        this.validationMessageElement.textContent =
-          this.props.validationMessage || 'Please select an option';
-      } else {
-        // Clear validation message when valid
-        this.validationMessageElement.textContent = '';
-      }
-    }
-  }
-
-  getValue() {
-    return this.props.value;
-  }
-
-  setValue(value) {
-    this.props.value = value;
-
-    if (this.props.multiple && Array.isArray(value)) {
-      Array.from(this.select.options).forEach((option) => {
-        option.selected = value.includes(option.value);
-      });
-    } else {
-      this.select.value = value;
-    }
-
-    // Update custom UI
-    this.updateCustomSelectedDisplay();
-    this.updateCustomOptionStates();
-
-    // Only validate if validation has already been performed once
-    if (this.props.showValidation && this.isValid !== null) {
-      this.validate();
-    }
-
-    return this;
-  }
-
-  getElement() {
-    return this.container;
-  }
-
-  // Clean up event listeners to prevent memory leaks
-  destroy() {
-    document.removeEventListener('click', this.documentClickHandler);
-  }
+/**
+ * Create a Select component (backward compatibility)
+ * @param {Object} props - Select props
+ * @returns {SelectContainer} Select container instance
+ */
+export function createSelect(props) {
+  // Import dynamically to avoid circular dependencies
+  const { SelectContainer } = require('./SelectContainer.js');
+  return new SelectContainer(props);
 }

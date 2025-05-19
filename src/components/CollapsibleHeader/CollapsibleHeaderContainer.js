@@ -1,86 +1,108 @@
 // src/components/CollapsibleHeader/CollapsibleHeaderContainer.js
-import { Component } from '../../utils/componentFactory.js';
+import { Container } from '../../utils/containerFactory.js';
 import CollapsibleHeader from './CollapsibleHeader.js';
-import StickyContactIcons from '../StickyContactIcons/StickyContactIcons.js';
+import { eventBus } from '../../utils/eventBus.js';
 
 /**
- * Container component that manages state for the CollapsibleHeader
- * Follows the container/presentational pattern from documentation
- * @class CollapsibleHeaderContainer
- * @extends Component
+ * Container for CollapsibleHeader component
+ * @extends Container
  */
-export default class CollapsibleHeaderContainer extends Component {
+export default class CollapsibleHeaderContainer extends Container {
   /**
-   * Create a new CollapsibleHeaderContainer
-   * @param {Object} props - All props for the CollapsibleHeader plus container settings
-   * @param {number} [props.collapseThreshold=100] - Scroll threshold to collapse the header
-   * @param {boolean} [props.showStickyIcons=true] - Whether to show sticky icons when collapsed
-   * @param {string} [props.stickyIconsPosition='right'] - Position of sticky icons
+   * Create a CollapsibleHeader container
+   * @param {Object} props - Container props
+   * @param {string} props.siteName - Site name
+   * @param {Object} props.navigation - Navigation configuration
+   * @param {Object} props.contactInfo - Contact information
+   * @param {string} props.logo - URL to logo image
+   * @param {string} props.compactLogo - URL to compact logo for collapsed state
+   * @param {string} props.callButtonText - Text for call button
+   * @param {Function} props.onCallButtonClick - Callback for call button click
+   * @param {string} props.className - Additional CSS classes
+   * @param {boolean} props.isCollapsed - Whether header is collapsed
+   * @param {boolean} props.isMobile - Whether in mobile view
+   * @param {number} props.collapseThreshold - Scroll threshold for collapsing
+   * @param {boolean} props.showStickyIcons - Whether to show sticky contact icons
    */
-  constructor(props) {
-    super();
-
-    // Container properties
-    this.collapseThreshold = props.collapseThreshold || 100;
-    this.showStickyIcons = props.showStickyIcons !== false;
-    this.stickyIconsPosition = props.stickyIconsPosition || 'right';
-
-    // Special flag for story mode
-    this.storyMode = props._storyMode === true;
-
-    // Component state
-    this.state = {
-      isCollapsed: false,
-      isMobile: this.checkIsMobile(),
-      scrollY: 0,
-    };
-
-    // Create child components
-    this.header = new CollapsibleHeader({
-      ...props,
-      isCollapsed: this.state.isCollapsed,
-      isMobile: this.state.isMobile,
+  constructor({
+    siteName = '',
+    navigation = { items: [] },
+    contactInfo = {},
+    logo = '',
+    compactLogo = '',
+    callButtonText = 'Call us',
+    onCallButtonClick = null,
+    className = '',
+    isCollapsed = false,
+    isMobile = false,
+    collapseThreshold = 100,
+    showStickyIcons = true,
+  }) {
+    // Initialize with CollapsibleHeader as presentational component
+    super({
+      PresentationalComponent: CollapsibleHeader,
+      initialState: {
+        isCollapsed,
+        isMobile,
+      },
+      props: {
+        siteName,
+        navigation,
+        contactInfo,
+        logo,
+        compactLogo,
+        callButtonText,
+        onCallButtonClick,
+        className,
+        showStickyIcons,
+        collapseThreshold,
+      },
     });
-
-    // Create sticky icons if enabled
-    if (this.showStickyIcons) {
-      this.stickyIcons = new StickyContactIcons({
-        location: props.contactInfo.location,
-        phone: props.contactInfo.phone,
-        email: props.contactInfo.email,
-        position: this.stickyIconsPosition,
-        className: 'collapsible-header__sticky-icons',
-      });
-    }
-
-    // Bind event handlers to maintain proper this context
-    this.handleScroll = this.handleScroll.bind(this);
-    this.handleResize = this.handleResize.bind(this);
-
-    // Add event listeners only if not in story mode
-    if (!this.storyMode) {
-      this.addEventListeners();
-    }
   }
 
   /**
-   * Check if viewport is mobile
-   * @returns {boolean} True if viewport is mobile
-   * @private
+   * Initialize container
+   * @override
    */
-  checkIsMobile() {
-    return typeof window !== 'undefined' && window.innerWidth <= 768;
-  }
+  initialize() {
+    super.initialize();
 
-  /**
-   * Add event listeners for scroll and resize
-   * @private
-   */
-  addEventListeners() {
+    // Set initial mobile state based on window width
     if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', this.handleScroll);
-      window.addEventListener('resize', this.handleResize);
+      this.setState({
+        isMobile: window.innerWidth <= 768,
+      });
+
+      // Add scroll and resize event listeners
+      this._bindEventHandlers();
     }
+
+    // Emit initial header state to event bus
+    eventBus.emit('header:initialized', {
+      isCollapsed: this.getState('isCollapsed'),
+      isMobile: this.getState('isMobile'),
+    });
+  }
+
+  /**
+   * Bind DOM event handlers
+   * @private
+   * @override
+   */
+  _bindEventHandlers() {
+    // Scroll event
+    this.handleScroll = this.handleScroll.bind(this);
+    window.addEventListener('scroll', this.handleScroll);
+    this._trackEventListener(window, 'scroll', this.handleScroll);
+
+    // Resize event with debounce
+    this.handleResize = this.debounce(this.handleResize.bind(this), 150);
+    window.addEventListener('resize', this.handleResize);
+    this._trackEventListener(window, 'resize', this.handleResize);
+
+    // Initial check
+    this.handleScroll();
+    this.handleResize();
   }
 
   /**
@@ -88,25 +110,15 @@ export default class CollapsibleHeaderContainer extends Component {
    * @private
    */
   handleScroll() {
-    const scrollY = window.scrollY;
+    const { collapseThreshold } = this.props;
+    const shouldCollapse = window.scrollY > collapseThreshold;
 
-    // Check if scroll position passed threshold
-    const shouldCollapse = scrollY > this.collapseThreshold;
+    if (shouldCollapse !== this.getState('isCollapsed')) {
+      this.setState({ isCollapsed: shouldCollapse });
 
-    // Only update if state changed
-    if (shouldCollapse !== this.state.isCollapsed) {
-      this.state.isCollapsed = shouldCollapse;
-
-      // Update header
-      this.header.update({
-        isCollapsed: shouldCollapse,
-      });
-
-      // Update sticky icons
-      this.updateStickyIconsVisibility();
+      // Emit header state change
+      eventBus.emit('header:collapsed', shouldCollapse);
     }
-
-    this.state.scrollY = scrollY;
   }
 
   /**
@@ -114,83 +126,74 @@ export default class CollapsibleHeaderContainer extends Component {
    * @private
    */
   handleResize() {
-    const isMobile = this.checkIsMobile();
+    const isMobile = window.innerWidth <= 768;
 
-    // Only update if state changed
-    if (isMobile !== this.state.isMobile) {
-      this.state.isMobile = isMobile;
+    if (isMobile !== this.getState('isMobile')) {
+      this.setState({ isMobile });
 
-      // Update header
-      this.header.update({
-        isMobile: isMobile,
-      });
-
-      // Update sticky icons
-      this.updateStickyIconsVisibility();
+      // Emit header state change
+      eventBus.emit('header:responsive', isMobile);
     }
   }
 
   /**
-   * Update sticky icons visibility based on state
+   * Debounce function to limit event handling
    * @private
+   * @param {Function} fn - Function to debounce
+   * @param {number} delay - Delay in milliseconds
+   * @returns {Function} Debounced function
    */
-  updateStickyIconsVisibility() {
-    if (!this.stickyIcons || !this.showStickyIcons) return;
-
-    const iconElement = this.stickyIcons.getElement();
-    const shouldShow = this.state.isCollapsed || this.state.isMobile;
-
-    // First time showing the icons, add to DOM
-    if (shouldShow && !iconElement.parentNode) {
-      document.body.appendChild(iconElement);
-    }
-
-    // Update visibility
-    iconElement.style.display = shouldShow ? 'flex' : 'none';
-
-    // Update position based on mobile state
-    if (this.state.isMobile) {
-      iconElement.style.position = 'fixed';
-      iconElement.style.bottom = '16px';
-      iconElement.style.right = '16px';
-      iconElement.style.top = 'auto';
-      iconElement.style.flexDirection = 'row';
-    } else {
-      iconElement.style.position = 'fixed';
-      const headerHeight = this.header.getElement().offsetHeight || 160;
-      iconElement.style.top = `${headerHeight + 40}px`;
-      iconElement.style.right = '16px';
-      iconElement.style.bottom = 'auto';
-      iconElement.style.flexDirection = 'column';
-    }
+  debounce(fn, delay) {
+    let timeoutId;
+    return function (...args) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        fn.apply(this, args);
+        timeoutId = null;
+      }, delay);
+    };
   }
 
   /**
-   * Clean up event listeners and DOM elements when component is destroyed
+   * Manually set header collapsed state
    * @public
+   * @param {boolean} isCollapsed - Whether header should be collapsed
+   */
+  setCollapsed(isCollapsed) {
+    this.setState({ isCollapsed });
+  }
+
+  /**
+   * Get current header collapsed state
+   * @public
+   * @returns {boolean} Whether header is collapsed
+   */
+  isCollapsed() {
+    return this.getState('isCollapsed');
+  }
+
+  /**
+   * Get current header mobile state
+   * @public
+   * @returns {boolean} Whether header is in mobile view
+   */
+  isMobile() {
+    return this.getState('isMobile');
+  }
+
+  /**
+   * Clean up resources
+   * @override
    */
   destroy() {
-    // Remove event listeners
+    // Remove window event listeners
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', this.handleScroll);
       window.removeEventListener('resize', this.handleResize);
     }
 
-    // Remove sticky icons from DOM
-    if (this.stickyIcons) {
-      const iconElement = this.stickyIcons.getElement();
-      if (iconElement.parentNode) {
-        iconElement.parentNode.removeChild(iconElement);
-      }
-    }
-  }
-
-  /**
-   * Get the header element
-   * @returns {HTMLElement} The header element
-   * @public
-   */
-  getElement() {
-    return this.header.getElement();
+    super.destroy();
   }
 }
