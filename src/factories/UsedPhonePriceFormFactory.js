@@ -90,4 +90,39 @@ export default class UsedPhonePriceFormFactory {
       className,
     });
   }
+
+  /**
+   * Create a UsedPhonePriceForm with a custom mock service that can simulate errors
+   *
+   * @param {Object} options - Configuration options
+   * @param {Object} options.service - Custom mock service with methods to simulate errors
+   * @param {Function} [options.onPriceChange] - Callback when a price is selected
+   * @param {Function} [options.onSubmit] - Callback when form is submitted
+   * @param {Object} [options.labels] - Custom labels to override defaults
+   * @param {boolean} [options.showStepsIndicator=true] - Whether to show steps indicator
+   * @param {string} [options.className=''] - Additional CSS class names
+   * @returns {UsedPhonePriceFormContainer} A new UsedPhonePriceFormContainer instance with custom mock service
+   */
+  static createWithMockService({
+    service,
+    onPriceChange,
+    onSubmit,
+    labels = {},
+    showStepsIndicator = true,
+    className = '',
+  }) {
+    if (!service) {
+      throw new Error('Custom service is required for createWithMockService');
+    }
+
+    // Create container with custom service
+    return new UsedPhonePriceFormContainer({
+      service,
+      onPriceChange,
+      onSubmit,
+      labels: { ...defaultLabels, ...labels },
+      showStepsIndicator,
+      className,
+    });
+  }
 }

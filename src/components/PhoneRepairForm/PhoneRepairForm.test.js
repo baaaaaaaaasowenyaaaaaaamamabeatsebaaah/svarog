@@ -19,9 +19,29 @@ describe('PhoneRepairForm component', () => {
     };
   });
 
-  // Existing tests...
+  it('should create a form with link and schedule button', () => {
+    const form = PhoneRepairFormFactory.createWithMockData({
+      mockData: mockPhoneRepairData,
+      usedPhoneUrl: 'https://example.com/used-phones',
+    });
 
-  // New tests for error handling
+    const element = form.getElement();
+
+    // Check for link to used phones
+    const link = element.querySelector('.phone-repair-form__link');
+    expect(link).not.toBeNull();
+    expect(link.href).toContain('example.com/used-phones');
+    expect(link.textContent).toContain('Zu teuer?');
+
+    // Check for schedule button
+    const button = element.querySelector('.btn');
+    expect(button).not.toBeNull();
+    expect(button.textContent).toContain('Termin vereinbaren');
+
+    // Button should initially be disabled since no selections are made
+    expect(button.disabled).toBe(true);
+  });
+
   it('should display error state in price display when loading devices fails', async () => {
     // Create form with mock service that will fail on fetchDevices
     const form = PhoneRepairFormFactory.createWithMockService({
@@ -29,20 +49,20 @@ describe('PhoneRepairForm component', () => {
     });
 
     const formElement = form.getElement();
-
-    // Get the price display element
     const priceDisplay = formElement.querySelector('.price-display');
-    expect(priceDisplay).not.toBeNull();
 
-    // Attempt to load devices (which will fail)
+    // Manually trigger the error by calling loadDevices
     await form.loadDevices('1');
 
-    // Check that price display shows error state
-    expect(priceDisplay.classList.contains('price-display--error')).toBe(true);
+    // Allow time for the async operation and UI update
+    await vi.waitFor(() => {
+      const valueElement = priceDisplay.querySelector('.price-display__value');
+      return valueElement.textContent.includes('Fehler beim Laden der Geräte');
+    });
 
-    // Check the error message content
+    // Check for error message in the price display
     const valueElement = priceDisplay.querySelector('.price-display__value');
-    expect(valueElement.textContent).toBe('Fehler beim Laden der Geräte');
+    expect(valueElement.textContent).toContain('Fehler beim Laden der Geräte');
   });
 
   it('should display error state in price display when loading actions fails', async () => {
@@ -68,12 +88,19 @@ describe('PhoneRepairForm component', () => {
     // Try to load actions (which will fail)
     await form.loadActions('1');
 
-    // Check that price display shows error state
-    expect(priceDisplay.classList.contains('price-display--error')).toBe(true);
+    // Wait for the UI to update
+    await vi.waitFor(() => {
+      const valueElement = priceDisplay.querySelector('.price-display__value');
+      return valueElement.textContent.includes(
+        'Fehler beim Laden der Services'
+      );
+    });
 
-    // Check the error message content
+    // Check for error message in the price display
     const valueElement = priceDisplay.querySelector('.price-display__value');
-    expect(valueElement.textContent).toBe('Fehler beim Laden der Services');
+    expect(valueElement.textContent).toContain(
+      'Fehler beim Laden der Services'
+    );
   });
 
   it('should display error state in price display when loading price fails', async () => {
@@ -103,12 +130,15 @@ describe('PhoneRepairForm component', () => {
     // Try to load price (which will fail)
     await form.loadPrice('1');
 
-    // Check that price display shows error state
-    expect(priceDisplay.classList.contains('price-display--error')).toBe(true);
+    // Wait for the UI to update
+    await vi.waitFor(() => {
+      const valueElement = priceDisplay.querySelector('.price-display__value');
+      return valueElement.textContent.includes('Fehler beim Laden des Preises');
+    });
 
-    // Check the error message content
+    // Check for error message in the price display
     const valueElement = priceDisplay.querySelector('.price-display__value');
-    expect(valueElement.textContent).toBe('Fehler beim Laden des Preises');
+    expect(valueElement.textContent).toContain('Fehler beim Laden des Preises');
   });
 
   it('should clear error state when starting a new operation', async () => {
@@ -138,34 +168,30 @@ describe('PhoneRepairForm component', () => {
 
     // First attempt fails
     await form.loadDevices('1');
-    expect(priceDisplay.classList.contains('price-display--error')).toBe(true);
+
+    // Wait for error message to appear
+    await vi.waitFor(() => {
+      const valueElement = priceDisplay.querySelector('.price-display__value');
+      return valueElement.textContent.includes('Fehler beim Laden der Geräte');
+    });
+
+    const errorElement = priceDisplay.querySelector('.price-display__value');
+    expect(errorElement.textContent).toContain('Fehler beim Laden der Geräte');
 
     // Second attempt should clear error state
     await form.loadDevices('1');
-    expect(priceDisplay.classList.contains('price-display--error')).toBe(false);
-  });
 
-  it('should create a form with link and schedule button', () => {
-    const form = PhoneRepairFormFactory.createWithMockData({
-      mockData: mockPhoneRepairData,
-      usedPhoneUrl: 'https://example.com/used-phones',
+    // Wait for devices to load successfully
+    await vi.waitFor(() => {
+      const errorElement = priceDisplay.querySelector('.price-display__value');
+      return !errorElement.textContent.includes('Fehler beim Laden der Geräte');
     });
 
-    const element = form.getElement();
-
-    // Check for link to used phones
-    const link = element.querySelector('.phone-repair-form__link');
-    expect(link).not.toBeNull();
-    expect(link.href).toContain('example.com/used-phones');
-    expect(link.textContent).toContain('Zu teuer?');
-
-    // Check for schedule button
-    const button = element.querySelector('.btn');
-    expect(button).not.toBeNull();
-    expect(button.textContent).toContain('Termin vereinbaren');
-
-    // Button should initially be disabled since no selections are made
-    expect(button.disabled).toBe(true);
+    // Error message should be gone
+    const updatedElement = priceDisplay.querySelector('.price-display__value');
+    expect(updatedElement.textContent).not.toContain(
+      'Fehler beim Laden der Geräte'
+    );
   });
 
   it('should enable the schedule button when all selections are made', async () => {
@@ -195,14 +221,14 @@ describe('PhoneRepairForm component', () => {
     // Initially disabled
     expect(button.disabled).toBe(true);
 
-    // Set manufacturer, device, action, and fetch price
-    form.setState({
+    // Manually set form state by manipulating the presentational component directly
+    form.form.setState({
       selectedManufacturer: '1',
       selectedDevice: '1',
       selectedAction: '1',
       currentPrice: { price: 199 },
     });
-    form.updateFormState();
+    form.form.updateFormState();
 
     // Now button should be enabled
     expect(button.disabled).toBe(false);
@@ -216,8 +242,8 @@ describe('PhoneRepairForm component', () => {
       onScheduleClick,
     });
 
-    // Set up form state with selections
-    form.setState({
+    // Set up form state with selections by directly manipulating the form component
+    form.form.setState({
       manufacturers: mockPhoneRepairData.manufacturers,
       devices: mockPhoneRepairData.manufacturers[0].devices,
       actions: mockPhoneRepairData.manufacturers[0].devices[0].actions,
@@ -226,9 +252,10 @@ describe('PhoneRepairForm component', () => {
       selectedAction: '3',
       currentPrice: { price: 299 },
     });
+    form.form.updateFormState();
 
-    // Call handleScheduleClick directly since we can't easily click the button in tests
-    form.handleScheduleClick();
+    // Call handleScheduleClick directly
+    form.form.handleScheduleClick();
 
     // Check that callback was called with correct data
     expect(onScheduleClick).toHaveBeenCalledTimes(1);

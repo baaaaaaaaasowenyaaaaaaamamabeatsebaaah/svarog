@@ -35,6 +35,8 @@ import Header from './components/Header/Header.js';
 import Footer from './components/Footer/Footer.js';
 import PhoneRepairForm from './components/PhoneRepairForm/PhoneRepairForm.js';
 import UsedPhonePriceForm from './components/UsedPhonePriceForm/UsedPhonePriceForm.js';
+import PhoneRepairFormContainer from './components/PhoneRepairForm/PhoneRepairFormContainer.js';
+import UsedPhonePriceFormContainer from './components/UsedPhonePriceForm/UsedPhonePriceFormContainer.js';
 import StepsIndicator from './components/StepsIndicator/StepsIndicator.js';
 import PriceDisplay from './components/PriceDisplay/PriceDisplay.js';
 import ConditionSelector from './components/ConditionSelector/ConditionSelector.js';
@@ -82,7 +84,9 @@ const Svarog = {
   Header,
   Footer,
   PhoneRepairForm,
+  PhoneRepairFormContainer,
   UsedPhonePriceForm,
+  UsedPhonePriceFormContainer,
   StepsIndicator,
   PriceDisplay,
   ConditionSelector,
@@ -123,7 +127,10 @@ export {
   Header,
   Footer,
   PhoneRepairForm,
+  PhoneRepairFormContainer,
   UsedPhonePriceForm,
+  UsedPhonePriceFormContainer,
+  ProductCard,
   StepsIndicator,
   PriceDisplay,
   ConditionSelector,
