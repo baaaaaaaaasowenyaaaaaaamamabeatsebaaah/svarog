@@ -1,26 +1,23 @@
 // src/components/Card/Card.js
 import './Card.css';
-import { Component } from '../../utils/componentFactory.js';
-import Typography from '../Typography/Typography.js';
+import { createComponent } from '../../utils/componentFactory.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 
 /**
- * Card component for displaying content in a card container
- * @extends Component
+ * Creates a Card component for displaying content in a card container
+ *
+ * @param {Object} props - Card properties
+ * @param {string|HTMLElement|Array} props.children - Card content
+ * @param {string} [props.title] - Card title
+ * @param {string|HTMLElement} [props.image] - Card image (URL string or HTMLElement)
+ * @param {string|HTMLElement} [props.footer] - Card footer content
+ * @param {boolean} [props.outlined=false] - Whether to use an outlined style
+ * @param {boolean} [props.elevated=false] - Whether to add elevation shadow
+ * @param {string} [props.className=''] - Additional CSS class names
+ * @returns {Object} Card component API
  */
-export default class Card extends Component {
-  /**
-   * Creates a new Card instance
-   *
-   * @param {Object} props - Card properties
-   * @param {string|HTMLElement|Array} props.children - Card content
-   * @param {string} [props.title] - Card title
-   * @param {string|HTMLElement} [props.image] - Card image (URL string or HTMLElement)
-   * @param {string} [props.footer] - Card footer content
-   * @param {boolean} [props.outlined=false] - Whether to use an outlined style
-   * @param {boolean} [props.elevated=false] - Whether to add elevation shadow
-   * @param {string} [props.className=''] - Additional CSS class names
-   */
-  constructor({
+const createCard = (props) => {
+  const {
     children,
     title,
     image,
@@ -28,88 +25,168 @@ export default class Card extends Component {
     outlined = false,
     elevated = false,
     className = '',
-  }) {
-    super();
+  } = props;
 
-    this.validateRequiredProps({ children }, ['children'], 'Card');
-
-    this.props = {
-      children,
-      title,
-      image,
-      footer,
-      outlined,
-      elevated,
-      className,
-    };
-
-    this.card = this.createCardElement();
+  // Validate required props
+  if (!children) {
+    throw new Error('Card: children is required');
   }
 
-  /**
-   * Creates the card element with all its parts
-   * @private
-   * @returns {HTMLElement} The card element
-   */
-  createCardElement() {
-    const { title, image, footer, outlined, elevated, className } = this.props;
+  // Create class name string with conditionals
+  const createClassNames = (
+    baseClass,
+    customClass,
+    conditionalClasses = {}
+  ) => {
+    const classNames = [baseClass];
 
+    if (customClass) {
+      classNames.push(customClass);
+    }
+
+    Object.entries(conditionalClasses).forEach(([className, condition]) => {
+      if (condition) {
+        classNames.push(className);
+      }
+    });
+
+    return classNames.join(' ');
+  };
+
+  // Create the card element
+  const createCardElement = () => {
     // Build class names
-    const classNames = this.createClassNames('card', className, {
+    const classNames = createClassNames('card', className, {
       'card--outlined': outlined,
       'card--elevated': elevated,
     });
 
     // Create the main card element
-    const card = this.createElement('div', { className: classNames });
+    const card = document.createElement('div');
+    card.className = classNames;
 
     // Add image if provided
     if (image) {
-      const imageEl =
-        typeof image === 'string'
-          ? this.createElement('img', {
-              className: 'card__image',
-              attributes: { src: image, alt: title || 'Card image' },
-            })
-          : image;
-
+      let imageEl;
+      if (typeof image === 'string') {
+        imageEl = document.createElement('img');
+        imageEl.className = 'card__image';
+        imageEl.src = image;
+        imageEl.alt = title || 'Card image';
+      } else {
+        imageEl = image;
+      }
       card.appendChild(imageEl);
     }
 
     // Add title if provided
     if (title) {
-      const titleEl = new Typography({
-        children: title,
-        as: 'h3',
-        className: 'card__title',
-      }).getElement();
+      const titleEl = document.createElement('h3');
+      titleEl.className = 'card__title';
+      titleEl.textContent = title;
       card.appendChild(titleEl);
     }
 
     // Add content
-    const content = this.createElement('div', {
-      className: 'card__content',
-      children: this.props.children,
-    });
+    const content = document.createElement('div');
+    content.className = 'card__content';
+
+    // Handle different types of children
+    if (typeof children === 'string') {
+      content.textContent = children;
+    } else if (children instanceof Node) {
+      content.appendChild(children);
+    } else if (Array.isArray(children)) {
+      children.forEach((child) => {
+        if (typeof child === 'string') {
+          content.appendChild(document.createTextNode(child));
+        } else if (child instanceof Node) {
+          content.appendChild(child);
+        } else if (
+          typeof child === 'object' &&
+          child !== null &&
+          typeof child.getElement === 'function'
+        ) {
+          content.appendChild(child.getElement());
+        }
+      });
+    } else if (
+      typeof children === 'object' &&
+      children !== null &&
+      typeof children.getElement === 'function'
+    ) {
+      content.appendChild(children.getElement());
+    }
+
     card.appendChild(content);
 
     // Add footer if provided
     if (footer) {
-      const footerEl = this.createElement('div', {
-        className: 'card__footer',
-        children: footer,
-      });
+      const footerEl = document.createElement('div');
+      footerEl.className = 'card__footer';
+
+      if (typeof footer === 'string') {
+        footerEl.textContent = footer;
+      } else if (footer instanceof Node) {
+        footerEl.appendChild(footer);
+      } else if (
+        typeof footer === 'object' &&
+        footer !== null &&
+        typeof footer.getElement === 'function'
+      ) {
+        footerEl.appendChild(footer.getElement());
+      }
+
       card.appendChild(footerEl);
     }
 
     return card;
-  }
+  };
 
-  /**
-   * Gets the card element
-   * @returns {HTMLElement} The card element
-   */
-  getElement() {
-    return this.card;
-  }
-}
+  // Initialize the card element
+  const cardElement = createCardElement();
+
+  // Return the public API
+  return {
+    /**
+     * Gets the card element
+     * @returns {HTMLElement} The card element
+     */
+    getElement() {
+      return cardElement;
+    },
+
+    /**
+     * Updates the card with new props
+     * @param {Object} newProps - New properties to update
+     * @returns {Object} Updated component
+     */
+    update(newProps) {
+      // This would be more efficient with a partial update strategy
+      // For now, we'll use a complete re-render approach
+      const updatedProps = { ...props, ...newProps };
+      const newCard = createCard(updatedProps);
+
+      // Replace the old element with the new one if it's in the DOM
+      if (cardElement.parentNode) {
+        cardElement.parentNode.replaceChild(newCard.getElement(), cardElement);
+      }
+
+      return newCard;
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      // Remove event listeners if any were added
+      // Currently, the card component doesn't add any event listeners
+    },
+  };
+};
+
+// Set required props for validation
+createCard.requiredProps = ['children'];
+
+// Create the component factory with theme awareness
+export default createComponent('Card', withThemeAwareness(createCard));

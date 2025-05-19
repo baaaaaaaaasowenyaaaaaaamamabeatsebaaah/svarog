@@ -4,7 +4,7 @@ import Card from './Card.js';
 
 describe('Card component', () => {
   it('should create a card element', () => {
-    const card = new Card({
+    const card = Card({
       children: 'Card content',
     });
 
@@ -15,7 +15,7 @@ describe('Card component', () => {
   });
 
   it('should render with a title', () => {
-    const card = new Card({
+    const card = Card({
       title: 'Card Title',
       children: 'Card content',
     });
@@ -28,7 +28,7 @@ describe('Card component', () => {
 
   it('should render with an image from URL', () => {
     const imageUrl = 'https://example.com/image.jpg';
-    const card = new Card({
+    const card = Card({
       image: imageUrl,
       children: 'Card content',
     });
@@ -44,7 +44,7 @@ describe('Card component', () => {
     imgElement.src = 'https://example.com/image.jpg';
     imgElement.alt = 'Test image';
 
-    const card = new Card({
+    const card = Card({
       image: imgElement,
       children: 'Card content',
     });
@@ -56,7 +56,7 @@ describe('Card component', () => {
   });
 
   it('should render with a footer', () => {
-    const card = new Card({
+    const card = Card({
       children: 'Card content',
       footer: 'Footer content',
     });
@@ -68,7 +68,7 @@ describe('Card component', () => {
   });
 
   it('should apply outlined class when outlined is true', () => {
-    const card = new Card({
+    const card = Card({
       children: 'Card content',
       outlined: true,
     });
@@ -78,7 +78,7 @@ describe('Card component', () => {
   });
 
   it('should apply elevated class when elevated is true', () => {
-    const card = new Card({
+    const card = Card({
       children: 'Card content',
       elevated: true,
     });
@@ -88,7 +88,7 @@ describe('Card component', () => {
   });
 
   it('should apply additional class names', () => {
-    const card = new Card({
+    const card = Card({
       children: 'Card content',
       className: 'custom-class',
     });
@@ -99,7 +99,36 @@ describe('Card component', () => {
 
   it('should throw an error when children is not provided', () => {
     expect(() => {
-      new Card({});
+      Card({});
     }).toThrow('Card: children is required');
+  });
+
+  it('should update card properties when update method is called', () => {
+    const card = Card({
+      title: 'Original Title',
+      children: 'Original content',
+    });
+
+    const element = card.getElement();
+    expect(element.querySelector('.card__title').textContent).toBe(
+      'Original Title'
+    );
+
+    // Mock the parent node to test element replacement
+    const parent = document.createElement('div');
+    parent.appendChild(element);
+
+    const updatedCard = card.update({
+      title: 'Updated Title',
+      children: 'Updated content',
+      elevated: true,
+    });
+
+    const updatedElement = updatedCard.getElement();
+    expect(updatedElement.querySelector('.card__title').textContent).toBe(
+      'Updated Title'
+    );
+    expect(updatedElement.textContent).toContain('Updated content');
+    expect(updatedElement.classList.contains('card--elevated')).toBe(true);
   });
 });

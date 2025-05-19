@@ -8,14 +8,14 @@ export default {
 };
 
 export const Default = () => {
-  return new Card({
+  return Card({
     title: 'Card Title',
     children: 'This is a simple card with some content.',
   });
 };
 
 export const WithImage = () => {
-  return new Card({
+  return Card({
     title: 'Card with Image',
     image: 'https://picsum.photos/300/200',
     children: 'This card includes an image at the top.',
@@ -23,12 +23,12 @@ export const WithImage = () => {
 };
 
 export const WithFooter = () => {
-  const footerButton = new Button({
+  const footerButton = Button({
     text: 'Learn More',
     onClick: () => alert('Button clicked!'),
   }).getElement();
 
-  return new Card({
+  return Card({
     title: 'Card with Footer',
     children: 'This card has a footer with a button.',
     footer: footerButton,
@@ -36,7 +36,7 @@ export const WithFooter = () => {
 };
 
 export const Outlined = () => {
-  return new Card({
+  return Card({
     title: 'Outlined Card',
     children: 'This card uses the outlined style.',
     outlined: true,
@@ -44,7 +44,7 @@ export const Outlined = () => {
 };
 
 export const Elevated = () => {
-  return new Card({
+  return Card({
     title: 'Elevated Card',
     children: 'This card has a shadow elevation.',
     elevated: true,
@@ -78,21 +78,22 @@ export const ComplexCard = () => {
   footerContainer.style.display = 'flex';
   footerContainer.style.justifyContent = 'space-between';
 
-  const cancelButton = new Button({
+  const cancelButton = Button({
     text: 'Cancel',
     onClick: () => alert('Cancel clicked'),
-    className: 'btn--secondary',
+    variant: 'secondary',
   }).getElement();
 
-  const confirmButton = new Button({
+  const confirmButton = Button({
     text: 'Confirm',
     onClick: () => alert('Confirm clicked'),
+    variant: 'primary',
   }).getElement();
 
   footerContainer.appendChild(cancelButton);
   footerContainer.appendChild(confirmButton);
 
-  return new Card({
+  return Card({
     title: 'Complex Card Example',
     image: 'https://picsum.photos/400/200',
     children: contentContainer,
