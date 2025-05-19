@@ -84,13 +84,15 @@ describe('Button component', () => {
 
   it('should update multiple props with update method', () => {
     const button = Button({ text: 'Original Text' });
-    const element = button.getElement();
 
     button.update({
       text: 'Updated Text',
       className: 'custom-class',
       disabled: true,
     });
+
+    // Get the element AFTER the update since a new element was created
+    const element = button.getElement();
 
     expect(element.textContent).toBe('Updated Text');
     expect(element.className).toContain('custom-class');
