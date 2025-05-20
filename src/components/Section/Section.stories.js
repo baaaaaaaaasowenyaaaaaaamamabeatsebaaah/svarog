@@ -1,5 +1,5 @@
 // src/components/Section/Section.stories.js
-import { Section } from './Section.js';
+import Section from './index.js';
 import Typography from '../Typography/Typography.js';
 
 export default {
@@ -10,12 +10,12 @@ export default {
 export const Default = () => {
   const content = document.createElement('div');
 
-  const heading = new Typography({
+  const heading = Typography({
     children: 'Default Section',
     as: 'h3',
   }).getElement();
 
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This is a standard section with default styling. It demonstrates the basic appearance of the Section component.',
     as: 'p',
@@ -24,7 +24,7 @@ export const Default = () => {
   content.appendChild(heading);
   content.appendChild(paragraph);
 
-  const section = new Section({
+  const section = Section({
     children: [content],
   });
 
@@ -34,12 +34,12 @@ export const Default = () => {
 export const MinorVariant = () => {
   const content = document.createElement('div');
 
-  const heading = new Typography({
+  const heading = Typography({
     children: 'Minor Variant Section',
     as: 'h3',
   }).getElement();
 
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This uses the "minor" variant, which applies alternate background and text colors defined in CSS variables.',
     as: 'p',
@@ -48,7 +48,7 @@ export const MinorVariant = () => {
   content.appendChild(heading);
   content.appendChild(paragraph);
 
-  const section = new Section({
+  const section = Section({
     variant: 'minor',
     children: [content],
   });
@@ -67,13 +67,13 @@ export const WithBackgroundImage = () => {
   content.style.padding = '2rem';
 
   // Use the Typography component with class names instead of inline styles
-  const heading = new Typography({
+  const heading = Typography({
     children: 'Section With Background Image',
     as: 'h2',
     className: 'light-text', // Would need this CSS class defined somewhere
   }).getElement();
 
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This section has a background image from picsum.photos that fills the entire background.',
     as: 'p',
@@ -83,7 +83,7 @@ export const WithBackgroundImage = () => {
   content.appendChild(heading);
   content.appendChild(paragraph);
 
-  const section = new Section({
+  const section = Section({
     backgroundImage: bgImage,
     children: [content],
   });
@@ -97,13 +97,13 @@ export const WithBackgroundImage = () => {
 };
 
 export const WithTitleAndDescription = () => {
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This is the main content of the section. The title and description above are added through the Section props.',
     as: 'p',
   }).getElement();
 
-  const section = new Section({
+  const section = Section({
     title: 'Section Title',
     description:
       'This is a description of the section that appears below the title.',
@@ -114,13 +114,13 @@ export const WithTitleAndDescription = () => {
 };
 
 export const NoPaddingBottom = () => {
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This section has no padding at the bottom, useful when you need sections to be flush with each other.',
     as: 'p',
   }).getElement();
 
-  const section = new Section({
+  const section = Section({
     noPaddingBottom: true,
     children: [paragraph],
   });
@@ -131,12 +131,12 @@ export const NoPaddingBottom = () => {
 export const WithCustomBackgroundColor = () => {
   const content = document.createElement('div');
 
-  const heading = new Typography({
+  const heading = Typography({
     children: 'Custom Background Color',
     as: 'h3',
   }).getElement();
 
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This section has a custom background color applied using the backgroundColor prop.',
     as: 'p',
@@ -145,7 +145,7 @@ export const WithCustomBackgroundColor = () => {
   content.appendChild(heading);
   content.appendChild(paragraph);
 
-  const section = new Section({
+  const section = Section({
     backgroundColor: '#e6f7ff',
     children: [content],
   });
@@ -154,13 +154,13 @@ export const WithCustomBackgroundColor = () => {
 };
 
 export const WithIdForAnchor = () => {
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This section has an ID for anchor links. You can link to this section with "#my-section-id".',
     as: 'p',
   }).getElement();
 
-  const section = new Section({
+  const section = Section({
     id: 'my-section-id',
     children: [paragraph],
   });
@@ -179,13 +179,13 @@ export const BackgroundColorAndImage = () => {
   const content = document.createElement('div');
   content.style.padding = '2rem';
 
-  const heading = new Typography({
+  const heading = Typography({
     children: 'Background Color & Image',
     as: 'h3',
     className: 'light-text',
   }).getElement();
 
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This section demonstrates using both a background color and a semi-transparent background image together.',
     as: 'p',
@@ -195,7 +195,7 @@ export const BackgroundColorAndImage = () => {
   content.appendChild(heading);
   content.appendChild(paragraph);
 
-  const section = new Section({
+  const section = Section({
     backgroundColor: '#004466',
     backgroundImage: bgImage,
     children: [content],
@@ -217,12 +217,12 @@ export const ComprehensiveExample = () => {
   content.style.backgroundColor = 'rgba(255,255,255,0.9)';
   content.style.borderRadius = '8px';
 
-  const heading = new Typography({
+  const heading = Typography({
     children: 'Comprehensive Example',
     as: 'h2',
   }).getElement();
 
-  const text = new Typography({
+  const text = Typography({
     children:
       'This example combines multiple Section features: background image, ID for anchor links, title, and description.',
     as: 'p',
@@ -236,7 +236,7 @@ export const ComprehensiveExample = () => {
   content.appendChild(text);
   content.appendChild(button);
 
-  const section = new Section({
+  const section = Section({
     id: 'comprehensive-example',
     title: 'Section Title',
     description:
