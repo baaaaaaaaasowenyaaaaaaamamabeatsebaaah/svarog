@@ -192,3 +192,54 @@
   margin-right: 0;
   margin-left: var(--button-icon-margin);
 }
+
+/* Button with icon positioning improvements */
+.btn--icon-right {
+  flex-direction: row-reverse;
+}
+
+.btn--icon-right .btn__icon {
+  margin-right: 0;
+  margin-left: var(--button-icon-margin);
+}
+
+/* Accessibility focus styles */
+.btn:focus-visible {
+  outline: 2px solid var(--button-focus-outline-color, currentColor);
+  outline-offset: 2px;
+}
+
+/* Loading state styling */
+.btn[aria-busy='true'] {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+}
+
+.btn[aria-busy='true']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1em;
+  height: 1em;
+  margin: -0.5em 0 0 -0.5em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: button-loading-spinner 0.75s infinite linear;
+}
+
+@keyframes button-loading-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pressed state */
+.btn[aria-pressed='true'] {
+  background-color: var(--button-active-bg);
+  border-color: var(--button-active-border-color, transparent);
+  box-shadow: var(--button-active-shadow);
+  transform: var(--button-active-transform);
+}
