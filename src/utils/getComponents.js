@@ -1118,6 +1118,47 @@ export const getComponents = () => {
     // MEDIA COMPONENTS
     // =========================================
     {
+      name: 'Image',
+      category: 'Media',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithFallback',
+          module: () =>
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.WithFallback
+            ),
+        },
+        {
+          name: 'Responsive',
+          module: () =>
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.Responsive
+            ),
+        },
+        {
+          name: 'WithCustomSizes',
+          module: () =>
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.WithCustomSizes
+            ),
+        },
+        {
+          name: 'WithClickHandler',
+          module: () =>
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.WithClickHandler
+            ),
+        },
+      ],
+    },
+    {
       name: 'Logo',
       category: 'Media',
       stories: [
@@ -1125,13 +1166,6 @@ export const getComponents = () => {
           name: 'Default',
           module: () =>
             import('../components/Logo/Logo.stories.js').then((m) => m.Default),
-        },
-        {
-          name: 'WithThemeSpecificLogos',
-          module: () =>
-            import('../components/Logo/Logo.stories.js').then(
-              (m) => m.WithThemeSpecificLogos
-            ),
         },
         {
           name: 'WithCustomSizes',
@@ -1155,7 +1189,7 @@ export const getComponents = () => {
             ),
         },
         {
-          name: 'SingleLogo',
+          name: 'SingleLogo', // Keep for backward compatibility
           module: () =>
             import('../components/Logo/Logo.stories.js').then(
               (m) => m.SingleLogo
