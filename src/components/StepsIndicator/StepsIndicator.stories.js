@@ -21,7 +21,7 @@ export const Default = () => {
     { name: 'Step 3', completed: false },
   ];
 
-  return new StepsIndicator({
+  return StepsIndicator({
     steps,
     activeIndex: 1,
   });
@@ -38,7 +38,7 @@ export const AllSteps = () => {
   // Example 1: Active first step
   const example1 = document.createElement('div');
   example1.innerHTML = '<h3>Step 1 of 3 active</h3>';
-  const indicator1 = new StepsIndicator({
+  const indicator1 = StepsIndicator({
     steps: [
       { name: 'Step 1', completed: false },
       { name: 'Step 2', completed: false },
@@ -51,7 +51,7 @@ export const AllSteps = () => {
   // Example 2: Active second step
   const example2 = document.createElement('div');
   example2.innerHTML = '<h3>Step 2 of 3 active</h3>';
-  const indicator2 = new StepsIndicator({
+  const indicator2 = StepsIndicator({
     steps: [
       { name: 'Step 1', completed: true },
       { name: 'Step 2', completed: false },
@@ -64,7 +64,7 @@ export const AllSteps = () => {
   // Example 3: Active third step
   const example3 = document.createElement('div');
   example3.innerHTML = '<h3>Step 3 of 3 active</h3>';
-  const indicator3 = new StepsIndicator({
+  const indicator3 = StepsIndicator({
     steps: [
       { name: 'Step 1', completed: true },
       { name: 'Step 2', completed: true },
@@ -77,7 +77,7 @@ export const AllSteps = () => {
   // Example 4: More than 3 steps
   const example4 = document.createElement('div');
   example4.innerHTML = '<h3>5 steps total (Step 3 active)</h3>';
-  const indicator4 = new StepsIndicator({
+  const indicator4 = StepsIndicator({
     steps: [
       { name: 'Information', completed: true },
       { name: 'Address', completed: true },
@@ -121,7 +121,7 @@ export const Interactive = () => {
     { name: 'Confirmation', completed: false },
   ];
 
-  const stepsIndicator = new StepsIndicator({
+  const stepsIndicator = StepsIndicator({
     steps,
     activeIndex: 0,
   });
@@ -143,12 +143,12 @@ export const Interactive = () => {
   prevButton.style.borderRadius = '4px';
   prevButton.style.cursor = 'pointer';
   prevButton.onclick = () => {
-    const currentIndex = stepsIndicator.props.activeIndex;
+    const currentState = stepsIndicator.getState();
+    const currentIndex = currentState.activeIndex;
+
     if (currentIndex > 0) {
-      // Move to previous step
-      stepsIndicator.update({
-        activeIndex: currentIndex - 1,
-      });
+      // Move to previous step using the new helper method
+      stepsIndicator.setActiveStep(currentIndex - 1);
 
       // Update button states
       updateButtonStates();
@@ -165,16 +165,15 @@ export const Interactive = () => {
   nextButton.style.borderRadius = '4px';
   nextButton.style.cursor = 'pointer';
   nextButton.onclick = () => {
-    const currentIndex = stepsIndicator.props.activeIndex;
+    const currentState = stepsIndicator.getState();
+    const currentIndex = currentState.activeIndex;
+
     if (currentIndex < steps.length - 1) {
-      // Mark current step as completed
-      steps[currentIndex].completed = true;
+      // Mark current step as completed using the new helper method
+      stepsIndicator.completeStep(currentIndex);
 
       // Move to next step
-      stepsIndicator.update({
-        steps: [...steps],
-        activeIndex: currentIndex + 1,
-      });
+      stepsIndicator.setActiveStep(currentIndex + 1);
 
       // Update button states
       updateButtonStates();
@@ -191,14 +190,8 @@ export const Interactive = () => {
   resetButton.style.borderRadius = '4px';
   resetButton.style.cursor = 'pointer';
   resetButton.onclick = () => {
-    // Reset all steps
-    steps.forEach((step) => (step.completed = false));
-
-    // Update indicator
-    stepsIndicator.update({
-      steps: [...steps],
-      activeIndex: 0,
-    });
+    // Reset all steps using the new helper method
+    stepsIndicator.resetSteps();
 
     // Update button states
     updateButtonStates();
@@ -211,7 +204,8 @@ export const Interactive = () => {
 
   // Function to update button states
   function updateButtonStates() {
-    const currentIndex = stepsIndicator.props.activeIndex;
+    const currentState = stepsIndicator.getState();
+    const currentIndex = currentState.activeIndex;
 
     // Disable previous button if on first step
     prevButton.disabled = currentIndex === 0;

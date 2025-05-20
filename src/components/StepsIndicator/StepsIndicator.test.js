@@ -10,7 +10,7 @@ describe('StepsIndicator component', () => {
       { name: 'Step 3', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps,
       activeIndex: 0,
     });
@@ -26,10 +26,10 @@ describe('StepsIndicator component', () => {
 
   it('should throw error when steps are not provided', () => {
     expect(() => {
-      new StepsIndicator({
+      StepsIndicator({
         activeIndex: 0,
       });
-    }).toThrow('StepsIndicator: steps must be an array');
+    }).toThrow('StepsIndicator: steps is required');
   });
 
   it('should throw error when activeIndex is not a number', () => {
@@ -39,7 +39,7 @@ describe('StepsIndicator component', () => {
     ];
 
     expect(() => {
-      new StepsIndicator({
+      StepsIndicator({
         steps,
         activeIndex: '0',
       });
@@ -53,7 +53,7 @@ describe('StepsIndicator component', () => {
       { name: 'Step 3', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps,
       activeIndex: 1,
     });
@@ -92,7 +92,7 @@ describe('StepsIndicator component', () => {
       { name: 'Step 2', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps: initialSteps,
       activeIndex: 0,
     });
@@ -132,7 +132,7 @@ describe('StepsIndicator component', () => {
       { name: 'Step 2', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps,
       activeIndex: 0,
       className: 'custom-steps',
