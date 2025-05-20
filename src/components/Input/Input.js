@@ -1,81 +1,68 @@
 // src/components/Input/Input.js
 import './Input.css';
+import { createElement } from '../../utils/componentFactory.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 
 /**
  * Create an Input component
  * @param {Object} props - Input properties
  * @returns {Object} Input component
  */
-const Input = (props) => {
-  const {
-    type = 'text',
-    id,
-    name,
-    value = '',
-    placeholder = '',
-    required = false,
-    disabled = false,
-    readonly = false,
-    pattern,
-    minLength,
-    maxLength,
-    className = '',
-    onChange,
-    onFocus,
-    onBlur,
-    validationMessage = '',
-    showValidation = true,
-  } = props;
-
-  // State
-  let inputState = {
-    type,
-    id,
-    name,
-    value,
-    placeholder,
-    required,
-    disabled,
-    readonly,
-    pattern,
-    minLength,
-    maxLength,
-    className,
-    onChange,
-    onFocus,
-    onBlur,
-    validationMessage,
-    showValidation,
-    isValid: null, // Start with no validation state
+const createInput = (props) => {
+  // Initial state
+  let state = {
+    type: props.type || 'text',
+    id: props.id,
+    name: props.name,
+    value: props.value || '',
+    placeholder: props.placeholder || '',
+    required: props.required || false,
+    disabled: props.disabled || false,
+    readonly: props.readonly || false,
+    pattern: props.pattern,
+    minLength: props.minLength,
+    maxLength: props.maxLength,
+    className: props.className || '',
+    onChange: props.onChange,
+    onFocus: props.onFocus,
+    onBlur: props.onBlur,
+    validationMessage: props.validationMessage || '',
+    showValidation:
+      props.showValidation !== undefined ? props.showValidation : true,
+    isValid: null,
     isPasswordVisible: false,
   };
 
-  // Create the input container
-  const container = document.createElement('div');
-  container.className = 'input-container';
-  if (className) {
-    container.className += ' ' + className;
-  }
+  // Create container
+  const container = createElement('div', {
+    classes: ['input-container', state.className],
+  });
 
   // Create input wrapper
-  const inputWrapper = document.createElement('div');
-  inputWrapper.className = 'input-wrapper';
+  const inputWrapper = createElement('div', {
+    classes: ['input-wrapper'],
+  });
   container.appendChild(inputWrapper);
 
   // Create native input
-  const input = document.createElement('input');
-  input.className = 'input-native';
-  input.type = type;
-  if (id) input.id = id;
-  if (name) input.name = name;
-  if (placeholder) input.placeholder = placeholder;
-  if (required) input.required = true;
-  if (pattern) input.pattern = pattern;
-  if (minLength !== undefined) input.minLength = minLength;
-  if (maxLength !== undefined) input.maxLength = maxLength;
-  if (disabled) input.disabled = true;
-  if (readonly) input.readOnly = true;
-  input.value = value;
+  const input = createElement('input', {
+    classes: ['input-native'],
+    attributes: {
+      type: state.type,
+      id: state.id,
+      name: state.name,
+      placeholder: state.placeholder,
+      required: state.required ? 'required' : null,
+      pattern: state.pattern,
+      minLength: state.minLength !== undefined ? state.minLength : null,
+      maxLength: state.maxLength !== undefined ? state.maxLength : null,
+      disabled: state.disabled ? 'disabled' : null,
+      readOnly: state.readonly ? 'readonly' : null,
+    },
+  });
+
+  // Set value directly
+  input.value = state.value;
 
   // Add event listeners
   input.addEventListener('input', handleInput);
@@ -86,59 +73,92 @@ const Input = (props) => {
 
   inputWrapper.appendChild(input);
 
-  // Create custom input UI
-  const customInput = document.createElement('div');
-  customInput.className = `input-custom input-custom--${type}`;
-  if (disabled) customInput.classList.add('input-custom--disabled');
-  if (readonly) customInput.classList.add('input-custom--readonly');
-  customInput.setAttribute('tabindex', '-1');
-  customInput.setAttribute('role', 'textbox');
-  customInput.setAttribute('aria-readonly', readonly ? 'true' : 'false');
-  customInput.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+  // Create custom input
+  const customInput = createElement('div', {
+    classes: ['input-custom', `input-custom--${state.type}`],
+    attributes: {
+      tabindex: '-1',
+      role: 'textbox',
+      'aria-readonly': state.readonly ? 'true' : 'false',
+      'aria-disabled': state.disabled ? 'true' : 'false',
+    },
+  });
+
+  if (state.disabled) {
+    customInput.classList.add('input-custom--disabled');
+  }
+
+  if (state.readonly) {
+    customInput.classList.add('input-custom--readonly');
+  }
+
   inputWrapper.appendChild(customInput);
 
-  // Create value display element
-  const valueDisplay = document.createElement('div');
-  valueDisplay.className = 'input-custom__value';
-  valueDisplay.setAttribute('data-placeholder', placeholder);
+  // Create value display
+  const valueDisplay = createElement('div', {
+    classes: ['input-custom__value'],
+    attributes: {
+      'data-placeholder': state.placeholder,
+    },
+    text: state.value,
+  });
+
+  if (state.value) {
+    valueDisplay.classList.add('input-custom__value--has-value');
+  }
+
   customInput.appendChild(valueDisplay);
 
   // Add type-specific elements
-  if (type === 'search') {
-    // Add clear button for search
-    const clearButton = document.createElement('button');
-    clearButton.className = 'input-custom__clear';
-    clearButton.type = 'button';
-    clearButton.setAttribute('aria-label', 'Clear search');
-    clearButton.setAttribute('tabindex', '-1');
+  if (state.type === 'search') {
+    const clearButton = createElement('button', {
+      classes: ['input-custom__clear'],
+      attributes: {
+        type: 'button',
+        'aria-label': 'Clear search',
+        tabindex: '-1',
+      },
+    });
     clearButton.addEventListener('click', handleClearClick);
     customInput.appendChild(clearButton);
-  } else if (type === 'password') {
-    // Add toggle password visibility button
-    const toggleButton = document.createElement('button');
-    toggleButton.className = 'input-custom__toggle';
-    toggleButton.type = 'button';
-    toggleButton.setAttribute('aria-label', 'Toggle password visibility');
-    toggleButton.setAttribute('tabindex', '-1');
+
+    if (state.value) {
+      customInput.classList.add('input-custom--has-value');
+    }
+  } else if (state.type === 'password') {
+    const toggleButton = createElement('button', {
+      classes: ['input-custom__toggle'],
+      attributes: {
+        type: 'button',
+        'aria-label': 'Toggle password visibility',
+        tabindex: '-1',
+      },
+    });
     toggleButton.addEventListener('click', handleTogglePassword);
     customInput.appendChild(toggleButton);
-  } else if (type === 'number') {
-    // Add increment/decrement buttons
-    const controlsWrapper = document.createElement('div');
-    controlsWrapper.className = 'input-custom__number-controls';
+  } else if (state.type === 'number') {
+    const controlsWrapper = createElement('div', {
+      classes: ['input-custom__number-controls'],
+    });
 
-    const incrementButton = document.createElement('button');
-    incrementButton.className = 'input-custom__increment';
-    incrementButton.type = 'button';
-    incrementButton.setAttribute('aria-label', 'Increment value');
-    incrementButton.setAttribute('tabindex', '-1');
+    const incrementButton = createElement('button', {
+      classes: ['input-custom__increment'],
+      attributes: {
+        type: 'button',
+        'aria-label': 'Increment value',
+        tabindex: '-1',
+      },
+    });
     incrementButton.addEventListener('click', handleIncrement);
 
-    const decrementButton = document.createElement('button');
-    decrementButton.className = 'input-custom__decrement';
-    decrementButton.type = 'button';
-    decrementButton.setAttribute('aria-label', 'Decrement value');
-    decrementButton.setAttribute('tabindex', '-1');
+    const decrementButton = createElement('button', {
+      classes: ['input-custom__decrement'],
+      attributes: {
+        type: 'button',
+        'aria-label': 'Decrement value',
+        tabindex: '-1',
+      },
+    });
     decrementButton.addEventListener('click', handleDecrement);
 
     controlsWrapper.appendChild(incrementButton);
@@ -146,14 +166,19 @@ const Input = (props) => {
     customInput.appendChild(controlsWrapper);
   }
 
-  // Create validation message element
-  const validationMessageElement = document.createElement('div');
-  validationMessageElement.className = 'input-validation-message';
-  validationMessageElement.textContent = validationMessage || '';
-  validationMessageElement.setAttribute('aria-live', 'polite');
-  if (!showValidation) {
+  // Create validation message
+  const validationMessageElement = createElement('div', {
+    classes: ['input-validation-message'],
+    attributes: {
+      'aria-live': 'polite',
+    },
+    text: state.validationMessage,
+  });
+
+  if (!state.showValidation) {
     validationMessageElement.style.display = 'none';
   }
+
   container.appendChild(validationMessageElement);
 
   // Document event handler for click handling
@@ -162,68 +187,45 @@ const Input = (props) => {
   };
   document.addEventListener('click', documentClickHandler);
 
-  // Set initial value display
-  updateValueDisplay();
-
-  /**
-   * Handle input event
-   * @param {Event} event - Input event
-   */
+  // Event handlers
   function handleInput(event) {
-    inputState.value = event.target.value;
+    state.value = event.target.value;
     updateValueDisplay();
 
-    if (inputState.showValidation && inputState.isValid !== null) {
+    if (state.showValidation && state.isValid !== null) {
       validate();
     }
   }
 
-  /**
-   * Handle change event
-   * @param {Event} event - Change event
-   */
   function handleChange(event) {
-    if (typeof onChange === 'function') {
-      onChange(event, getValue());
+    if (typeof state.onChange === 'function') {
+      state.onChange(event, getValue());
     }
   }
 
-  /**
-   * Handle focus event
-   * @param {Event} event - Focus event
-   */
   function handleFocus(event) {
     container.classList.add('input-container--focused');
     customInput.classList.add('input-custom--focused');
-    if (typeof onFocus === 'function') {
-      onFocus(event);
+    if (typeof state.onFocus === 'function') {
+      state.onFocus(event);
     }
   }
 
-  /**
-   * Handle blur event
-   * @param {Event} event - Blur event
-   */
   function handleBlur(event) {
     container.classList.remove('input-container--focused');
     customInput.classList.remove('input-custom--focused');
 
-    if (inputState.showValidation && inputState.isValid !== null) {
+    if (state.showValidation && state.isValid !== null) {
       validate();
     }
 
-    if (typeof onBlur === 'function') {
-      onBlur(event);
+    if (typeof state.onBlur === 'function') {
+      state.onBlur(event);
     }
   }
 
-  /**
-   * Handle keydown event
-   * @param {Event} event - Keydown event
-   */
   function handleKeydown(event) {
-    // Handle special keys based on input type
-    switch (type) {
+    switch (state.type) {
       case 'number':
         if (event.key === 'ArrowUp') {
           event.preventDefault();
@@ -243,102 +245,90 @@ const Input = (props) => {
     }
   }
 
-  /**
-   * Update the displayed value
-   */
   function updateValueDisplay() {
-    const value = getValue();
+    // Update value display
+    valueDisplay.textContent = state.value;
+    valueDisplay.classList.toggle(
+      'input-custom__value--has-value',
+      !!state.value
+    );
 
-    if (value) {
-      valueDisplay.textContent = value;
-      valueDisplay.classList.add('input-custom__value--has-value');
-    } else {
-      valueDisplay.textContent = '';
-      valueDisplay.classList.remove('input-custom__value--has-value');
-    }
-
-    // Update password input visibility if needed
-    if (type === 'password' && inputState.isPasswordVisible) {
-      input.type = 'text';
-    }
-
-    // Update other type-specific displays
-    if (type === 'search' && value) {
-      customInput.classList.add('input-custom--has-value');
-    } else if (type === 'search') {
-      customInput.classList.remove('input-custom--has-value');
+    // Update search type
+    if (state.type === 'search') {
+      customInput.classList.toggle('input-custom--has-value', !!state.value);
     }
   }
 
-  /**
-   * Handle clear button click for search inputs
-   * @param {Event} event - Click event
-   */
   function handleClearClick(event) {
     event.preventDefault();
     setValue('');
     input.focus();
   }
 
-  /**
-   * Handle toggle password visibility
-   * @param {Event} event - Click event
-   */
   function handleTogglePassword(event) {
     event.preventDefault();
-    inputState.isPasswordVisible = !inputState.isPasswordVisible;
+    state.isPasswordVisible = !state.isPasswordVisible;
 
-    // Update the native input type
-    if (inputState.isPasswordVisible) {
-      input.type = 'text';
-      event.currentTarget.setAttribute('aria-label', 'Hide password');
-      event.currentTarget.classList.add('input-custom__toggle--visible');
-    } else {
-      input.type = 'password';
-      event.currentTarget.setAttribute('aria-label', 'Show password');
-      event.currentTarget.classList.remove('input-custom__toggle--visible');
-    }
+    // Update the type
+    input.type = state.isPasswordVisible ? 'text' : 'password';
+
+    // Update toggle button
+    event.currentTarget.setAttribute(
+      'aria-label',
+      state.isPasswordVisible ? 'Hide password' : 'Show password'
+    );
+    event.currentTarget.classList.toggle(
+      'input-custom__toggle--visible',
+      state.isPasswordVisible
+    );
 
     input.focus();
   }
 
-  /**
-   * Handle increment button click for number inputs
-   */
   function handleIncrement() {
-    if (inputState.disabled || inputState.readonly) return;
+    if (state.disabled || state.readonly) return;
 
-    let value = parseFloat(getValue()) || 0;
+    const numValue = parseFloat(getValue()) || 0;
     const step = parseFloat(input.step) || 1;
     const max = input.max ? parseFloat(input.max) : Infinity;
 
-    value = Math.min(value + step, max);
-    setValue(value.toString());
+    setValue(Math.min(numValue + step, max).toString());
     input.focus();
   }
 
-  /**
-   * Handle decrement button click for number inputs
-   */
   function handleDecrement() {
-    if (inputState.disabled || inputState.readonly) return;
+    if (state.disabled || state.readonly) return;
 
-    let value = parseFloat(getValue()) || 0;
+    const numValue = parseFloat(getValue()) || 0;
     const step = parseFloat(input.step) || 1;
     const min = input.min ? parseFloat(input.min) : -Infinity;
 
-    value = Math.max(value - step, min);
-    setValue(value.toString());
+    setValue(Math.max(numValue - step, min).toString());
     input.focus();
   }
 
-  /**
-   * Validate the input
-   * @returns {boolean} Whether the input is valid
-   */
+  function getValue() {
+    return state.value;
+  }
+
+  function setValue(newValue) {
+    state.value = newValue;
+    input.value = newValue;
+    updateValueDisplay();
+
+    if (state.showValidation && state.isValid !== null) {
+      validate();
+    }
+
+    return api;
+  }
+
   function validate() {
     const isValid = input.checkValidity();
-    inputState.isValid = isValid;
+    state.isValid = isValid;
+
+    // Set data-valid attribute
+    container.setAttribute('data-valid', isValid ? 'true' : 'false');
 
     // Update container classes
     container.classList.toggle('input-container--invalid', !isValid);
@@ -351,125 +341,125 @@ const Input = (props) => {
     customInput.classList.toggle('input-custom--valid', isValid);
 
     // Update validation message
-    if (validationMessageElement) {
-      if (!isValid) {
-        // Only set validation message text if invalid
-        validationMessageElement.textContent =
-          inputState.validationMessage || input.validationMessage;
-      } else {
-        // Clear validation message when valid
-        validationMessageElement.textContent = '';
-      }
+    if (!isValid) {
+      validationMessageElement.textContent =
+        state.validationMessage || input.validationMessage;
+    } else {
+      validationMessageElement.textContent = '';
     }
 
     return isValid;
   }
 
-  /**
-   * Get the input value
-   * @returns {string} Current input value
-   */
-  function getValue() {
-    return inputState.value;
-  }
-
-  /**
-   * Set the input value
-   * @param {string} newValue - New input value
-   * @returns {Object} Input component (for chaining)
-   */
-  function setValue(newValue) {
-    inputState.value = newValue;
-    input.value = newValue;
-    updateValueDisplay();
-
-    if (inputState.showValidation && inputState.isValid !== null) {
-      validate();
-    }
-
-    return api;
-  }
-
-  // Create public API
+  // API
   const api = {
-    /**
-     * Get the input element
-     * @returns {HTMLElement} Input container element
-     */
     getElement() {
       return container;
     },
 
-    /**
-     * Get the input value
-     * @returns {string} Current input value
-     */
     getValue,
 
-    /**
-     * Set the input value
-     * @param {string} newValue - New input value
-     * @returns {Object} Input component (for chaining)
-     */
     setValue,
 
-    /**
-     * Validate the input
-     * @returns {boolean} Whether the input is valid
-     */
     validate,
 
-    /**
-     * Update multiple props at once
-     * @param {Object} newProps - New properties
-     * @returns {Object} Input component (for chaining)
-     */
     update(newProps) {
-      // Update state with new props
-      Object.assign(inputState, newProps);
+      // Update state
+      Object.assign(state, newProps);
 
-      // Update simple properties
+      // Update value
       if (newProps.value !== undefined) {
-        setValue(newProps.value);
+        input.value = newProps.value;
+        updateValueDisplay();
       }
 
+      // Update password visibility
+      if (
+        newProps.isPasswordVisible !== undefined &&
+        state.type === 'password'
+      ) {
+        input.type = newProps.isPasswordVisible ? 'text' : 'password';
+        const toggleButton = container.querySelector('.input-custom__toggle');
+        if (toggleButton) {
+          toggleButton.classList.toggle(
+            'input-custom__toggle--visible',
+            newProps.isPasswordVisible
+          );
+          toggleButton.setAttribute(
+            'aria-label',
+            newProps.isPasswordVisible ? 'Hide password' : 'Show password'
+          );
+        }
+      }
+
+      // Update disabled state
       if (newProps.disabled !== undefined) {
-        input.disabled = inputState.disabled;
+        input.disabled = newProps.disabled;
         customInput.classList.toggle(
           'input-custom--disabled',
-          inputState.disabled
+          newProps.disabled
         );
         customInput.setAttribute(
           'aria-disabled',
-          inputState.disabled ? 'true' : 'false'
+          newProps.disabled ? 'true' : 'false'
         );
       }
 
+      // Update readonly state
       if (newProps.readonly !== undefined) {
-        input.readOnly = inputState.readonly;
+        input.readOnly = newProps.readonly;
         customInput.classList.toggle(
           'input-custom--readonly',
-          inputState.readonly
+          newProps.readonly
         );
         customInput.setAttribute(
           'aria-readonly',
-          inputState.readonly ? 'true' : 'false'
+          newProps.readonly ? 'true' : 'false'
         );
       }
 
-      if (newProps.validationMessage !== undefined) {
-        if (inputState.isValid === false) {
-          validationMessageElement.textContent = inputState.validationMessage;
-        }
+      // Update validation message
+      if (newProps.validationMessage !== undefined && state.isValid === false) {
+        validationMessageElement.textContent = newProps.validationMessage;
       }
 
       return api;
     },
 
-    /**
-     * Clean up resources
-     */
+    onThemeChange() {
+      // Theme-specific adjustments
+    },
+
     destroy() {
+      // Clean up event listeners
+      input.removeEventListener('input', handleInput);
+      input.removeEventListener('change', handleChange);
+      input.removeEventListener('focus', handleFocus);
+      input.removeEventListener('blur', handleBlur);
+      input.removeEventListener('keydown', handleKeydown);
+
+      // Clean up type-specific listeners
+      if (state.type === 'search') {
+        const clearButton = container.querySelector('.input-custom__clear');
+        if (clearButton)
+          clearButton.removeEventListener('click', handleClearClick);
+      } else if (state.type === 'password') {
+        const toggleButton = container.querySelector('.input-custom__toggle');
+        if (toggleButton)
+          toggleButton.removeEventListener('click', handleTogglePassword);
+      } else if (state.type === 'number') {
+        const incrementButton = container.querySelector(
+          '.input-custom__increment'
+        );
+        const decrementButton = container.querySelector(
+          '.input-custom__decrement'
+        );
+        if (incrementButton)
+          incrementButton.removeEventListener('click', handleIncrement);
+        if (decrementButton)
+          decrementButton.removeEventListener('click', handleDecrement);
+      }
+
       document.removeEventListener('click', documentClickHandler);
     },
   };
@@ -477,5 +467,5 @@ const Input = (props) => {
   return api;
 };
 
-// Export component
-export default Input;
+// Enhance with theme awareness
+export default withThemeAwareness(createInput);
