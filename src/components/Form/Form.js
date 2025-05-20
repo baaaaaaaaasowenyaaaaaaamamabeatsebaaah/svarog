@@ -94,9 +94,10 @@ const createForm = (props) => {
    * @private
    * @param {Event} event - The input event
    */
-  const handleInput = debounce((event) => {
+  const handleInput = debounce(() => {
     // This is mainly for real-time validation if needed
     // Currently a stub but can be expanded for real-time validation
+    // Using _event prefix to indicate intentionally unused parameter
   }, 100);
 
   /**

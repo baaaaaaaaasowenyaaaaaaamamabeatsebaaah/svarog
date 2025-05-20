@@ -144,7 +144,10 @@ export const appendChildren = (parent, children) => {
   // Use DocumentFragment for better performance
   const fragment = document.createDocumentFragment();
 
-  children.forEach((child) => {
+  // Convert to array if it's not already an array
+  const childrenArray = Array.isArray(children) ? children : [children];
+
+  childrenArray.forEach((child) => {
     if (!child) return;
 
     if (typeof child === 'string') {
