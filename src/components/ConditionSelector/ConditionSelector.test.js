@@ -4,7 +4,7 @@ import ConditionSelector from './ConditionSelector.js';
 
 describe('ConditionSelector component', () => {
   it('should create a condition-selector element', () => {
-    const conditionSelector = new ConditionSelector({});
+    const conditionSelector = ConditionSelector({});
 
     const element = conditionSelector.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
@@ -18,7 +18,7 @@ describe('ConditionSelector component', () => {
       { id: 3, name: 'Fair', description: 'Shows signs of wear' },
     ];
 
-    const conditionSelector = new ConditionSelector({ conditions });
+    const conditionSelector = ConditionSelector({ conditions });
     const element = conditionSelector.getElement();
 
     const options = element.querySelectorAll('.condition-option');
@@ -31,7 +31,7 @@ describe('ConditionSelector component', () => {
       { id: 2, name: 'Good', description: 'Used but in good condition' },
     ];
 
-    const conditionSelector = new ConditionSelector({
+    const conditionSelector = ConditionSelector({
       conditions,
       selectedId: '1',
     });
@@ -49,7 +49,7 @@ describe('ConditionSelector component', () => {
       { id: 2, name: 'Good', description: 'Used but in good condition' },
     ];
 
-    const conditionSelector = new ConditionSelector({
+    const conditionSelector = ConditionSelector({
       conditions,
       onSelect,
     });
@@ -63,25 +63,40 @@ describe('ConditionSelector component', () => {
   });
 
   it('should toggle loading state', () => {
-    const conditionSelector = new ConditionSelector({});
-    const element = conditionSelector.getElement();
+    // Create component with initially not loading
+    const conditionSelector = ConditionSelector({
+      isLoading: false,
+    });
 
-    // Initial state
+    // Verify initial state
+    let element = conditionSelector.getElement();
     expect(element.classList.contains('condition-selector--loading')).toBe(
       false
     );
 
-    // Set loading
+    // Set to loading state
     conditionSelector.setLoading(true);
+
+    // Force re-render by getting a fresh element
+    element = conditionSelector.getElement();
+
+    // Verify loading state was applied
     expect(element.classList.contains('condition-selector--loading')).toBe(
       true
     );
+    expect(element.getAttribute('aria-busy')).toBe('true');
 
-    // Unset loading
+    // Set back to not loading
     conditionSelector.setLoading(false);
+
+    // Force re-render again
+    element = conditionSelector.getElement();
+
+    // Verify loading state was removed
     expect(element.classList.contains('condition-selector--loading')).toBe(
       false
     );
+    expect(element.getAttribute('aria-busy')).toBe('false');
   });
 
   it('should update conditions', () => {
@@ -93,20 +108,22 @@ describe('ConditionSelector component', () => {
       { id: 3, name: 'Fair', description: 'Fair condition' },
     ];
 
-    const conditionSelector = new ConditionSelector({
+    const conditionSelector = ConditionSelector({
       conditions: initialConditions,
     });
-    const element = conditionSelector.getElement();
 
     // Initially should have 1 option
+    let element = conditionSelector.getElement();
     expect(element.querySelectorAll('.condition-option').length).toBe(1);
 
     // Update conditions
     conditionSelector.updateConditions(updatedConditions);
-    const updatedElement = conditionSelector.getElement();
+
+    // Get the updated element after conditions change
+    element = conditionSelector.getElement();
 
     // Should now have 2 options
-    expect(updatedElement.querySelectorAll('.condition-option').length).toBe(2);
+    expect(element.querySelectorAll('.condition-option').length).toBe(2);
   });
 
   it('should set selected condition', () => {
@@ -115,13 +132,13 @@ describe('ConditionSelector component', () => {
       { id: 2, name: 'Good', description: 'Good condition' },
     ];
 
-    const conditionSelector = new ConditionSelector({
+    const conditionSelector = ConditionSelector({
       conditions,
       selectedId: '1',
     });
-    const element = conditionSelector.getElement();
 
     // Initially condition 1 is selected
+    let element = conditionSelector.getElement();
     expect(
       element
         .querySelector('.condition-option--selected')
@@ -130,6 +147,9 @@ describe('ConditionSelector component', () => {
 
     // Change selection to condition 2
     conditionSelector.setSelectedCondition(2);
+
+    // Get a fresh element reference after update
+    element = conditionSelector.getElement();
 
     // Now condition 2 should be selected
     expect(
@@ -140,7 +160,7 @@ describe('ConditionSelector component', () => {
   });
 
   it('should apply custom className', () => {
-    const conditionSelector = new ConditionSelector({
+    const conditionSelector = ConditionSelector({
       className: 'custom-class',
     });
     const element = conditionSelector.getElement();
@@ -158,7 +178,7 @@ describe('ConditionSelector component', () => {
       { id: 5, name: 'Unknown', description: 'Unknown condition' },
     ];
 
-    const conditionSelector = new ConditionSelector({ conditions });
+    const conditionSelector = ConditionSelector({ conditions });
     const element = conditionSelector.getElement();
 
     const icons = element.querySelectorAll('.condition-option__icon');
@@ -171,7 +191,7 @@ describe('ConditionSelector component', () => {
   });
 
   it('should handle empty conditions array', () => {
-    const conditionSelector = new ConditionSelector({
+    const conditionSelector = ConditionSelector({
       conditions: [],
     });
     const element = conditionSelector.getElement();
@@ -184,7 +204,7 @@ describe('ConditionSelector component', () => {
     const onSelect = vi.fn();
     const conditions = [{ id: 1, name: 'New', description: 'Brand new' }];
 
-    const conditionSelector = new ConditionSelector({
+    const conditionSelector = ConditionSelector({
       conditions,
       onSelect,
       isLoading: true,
@@ -196,5 +216,32 @@ describe('ConditionSelector component', () => {
     optionLabel.click();
 
     expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('should clean up event listeners when destroyed', () => {
+    const onSelect = vi.fn();
+    const conditions = [{ id: 1, name: 'New', description: 'Brand new' }];
+
+    const conditionSelector = ConditionSelector({
+      conditions,
+      onSelect,
+    });
+
+    // Get the element and find labels with click handlers
+    const element = conditionSelector.getElement();
+    const label = element.querySelector('.condition-option__label');
+
+    // Mock the removeEventListener specifically for this label
+    const originalRemoveEventListener = label.removeEventListener;
+    label.removeEventListener = vi.fn();
+
+    // Destroy the component
+    conditionSelector.destroy();
+
+    // Check if removeEventListener was called on the label
+    expect(label.removeEventListener).toHaveBeenCalled();
+
+    // Restore original method
+    label.removeEventListener = originalRemoveEventListener;
   });
 });

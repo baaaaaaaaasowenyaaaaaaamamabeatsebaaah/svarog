@@ -44,7 +44,7 @@ const sampleConditions = [
 
 // Basic story with default options
 export const Default = () => {
-  return new ConditionSelector({
+  return ConditionSelector({
     conditions: sampleConditions,
     onSelect: (conditionId) => console.log('Selected condition:', conditionId),
   });
@@ -52,7 +52,7 @@ export const Default = () => {
 
 // Story with a preselected condition
 export const WithSelectedCondition = () => {
-  return new ConditionSelector({
+  return ConditionSelector({
     conditions: sampleConditions,
     selectedId: '2', // Good condition selected
     onSelect: (conditionId) => console.log('Selected condition:', conditionId),
@@ -61,7 +61,7 @@ export const WithSelectedCondition = () => {
 
 // Story with loading state
 export const LoadingState = () => {
-  return new ConditionSelector({
+  return ConditionSelector({
     conditions: sampleConditions,
     isLoading: true,
     onSelect: (conditionId) => console.log('Selected condition:', conditionId),
@@ -96,7 +96,7 @@ export const Interactive = () => {
   output.innerHTML = '<strong>Selected Condition:</strong> None';
 
   // Create condition selector
-  const conditionSelector = new ConditionSelector({
+  const conditionSelector = ConditionSelector({
     conditions: sampleConditions,
     onSelect: (conditionId) => {
       const selectedCondition = sampleConditions.find(
@@ -129,7 +129,7 @@ export const AllStates = () => {
   regularTitle.textContent = 'Regular State';
   regularContainer.appendChild(regularTitle);
 
-  const regularSelector = new ConditionSelector({
+  const regularSelector = ConditionSelector({
     conditions: sampleConditions,
     onSelect: (id) => console.log('Selected:', id),
   });
@@ -141,7 +141,7 @@ export const AllStates = () => {
   selectedTitle.textContent = 'With Selection';
   selectedContainer.appendChild(selectedTitle);
 
-  const selectedSelector = new ConditionSelector({
+  const selectedSelector = ConditionSelector({
     conditions: sampleConditions,
     selectedId: '3', // Fair condition
     onSelect: (id) => console.log('Selected:', id),
@@ -154,7 +154,7 @@ export const AllStates = () => {
   loadingTitle.textContent = 'Loading State';
   loadingContainer.appendChild(loadingTitle);
 
-  const loadingSelector = new ConditionSelector({
+  const loadingSelector = ConditionSelector({
     conditions: sampleConditions,
     isLoading: true,
     onSelect: (id) => console.log('Selected:', id),
@@ -167,7 +167,7 @@ export const AllStates = () => {
   emptyTitle.textContent = 'Empty State';
   emptyContainer.appendChild(emptyTitle);
 
-  const emptySelector = new ConditionSelector({
+  const emptySelector = ConditionSelector({
     conditions: [],
     onSelect: (id) => console.log('Selected:', id),
   });
@@ -219,7 +219,7 @@ export const CustomStyling = () => {
   container.appendChild(style);
 
   // Create condition selector with custom class
-  const conditionSelector = new ConditionSelector({
+  const conditionSelector = ConditionSelector({
     conditions: sampleConditions,
     className: 'custom-condition-selector',
     onSelect: (id) => console.log('Selected:', id),
