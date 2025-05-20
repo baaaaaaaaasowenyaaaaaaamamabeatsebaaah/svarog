@@ -3,7 +3,9 @@ import './Grid.css';
 import {
   createComponent,
   createElement,
+  appendChildren,
 } from '../../utils/componentFactory.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 
 /**
  * Creates a Column component for use within a Grid
@@ -20,9 +22,6 @@ const createColumn = (props) => {
     desktopOffset,
     offset,
   } = props;
-
-  // Validation for children is handled by requiredProps now
-  // so we don't need an explicit check here
 
   // State
   let columnState = {
@@ -80,34 +79,23 @@ const createColumn = (props) => {
       );
     }
 
-    // Append children
-    appendChildren(column, columnState.children);
+    // Append children - properly handle both array and single child
+    if (Array.isArray(columnState.children)) {
+      appendChildren(column, columnState.children);
+    } else if (columnState.children instanceof HTMLElement) {
+      column.appendChild(columnState.children);
+    } else if (columnState.children) {
+      column.textContent = String(columnState.children);
+    }
 
     return column;
-  };
-
-  // Helper to append children
-  const appendChildren = (parent, children) => {
-    if (Array.isArray(children)) {
-      children.forEach((child) => {
-        if (child instanceof HTMLElement) {
-          parent.appendChild(child);
-        } else {
-          throw new Error('Each child must be an HTMLElement');
-        }
-      });
-    } else if (children instanceof HTMLElement) {
-      parent.appendChild(children);
-    } else {
-      throw new Error('Children must be HTMLElement or array of HTMLElements');
-    }
   };
 
   // Initial column element
   let columnElement = buildColumnElement();
 
   // Public API
-  return {
+  const column = {
     /**
      * Get the column element
      * @returns {HTMLElement} Column element
@@ -138,12 +126,111 @@ const createColumn = (props) => {
     },
 
     /**
+     * Efficient partial update for the column
+     * @param {HTMLElement} element - Element to update
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate(element, newProps) {
+      // Update state first
+      Object.assign(columnState, newProps);
+
+      // Update specific properties only if they changed
+      if (newProps.width !== undefined) {
+        element.style.gridColumnEnd = `span ${newProps.width}`;
+      }
+
+      if (newProps.offset !== undefined) {
+        if (newProps.offset) {
+          element.style.gridColumnStart = newProps.offset + 1;
+        } else {
+          element.style.removeProperty('grid-column-start');
+        }
+      }
+
+      // Handle responsive classes
+      if (newProps.mobileWidth !== undefined) {
+        const mobileClasses = [...element.classList].filter((c) =>
+          c.startsWith('column--mobile-')
+        );
+        mobileClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.mobileWidth) {
+          element.classList.add(`column--mobile-${newProps.mobileWidth}`);
+        }
+      }
+
+      if (newProps.tabletWidth !== undefined) {
+        const tabletClasses = [...element.classList].filter((c) =>
+          c.startsWith('column--tablet-')
+        );
+        tabletClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.tabletWidth) {
+          element.classList.add(`column--tablet-${newProps.tabletWidth}`);
+        }
+      }
+
+      if (newProps.desktopWidth !== undefined) {
+        const desktopClasses = [...element.classList].filter(
+          (c) =>
+            c.startsWith('column--desktop-') &&
+            !c.startsWith('column--desktop-offset-')
+        );
+        desktopClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.desktopWidth) {
+          element.classList.add(`column--desktop-${newProps.desktopWidth}`);
+        }
+      }
+
+      if (newProps.desktopOffset !== undefined) {
+        const offsetClasses = [...element.classList].filter((c) =>
+          c.startsWith('column--desktop-offset-')
+        );
+        offsetClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.desktopOffset) {
+          element.classList.add(
+            `column--desktop-offset-${newProps.desktopOffset}`
+          );
+        }
+      }
+
+      // Update children if needed
+      if (newProps.children !== undefined) {
+        // Clear existing children
+        while (element.firstChild) {
+          element.removeChild(element.firstChild);
+        }
+
+        // Add new children properly handling both array and single child
+        if (Array.isArray(newProps.children)) {
+          appendChildren(element, newProps.children);
+        } else if (newProps.children instanceof HTMLElement) {
+          element.appendChild(newProps.children);
+        } else if (newProps.children) {
+          element.textContent = String(newProps.children);
+        }
+      }
+    },
+
+    /**
      * Clean up resources
      */
     destroy() {
       columnElement = null;
     },
+
+    /**
+     * Handle theme changes
+     * @param {string} newTheme - New theme name
+     * @param {string} previousTheme - Previous theme name
+     */
+    onThemeChange(newTheme, previousTheme) {
+      // Handle theme changes if needed
+      console.debug(
+        `Column: Theme changed from ${previousTheme} to ${newTheme}`
+      );
+    },
   };
+
+  return column;
 };
 
 /**
@@ -242,7 +329,7 @@ const createGrid = (props = {}) => {
   let gridElement = buildGridElement();
 
   // Public API
-  return {
+  const grid = {
     /**
      * Get the grid element
      * @returns {HTMLElement} Grid element
@@ -291,21 +378,82 @@ const createGrid = (props = {}) => {
     },
 
     /**
+     * Efficient partial update for the grid
+     * @param {HTMLElement} element - Element to update
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate(element, newProps) {
+      // Update state first
+      Object.assign(gridState, newProps);
+
+      // Update direction classes
+      if (newProps.reverse !== undefined) {
+        element.classList.toggle('grid--reverse', newProps.reverse);
+      }
+
+      if (newProps.mobileReverse !== undefined) {
+        element.classList.toggle(
+          'grid--mobile-reverse',
+          newProps.mobileReverse
+        );
+      }
+
+      // Handle gap styling
+      if (newProps.gap !== undefined) {
+        element.style.gap = newProps.gap;
+        // When setting gap, remove individual gaps
+        element.style.removeProperty('row-gap');
+        element.style.removeProperty('column-gap');
+      }
+
+      // Update row gap if no unified gap is set
+      if (newProps.rowGap !== undefined && !element.style.gap) {
+        element.style.rowGap = newProps.rowGap;
+      }
+
+      // Update column gap if no unified gap is set
+      if (newProps.columnGap !== undefined && !element.style.gap) {
+        element.style.columnGap = newProps.columnGap;
+      }
+
+      // Update alignment properties
+      if (newProps.alignItems !== undefined) {
+        element.style.alignItems = newProps.alignItems;
+      }
+
+      if (newProps.justifyItems !== undefined) {
+        element.style.justifyItems = newProps.justifyItems;
+      }
+    },
+
+    /**
      * Clean up resources
      */
     destroy() {
       gridElement = null;
     },
+
+    /**
+     * Handle theme changes
+     * @param {string} newTheme - New theme name
+     * @param {string} previousTheme - Previous theme name
+     */
+    onThemeChange(newTheme, previousTheme) {
+      // Handle theme changes if needed
+      console.debug(`Grid: Theme changed from ${previousTheme} to ${newTheme}`);
+    },
   };
+
+  return grid;
 };
 
 // Define required props for validation
 createColumn.requiredProps = ['children'];
 createGrid.requiredProps = [];
 
-// Create component factories
-const Column = createComponent('Column', createColumn);
-const Grid = createComponent('Grid', createGrid);
+// Create theme-aware components
+const Column = withThemeAwareness(createComponent('Column', createColumn));
+const Grid = withThemeAwareness(createComponent('Grid', createGrid));
 
 // Add Column as a static property of Grid
 Grid.Column = Column;
