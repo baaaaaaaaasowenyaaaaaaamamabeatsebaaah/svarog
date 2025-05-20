@@ -2,7 +2,6 @@
 import Logo from './index.js';
 // Import SVG directly - webpack 5 will handle this with Asset Modules
 import svarogSvg from '../../../.storybook/assets/svg/svarog.svg';
-import muchandySvg from '../../../.storybook/assets/svg/logo-farbe.svg';
 
 export default {
   title: 'Components/Logo',
