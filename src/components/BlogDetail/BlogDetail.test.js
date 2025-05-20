@@ -17,7 +17,7 @@ describe('BlogDetail', () => {
   });
 
   it('should render correctly with all props', () => {
-    const detail = new BlogDetail(defaultProps);
+    const detail = BlogDetail(defaultProps);
     const element = detail.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -38,7 +38,7 @@ describe('BlogDetail', () => {
       title: 'Test Blog Post',
       content: '<p>Content</p>',
     };
-    const detail = new BlogDetail(minimalProps);
+    const detail = BlogDetail(minimalProps);
     const element = detail.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -50,7 +50,7 @@ describe('BlogDetail', () => {
   });
 
   it('should display categories correctly', () => {
-    const detail = new BlogDetail(defaultProps);
+    const detail = BlogDetail(defaultProps);
     const element = detail.getElement();
     const categories = element.querySelectorAll('.blog-detail__category');
 
@@ -60,11 +60,49 @@ describe('BlogDetail', () => {
   });
 
   it('should format date correctly', () => {
-    const detail = new BlogDetail(defaultProps);
+    const detail = BlogDetail(defaultProps);
     const element = detail.getElement();
     const dateElement = element.querySelector('.blog-detail__date');
 
     expect(dateElement).toBeTruthy();
     expect(dateElement.textContent).toMatch(/January 15, 2024/);
+  });
+
+  it('should update the blog detail with new props', () => {
+    const detail = BlogDetail(defaultProps);
+    const element = detail.getElement();
+
+    // Create a parent node for testing replacement
+    const parent = document.createElement('div');
+    parent.appendChild(element);
+
+    const updatedDetail = detail.update({
+      title: 'Updated Title',
+      author: 'Jane Smith',
+    });
+
+    const updatedElement = updatedDetail.getElement();
+    expect(
+      updatedElement.querySelector('.blog-detail__title').textContent
+    ).toBe('Updated Title');
+    expect(
+      updatedElement.querySelector('.blog-detail__author').textContent
+    ).toContain('Jane Smith');
+  });
+  it('should handle invalid props gracefully', () => {
+    const invalidProps = {
+      title: 42, // Should be string
+      categories: 'not an array',
+    };
+
+    expect(() => {
+      BlogDetail(invalidProps);
+    }).not.toThrow(); // Should recover gracefully with error element
+
+    const detail = BlogDetail(invalidProps);
+    const element = detail.getElement();
+
+    expect(element).toBeInstanceOf(HTMLElement);
+    expect(element.classList.contains('blog-detail--error')).toBe(true);
   });
 });
