@@ -15,7 +15,9 @@ import Button from '../Button/Button.js';
  * @param {number} [props.totalPages=1] - Total number of pages
  * @param {Function} [props.onPageChange] - Callback when page changes (receives page number)
  * @param {number} [props.siblingCount=1] - Number of siblings to show around current page
- * @param {string} [props.className=''] - Additional CSS class names
+ * @param {string} [props.className=''] - Additional CSS class names for the root element
+ * @param {string} [props.prevText='Previous'] - Text for the previous button
+ * @param {string} [props.nextText='Next'] - Text for the next button
  * @returns {Object} Pagination component API
  */
 const createPagination = (props) => {
@@ -23,19 +25,24 @@ const createPagination = (props) => {
   let buttonInstances = [];
 
   /**
-   * Generate the pagination range
+   * Generates the pagination range with appropriate ellipses
    * @param {number} currentPage - Current active page
    * @param {number} totalPages - Total number of pages
    * @param {number} siblingCount - Number of siblings to show around current page
    * @returns {Array} Array of page numbers and ellipsis markers
    */
   const generatePaginationRange = (currentPage, totalPages, siblingCount) => {
+    // Handle invalid inputs gracefully
+    if (totalPages <= 0) return [];
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
     // For small page counts, show all pages
     if (totalPages <= siblingCount * 2 + 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    // For larger page counts, use intelligent paging
+    // For larger page counts, use intelligent paging with ellipses
     const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
     const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
 
@@ -67,7 +74,7 @@ const createPagination = (props) => {
     }
 
     // Add last page if not already included
-    if (rightSiblingIndex < totalPages) {
+    if (totalPages > 1 && !pages.includes(totalPages)) {
       pages.push(totalPages);
     }
 
@@ -75,7 +82,7 @@ const createPagination = (props) => {
   };
 
   /**
-   * Clean up button instances
+   * Clean up button instances to prevent memory leaks
    */
   const cleanupButtons = () => {
     buttonInstances.forEach((button) => {
@@ -86,6 +93,11 @@ const createPagination = (props) => {
     buttonInstances = [];
   };
 
+  /**
+   * Renders the pagination component
+   * @param {Object} state - Current state of the pagination component
+   * @returns {HTMLElement} The pagination DOM element
+   */
   const renderPagination = (state) => {
     const {
       currentPage = 1,
@@ -93,6 +105,8 @@ const createPagination = (props) => {
       siblingCount = 1,
       className = '',
       onPageChange = () => {},
+      prevText = 'Previous',
+      nextText = 'Next',
     } = state;
 
     // Define page click handler
@@ -109,7 +123,7 @@ const createPagination = (props) => {
         newPage = Number(page);
       }
 
-      if (newPage !== currentPage && onPageChange) {
+      if (newPage !== currentPage && typeof onPageChange === 'function') {
         onPageChange(newPage);
       }
     };
@@ -117,30 +131,47 @@ const createPagination = (props) => {
     // Clean up previous button instances
     cleanupButtons();
 
-    // Create pagination container
+    // Create pagination container with proper class names
     const container = createElement('nav', {
       className: `pagination ${className}`.trim(),
       attributes: {
         'aria-label': 'Pagination Navigation',
+        role: 'navigation',
       },
     });
 
     // Create pagination list
     const list = createElement('ul', {
       className: 'pagination__list',
+      attributes: {
+        role: 'list',
+      },
     });
 
     // Previous button
-    const prevItem = createElement('li', { className: 'pagination__item' });
+    const prevItem = createElement('li', {
+      className: 'pagination__item',
+      attributes: {
+        role: 'listitem',
+      },
+    });
+
     const prevBtn = Button({
-      text: 'Previous',
+      text: prevText,
       disabled: currentPage <= 1,
       className: 'pagination__button pagination__button--prev',
       onClick: () => handlePageClick('prev'),
+      ariaLabel: 'Go to previous page',
     });
+
     buttonInstances.push(prevBtn);
-    prevItem.appendChild(prevBtn.getElement());
-    list.appendChild(prevItem);
+
+    // Ensure button is created successfully before appending
+    const prevBtnElement = prevBtn.getElement();
+    if (prevBtnElement) {
+      prevItem.appendChild(prevBtnElement);
+      list.appendChild(prevItem);
+    }
 
     // Generate pages to display
     const pages = generatePaginationRange(
@@ -151,13 +182,21 @@ const createPagination = (props) => {
 
     // Render page buttons
     pages.forEach((page) => {
-      const pageItem = createElement('li', { className: 'pagination__item' });
+      const pageItem = createElement('li', {
+        className: 'pagination__item',
+        attributes: {
+          role: 'listitem',
+        },
+      });
 
       if (page === '...') {
         // Create ellipsis element
         const dots = createElement('span', {
           className: 'pagination__dots',
           text: '...',
+          attributes: {
+            'aria-hidden': 'true',
+          },
         });
         pageItem.appendChild(dots);
       } else {
@@ -171,36 +210,57 @@ const createPagination = (props) => {
           onClick: () => handlePageClick(page),
           attributes: {
             'aria-current': isCurrentPage ? 'page' : null,
+            'aria-label': `Go to page ${page}${isCurrentPage ? ', current page' : ''}`,
           },
         });
 
         buttonInstances.push(pageBtn);
-        pageItem.appendChild(pageBtn.getElement());
+
+        // Ensure button is created successfully before appending
+        const pageBtnElement = pageBtn.getElement();
+        if (pageBtnElement) {
+          pageItem.appendChild(pageBtnElement);
+        }
       }
 
       list.appendChild(pageItem);
     });
 
     // Next button
-    const nextItem = createElement('li', { className: 'pagination__item' });
+    const nextItem = createElement('li', {
+      className: 'pagination__item',
+      attributes: {
+        role: 'listitem',
+      },
+    });
+
     const nextBtn = Button({
-      text: 'Next',
+      text: nextText,
       disabled: currentPage >= totalPages,
       className: 'pagination__button pagination__button--next',
       onClick: () => handlePageClick('next'),
+      ariaLabel: 'Go to next page',
     });
+
     buttonInstances.push(nextBtn);
-    nextItem.appendChild(nextBtn.getElement());
-    list.appendChild(nextItem);
+
+    // Ensure button is created successfully before appending
+    const nextBtnElement = nextBtn.getElement();
+    if (nextBtnElement) {
+      nextItem.appendChild(nextBtnElement);
+      list.appendChild(nextItem);
+    }
 
     container.appendChild(list);
     return container;
   };
 
-  // Create the component
+  // Create the component with base lifecycle methods
   const component = createBaseComponent(renderPagination)(props);
 
-  // Add custom destroy method
+  /**
+   * Custom destroy method to clean up button instances
+   */
   const originalDestroy = component.destroy;
   component.destroy = function () {
     cleanupButtons();
@@ -209,11 +269,20 @@ const createPagination = (props) => {
     }
   };
 
-  // Convenience methods
+  /**
+   * Sets the current page
+   * @param {number} page - New current page
+   * @returns {Object} Component instance for chaining
+   */
   component.setCurrentPage = function (page) {
     return this.update({ currentPage: page });
   };
 
+  /**
+   * Sets the total number of pages
+   * @param {number} total - New total pages
+   * @returns {Object} Component instance for chaining
+   */
   component.setTotalPages = function (total) {
     return this.update({ totalPages: total });
   };
@@ -222,9 +291,7 @@ const createPagination = (props) => {
 };
 
 // Export the enhanced component
-const PaginationComponent = createComponent(
+export default createComponent(
   'Pagination',
   withThemeAwareness(createPagination)
 );
-
-export default PaginationComponent;
