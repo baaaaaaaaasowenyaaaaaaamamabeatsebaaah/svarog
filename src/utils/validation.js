@@ -44,3 +44,99 @@ export const validateInput = (inputElement, options) => {
 
   return isValid;
 };
+
+/**
+ * Validates required props for a component
+ * @param {Object} props - Component props
+ * @param {Object} requirements - Validation requirements
+ * @param {string} componentName - Component name for error messages
+ * @returns {boolean} Whether the props are valid
+ * @throws {Error} If a required prop is missing or invalid
+ */
+export const validateRequiredProps = (props, requirements, componentName) => {
+  if (!componentName) {
+    componentName = 'Component';
+  }
+
+  Object.entries(requirements).forEach(([propName, requirement]) => {
+    // Check if prop exists
+    if (
+      requirement.required &&
+      (props[propName] === undefined || props[propName] === null)
+    ) {
+      throw new Error(`${componentName}: ${propName} is required`);
+    }
+
+    // Skip type validation if prop is undefined or null and not required
+    if (
+      (props[propName] === undefined || props[propName] === null) &&
+      !requirement.required
+    ) {
+      return; // Continue to next prop
+    }
+
+    // Check prop type if specified
+    if (
+      requirement.type &&
+      props[propName] !== undefined &&
+      props[propName] !== null
+    ) {
+      const propType = typeof props[propName];
+
+      // Special handling for arrays
+      if (requirement.type === 'array' && !Array.isArray(props[propName])) {
+        throw new Error(`${componentName}: ${propName} must be an array`);
+      }
+      // Regular type checking
+      else if (requirement.type !== 'array' && propType !== requirement.type) {
+        throw new Error(
+          `${componentName}: ${propName} must be a ${requirement.type}, got ${propType}`
+        );
+      }
+    }
+
+    // Skip further validation if prop is undefined/null
+    if (props[propName] === undefined || props[propName] === null) {
+      return;
+    }
+
+    // Check array length if specified
+    if (
+      requirement.type === 'array' &&
+      requirement.minLength !== undefined &&
+      Array.isArray(props[propName]) &&
+      props[propName].length < requirement.minLength
+    ) {
+      throw new Error(
+        `${componentName}: ${propName} array is required and must not be empty`
+      );
+    }
+
+    // Check allowed values if specified
+    if (
+      requirement.allowedValues &&
+      props[propName] !== undefined &&
+      !requirement.allowedValues.includes(props[propName])
+    ) {
+      throw new Error(
+        `${componentName}: ${propName} must be either "${requirement.allowedValues.join('" or "')}"`
+      );
+    }
+
+    // Execute custom validator if specified
+    if (
+      requirement.validator &&
+      props[propName] !== undefined &&
+      typeof requirement.validator === 'function'
+    ) {
+      const validationResult = requirement.validator(props[propName]);
+      if (validationResult !== true) {
+        throw new Error(
+          `${componentName}: ${propName} ${validationResult || 'is invalid'}`
+        );
+      }
+    }
+  });
+
+  return true;
+};

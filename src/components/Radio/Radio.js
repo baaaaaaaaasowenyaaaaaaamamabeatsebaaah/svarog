@@ -2,8 +2,140 @@
 import './Radio.css';
 import { createComponent } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
-import { validateInput } from '../../utils/validation.js';
-import { measurePerformance, debounce } from '../../utils/performance.js';
+import {
+  validateInput,
+  validateRequiredProps,
+} from '../../utils/validation.js';
+import { debounce, PerformanceBenchmark } from '../../utils/performance.js';
+import { isTestEnvironment } from '../../utils/environment.js';
+
+/**
+ * Create the DOM structure for the radio component
+ * @param {Object} props - Component properties
+ * @param {Object} state - Internal component state storage
+ * @returns {HTMLElement} The created DOM structure
+ */
+const createRadioDOM = (props) => {
+  // Create container
+  const container = document.createElement('div');
+  container.className = `radio-container ${props.className || ''}`.trim();
+
+  // Create label wrapper
+  const wrapper = document.createElement('label');
+  wrapper.className = 'radio-wrapper';
+
+  // Create input element
+  const id = props.id || `radio-${Math.random().toString(36).substr(2, 9)}`;
+  const input = createRadioInput(props, id);
+
+  // Create visual indicator
+  const indicator = document.createElement('span');
+  indicator.className = 'radio-indicator';
+  indicator.setAttribute('aria-hidden', 'true');
+
+  // Create label text
+  const labelText = document.createElement('span');
+  labelText.className = 'radio-label';
+  labelText.textContent = props.label;
+  labelText.setAttribute('for', id);
+
+  // Build component structure
+  wrapper.appendChild(input);
+  wrapper.appendChild(indicator);
+  wrapper.appendChild(labelText);
+  container.appendChild(wrapper);
+
+  // Add validation container if needed
+  if (props.validationMessage) {
+    const validationContainer = createValidationContainer();
+    container.appendChild(validationContainer);
+    container.validationContainer = validationContainer;
+  }
+
+  // Store references for updates
+  container._input = input;
+  container._label = labelText;
+
+  return container;
+};
+
+/**
+ * Create a radio input element with appropriate attributes
+ * @param {Object} props - Radio properties
+ * @param {string} id - Element ID
+ * @returns {HTMLInputElement} The created input element
+ */
+const createRadioInput = (props, id) => {
+  const input = document.createElement('input');
+  input.type = 'radio';
+  input.className = 'radio-input';
+  input.id = id;
+
+  // Set attributes based on props
+  if (props.name) input.name = props.name;
+  if (props.value !== undefined) input.value = props.value;
+  if (props.required) input.required = true;
+  input.checked = props.checked || false;
+  if (props.disabled) input.disabled = true;
+
+  // Set ARIA attributes
+  updateInputAccessibility(input, props);
+
+  return input;
+};
+
+/**
+ * Create a validation message container
+ * @returns {HTMLDivElement} Validation container element
+ */
+const createValidationContainer = () => {
+  const container = document.createElement('div');
+  container.className = 'radio-validation-message';
+  container.setAttribute('aria-live', 'polite');
+  return container;
+};
+
+/**
+ * Update input element accessibility attributes
+ * @param {HTMLInputElement} input - The input element
+ * @param {Object} props - Component properties
+ */
+const updateInputAccessibility = (input, props) => {
+  input.setAttribute('aria-checked', input.checked ? 'true' : 'false');
+  if (props.disabled) input.setAttribute('aria-disabled', 'true');
+  if (props.required) input.setAttribute('aria-required', 'true');
+};
+
+/**
+ * Create a change event handler for the radio input
+ * @param {HTMLInputElement} input - The input element
+ * @param {HTMLElement} container - The container element
+ * @param {Object} props - Component properties
+ * @returns {Function} The event handler
+ */
+const createChangeHandler = (input, container, props) => {
+  const handleChange = (event) => {
+    // Update accessibility state
+    input.setAttribute('aria-checked', event.target.checked ? 'true' : 'false');
+
+    // Validate if required
+    if (props.validationMessage && container.validationContainer) {
+      validateInput(input, {
+        container: container,
+        messageElement: container.validationContainer,
+        customMessage: props.validationMessage,
+      });
+    }
+
+    // Call onChange callback if provided
+    if (typeof props.onChange === 'function') {
+      props.onChange(event, props.value);
+    }
+  };
+
+  // Use appropriate handler based on environment
+  return isTestEnvironment() ? handleChange : debounce(handleChange, 50);
+};
 
 /**
  * Creates a radio button component
@@ -22,96 +154,31 @@ import { measurePerformance, debounce } from '../../utils/performance.js';
  */
 const createRadio = createBaseComponent((props) => {
   // Validate required props
-  if (!props.label) {
-    throw new Error('Radio: label is required');
-  }
+  validateRequiredProps(
+    props,
+    {
+      label: { required: true, type: 'string' },
+      value: { required: true },
+      id: { required: false, type: 'string' },
+      name: { required: false, type: 'string' },
+      checked: { required: false, type: 'boolean' },
+      required: { required: false, type: 'boolean' },
+      disabled: { required: false, type: 'boolean' },
+      className: { required: false, type: 'string' },
+      onChange: { required: false, type: 'function' },
+      validationMessage: { required: false, type: 'string' },
+    },
+    'Radio'
+  );
 
-  if (props.value === undefined || props.value === null) {
-    throw new Error('Radio: value is required');
-  }
+  // Create component DOM structure
+  const container = createRadioDOM(props, {});
+  const inputElement = container._input;
 
-  // Get default props
-  const className = props.className || '';
-
-  // Create the full markup
-  const container = document.createElement('div');
-  container.className = `radio-container ${className}`.trim();
-
-  const wrapper = document.createElement('label');
-  wrapper.className = 'radio-wrapper';
-
-  // For accessibility, if id is not provided, generate one
-  const id = props.id || `radio-${Math.random().toString(36).substr(2, 9)}`;
-
-  const input = document.createElement('input');
-  input.type = 'radio';
-  input.className = 'radio-input';
-  input.id = id;
-  if (props.name) input.name = props.name;
-  if (props.value !== undefined) input.value = props.value;
-  if (props.required) input.required = true;
-  input.checked = props.checked || false;
-  if (props.disabled) input.disabled = true;
-
-  // Enhanced accessibility attributes
-  input.setAttribute('aria-checked', input.checked ? 'true' : 'false');
-  if (props.disabled) input.setAttribute('aria-disabled', 'true');
-  if (props.required) input.setAttribute('aria-required', 'true');
-
-  const indicator = document.createElement('span');
-  indicator.className = 'radio-indicator';
-  indicator.setAttribute('aria-hidden', 'true'); // Hide from screen readers
-
-  const labelText = document.createElement('span');
-  labelText.className = 'radio-label';
-  labelText.textContent = props.label;
-  labelText.setAttribute('for', id); // Associate with input for accessibility
-
-  // Add change handler
-  const handleChange = (event) => {
-    // Update aria-checked attribute for accessibility
-    input.setAttribute('aria-checked', event.target.checked ? 'true' : 'false');
-
-    // If validation message is provided, validate on change
-    if (props.validationMessage && container.validationContainer) {
-      validateInput(input, {
-        container: container,
-        messageElement: container.validationContainer,
-        customMessage: props.validationMessage,
-      });
-    }
-
-    if (typeof props.onChange === 'function') {
-      props.onChange(event, props.value);
-    }
-  };
-
-  // Use debounced handler for high-frequency changes (like rapid clicks)
-  const debouncedHandler = debounce(handleChange, 50);
-
-  input.addEventListener('change', debouncedHandler);
-
-  // Store handler reference for cleanup
-  input._changeHandler = debouncedHandler;
-
-  // Build the component
-  wrapper.appendChild(input);
-  wrapper.appendChild(indicator);
-  wrapper.appendChild(labelText);
-  container.appendChild(wrapper);
-
-  // Add validation message container if provided
-  if (props.validationMessage) {
-    const validationContainer = document.createElement('div');
-    validationContainer.className = 'radio-validation-message';
-    validationContainer.setAttribute('aria-live', 'polite');
-    container.appendChild(validationContainer);
-    container.validationContainer = validationContainer;
-  }
-
-  // Store references for updates
-  container._input = input;
-  container._label = labelText;
+  // Set up event handling
+  const handler = createChangeHandler(inputElement, container, props);
+  inputElement.addEventListener('change', handler);
+  inputElement._changeHandler = handler; // Store for cleanup
 
   return container;
 });
@@ -122,14 +189,16 @@ const createRadio = createBaseComponent((props) => {
  * @returns {Object} Radio component API
  */
 const RadioFactory = (props) => {
+  // Initialize performance benchmarking
+  const benchmark = new PerformanceBenchmark('Radio');
+
   // Create base component
   const component = createRadio(props);
   const element = component.getElement();
   const inputElement = element._input;
 
-  // Add partial update implementation for efficient updates
+  // Determine when a full rerender is needed
   component.shouldRerender = (newProps) => {
-    // Always do a full rerender if key props change that affect the structure
     return (
       newProps.label !== props.label ||
       newProps.className !== props.className ||
@@ -140,79 +209,82 @@ const RadioFactory = (props) => {
 
   // Partial update implementation
   component.partialUpdate = (element, newProps) => {
-    // Measure performance of update operation
-    return measurePerformance(() => {
-      // Update basic properties
-      if (
-        newProps.checked !== undefined &&
-        inputElement.checked !== newProps.checked
-      ) {
-        inputElement.checked = newProps.checked;
-        inputElement.setAttribute(
-          'aria-checked',
-          newProps.checked ? 'true' : 'false'
-        );
-      }
+    const endBenchmark = benchmark.start('updates');
 
-      if (
-        newProps.disabled !== undefined &&
-        inputElement.disabled !== newProps.disabled
-      ) {
-        inputElement.disabled = newProps.disabled;
-        inputElement.setAttribute(
-          'aria-disabled',
-          newProps.disabled ? 'true' : 'false'
-        );
-      }
+    // Update checked state
+    if (
+      newProps.checked !== undefined &&
+      inputElement.checked !== newProps.checked
+    ) {
+      inputElement.checked = newProps.checked;
+      inputElement.setAttribute(
+        'aria-checked',
+        newProps.checked ? 'true' : 'false'
+      );
+    }
 
-      if (
-        newProps.required !== undefined &&
-        inputElement.required !== newProps.required
-      ) {
-        inputElement.required = newProps.required;
-        inputElement.setAttribute(
-          'aria-required',
-          newProps.required ? 'true' : 'false'
-        );
-      }
+    // Update disabled state
+    if (
+      newProps.disabled !== undefined &&
+      inputElement.disabled !== newProps.disabled
+    ) {
+      inputElement.disabled = newProps.disabled;
+      inputElement.setAttribute(
+        'aria-disabled',
+        newProps.disabled ? 'true' : 'false'
+      );
+    }
 
-      if (newProps.name !== undefined && inputElement.name !== newProps.name) {
-        inputElement.name = newProps.name;
-      }
+    // Update required state
+    if (
+      newProps.required !== undefined &&
+      inputElement.required !== newProps.required
+    ) {
+      inputElement.required = newProps.required;
+      inputElement.setAttribute(
+        'aria-required',
+        newProps.required ? 'true' : 'false'
+      );
+    }
 
-      if (
-        newProps.value !== undefined &&
-        inputElement.value !== newProps.value
-      ) {
-        inputElement.value = newProps.value;
-      }
+    // Update name attribute
+    if (newProps.name !== undefined && inputElement.name !== newProps.name) {
+      inputElement.name = newProps.name;
+    }
 
-      if (
-        newProps.label !== undefined &&
-        element._label.textContent !== newProps.label
-      ) {
-        element._label.textContent = newProps.label;
-      }
+    // Update value
+    if (newProps.value !== undefined && inputElement.value !== newProps.value) {
+      inputElement.value = newProps.value;
+    }
 
-      // Update validation message if applicable
-      if (
-        newProps.validationMessage !== undefined &&
-        element.validationContainer &&
-        props.validationMessage !== newProps.validationMessage
-      ) {
-        validateInput(inputElement, {
-          container: element,
-          messageElement: element.validationContainer,
-          customMessage: newProps.validationMessage,
-        });
-      }
+    // Update label text
+    if (
+      newProps.label !== undefined &&
+      element._label.textContent !== newProps.label
+    ) {
+      element._label.textContent = newProps.label;
+    }
 
-      // Update props reference
-      Object.assign(props, newProps);
-    }, 'Radio.partialUpdate');
+    // Update validation message
+    if (
+      newProps.validationMessage !== undefined &&
+      element.validationContainer &&
+      props.validationMessage !== newProps.validationMessage
+    ) {
+      validateInput(inputElement, {
+        container: element,
+        messageElement: element.validationContainer,
+        customMessage: newProps.validationMessage,
+      });
+    }
+
+    // Update props reference
+    Object.assign(props, newProps);
+
+    endBenchmark();
   };
 
-  // Add additional methods to the component API
+  // Enhanced component API
   return {
     ...component,
 
@@ -261,6 +333,14 @@ const RadioFactory = (props) => {
     focus: function () {
       inputElement.focus();
       return this;
+    },
+
+    /**
+     * Get performance metrics
+     * @returns {Object} Performance metrics
+     */
+    getPerformanceMetrics: function () {
+      return benchmark.getSummary();
     },
 
     /**

@@ -153,3 +153,88 @@ export function measurePerformance(func, label = 'Function') {
     return result;
   };
 }
+
+/**
+ * Benchmark class for tracking component performance
+ */
+export class PerformanceBenchmark {
+  constructor(componentName) {
+    this.componentName = componentName;
+    this.metrics = {
+      renders: [],
+      updates: [],
+      events: [],
+    };
+    this.enabled =
+      window &&
+      window.localStorage &&
+      window.localStorage.getItem('svarog-benchmark') === 'true';
+  }
+
+  /**
+   * Start timing an operation
+   * @param {string} operation - Operation name
+   * @returns {Function} Function to call when operation completes
+   */
+  start(operation) {
+    if (!this.enabled) return () => {};
+
+    const startTime = performance.now();
+
+    return () => {
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      if (!this.metrics[operation]) {
+        this.metrics[operation] = [];
+      }
+
+      this.metrics[operation].push(duration);
+
+      // Log if explicitly requested
+      if (window.localStorage.getItem('svarog-benchmark-log') === 'true') {
+        console.log(
+          `${this.componentName} ${operation}: ${duration.toFixed(2)}ms`
+        );
+      }
+
+      return duration;
+    };
+  }
+
+  /**
+   * Get metrics summary
+   * @returns {Object} Performance metrics summary
+   */
+  getSummary() {
+    const summary = {};
+
+    Object.entries(this.metrics).forEach(([operation, measurements]) => {
+      if (measurements.length === 0) return;
+
+      const total = measurements.reduce((sum, time) => sum + time, 0);
+      const avg = total / measurements.length;
+      const min = Math.min(...measurements);
+      const max = Math.max(...measurements);
+
+      summary[operation] = {
+        count: measurements.length,
+        average: avg,
+        min,
+        max,
+        total,
+      };
+    });
+
+    return summary;
+  }
+
+  /**
+   * Reset all metrics
+   */
+  reset() {
+    Object.keys(this.metrics).forEach((key) => {
+      this.metrics[key] = [];
+    });
+  }
+}

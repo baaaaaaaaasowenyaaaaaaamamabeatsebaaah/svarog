@@ -80,7 +80,7 @@ describe('Radio component', () => {
     expect(inputElement.checked).toBe(false);
   });
 
-  it('should call onChange when radio changes', () => {
+  it('should call onChange when radio changes', async () => {
     const mockOnChange = vi.fn();
     const radio = Radio({
       label: 'Test radio',
@@ -98,6 +98,9 @@ describe('Radio component', () => {
     // Create and dispatch change event
     const changeEvent = new Event('change');
     inputElement.dispatchEvent(changeEvent);
+
+    // Wait for debounced handler to execute
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(expect.any(Event), 'test');
