@@ -66,21 +66,21 @@ const navItems = [
 ];
 
 export const Default = () => {
-  return new Navigation({
+  return Navigation({
     items: navItems,
     submenuShadow: false, // Default without shadow
   });
 };
 
 export const WithSubmenuShadow = () => {
-  return new Navigation({
+  return Navigation({
     items: navItems,
     submenuShadow: true, // Only this story has shadow
   });
 };
 
 export const Vertical = () => {
-  return new Navigation({
+  return Navigation({
     items: navItems,
     horizontal: false,
     submenuShadow: false,
@@ -88,7 +88,7 @@ export const Vertical = () => {
 };
 
 export const WithActiveItem = () => {
-  return new Navigation({
+  return Navigation({
     items: navItems,
     activeId: 'products',
     submenuShadow: false,
@@ -96,7 +96,7 @@ export const WithActiveItem = () => {
 };
 
 export const BurgerRight = () => {
-  return new Navigation({
+  return Navigation({
     items: navItems,
     burgerPosition: 'right',
     submenuShadow: false,
@@ -104,7 +104,7 @@ export const BurgerRight = () => {
 };
 
 export const NonExpandable = () => {
-  return new Navigation({
+  return Navigation({
     items: navItems,
     expandable: false,
     submenuShadow: false,
@@ -122,7 +122,7 @@ export const WithItemSelectionCallback = () => {
   output.innerHTML = '<p>Click on a navigation item</p>';
 
   // Create navigation with callback
-  const navigation = new Navigation({
+  const navigation = Navigation({
     items: navItems,
     submenuShadow: false,
     onItemSelect: (item) => {
@@ -150,7 +150,7 @@ export const MobileWithLogo = () => {
   logo.textContent = 'LOGO';
 
   // Create navigation with right-aligned burger
-  const navigation = new Navigation({
+  const navigation = Navigation({
     items: navItems,
     burgerPosition: 'right',
     submenuShadow: false,
@@ -195,7 +195,7 @@ export const CustomStyling = () => {
     }
   `;
 
-  const nav = new Navigation({
+  const nav = Navigation({
     items: navItems,
     className: 'custom-nav',
     submenuShadow: false,
@@ -203,6 +203,56 @@ export const CustomStyling = () => {
 
   container.appendChild(style);
   container.appendChild(nav.getElement());
+
+  return container;
+};
+
+export const ProgrammaticControl = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '20px';
+
+  // Create navigation
+  const navigation = Navigation({
+    items: navItems,
+    submenuShadow: true,
+  });
+
+  // Create controls
+  const controls = document.createElement('div');
+  controls.style.display = 'flex';
+  controls.style.gap = '10px';
+  controls.style.flexWrap = 'wrap';
+
+  // Active item control
+  const activeItems = ['home', 'products', 'about', 'contact'];
+  activeItems.forEach((id) => {
+    const button = document.createElement('button');
+    button.textContent = `Activate "${id}"`;
+    button.onclick = () => navigation.setActiveItem(id);
+    controls.appendChild(button);
+  });
+
+  // Expand/collapse controls
+  const expandButton = document.createElement('button');
+  expandButton.textContent = 'Expand Products';
+  expandButton.onclick = () => navigation.expandItem('products');
+  controls.appendChild(expandButton);
+
+  const collapseButton = document.createElement('button');
+  collapseButton.textContent = 'Collapse All';
+  collapseButton.onclick = () => navigation.collapseAll();
+  controls.appendChild(collapseButton);
+
+  // Toggle mobile menu
+  const toggleMobileButton = document.createElement('button');
+  toggleMobileButton.textContent = 'Toggle Mobile Menu';
+  toggleMobileButton.onclick = () => navigation.toggleMobileMenu();
+  controls.appendChild(toggleMobileButton);
+
+  container.appendChild(controls);
+  container.appendChild(navigation.getElement());
 
   return container;
 };

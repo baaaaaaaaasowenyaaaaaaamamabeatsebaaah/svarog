@@ -529,6 +529,13 @@ export const getComponents = () => {
               (m) => m.CustomStyling
             ),
         },
+        {
+          name: 'ProgrammaticControl',
+          module: () =>
+            import('../components/Navigation/Navigation.stories.js').then(
+              (m) => m.CustomStyling
+            ),
+        },
       ],
     },
     {
