@@ -1,6 +1,5 @@
 // src/components/ProductCard/ProductCard.stories.js
 import ProductCard from './ProductCard.js';
-import { Component } from '../../utils/componentFactory.js';
 
 // Direct import of images - webpack 5 handles this with Asset Modules
 import placeholderImage1 from '../../../.storybook/assets/iphone-placeholder/placeholder-iphone-1.png';
@@ -24,20 +23,14 @@ const getPhoneImage = (model) => {
   return modelImageMap[model] || placeholderImage1;
 };
 
-// Create a wrapper component for better showcasing
-class StoryWrapper extends Component {
-  constructor({ children }) {
-    super();
-    this.element = this.createElement('div', {
-      style: 'width: 300px; margin: 1rem;',
-      children: children,
-    });
-  }
-
-  getElement() {
-    return this.element;
-  }
-}
+// Create a wrapper for better showcasing
+const createWrapper = (child) => {
+  const wrapper = document.createElement('div');
+  wrapper.style.width = '300px';
+  wrapper.style.margin = '1rem';
+  wrapper.appendChild(child);
+  return wrapper;
+};
 
 export default {
   title: 'Components/ProductCard',
@@ -45,7 +38,7 @@ export default {
 };
 
 export const DefaultProductCard = () => {
-  const card = new ProductCard({
+  const card = ProductCard({
     imageUrl: getPhoneImage('iPhone 11 Pro'),
     title: 'iPhone 11 Pro',
     productData: {
@@ -58,15 +51,11 @@ export const DefaultProductCard = () => {
     onReserve: () => alert('Product reserved!'),
   });
 
-  const wrapper = new StoryWrapper({
-    children: card.getElement(),
-  });
-
-  return wrapper.getElement();
+  return createWrapper(card.getElement());
 };
 
 export const WithCustomCurrency = () => {
-  const card = new ProductCard({
+  const card = ProductCard({
     imageUrl: getPhoneImage('Samsung Galaxy S20'),
     title: 'Samsung Galaxy S20',
     productData: {
@@ -81,15 +70,11 @@ export const WithCustomCurrency = () => {
     onReserve: () => alert('Product purchased!'),
   });
 
-  const wrapper = new StoryWrapper({
-    children: card.getElement(),
-  });
-
-  return wrapper.getElement();
+  return createWrapper(card.getElement());
 };
 
 export const MuchandyThemed = () => {
-  const card = new ProductCard({
+  const card = ProductCard({
     imageUrl: getPhoneImage('Google Pixel 6'),
     title: 'Google Pixel 6',
     productData: {
@@ -105,15 +90,11 @@ export const MuchandyThemed = () => {
     onReserve: () => alert('Muchandy product reserved!'),
   });
 
-  const wrapper = new StoryWrapper({
-    children: card.getElement(),
-  });
-
-  return wrapper.getElement();
+  return createWrapper(card.getElement());
 };
 
 export const WithMultipleSpecs = () => {
-  const card = new ProductCard({
+  const card = ProductCard({
     imageUrl: getPhoneImage('iPhone 12 Mini'),
     title: 'iPhone 12 Mini',
     productData: {
@@ -129,11 +110,7 @@ export const WithMultipleSpecs = () => {
     onReserve: () => alert('Product reserved!'),
   });
 
-  const wrapper = new StoryWrapper({
-    children: card.getElement(),
-  });
-
-  return wrapper.getElement();
+  return createWrapper(card.getElement());
 };
 
 // Simple product grid without Grid component dependency
@@ -172,7 +149,7 @@ export const ProductGrid = () => {
 
   // Add products to the grid
   products.forEach((product) => {
-    const card = new ProductCard({
+    const card = ProductCard({
       imageUrl: getPhoneImage(product.model),
       title: product.model,
       productData: {

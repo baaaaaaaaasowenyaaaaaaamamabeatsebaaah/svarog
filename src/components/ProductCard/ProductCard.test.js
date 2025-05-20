@@ -14,7 +14,7 @@ describe('ProductCard component', () => {
   };
 
   it('should create a product card element', () => {
-    const productCard = new ProductCard(defaultProps);
+    const productCard = ProductCard(defaultProps);
     const element = productCard.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -22,7 +22,7 @@ describe('ProductCard component', () => {
   });
 
   it('should render the product image', () => {
-    const productCard = new ProductCard(defaultProps);
+    const productCard = ProductCard(defaultProps);
     const element = productCard.getElement();
     const imageElement = element.querySelector('img');
 
@@ -31,14 +31,14 @@ describe('ProductCard component', () => {
   });
 
   it('should render the product title', () => {
-    const productCard = new ProductCard(defaultProps);
+    const productCard = ProductCard(defaultProps);
     const element = productCard.getElement();
 
     expect(element.textContent).toContain(defaultProps.title);
   });
 
   it('should render all product specifications', () => {
-    const productCard = new ProductCard(defaultProps);
+    const productCard = ProductCard(defaultProps);
     const element = productCard.getElement();
     const specItems = element.querySelectorAll('.product-card__spec-item');
 
@@ -53,7 +53,7 @@ describe('ProductCard component', () => {
   });
 
   it('should render the price with correct currency', () => {
-    const productCard = new ProductCard({
+    const productCard = ProductCard({
       ...defaultProps,
       currency: '$',
     });
@@ -66,7 +66,7 @@ describe('ProductCard component', () => {
 
   it('should render the reserve button with custom text', () => {
     const buttonText = 'Buy Now';
-    const productCard = new ProductCard({
+    const productCard = ProductCard({
       ...defaultProps,
       buttonText,
     });
@@ -79,7 +79,7 @@ describe('ProductCard component', () => {
 
   it('should call onReserve callback when button is clicked', () => {
     const onReserve = vi.fn();
-    const productCard = new ProductCard({
+    const productCard = ProductCard({
       ...defaultProps,
       onReserve,
     });
@@ -92,7 +92,7 @@ describe('ProductCard component', () => {
 
   it('should apply additional class names', () => {
     const className = 'custom-class';
-    const productCard = new ProductCard({
+    const productCard = ProductCard({
       ...defaultProps,
       className,
     });
@@ -103,7 +103,7 @@ describe('ProductCard component', () => {
 
   it('should throw an error when required props are missing', () => {
     expect(() => {
-      new ProductCard({
+      ProductCard({
         title: 'Test Phone',
         productData: { Storage: '64GB' },
         price: '299.99',
@@ -111,7 +111,7 @@ describe('ProductCard component', () => {
     }).toThrow('ProductCard: imageUrl is required');
 
     expect(() => {
-      new ProductCard({
+      ProductCard({
         imageUrl: 'https://example.com/phone.jpg',
         productData: { Storage: '64GB' },
         price: '299.99',
@@ -119,7 +119,7 @@ describe('ProductCard component', () => {
     }).toThrow('ProductCard: title is required');
 
     expect(() => {
-      new ProductCard({
+      ProductCard({
         imageUrl: 'https://example.com/phone.jpg',
         title: 'Test Phone',
         price: '299.99',
@@ -127,11 +127,45 @@ describe('ProductCard component', () => {
     }).toThrow('ProductCard: productData is required');
 
     expect(() => {
-      new ProductCard({
+      ProductCard({
         imageUrl: 'https://example.com/phone.jpg',
         title: 'Test Phone',
         productData: { Storage: '64GB' },
       });
     }).toThrow('ProductCard: price is required');
+  });
+
+  it('should update the component with new props', () => {
+    const productCard = ProductCard(defaultProps);
+
+    // Initial state check
+    const element = productCard.getElement();
+    expect(element.textContent).toContain('Test Phone');
+
+    // Mock parent to test replacing the element
+    const parent = document.createElement('div');
+    parent.appendChild(element);
+
+    // Update with new props
+    const updatedProps = {
+      title: 'Updated Phone',
+      price: '399.99',
+    };
+
+    const updatedCard = productCard.update(updatedProps);
+    const updatedElement = updatedCard.getElement();
+
+    // Check the updated component
+    expect(updatedElement.textContent).toContain('Updated Phone');
+    expect(updatedElement.textContent).toContain('399.99');
+  });
+
+  it('should clean up resources when destroyed', () => {
+    const productCard = ProductCard(defaultProps);
+    const cardDestroySpy = vi.spyOn(productCard, 'destroy');
+
+    productCard.destroy();
+
+    expect(cardDestroySpy).toHaveBeenCalledTimes(1);
   });
 });
