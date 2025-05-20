@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
+// src/components/Rating/Rating.test.js
+import { describe, it, expect, vi } from 'vitest';
 import Rating from './Rating.js';
 
-describe('Rating', () => {
+describe('Rating component', () => {
   const baseConfig = {
     source: 'google',
     score: 4.7,
@@ -9,7 +10,7 @@ describe('Rating', () => {
   };
 
   it('should render correctly with required parameters', () => {
-    const rating = new Rating(baseConfig);
+    const rating = Rating(baseConfig);
     const ratingElement = rating.getElement();
 
     // Check container exists
@@ -20,7 +21,7 @@ describe('Rating', () => {
 
   it('should throw an error if source is missing', () => {
     expect(() => {
-      new Rating({
+      Rating({
         score: 4.7,
         totalRatings: 1234,
       });
@@ -29,7 +30,7 @@ describe('Rating', () => {
 
   it('should throw an error if score is missing', () => {
     expect(() => {
-      new Rating({
+      Rating({
         source: 'google',
         totalRatings: 1234,
       });
@@ -38,11 +39,39 @@ describe('Rating', () => {
 
   it('should throw an error if totalRatings is missing', () => {
     expect(() => {
-      new Rating({
+      Rating({
         source: 'google',
         score: 4.7,
       });
     }).toThrow('Rating: totalRatings is required');
+  });
+
+  it('should throw an error if source is invalid', () => {
+    expect(() => {
+      Rating({
+        source: 'invalid-source',
+        score: 4.7,
+        totalRatings: 1234,
+      });
+    }).toThrow('Rating: source must be one of:');
+  });
+
+  it('should throw an error if score is out of range', () => {
+    expect(() => {
+      Rating({
+        source: 'google',
+        score: 6.0,
+        totalRatings: 1234,
+      });
+    }).toThrow('Rating: score must be a number between 0 and 5');
+
+    expect(() => {
+      Rating({
+        source: 'google',
+        score: -1,
+        totalRatings: 1234,
+      });
+    }).toThrow('Rating: score must be a number between 0 and 5');
   });
 
   it('should format large numbers correctly', () => {
@@ -54,7 +83,7 @@ describe('Rating', () => {
     ];
 
     tests.forEach((test) => {
-      const rating = new Rating({
+      const rating = Rating({
         source: 'google',
         score: 4.7,
         totalRatings: test.input,
@@ -80,7 +109,7 @@ describe('Rating', () => {
     ];
 
     testCases.forEach((testCase) => {
-      const rating = new Rating({
+      const rating = Rating({
         source: 'google',
         score: testCase.score,
         totalRatings: 1234,
@@ -109,7 +138,7 @@ describe('Rating', () => {
     const images = ['/image1.jpg', '/image2.jpg', '/image3.jpg'];
 
     // Test with default max images
-    const ratingWithImages = new Rating({
+    const ratingWithImages = Rating({
       source: 'google',
       score: 4.7,
       totalRatings: 1234,
@@ -120,6 +149,9 @@ describe('Rating', () => {
       .getElement()
       .querySelector('.rating__reviewer-images');
     expect(reviewerImagesElement).not.toBeNull();
+    expect(reviewerImagesElement.getAttribute('aria-label')).toBe(
+      'Reviewer profile images'
+    );
 
     const defaultMaxImages = ratingWithImages
       .getElement()
@@ -127,7 +159,7 @@ describe('Rating', () => {
     expect(defaultMaxImages).toBe(3);
 
     // Test with custom max images
-    const ratingWithLimitedImages = new Rating({
+    const ratingWithLimitedImages = Rating({
       source: 'google',
       score: 4.7,
       totalRatings: 1234,
@@ -148,7 +180,7 @@ describe('Rating', () => {
     expect(customMaxImages).toBe(2);
 
     // Test with images disabled
-    const ratingWithoutImages = new Rating({
+    const ratingWithoutImages = Rating({
       source: 'google',
       score: 4.7,
       totalRatings: 1234,
@@ -162,5 +194,93 @@ describe('Rating', () => {
       .getElement()
       .querySelector('.rating__reviewer-images');
     expect(reviewerImagesElement).toBeNull();
+  });
+
+  it('should have proper accessibility attributes', () => {
+    const rating = Rating(baseConfig);
+    const ratingElement = rating.getElement();
+
+    // Check container role
+    expect(ratingElement.getAttribute('role')).toBe('region');
+    expect(ratingElement.getAttribute('aria-label')).toBe('google rating');
+
+    // Check star rating accessibility
+    const starContainer = ratingElement.querySelector('.rating__stars');
+    expect(starContainer.getAttribute('role')).toBe('img');
+    expect(starContainer.getAttribute('aria-label')).toContain(
+      'Rating: 4.7 out of 5 stars'
+    );
+
+    // Check individual stars are hidden from screen readers
+    const firstStar = ratingElement.querySelector('.rating__star');
+    expect(firstStar.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  // Tests for factory function pattern
+  it('should update when properties change', () => {
+    const rating = Rating({
+      source: 'google',
+      score: 4.7,
+      totalRatings: 1234,
+    });
+
+    // Update the score
+    rating.update({ score: 3.5 });
+
+    const ratingElement = rating.getElement();
+    const scoreElement = ratingElement.querySelector('.rating__score-number');
+    expect(scoreElement.textContent).toBe('3.5');
+
+    // Stars should be updated too
+    const fullStars = ratingElement.querySelectorAll(
+      '.rating__star--full'
+    ).length;
+    const halfStars = ratingElement.querySelectorAll(
+      '.rating__star--half'
+    ).length;
+    expect(fullStars).toBe(3);
+    expect(halfStars).toBe(1);
+  });
+
+  it('should support the setScore method', () => {
+    const rating = Rating(baseConfig);
+    rating.setScore(2.5);
+
+    const scoreElement = rating
+      .getElement()
+      .querySelector('.rating__score-number');
+    expect(scoreElement.textContent).toBe('2.5');
+  });
+
+  it('should throw an error if setScore is called with invalid value', () => {
+    const rating = Rating(baseConfig);
+
+    expect(() => {
+      rating.setScore(6.0);
+    }).toThrow('Rating: score must be a number between 0 and 5');
+
+    expect(() => {
+      rating.setScore('not a number');
+    }).toThrow('Rating: score must be a number between 0 and 5');
+  });
+
+  it('should support the setTotalRatings method', () => {
+    const rating = Rating(baseConfig);
+    rating.setTotalRatings(5000);
+
+    const totalRatingsElement = rating
+      .getElement()
+      .querySelector('.rating__total-ratings');
+    expect(totalRatingsElement.textContent).toBe('5.0K Bewertungen');
+  });
+
+  it('should clean up properly when destroyed', () => {
+    const rating = Rating(baseConfig);
+
+    // Spy on destroy method
+    const destroy = vi.spyOn(rating, 'destroy');
+
+    rating.destroy();
+    expect(destroy).toHaveBeenCalled();
   });
 });
