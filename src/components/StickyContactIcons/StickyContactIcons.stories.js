@@ -7,7 +7,7 @@ export default {
 };
 
 export const Default = () => {
-  return new StickyContactIcons({
+  return StickyContactIcons({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
@@ -15,7 +15,7 @@ export const Default = () => {
 };
 
 export const WithoutTooltips = () => {
-  return new StickyContactIcons({
+  return StickyContactIcons({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
@@ -24,7 +24,7 @@ export const WithoutTooltips = () => {
 };
 
 export const WithCustomClass = () => {
-  return new StickyContactIcons({
+  return StickyContactIcons({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
@@ -50,7 +50,7 @@ export const WithClickHandlers = () => {
   statusDisplay.innerHTML = '<p>Click an icon to see the event</p>';
 
   // Create the sticky contact icons component
-  const stickyIcons = new StickyContactIcons({
+  const stickyIcons = StickyContactIcons({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
