@@ -4,6 +4,7 @@ import {
   createComponent,
   createElement,
 } from '../../utils/componentFactory.js';
+import { debounce } from '../../utils/performance.js';
 
 /**
  * Creates a Typography component for consistent text styling
@@ -184,6 +185,107 @@ const createTypography = (props) => {
   // Create initial element
   let element = buildTypographyElement();
 
+  /**
+   * Determine if a full rerender is needed for the given props
+   * @param {Object} newProps - New properties
+   * @returns {boolean} Whether a full rerender is needed
+   */
+  const shouldRerender = (newProps) => {
+    // Always rerender if tag type changes
+    if (newProps.as && newProps.as !== state.as) return true;
+
+    // Always rerender if content changes
+    if (newProps.children && newProps.children !== state.children) return true;
+
+    // Always rerender if block/inline display changes
+    if (newProps.block !== undefined && newProps.block !== state.block)
+      return true;
+
+    // Don't need a full rerender for style changes only
+    return false;
+  };
+
+  /**
+   * Update the element without rebuilding it
+   * @param {HTMLElement} currentElement - Current element
+   * @param {Object} newProps - New properties
+   */
+  const partialUpdate = (currentElement, newProps) => {
+    // Update classes
+    if (newProps.textAlign && newProps.textAlign !== state.textAlign) {
+      // Remove old alignment class
+      if (state.textAlign) {
+        currentElement.classList.remove(`typography--align-${state.textAlign}`);
+      }
+      // Add new alignment class
+      currentElement.classList.add(`typography--align-${newProps.textAlign}`);
+      currentElement.style.textAlign = newProps.textAlign;
+    }
+
+    if (newProps.weight && newProps.weight !== state.weight) {
+      // Remove old weight class
+      if (state.weight) {
+        currentElement.classList.remove(`typography--weight-${state.weight}`);
+      }
+      // Add new weight class
+      currentElement.classList.add(`typography--weight-${newProps.weight}`);
+    }
+
+    if (newProps.italic !== undefined && newProps.italic !== state.italic) {
+      // Toggle italic class
+      currentElement.classList.toggle('typography--italic', newProps.italic);
+      currentElement.style.fontStyle = newProps.italic ? 'italic' : '';
+    }
+
+    if (newProps.color && newProps.color !== state.color) {
+      // Update color
+      currentElement.style.color = newProps.color;
+    }
+
+    if (newProps.className && newProps.className !== state.className) {
+      // Remove old class name
+      if (state.className) {
+        currentElement.classList.remove(...state.className.split(' '));
+      }
+      // Add new class name
+      if (newProps.className) {
+        currentElement.classList.add(...newProps.className.split(' '));
+      }
+    }
+
+    if (newProps.id && newProps.id !== state.id) {
+      // Update ID
+      currentElement.id = newProps.id;
+    }
+
+    if (newProps.tabletSize && newProps.tabletSize !== state.tabletSize) {
+      // Update tablet size
+      currentElement.setAttribute('data-tablet-size', newProps.tabletSize);
+    }
+
+    if (newProps.mobileSize && newProps.mobileSize !== state.mobileSize) {
+      // Update mobile size
+      currentElement.setAttribute('data-mobile-size', newProps.mobileSize);
+    }
+
+    // Update state
+    Object.assign(state, newProps);
+  };
+
+  // Handler for window resize events
+  const handleWindowResize = debounce(() => {
+    // This could be extended to dynamically adjust typography based on screen size
+    // beyond what CSS media queries can do
+    if (element && (state.tabletSize || state.mobileSize)) {
+      // Any custom logic for responsive typography changes
+    }
+  }, 250);
+
+  // Add resize listener for responsive behavior
+  if (typeof window !== 'undefined' && (tabletSize || mobileSize)) {
+    window.addEventListener('resize', handleWindowResize);
+  }
+
   // Public API
   return {
     /**
@@ -195,21 +297,41 @@ const createTypography = (props) => {
     },
 
     /**
+     * Determine if a full rerender is needed for the given props
+     * @param {Object} newProps - New properties
+     * @returns {boolean} Whether a full rerender is needed
+     */
+    shouldRerender,
+
+    /**
+     * Update element without rebuilding it completely
+     * @param {HTMLElement} currentElement - Current element
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate,
+
+    /**
      * Update typography properties
      * @param {Object} newProps - New properties
      * @returns {Object} Typography component (for chaining)
      */
     update(newProps) {
-      // Update state
-      Object.assign(state, newProps);
+      // If a full rerender is needed
+      if (this.shouldRerender(newProps)) {
+        // Update state
+        Object.assign(state, newProps);
 
-      // Rebuild element
-      const oldElement = element;
-      element = buildTypographyElement();
+        // Rebuild element
+        const oldElement = element;
+        element = buildTypographyElement();
 
-      // Replace in DOM if inserted
-      if (oldElement.parentNode) {
-        oldElement.parentNode.replaceChild(element, oldElement);
+        // Replace in DOM if inserted
+        if (oldElement.parentNode) {
+          oldElement.parentNode.replaceChild(element, oldElement);
+        }
+      } else {
+        // More efficient partial updates
+        this.partialUpdate(element, newProps);
       }
 
       return this;
@@ -246,7 +368,12 @@ const createTypography = (props) => {
      * Clean up resources
      */
     destroy() {
-      // No event listeners to clean up for Typography
+      // Remove event listeners
+      if (typeof window !== 'undefined' && (tabletSize || mobileSize)) {
+        window.removeEventListener('resize', handleWindowResize);
+      }
+
+      // Clear element reference
       element = null;
     },
   };
