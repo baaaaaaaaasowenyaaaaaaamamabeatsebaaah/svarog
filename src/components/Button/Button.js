@@ -1,182 +1,264 @@
-// src/components/Link/Link.js
-import './Link.css';
+// src/components/Card/Card.js
+import './Card.css';
+import {
+  createComponent,
+  createElement,
+  appendChildren,
+} from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
-import { createElement } from '../../utils/componentFactory.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 
 /**
- * Creates a Link component
- * @param {Object} props - Link properties
- * @returns {Object} Link component
+ * Creates a Card component for displaying content in a card container
+ *
+ * @param {Object} props - Card properties
+ * @param {string|HTMLElement|Array} props.children - Card content
+ * @param {string} [props.title] - Card title
+ * @param {string|HTMLElement} [props.image] - Card image (URL string or HTMLElement)
+ * @param {string|HTMLElement} [props.footer] - Card footer content
+ * @param {boolean} [props.outlined=false] - Whether to use an outlined style
+ * @param {boolean} [props.elevated=false] - Whether to add elevation shadow
+ * @param {string} [props.className=''] - Additional CSS class names
+ * @returns {Object} Card component API
  */
-const createLink = (props) => {
-  // Validate props
-  const validTargets = ['_self', '_blank', '_parent', '_top'];
-  if (props.target && !validTargets.includes(props.target)) {
-    throw new Error(
-      `Invalid target: ${props.target}. Must be one of: ${validTargets.join(', ')}`
-    );
-  }
-
-  if (props.underline !== undefined && typeof props.underline !== 'boolean') {
-    throw new Error('underline must be a boolean');
-  }
-
-  if (props.block !== undefined && typeof props.block !== 'boolean') {
-    throw new Error('block must be a boolean');
-  }
-
+const createCard = (props) => {
+  // Validate required props
   if (!props.children) {
-    throw new Error('children is required');
+    throw new Error('Card: children is required');
   }
 
-  if (!props.href) {
-    throw new Error('href is required');
-  }
+  // Create card rendering function for use with baseComponent
+  const renderCard = (state) => {
+    const {
+      children,
+      title,
+      image,
+      footer,
+      outlined = false,
+      elevated = false,
+      className = '',
+    } = state;
 
-  /**
-   * Renders the link element based on current state
-   * @param {Object} state - Current component state
-   * @returns {HTMLElement} Link element
-   */
-  const renderLink = (state) => {
-    // Build class names
-    const classNames = ['link', state.className].filter(Boolean);
+    // Create class name with conditionals
+    const classNames = ['card'];
+    if (className) classNames.push(className);
+    if (outlined) classNames.push('card--outlined');
+    if (elevated) classNames.push('card--elevated');
 
-    // Create element style
-    const style = {
-      textDecoration: state.underline ? 'underline' : 'none',
-      display: state.block ? 'block' : 'inline-flex',
-    };
+    // Create the main card element
+    const card = createElement('div', {
+      classes: classNames.join(' '),
+    });
 
-    // Create element attributes
-    const attributes = {
-      href: state.href,
-      target: state.target || '_self',
-      id: state.id || null,
-    };
+    // Add image if provided
+    if (image) {
+      if (typeof image === 'string') {
+        const imageEl = createElement('img', {
+          classes: 'card__image',
+          attributes: {
+            src: image,
+            alt: title || 'Card image',
+          },
+        });
+        card.appendChild(imageEl);
+      } else {
+        card.appendChild(image);
+      }
+    }
 
-    // Create element events
-    const events = {
-      click: state.onClick,
-    };
+    // Add title if provided
+    if (title) {
+      const titleEl = createElement('h3', {
+        classes: 'card__title',
+        text: title,
+      });
+      card.appendChild(titleEl);
+    }
 
-    // Create element
-    const element = createElement('a', {
-      attributes,
-      classes: classNames,
-      style,
-      events,
+    // Add content section
+    const content = createElement('div', {
+      classes: 'card__content',
     });
 
     // Handle different types of children content
-    if (typeof state.children === 'string') {
-      element.textContent = state.children;
-    } else if (state.children instanceof HTMLElement) {
-      element.appendChild(state.children);
-    } else if (typeof state.children.getElement === 'function') {
-      element.appendChild(state.children.getElement());
-    } else {
-      throw new Error(
-        'Link children must be string, HTMLElement, or component with getElement method'
-      );
+    appendContent(content, children);
+    card.appendChild(content);
+
+    // Add footer if provided
+    if (footer) {
+      const footerEl = createElement('div', {
+        classes: 'card__footer',
+      });
+
+      appendContent(footerEl, footer);
+      card.appendChild(footerEl);
     }
 
-    return element;
+    return card;
   };
 
-  // Create component using baseComponent
-  const baseComponent = createBaseComponent(renderLink)(props);
-
-  /**
-   * Determines if component needs to fully re-render based on prop changes
-   * @param {Object} newProps - New properties
-   * @returns {boolean} Whether a full re-render is required
-   */
-  const shouldRerender = (newProps) => {
-    // Only rebuild if these props change
-    const criticalProps = ['children', 'href', 'target', 'block'];
-    return Object.keys(newProps).some((key) => criticalProps.includes(key));
-  };
-
-  /**
-   * Perform partial update without full re-render
-   * @param {HTMLElement} element - Current element
-   * @param {Object} newProps - New properties
-   */
-  const partialUpdate = (element, newProps) => {
-    // Update styles directly
-    if (newProps.underline !== undefined) {
-      element.style.textDecoration = newProps.underline ? 'underline' : 'none';
-    }
-
-    // Update className
-    if (newProps.className !== undefined) {
-      // Just set the new classes directly
-      const baseClass = 'link';
-      const newClasses = newProps.className
-        ? [baseClass, newProps.className]
-        : [baseClass];
-      element.className = newClasses.join(' ');
+  // Helper function to append different types of content
+  const appendContent = (container, content) => {
+    if (typeof content === 'string') {
+      container.textContent = content;
+    } else if (content instanceof Node) {
+      container.appendChild(content);
+    } else if (Array.isArray(content)) {
+      appendChildren(container, content);
+    } else if (
+      typeof content === 'object' &&
+      content !== null &&
+      typeof content.getElement === 'function'
+    ) {
+      container.appendChild(content.getElement());
     }
   };
 
-  // Extended component with custom methods
-  const linkComponent = {
-    ...baseComponent,
+  // Create the component using baseComponent
+  const component = createBaseComponent(renderCard)(props);
 
-    /**
-     * Determines if component should fully re-render
-     * @param {Object} newProps - New properties
-     * @returns {boolean} Whether a full re-render is required
-     */
-    shouldRerender,
+  // Add partial update method for more efficient DOM updates
+  component.partialUpdate = (element, newProps) => {
+    // Update styling classes
+    if (
+      newProps.elevated !== undefined ||
+      newProps.outlined !== undefined ||
+      newProps.className !== undefined
+    ) {
+      // Rebuild class list
+      const classNames = ['card'];
+      const outlined =
+        newProps.outlined !== undefined ? newProps.outlined : props.outlined;
+      const elevated =
+        newProps.elevated !== undefined ? newProps.elevated : props.elevated;
+      const className =
+        newProps.className !== undefined ? newProps.className : props.className;
 
-    /**
-     * Performs efficient partial updates
-     * @param {HTMLElement} element - Current element
-     * @param {Object} newProps - New properties
-     */
-    partialUpdate,
+      if (className) classNames.push(className);
+      if (outlined) classNames.push('card--outlined');
+      if (elevated) classNames.push('card--elevated');
 
-    /**
-     * Set link href
-     * @param {string} newHref - New href
-     * @returns {Object} Link component (for chaining)
-     */
-    setHref(newHref) {
-      return this.update({ href: newHref });
-    },
+      element.className = classNames.join(' ');
+    }
 
-    /**
-     * Set link target
-     * @param {string} newTarget - New target
-     * @returns {Object} Link component (for chaining)
-     */
-    setTarget(newTarget) {
-      return this.update({ target: newTarget });
-    },
+    // Handle image update
+    if (newProps.image !== undefined) {
+      updateImage(element, newProps.image, newProps.title || props.title);
+    }
 
-    /**
-     * Toggle underline
-     * @param {boolean} value - Whether to underline the link
-     * @returns {Object} Link component (for chaining)
-     */
-    setUnderline(value) {
-      return this.update({ underline: value });
-    },
+    // Handle title update
+    if (newProps.title !== undefined) {
+      updateTitle(element, newProps.title);
+    }
+
+    // Handle content update
+    if (newProps.children !== undefined) {
+      updateContent(element, newProps.children);
+    }
+
+    // Handle footer update
+    if (newProps.footer !== undefined) {
+      updateFooter(element, newProps.footer);
+    }
+  };
+
+  // Helper functions for partial updates
+  const updateImage = (element, image, title) => {
+    let imageEl = element.querySelector('.card__image');
+
+    if (image) {
+      if (typeof image === 'string') {
+        if (imageEl && imageEl.tagName === 'IMG') {
+          // Update existing image
+          imageEl.src = image;
+          imageEl.alt = title || 'Card image';
+        } else {
+          // Create new image
+          imageEl = createElement('img', {
+            classes: 'card__image',
+            attributes: {
+              src: image,
+              alt: title || 'Card image',
+            },
+          });
+          element.insertBefore(imageEl, element.firstChild);
+        }
+      } else if (image instanceof Node) {
+        if (imageEl) {
+          element.replaceChild(image, imageEl);
+        } else {
+          element.insertBefore(image, element.firstChild);
+        }
+      }
+    } else if (imageEl) {
+      element.removeChild(imageEl);
+    }
+  };
+
+  const updateTitle = (element, title) => {
+    let titleEl = element.querySelector('.card__title');
+
+    if (title) {
+      if (titleEl) {
+        titleEl.textContent = title;
+      } else {
+        titleEl = createElement('h3', {
+          classes: 'card__title',
+          text: title,
+        });
+        const imageEl = element.querySelector('.card__image');
+        if (imageEl) {
+          element.insertBefore(titleEl, imageEl.nextSibling);
+        } else {
+          element.insertBefore(titleEl, element.firstChild);
+        }
+      }
+    } else if (titleEl) {
+      element.removeChild(titleEl);
+    }
+  };
+
+  const updateContent = (element, children) => {
+    const contentEl = element.querySelector('.card__content');
+    if (contentEl) {
+      contentEl.innerHTML = '';
+      appendContent(contentEl, children);
+    }
+  };
+
+  const updateFooter = (element, footer) => {
+    let footerEl = element.querySelector('.card__footer');
+
+    if (footer) {
+      if (footerEl) {
+        footerEl.innerHTML = '';
+        appendContent(footerEl, footer);
+      } else {
+        footerEl = createElement('div', {
+          classes: 'card__footer',
+        });
+        appendContent(footerEl, footer);
+        element.appendChild(footerEl);
+      }
+    } else if (footerEl) {
+      element.removeChild(footerEl);
+    }
+  };
+
+  // Add shouldRerender method to determine if a full re-render is needed
+  component.shouldRerender = () => {
+    // Always prefer partial updates for better performance
+    return false;
   };
 
   // Add theme change handler
-  linkComponent.onThemeChange = (newTheme, previousTheme) => {
-    // This could apply theme-specific adjustments if needed
-    console.debug(`Link: theme changed from ${previousTheme} to ${newTheme}`);
+  component.onThemeChange = (theme, previousTheme) => {
+    // Theme changes are handled through CSS variables, no manual updates needed
+    console.debug(`Card: theme changed from ${previousTheme} to ${theme}`);
   };
 
-  return linkComponent;
+  return component;
 };
 
-// Define required props for validation
-createLink.requiredProps = ['children', 'href'];
-
-// Export as a factory function
-export default createLink;
+// Create the component factory with theme awareness
+export default createComponent('Card', withThemeAwareness(createCard));
