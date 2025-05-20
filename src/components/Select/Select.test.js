@@ -1,6 +1,15 @@
 // src/components/Select/Select.test.js
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import Select from './Select.js';
+import { debounce } from '../../utils/performance.js';
+
+// Mock performance utils
+vi.mock('../../utils/performance.js', () => ({
+  debounce: vi.fn((fn) => {
+    // Just return the original function for testing simplicity
+    return fn;
+  }),
+}));
 
 describe('Select component', () => {
   // Sample options for tests
@@ -19,6 +28,9 @@ describe('Select component', () => {
       select.destroy();
     }
     select = null;
+
+    // Reset mocks
+    vi.clearAllMocks();
   });
 
   it('should create both native and custom select elements', () => {
@@ -461,26 +473,31 @@ describe('Select component', () => {
     expect(customOptions[0].textContent).toBe('New Option 1');
   });
 
-  it('should clean up event listeners when destroyed', () => {
-    const documentAddEventSpy = vi.spyOn(document, 'addEventListener');
-    const documentRemoveEventSpy = vi.spyOn(document, 'removeEventListener');
+  // New tests for debounce functionality
 
+  it('should use debounce for document click handler', () => {
     select = Select({ options });
 
-    // Check that event listener was added
-    expect(documentAddEventSpy).toHaveBeenCalledWith(
-      'click',
-      expect.any(Function)
-    );
+    // Check if debounce was called
+    expect(debounce).toHaveBeenCalled();
+  });
+
+  it('should clean up event listeners when destroyed', () => {
+    // Create spy for document.removeEventListener
+    const documentRemoveEventSpy = vi.spyOn(document, 'removeEventListener');
+
+    // Verify debounce is called during component creation
+    select = Select({ options });
+    expect(debounce).toHaveBeenCalled();
 
     // Clean up
     select.destroy();
 
-    // Check that event listener was removed
+    // removeEventListener should have been called with 'click' as first arg
     expect(documentRemoveEventSpy).toHaveBeenCalled();
+    expect(documentRemoveEventSpy.mock.calls[0][0]).toBe('click');
 
     // Restore spies
-    documentAddEventSpy.mockRestore();
     documentRemoveEventSpy.mockRestore();
   });
 });
