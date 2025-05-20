@@ -1,4 +1,5 @@
 // src/utils/componentFactory.js
+
 /**
  * Creates a new component factory
  * @param {string} name - Component name for error reporting
@@ -9,12 +10,7 @@ export const createComponent = (name, createFn) => {
   return (props = {}) => {
     try {
       // Validate required props
-      const requiredProps = createFn.requiredProps || [];
-      requiredProps.forEach((propName) => {
-        if (props[propName] === undefined) {
-          throw new Error(`${name}: ${propName} is required`);
-        }
-      });
+      validateProps(props, createFn.requiredProps, name);
 
       // Create the component
       const component = createFn(props);
@@ -32,12 +28,7 @@ export const createComponent = (name, createFn) => {
         component.destroy = () => {
           // Default cleanup behavior
           const element = component.getElement();
-          if (element && element._listeners) {
-            Object.entries(element._listeners).forEach(([event, handler]) => {
-              element.removeEventListener(event, handler);
-            });
-            element._listeners = {};
-          }
+          cleanupEventListeners(element);
         };
       }
 
@@ -47,6 +38,39 @@ export const createComponent = (name, createFn) => {
       throw error;
     }
   };
+};
+
+/**
+ * Validates required props
+ * @param {Object} props - Component props
+ * @param {Array} requiredProps - List of required prop names
+ * @param {string} componentName - Component name for error messages
+ */
+export const validateProps = (
+  props,
+  requiredProps = [],
+  componentName = 'Component'
+) => {
+  if (!requiredProps || !requiredProps.length) return;
+
+  requiredProps.forEach((propName) => {
+    if (props[propName] === undefined) {
+      throw new Error(`${componentName}: ${propName} is required`);
+    }
+  });
+};
+
+/**
+ * Cleans up event listeners from an element
+ * @param {HTMLElement} element - DOM element
+ */
+export const cleanupEventListeners = (element) => {
+  if (!element || !element._listeners) return;
+
+  Object.entries(element._listeners).forEach(([event, handler]) => {
+    element.removeEventListener(event, handler);
+  });
+  element._listeners = {};
 };
 
 /**
@@ -68,14 +92,14 @@ export const createElement = (tag, options = {}) => {
 
   const element = document.createElement(tag);
 
-  // Apply classes
-  if (Array.isArray(classes)) {
-    element.className = classes.filter(Boolean).join(' ');
-  } else if (typeof classes === 'string') {
-    element.className = classes;
+  // Apply classes - simplified to handle both array and string efficiently
+  if (classes) {
+    element.className = Array.isArray(classes)
+      ? classes.filter(Boolean).join(' ')
+      : classes;
   }
 
-  // Apply attributes
+  // Apply attributes - only set non-null attributes
   Object.entries(attributes).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       element.setAttribute(key, value);
@@ -83,14 +107,12 @@ export const createElement = (tag, options = {}) => {
   });
 
   // Apply style
-  Object.entries(style).forEach(([prop, value]) => {
-    element.style[prop] = value;
-  });
+  Object.assign(element.style, style);
 
   // Store event listeners for easy cleanup
   element._listeners = {};
 
-  // Add event listeners
+  // Add event listeners - only add valid handlers
   Object.entries(events).forEach(([event, handler]) => {
     if (typeof handler === 'function') {
       element.addEventListener(event, handler);
@@ -98,7 +120,7 @@ export const createElement = (tag, options = {}) => {
     }
   });
 
-  // Set content
+  // Set content - prioritize content setting
   if (html !== undefined) {
     element.innerHTML = html;
   } else if (text !== undefined) {

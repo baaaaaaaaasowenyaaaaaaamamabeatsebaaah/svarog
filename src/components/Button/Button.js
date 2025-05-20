@@ -3,6 +3,7 @@ import './Button.css';
 import {
   createComponent,
   createElement,
+  validateProps,
 } from '../../utils/componentFactory.js';
 
 /**
@@ -11,185 +12,118 @@ import {
  * @returns {Object} Button component
  */
 const createButton = (props) => {
-  const {
-    text,
-    onClick,
-    className = '',
-    disabled = false,
-    type = 'button',
-    size = '',
-    variant = '',
-  } = props;
+  // Validate required props
+  validateProps(props, createButton.requiredProps);
 
-  // State
-  let buttonState = {
-    text,
-    disabled,
-    className,
-    type,
-    size,
-    variant,
-    onClick,
+  // Initial state with defaults
+  const state = {
+    text: props.text,
+    onClick: props.onClick,
+    className: props.className || '',
+    disabled: props.disabled || false,
+    type: props.type || 'button',
+    size: props.size || '',
+    variant: props.variant || '',
   };
 
-  // Create the button element
-  const buildButtonElement = () => {
-    // Build class names
-    const classNames = ['btn'];
-    if (buttonState.className) classNames.push(buttonState.className);
-    if (buttonState.size) classNames.push(`btn--${buttonState.size}`);
-    if (buttonState.variant) classNames.push(`btn--${buttonState.variant}`);
+  // Create button element
+  let buttonElement = buildElement();
 
-    // Create button
+  // Build CSS class list
+  function getClassNames() {
+    return [
+      'btn',
+      state.className,
+      state.size && `btn--${state.size}`,
+      state.variant && `btn--${state.variant}`,
+    ].filter(Boolean);
+  }
+
+  // Create the DOM element
+  function buildElement() {
     return createElement('button', {
       attributes: {
-        type: buttonState.type,
-        disabled: buttonState.disabled ? '' : null,
+        type: state.type,
+        disabled: state.disabled ? '' : null,
       },
-      classes: classNames,
-      text: buttonState.text,
-      events: {
-        click:
-          !buttonState.disabled && buttonState.onClick
-            ? buttonState.onClick
-            : null,
-      },
+      classes: getClassNames(),
+      text: state.text,
+      events: state.disabled ? {} : { click: state.onClick },
     });
-  };
+  }
 
-  // Initial button element
-  let buttonElement = buildButtonElement();
+  // Update or replace the button element
+  function updateElement(needsRebuild = false) {
+    if (needsRebuild) {
+      const oldElement = buttonElement;
+      detachEvents();
+      buttonElement = buildElement();
+
+      if (oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(buttonElement, oldElement);
+      }
+    } else {
+      buttonElement.textContent = state.text;
+      buttonElement.disabled = state.disabled;
+
+      // Update event listeners if disabled state changed
+      if (state.onClick) {
+        if (state.disabled) {
+          buttonElement.removeEventListener('click', state.onClick);
+        } else {
+          buttonElement.addEventListener('click', state.onClick);
+        }
+      }
+    }
+  }
+
+  // Clean up event listeners
+  function detachEvents() {
+    if (state.onClick) {
+      buttonElement.removeEventListener('click', state.onClick);
+    }
+  }
 
   // Public API
   return {
-    /**
-     * Get the button element
-     * @returns {HTMLButtonElement} Button element
-     */
     getElement() {
       return buttonElement;
     },
 
-    /**
-     * Set button text
-     * @param {string} newText - New button text
-     * @returns {Object} Button component (for chaining)
-     */
     setText(newText) {
-      buttonState.text = newText;
+      state.text = newText;
       buttonElement.textContent = newText;
       return this;
     },
 
-    /**
-     * Set button disabled state
-     * @param {boolean} isDisabled - Whether button should be disabled
-     * @returns {Object} Button component (for chaining)
-     */
     setDisabled(isDisabled) {
-      // Only update if state changes
-      if (buttonState.disabled !== isDisabled) {
-        buttonState.disabled = isDisabled;
-        buttonElement.disabled = isDisabled;
-
-        // Update click event handler
-        if (isDisabled) {
-          if (
-            buttonState.onClick &&
-            buttonElement._listeners &&
-            buttonElement._listeners.click
-          ) {
-            buttonElement.removeEventListener('click', buttonState.onClick);
-            delete buttonElement._listeners.click;
-          }
-        } else if (buttonState.onClick) {
-          buttonElement.addEventListener('click', buttonState.onClick);
-          if (buttonElement._listeners) {
-            buttonElement._listeners.click = buttonState.onClick;
-          } else {
-            buttonElement._listeners = { click: buttonState.onClick };
-          }
-        }
+      if (state.disabled !== isDisabled) {
+        state.disabled = isDisabled;
+        updateElement(false);
       }
-
       return this;
     },
 
-    /**
-     * Update multiple props at once
-     * @param {Object} newProps - New properties
-     * @returns {Object} Button component (for chaining)
-     */
     update(newProps) {
-      // Update state with new props
-      Object.assign(buttonState, newProps);
+      // Check which props require a rebuild
+      const needsRebuild = [
+        'className',
+        'size',
+        'variant',
+        'type',
+        'onClick',
+      ].some((prop) => newProps[prop] !== undefined);
 
-      // Determine if we need full rebuild or simple updates
-      const needsRebuild =
-        newProps.className !== undefined ||
-        newProps.size !== undefined ||
-        newProps.variant !== undefined ||
-        newProps.type !== undefined ||
-        newProps.onClick !== undefined;
+      // Update state
+      Object.assign(state, newProps);
 
-      if (needsRebuild) {
-        // Store reference to the old element for replacement
-        const oldElement = buttonElement;
-
-        // Remove old event listeners
-        this.destroy();
-
-        // Create new element
-        buttonElement = buildButtonElement();
-
-        // Replace in DOM if the old element was inserted
-        if (oldElement.parentNode) {
-          oldElement.parentNode.replaceChild(buttonElement, oldElement);
-        }
-      } else {
-        // Update simple properties without rebuilding
-        if (newProps.text !== undefined) {
-          buttonElement.textContent = buttonState.text;
-        }
-
-        if (newProps.disabled !== undefined) {
-          buttonElement.disabled = buttonState.disabled;
-
-          // Update click event handler
-          if (buttonState.disabled) {
-            if (
-              buttonState.onClick &&
-              buttonElement._listeners &&
-              buttonElement._listeners.click
-            ) {
-              buttonElement.removeEventListener('click', buttonState.onClick);
-              delete buttonElement._listeners.click;
-            }
-          } else if (buttonState.onClick) {
-            buttonElement.addEventListener('click', buttonState.onClick);
-            if (buttonElement._listeners) {
-              buttonElement._listeners.click = buttonState.onClick;
-            } else {
-              buttonElement._listeners = { click: buttonState.onClick };
-            }
-          }
-        }
-      }
-
+      // Update the DOM
+      updateElement(needsRebuild);
       return this;
     },
 
-    /**
-     * Clean up resources
-     */
     destroy() {
-      // Remove event listeners
-      if (buttonElement._listeners) {
-        Object.entries(buttonElement._listeners).forEach(([event, handler]) => {
-          buttonElement.removeEventListener(event, handler);
-        });
-        buttonElement._listeners = {};
-      }
+      detachEvents();
     },
   };
 };
