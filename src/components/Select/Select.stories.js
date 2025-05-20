@@ -29,7 +29,7 @@ export const Default = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     placeholder: 'Select a country',
     onChange: (event, value) => console.log('Selected value:', value),
@@ -51,7 +51,7 @@ export const WithValue = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     value: 'fr',
     onChange: (event, value) => console.log('Selected value:', value),
@@ -72,7 +72,7 @@ export const ValidState = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     value: 'us',
     required: true,
@@ -96,7 +96,7 @@ export const InvalidState = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     value: '', // Empty value for required field = invalid
     required: true,
@@ -120,7 +120,7 @@ export const Required = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     placeholder: 'Select a country (required)',
     required: true,
@@ -139,7 +139,7 @@ export const Disabled = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     value: 'us',
     disabled: true,
@@ -159,13 +159,12 @@ export const WithValidation = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     placeholder: 'Select a country',
     required: true,
     validationMessage: 'Please select a country',
     onChange: (event, value) => console.log('Selected value:', value),
-    // Important: Initially don't show validation styling
     showValidation: true,
   });
 
@@ -191,7 +190,7 @@ export const Multiple = () => {
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
-  const select = new Select({
+  const select = Select({
     options: countryOptions,
     placeholder: 'Select countries',
     multiple: true,
@@ -230,7 +229,7 @@ export const GroupedOptions = () => {
     { value: 'in', label: 'India' },
   ];
 
-  const select = new Select({
+  const select = Select({
     options: groupedOptions,
     placeholder: 'Select a country',
     onChange: (event, value) => console.log('Selected value:', value),
