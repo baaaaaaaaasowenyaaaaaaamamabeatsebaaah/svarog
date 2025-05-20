@@ -111,10 +111,7 @@ const createLink = (props) => {
 
     // Update className
     if (newProps.className !== undefined) {
-      // Preserve the 'link' class and add the new className
-      const oldClasses = element.className
-        .split(' ')
-        .filter((c) => c !== 'link');
+      // Just set the new classes directly
       const baseClass = 'link';
       const newClasses = newProps.className
         ? [baseClass, newProps.className]
@@ -124,7 +121,7 @@ const createLink = (props) => {
   };
 
   // Extended component with custom methods
-  return {
+  const linkComponent = {
     ...baseComponent,
 
     /**
@@ -167,17 +164,15 @@ const createLink = (props) => {
     setUnderline(value) {
       return this.update({ underline: value });
     },
-
-    /**
-     * Respond to theme changes
-     * @param {string} theme - New theme name
-     * @param {string} previousTheme - Previous theme name
-     */
-    onThemeChange(theme, previousTheme) {
-      // Link component doesn't need specific theme change handling
-      // This is included to support the withThemeAwareness HOC
-    },
   };
+
+  // Add theme change handler
+  linkComponent.onThemeChange = (newTheme, previousTheme) => {
+    // This could apply theme-specific adjustments if needed
+    console.debug(`Link: theme changed from ${previousTheme} to ${newTheme}`);
+  };
+
+  return linkComponent;
 };
 
 // Define required props for validation
