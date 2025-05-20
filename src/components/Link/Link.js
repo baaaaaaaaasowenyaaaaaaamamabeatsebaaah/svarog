@@ -1,9 +1,7 @@
 // src/components/Link/Link.js
 import './Link.css';
-import {
-  createComponent,
-  createElement,
-} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { createElement } from '../../utils/componentFactory.js';
 
 /**
  * Creates a Link component
@@ -11,51 +9,36 @@ import {
  * @returns {Object} Link component
  */
 const createLink = (props) => {
-  // Destructure props with defaults
-  const {
-    children,
-    href,
-    target = '_self',
-    underline = false,
-    block = false,
-    className = '',
-    id = null,
-    onClick = null,
-  } = props;
-
-  // Target validation
+  // Validate props
   const validTargets = ['_self', '_blank', '_parent', '_top'];
-  if (!validTargets.includes(target)) {
+  if (props.target && !validTargets.includes(props.target)) {
     throw new Error(
-      `Invalid target: ${target}. Must be one of: ${validTargets.join(', ')}`
+      `Invalid target: ${props.target}. Must be one of: ${validTargets.join(', ')}`
     );
   }
 
-  // Type validation
-  if (typeof underline !== 'boolean') {
+  if (props.underline !== undefined && typeof props.underline !== 'boolean') {
     throw new Error('underline must be a boolean');
   }
-  if (typeof block !== 'boolean') {
+
+  if (props.block !== undefined && typeof props.block !== 'boolean') {
     throw new Error('block must be a boolean');
   }
 
-  // Component state
-  const state = {
-    children,
-    href,
-    target,
-    underline,
-    block,
-    className,
-    id,
-    onClick,
-  };
+  if (!props.children) {
+    throw new Error('children is required');
+  }
+
+  if (!props.href) {
+    throw new Error('href is required');
+  }
 
   /**
-   * Build the link element
+   * Renders the link element based on current state
+   * @param {Object} state - Current component state
    * @returns {HTMLElement} Link element
    */
-  const buildLinkElement = () => {
+  const renderLink = (state) => {
     // Build class names
     const classNames = ['link', state.className].filter(Boolean);
 
@@ -68,7 +51,7 @@ const createLink = (props) => {
     // Create element attributes
     const attributes = {
       href: state.href,
-      target: state.target,
+      target: state.target || '_self',
       id: state.id || null,
     };
 
@@ -101,39 +84,62 @@ const createLink = (props) => {
     return element;
   };
 
-  // Create initial element
-  let element = buildLinkElement();
+  // Create component using baseComponent
+  const baseComponent = createBaseComponent(renderLink)(props);
 
-  // Public API
+  /**
+   * Determines if component needs to fully re-render based on prop changes
+   * @param {Object} newProps - New properties
+   * @returns {boolean} Whether a full re-render is required
+   */
+  const shouldRerender = (newProps) => {
+    // Only rebuild if these props change
+    const criticalProps = ['children', 'href', 'target', 'block'];
+    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+  };
+
+  /**
+   * Perform partial update without full re-render
+   * @param {HTMLElement} element - Current element
+   * @param {Object} newProps - New properties
+   */
+  const partialUpdate = (element, newProps) => {
+    // Update styles directly
+    if (newProps.underline !== undefined) {
+      element.style.textDecoration = newProps.underline ? 'underline' : 'none';
+    }
+
+    // Update className
+    if (newProps.className !== undefined) {
+      // Preserve the 'link' class and add the new className
+      const oldClasses = element.className
+        .split(' ')
+        .filter((c) => c !== 'link');
+      const baseClass = 'link';
+      const newClasses = newProps.className
+        ? [baseClass, newProps.className]
+        : [baseClass];
+      element.className = newClasses.join(' ');
+    }
+  };
+
+  // Extended component with custom methods
   return {
-    /**
-     * Get the link element
-     * @returns {HTMLElement} Link element
-     */
-    getElement() {
-      return element;
-    },
+    ...baseComponent,
 
     /**
-     * Update link properties
+     * Determines if component should fully re-render
      * @param {Object} newProps - New properties
-     * @returns {Object} Link component (for chaining)
+     * @returns {boolean} Whether a full re-render is required
      */
-    update(newProps) {
-      // Update state
-      Object.assign(state, newProps);
+    shouldRerender,
 
-      // Rebuild element
-      const oldElement = element;
-      element = buildLinkElement();
-
-      // Replace in DOM if inserted
-      if (oldElement.parentNode) {
-        oldElement.parentNode.replaceChild(element, oldElement);
-      }
-
-      return this;
-    },
+    /**
+     * Performs efficient partial updates
+     * @param {HTMLElement} element - Current element
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate,
 
     /**
      * Set link href
@@ -163,18 +169,13 @@ const createLink = (props) => {
     },
 
     /**
-     * Clean up resources
+     * Respond to theme changes
+     * @param {string} theme - New theme name
+     * @param {string} previousTheme - Previous theme name
      */
-    destroy() {
-      // Remove event listeners
-      if (element._listeners) {
-        Object.entries(element._listeners).forEach(([event, handler]) => {
-          element.removeEventListener(event, handler);
-        });
-        element._listeners = {};
-      }
-
-      element = null;
+    onThemeChange(theme, previousTheme) {
+      // Link component doesn't need specific theme change handling
+      // This is included to support the withThemeAwareness HOC
     },
   };
 };
@@ -183,4 +184,4 @@ const createLink = (props) => {
 createLink.requiredProps = ['children', 'href'];
 
 // Export as a factory function
-export default createComponent('Link', createLink);
+export default createLink;

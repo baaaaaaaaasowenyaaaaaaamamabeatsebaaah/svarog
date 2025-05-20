@@ -1,208 +1,182 @@
-// src/components/Button/Button.js
-import './Button.css';
-import {
-  createElement,
-  validateProps,
-  createComponent,
-} from '../../utils/componentFactory.js';
+// src/components/Link/Link.js
+import './Link.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
-import { withThemeAwareness } from '../../utils/composition.js';
-import { debounce } from '../../utils/performance.js';
+import { createElement } from '../../utils/componentFactory.js';
 
 /**
- * Validates button-specific props
- * @param {Object} props - Button properties
+ * Creates a Link component
+ * @param {Object} props - Link properties
+ * @returns {Object} Link component
  */
-const validateButtonProps = (props) => {
-  const validVariants = [
-    'primary',
-    'secondary',
-    'text',
-    'outlined',
-    'success',
-    'danger',
-    'icon',
-  ];
-  const validSizes = ['sm', 'lg'];
-
-  if (props.variant && !validVariants.includes(props.variant)) {
-    console.warn(
-      `Button: Unknown variant "${props.variant}", defaulting to standard button`
+const createLink = (props) => {
+  // Validate props
+  const validTargets = ['_self', '_blank', '_parent', '_top'];
+  if (props.target && !validTargets.includes(props.target)) {
+    throw new Error(
+      `Invalid target: ${props.target}. Must be one of: ${validTargets.join(', ')}`
     );
   }
 
-  if (props.size && !validSizes.includes(props.size)) {
-    console.warn(`Button: Unknown size "${props.size}", defaulting to medium`);
+  if (props.underline !== undefined && typeof props.underline !== 'boolean') {
+    throw new Error('underline must be a boolean');
   }
-};
 
-/**
- * Creates button DOM element
- * @param {Object} state - Button state
- * @returns {HTMLElement} - Button element
- */
-const renderButton = (state) => {
-  // Build CSS class list
-  const classNames = [
-    'btn',
-    state.className,
-    state.size && `btn--${state.size}`,
-    state.variant && `btn--${state.variant}`,
-    state.iconPosition === 'right' && 'btn--icon-right',
-    state.iconOnly && 'btn--icon',
-  ].filter(Boolean);
+  if (props.block !== undefined && typeof props.block !== 'boolean') {
+    throw new Error('block must be a boolean');
+  }
 
-  // Create button attributes - NOTE: ARIA attributes should be "false" not null
-  const attributes = {
-    type: state.type,
-    disabled: state.disabled ? '' : null,
-    'aria-disabled': state.disabled ? 'true' : 'false',
-    'aria-busy': state.loading ? 'true' : 'false',
-    'aria-pressed': state.pressed ? 'true' : 'false',
-  };
+  if (!props.children) {
+    throw new Error('children is required');
+  }
 
-  // Create the button content
-  let content = [];
+  if (!props.href) {
+    throw new Error('href is required');
+  }
 
-  // Handle icon + text scenarios
-  if (state.icon && state.text && !state.iconOnly) {
-    // Create icon element
-    const iconElement = createElement('span', {
-      classes: [
-        `btn__icon`,
-        state.iconPosition === 'right' ? 'btn__icon--right' : '',
-      ],
-      text: state.icon, // This could be replaced with a proper icon component
+  /**
+   * Renders the link element based on current state
+   * @param {Object} state - Current component state
+   * @returns {HTMLElement} Link element
+   */
+  const renderLink = (state) => {
+    // Build class names
+    const classNames = ['link', state.className].filter(Boolean);
+
+    // Create element style
+    const style = {
+      textDecoration: state.underline ? 'underline' : 'none',
+      display: state.block ? 'block' : 'inline-flex',
+    };
+
+    // Create element attributes
+    const attributes = {
+      href: state.href,
+      target: state.target || '_self',
+      id: state.id || null,
+    };
+
+    // Create element events
+    const events = {
+      click: state.onClick,
+    };
+
+    // Create element
+    const element = createElement('a', {
+      attributes,
+      classes: classNames,
+      style,
+      events,
     });
 
-    if (state.iconPosition === 'right') {
-      content = [state.text, iconElement];
+    // Handle different types of children content
+    if (typeof state.children === 'string') {
+      element.textContent = state.children;
+    } else if (state.children instanceof HTMLElement) {
+      element.appendChild(state.children);
+    } else if (typeof state.children.getElement === 'function') {
+      element.appendChild(state.children.getElement());
     } else {
-      content = [iconElement, state.text];
+      throw new Error(
+        'Link children must be string, HTMLElement, or component with getElement method'
+      );
     }
-  } else if (state.icon && state.iconOnly) {
-    // Icon-only button
-    content = [state.icon];
-    attributes['aria-label'] = state.ariaLabel || state.text;
-  } else {
-    // Text-only button
-    content = [state.text];
-  }
 
-  // Create the button element with event handlers conditional on disabled state
-  const element = createElement('button', {
-    attributes,
-    classes: classNames,
-    children: content,
-    events: state.disabled
-      ? {}
-      : {
-          click: state.onClick,
-          mouseenter: state.onMouseEnter,
-          mouseleave: state.onMouseLeave,
-        },
-  });
-
-  // Store state on the element for updates
-  element.state = state;
-
-  return element;
-};
-
-/**
- * Create a Button component
- * @param {Object} props - Button properties
- * @returns {Object} Button component
- */
-const createButton = (props) => {
-  // Validate required props
-  validateProps(props, createButton.requiredProps);
-
-  // Validate button-specific props
-  validateButtonProps(props);
-
-  // Process click handler (debounce if requested)
-  let clickHandler = props.onClick;
-  if (typeof props.onClick === 'function' && props.debounce) {
-    clickHandler = debounce(props.onClick, props.debounceWait || 250);
-  }
-
-  // Determine if this is an icon-only button
-  const iconOnly = props.variant === 'icon' || (props.icon && !props.text);
-
-  // Initial state with defaults
-  const initialState = {
-    text: props.text || '',
-    onClick: clickHandler,
-    onMouseEnter: props.onMouseEnter || null,
-    onMouseLeave: props.onMouseLeave || null,
-    className: props.className || '',
-    disabled: props.disabled || false,
-    loading: props.loading || false,
-    pressed: props.pressed || false,
-    type: props.type || 'button',
-    size: props.size || '',
-    variant: props.variant || '',
-    icon: props.icon || '',
-    iconPosition: props.iconPosition || 'left',
-    iconOnly,
-    ariaLabel: props.ariaLabel || '',
+    return element;
   };
 
-  // Create the base component
-  const buttonComponent = createBaseComponent(renderButton)(initialState);
+  // Create component using baseComponent
+  const baseComponent = createBaseComponent(renderLink)(props);
 
-  // Define the shouldRerender method
-  buttonComponent.shouldRerender = (newProps) => {
-    // These props require a full re-render
-    return [
-      'className',
-      'size',
-      'variant',
-      'type',
-      'icon',
-      'iconPosition',
-      'ariaLabel',
-      'text', // Always re-render for text changes to simplify
-      'disabled', // Always re-render for disabled changes to simplify
-      'loading', // Always re-render for loading changes to simplify
-      'pressed', // Always re-render for pressed changes to simplify
-    ].some((prop) => newProps[prop] !== undefined);
+  /**
+   * Determines if component needs to fully re-render based on prop changes
+   * @param {Object} newProps - New properties
+   * @returns {boolean} Whether a full re-render is required
+   */
+  const shouldRerender = (newProps) => {
+    // Only rebuild if these props change
+    const criticalProps = ['children', 'href', 'target', 'block'];
+    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+  };
+
+  /**
+   * Perform partial update without full re-render
+   * @param {HTMLElement} element - Current element
+   * @param {Object} newProps - New properties
+   */
+  const partialUpdate = (element, newProps) => {
+    // Update styles directly
+    if (newProps.underline !== undefined) {
+      element.style.textDecoration = newProps.underline ? 'underline' : 'none';
+    }
+
+    // Update className
+    if (newProps.className !== undefined) {
+      // Just set the new classes directly
+      const baseClass = 'link';
+      const newClasses = newProps.className
+        ? [baseClass, newProps.className]
+        : [baseClass];
+      element.className = newClasses.join(' ');
+    }
+  };
+
+  // Extended component with custom methods
+  const linkComponent = {
+    ...baseComponent,
+
+    /**
+     * Determines if component should fully re-render
+     * @param {Object} newProps - New properties
+     * @returns {boolean} Whether a full re-render is required
+     */
+    shouldRerender,
+
+    /**
+     * Performs efficient partial updates
+     * @param {HTMLElement} element - Current element
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate,
+
+    /**
+     * Set link href
+     * @param {string} newHref - New href
+     * @returns {Object} Link component (for chaining)
+     */
+    setHref(newHref) {
+      return this.update({ href: newHref });
+    },
+
+    /**
+     * Set link target
+     * @param {string} newTarget - New target
+     * @returns {Object} Link component (for chaining)
+     */
+    setTarget(newTarget) {
+      return this.update({ target: newTarget });
+    },
+
+    /**
+     * Toggle underline
+     * @param {boolean} value - Whether to underline the link
+     * @returns {Object} Link component (for chaining)
+     */
+    setUnderline(value) {
+      return this.update({ underline: value });
+    },
   };
 
   // Add theme change handler
-  buttonComponent.onThemeChange = (newTheme, previousTheme) => {
+  linkComponent.onThemeChange = (newTheme, previousTheme) => {
     // This could apply theme-specific adjustments if needed
-    console.debug(`Button: theme changed from ${previousTheme} to ${newTheme}`);
+    console.debug(`Link: theme changed from ${previousTheme} to ${newTheme}`);
   };
 
-  // Add convenience methods
-  buttonComponent.setText = function (newText) {
-    return this.update({ text: newText });
-  };
-
-  buttonComponent.setDisabled = function (isDisabled) {
-    return this.update({ disabled: isDisabled });
-  };
-
-  buttonComponent.setLoading = function (isLoading) {
-    return this.update({ loading: isLoading });
-  };
-
-  buttonComponent.setPressed = function (isPressed) {
-    return this.update({ pressed: isPressed });
-  };
-
-  return buttonComponent;
+  return linkComponent;
 };
 
 // Define required props for validation
-createButton.requiredProps = ['text'];
-
-// Create the component with theme awareness
-const ButtonComponent = withThemeAwareness(
-  createComponent('Button', createButton)
-);
+createLink.requiredProps = ['children', 'href'];
 
 // Export as a factory function
-export default ButtonComponent;
+export default createLink;
