@@ -7,7 +7,7 @@ export default {
 };
 
 export const Default = () => {
-  return new ContactInfo({
+  return ContactInfo({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
@@ -15,7 +15,7 @@ export const Default = () => {
 };
 
 export const WithCustomClass = () => {
-  return new ContactInfo({
+  return ContactInfo({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
@@ -24,7 +24,7 @@ export const WithCustomClass = () => {
 };
 
 export const WithCustomLocationId = () => {
-  return new ContactInfo({
+  return ContactInfo({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
@@ -57,7 +57,7 @@ export const WithClickHandlers = () => {
   title.style.marginBottom = '15px';
 
   // Create the contact info component with click handlers
-  const contactInfo = new ContactInfo({
+  const contactInfo = ContactInfo({
     location: 'Luisenstr. 1',
     phone: '0176/88778877',
     email: 'info@muchandy.de',
