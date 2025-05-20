@@ -1,264 +1,208 @@
-// src/components/Card/Card.js
-import './Card.css';
+// src/components/Button/Button.js
+import './Button.css';
 import {
-  createComponent,
   createElement,
-  appendChildren,
+  validateProps,
+  createComponent,
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { debounce } from '../../utils/performance.js';
 
 /**
- * Creates a Card component for displaying content in a card container
- *
- * @param {Object} props - Card properties
- * @param {string|HTMLElement|Array} props.children - Card content
- * @param {string} [props.title] - Card title
- * @param {string|HTMLElement} [props.image] - Card image (URL string or HTMLElement)
- * @param {string|HTMLElement} [props.footer] - Card footer content
- * @param {boolean} [props.outlined=false] - Whether to use an outlined style
- * @param {boolean} [props.elevated=false] - Whether to add elevation shadow
- * @param {string} [props.className=''] - Additional CSS class names
- * @returns {Object} Card component API
+ * Validates button-specific props
+ * @param {Object} props - Button properties
  */
-const createCard = (props) => {
-  // Validate required props
-  if (!props.children) {
-    throw new Error('Card: children is required');
+const validateButtonProps = (props) => {
+  const validVariants = [
+    'primary',
+    'secondary',
+    'text',
+    'outlined',
+    'success',
+    'danger',
+    'icon',
+  ];
+  const validSizes = ['sm', 'lg'];
+
+  if (props.variant && !validVariants.includes(props.variant)) {
+    console.warn(
+      `Button: Unknown variant "${props.variant}", defaulting to standard button`
+    );
   }
 
-  // Create card rendering function for use with baseComponent
-  const renderCard = (state) => {
-    const {
-      children,
-      title,
-      image,
-      footer,
-      outlined = false,
-      elevated = false,
-      className = '',
-    } = state;
+  if (props.size && !validSizes.includes(props.size)) {
+    console.warn(`Button: Unknown size "${props.size}", defaulting to medium`);
+  }
+};
 
-    // Create class name with conditionals
-    const classNames = ['card'];
-    if (className) classNames.push(className);
-    if (outlined) classNames.push('card--outlined');
-    if (elevated) classNames.push('card--elevated');
+/**
+ * Creates button DOM element
+ * @param {Object} state - Button state
+ * @returns {HTMLElement} - Button element
+ */
+const renderButton = (state) => {
+  // Build CSS class list
+  const classNames = [
+    'btn',
+    state.className,
+    state.size && `btn--${state.size}`,
+    state.variant && `btn--${state.variant}`,
+    state.iconPosition === 'right' && 'btn--icon-right',
+    state.iconOnly && 'btn--icon',
+  ].filter(Boolean);
 
-    // Create the main card element
-    const card = createElement('div', {
-      classes: classNames.join(' '),
+  // Create button attributes - NOTE: ARIA attributes should be "false" not null
+  const attributes = {
+    type: state.type,
+    disabled: state.disabled ? '' : null,
+    'aria-disabled': state.disabled ? 'true' : 'false',
+    'aria-busy': state.loading ? 'true' : 'false',
+    'aria-pressed': state.pressed ? 'true' : 'false',
+  };
+
+  // Create the button content
+  let content = [];
+
+  // Handle icon + text scenarios
+  if (state.icon && state.text && !state.iconOnly) {
+    // Create icon element
+    const iconElement = createElement('span', {
+      classes: [
+        `btn__icon`,
+        state.iconPosition === 'right' ? 'btn__icon--right' : '',
+      ],
+      text: state.icon, // This could be replaced with a proper icon component
     });
 
-    // Add image if provided
-    if (image) {
-      if (typeof image === 'string') {
-        const imageEl = createElement('img', {
-          classes: 'card__image',
-          attributes: {
-            src: image,
-            alt: title || 'Card image',
-          },
-        });
-        card.appendChild(imageEl);
-      } else {
-        card.appendChild(image);
-      }
+    if (state.iconPosition === 'right') {
+      content = [state.text, iconElement];
+    } else {
+      content = [iconElement, state.text];
     }
+  } else if (state.icon && state.iconOnly) {
+    // Icon-only button
+    content = [state.icon];
+    attributes['aria-label'] = state.ariaLabel || state.text;
+  } else {
+    // Text-only button
+    content = [state.text];
+  }
 
-    // Add title if provided
-    if (title) {
-      const titleEl = createElement('h3', {
-        classes: 'card__title',
-        text: title,
-      });
-      card.appendChild(titleEl);
-    }
+  // Create the button element with event handlers conditional on disabled state
+  const element = createElement('button', {
+    attributes,
+    classes: classNames,
+    children: content,
+    events: state.disabled
+      ? {}
+      : {
+          click: state.onClick,
+          mouseenter: state.onMouseEnter,
+          mouseleave: state.onMouseLeave,
+        },
+  });
 
-    // Add content section
-    const content = createElement('div', {
-      classes: 'card__content',
-    });
+  // Store state on the element for updates
+  element.state = state;
 
-    // Handle different types of children content
-    appendContent(content, children);
-    card.appendChild(content);
+  return element;
+};
 
-    // Add footer if provided
-    if (footer) {
-      const footerEl = createElement('div', {
-        classes: 'card__footer',
-      });
+/**
+ * Create a Button component
+ * @param {Object} props - Button properties
+ * @returns {Object} Button component
+ */
+const createButton = (props) => {
+  // Validate required props
+  validateProps(props, createButton.requiredProps);
 
-      appendContent(footerEl, footer);
-      card.appendChild(footerEl);
-    }
+  // Validate button-specific props
+  validateButtonProps(props);
 
-    return card;
+  // Process click handler (debounce if requested)
+  let clickHandler = props.onClick;
+  if (typeof props.onClick === 'function' && props.debounce) {
+    clickHandler = debounce(props.onClick, props.debounceWait || 250);
+  }
+
+  // Determine if this is an icon-only button
+  const iconOnly = props.variant === 'icon' || (props.icon && !props.text);
+
+  // Initial state with defaults
+  const initialState = {
+    text: props.text || '',
+    onClick: clickHandler,
+    onMouseEnter: props.onMouseEnter || null,
+    onMouseLeave: props.onMouseLeave || null,
+    className: props.className || '',
+    disabled: props.disabled || false,
+    loading: props.loading || false,
+    pressed: props.pressed || false,
+    type: props.type || 'button',
+    size: props.size || '',
+    variant: props.variant || '',
+    icon: props.icon || '',
+    iconPosition: props.iconPosition || 'left',
+    iconOnly,
+    ariaLabel: props.ariaLabel || '',
   };
 
-  // Helper function to append different types of content
-  const appendContent = (container, content) => {
-    if (typeof content === 'string') {
-      container.textContent = content;
-    } else if (content instanceof Node) {
-      container.appendChild(content);
-    } else if (Array.isArray(content)) {
-      appendChildren(container, content);
-    } else if (
-      typeof content === 'object' &&
-      content !== null &&
-      typeof content.getElement === 'function'
-    ) {
-      container.appendChild(content.getElement());
-    }
-  };
+  // Create the base component
+  const buttonComponent = createBaseComponent(renderButton)(initialState);
 
-  // Create the component using baseComponent
-  const component = createBaseComponent(renderCard)(props);
-
-  // Add partial update method for more efficient DOM updates
-  component.partialUpdate = (element, newProps) => {
-    // Update styling classes
-    if (
-      newProps.elevated !== undefined ||
-      newProps.outlined !== undefined ||
-      newProps.className !== undefined
-    ) {
-      // Rebuild class list
-      const classNames = ['card'];
-      const outlined =
-        newProps.outlined !== undefined ? newProps.outlined : props.outlined;
-      const elevated =
-        newProps.elevated !== undefined ? newProps.elevated : props.elevated;
-      const className =
-        newProps.className !== undefined ? newProps.className : props.className;
-
-      if (className) classNames.push(className);
-      if (outlined) classNames.push('card--outlined');
-      if (elevated) classNames.push('card--elevated');
-
-      element.className = classNames.join(' ');
-    }
-
-    // Handle image update
-    if (newProps.image !== undefined) {
-      updateImage(element, newProps.image, newProps.title || props.title);
-    }
-
-    // Handle title update
-    if (newProps.title !== undefined) {
-      updateTitle(element, newProps.title);
-    }
-
-    // Handle content update
-    if (newProps.children !== undefined) {
-      updateContent(element, newProps.children);
-    }
-
-    // Handle footer update
-    if (newProps.footer !== undefined) {
-      updateFooter(element, newProps.footer);
-    }
-  };
-
-  // Helper functions for partial updates
-  const updateImage = (element, image, title) => {
-    let imageEl = element.querySelector('.card__image');
-
-    if (image) {
-      if (typeof image === 'string') {
-        if (imageEl && imageEl.tagName === 'IMG') {
-          // Update existing image
-          imageEl.src = image;
-          imageEl.alt = title || 'Card image';
-        } else {
-          // Create new image
-          imageEl = createElement('img', {
-            classes: 'card__image',
-            attributes: {
-              src: image,
-              alt: title || 'Card image',
-            },
-          });
-          element.insertBefore(imageEl, element.firstChild);
-        }
-      } else if (image instanceof Node) {
-        if (imageEl) {
-          element.replaceChild(image, imageEl);
-        } else {
-          element.insertBefore(image, element.firstChild);
-        }
-      }
-    } else if (imageEl) {
-      element.removeChild(imageEl);
-    }
-  };
-
-  const updateTitle = (element, title) => {
-    let titleEl = element.querySelector('.card__title');
-
-    if (title) {
-      if (titleEl) {
-        titleEl.textContent = title;
-      } else {
-        titleEl = createElement('h3', {
-          classes: 'card__title',
-          text: title,
-        });
-        const imageEl = element.querySelector('.card__image');
-        if (imageEl) {
-          element.insertBefore(titleEl, imageEl.nextSibling);
-        } else {
-          element.insertBefore(titleEl, element.firstChild);
-        }
-      }
-    } else if (titleEl) {
-      element.removeChild(titleEl);
-    }
-  };
-
-  const updateContent = (element, children) => {
-    const contentEl = element.querySelector('.card__content');
-    if (contentEl) {
-      contentEl.innerHTML = '';
-      appendContent(contentEl, children);
-    }
-  };
-
-  const updateFooter = (element, footer) => {
-    let footerEl = element.querySelector('.card__footer');
-
-    if (footer) {
-      if (footerEl) {
-        footerEl.innerHTML = '';
-        appendContent(footerEl, footer);
-      } else {
-        footerEl = createElement('div', {
-          classes: 'card__footer',
-        });
-        appendContent(footerEl, footer);
-        element.appendChild(footerEl);
-      }
-    } else if (footerEl) {
-      element.removeChild(footerEl);
-    }
-  };
-
-  // Add shouldRerender method to determine if a full re-render is needed
-  component.shouldRerender = () => {
-    // Always prefer partial updates for better performance
-    return false;
+  // Define the shouldRerender method
+  buttonComponent.shouldRerender = (newProps) => {
+    // These props require a full re-render
+    return [
+      'className',
+      'size',
+      'variant',
+      'type',
+      'icon',
+      'iconPosition',
+      'ariaLabel',
+      'text', // Always re-render for text changes to simplify
+      'disabled', // Always re-render for disabled changes to simplify
+      'loading', // Always re-render for loading changes to simplify
+      'pressed', // Always re-render for pressed changes to simplify
+    ].some((prop) => newProps[prop] !== undefined);
   };
 
   // Add theme change handler
-  component.onThemeChange = (theme, previousTheme) => {
-    // Theme changes are handled through CSS variables, no manual updates needed
-    console.debug(`Card: theme changed from ${previousTheme} to ${theme}`);
+  buttonComponent.onThemeChange = (newTheme, previousTheme) => {
+    // This could apply theme-specific adjustments if needed
+    console.debug(`Button: theme changed from ${previousTheme} to ${newTheme}`);
   };
 
-  return component;
+  // Add convenience methods
+  buttonComponent.setText = function (newText) {
+    return this.update({ text: newText });
+  };
+
+  buttonComponent.setDisabled = function (isDisabled) {
+    return this.update({ disabled: isDisabled });
+  };
+
+  buttonComponent.setLoading = function (isLoading) {
+    return this.update({ loading: isLoading });
+  };
+
+  buttonComponent.setPressed = function (isPressed) {
+    return this.update({ pressed: isPressed });
+  };
+
+  return buttonComponent;
 };
 
-// Create the component factory with theme awareness
-export default createComponent('Card', withThemeAwareness(createCard));
+// Define required props for validation
+createButton.requiredProps = ['text'];
+
+// Create the component with theme awareness
+const ButtonComponent = withThemeAwareness(
+  createComponent('Button', createButton)
+);
+
+// Export as a factory function
+export default ButtonComponent;

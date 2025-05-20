@@ -1,25 +1,42 @@
-/// src/components/Pagination/Pagination.js
+// src/components/Pagination/Pagination.js
 import './Pagination.css';
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createComponent,
+  createElement,
+} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 import Button from '../Button/Button.js';
 
-export default class Pagination extends Component {
-  constructor(props) {
-    super();
-    this.props = {
-      currentPage: 1,
-      totalPages: 1,
-      onPageChange: () => {},
-      siblingCount: 1,
-      className: '',
-      ...props,
-    };
-    this.element = this.createComponentElement();
+/**
+ * Creates a Pagination component for navigating through paginated content
+ *
+ * @param {Object} props - Pagination properties
+ * @param {number} [props.currentPage=1] - Current active page
+ * @param {number} [props.totalPages=1] - Total number of pages
+ * @param {Function} [props.onPageChange] - Callback when page changes (receives page number)
+ * @param {number} [props.siblingCount=1] - Number of siblings to show around current page
+ * @param {string} [props.className=''] - Additional CSS class names
+ * @returns {Object} Pagination component API
+ */
+const createPagination = (props) => {
+  // Validate required props
+  if (
+    props.currentPage !== undefined &&
+    typeof props.currentPage !== 'number'
+  ) {
+    throw new Error('Pagination: currentPage must be a number');
   }
 
-  generatePaginationRange() {
-    const { currentPage, totalPages, siblingCount = 1 } = this.props;
+  if (props.totalPages !== undefined && typeof props.totalPages !== 'number') {
+    throw new Error('Pagination: totalPages must be a number');
+  }
 
+  /**
+   * Generate the pagination range with dots for ellipsis
+   * @private
+   */
+  const generatePaginationRange = (currentPage, totalPages, siblingCount) => {
     // Total pagination items to show
     const totalPageNumbers = siblingCount * 2 + 5;
 
@@ -37,14 +54,14 @@ export default class Pagination extends Component {
     const firstPageIndex = 1;
     const lastPageIndex = totalPages;
 
-    // No dots
+    // No left dots, but right dots
     if (!shouldShowLeftDots && shouldShowRightDots) {
       const leftItemCount = 3 + 2 * siblingCount;
       const leftRange = Array.from({ length: leftItemCount }, (_, i) => i + 1);
       return [...leftRange, '...', totalPages];
     }
 
-    // Right dots only
+    // Left dots, but no right dots
     if (shouldShowLeftDots && !shouldShowRightDots) {
       const rightItemCount = 3 + 2 * siblingCount;
       const rightRange = Array.from(
@@ -54,7 +71,7 @@ export default class Pagination extends Component {
       return [firstPageIndex, '...', ...rightRange];
     }
 
-    // Both dots
+    // Both left and right dots
     if (shouldShowLeftDots && shouldShowRightDots) {
       const middleRange = Array.from(
         { length: rightSiblingIndex - leftSiblingIndex + 1 },
@@ -64,89 +81,94 @@ export default class Pagination extends Component {
     }
 
     return [];
-  }
+  };
 
-  /**
-   * Handle page click
-   * @param {number|string} page - Page number or navigation action
-   */
-  handlePageClick(page) {
-    const { currentPage, totalPages, onPageChange } = this.props;
+  // Create pagination rendering function for use with baseComponent
+  const renderPagination = (state) => {
+    const {
+      currentPage = 1,
+      totalPages = 1,
+      siblingCount = 1,
+      className = '',
+      onPageChange = () => {},
+    } = state;
 
-    if (page === '...') return;
+    // Define handlePageClick inside the render function to access current state
+    const handlePageClick = (page) => {
+      if (page === '...') return;
 
-    let newPage = currentPage;
+      let newPage = currentPage;
 
-    if (page === 'prev') {
-      newPage = Math.max(1, currentPage - 1);
-    } else if (page === 'next') {
-      newPage = Math.min(totalPages, currentPage + 1);
-    } else {
-      newPage = Number(page);
-    }
+      if (page === 'prev') {
+        newPage = Math.max(1, currentPage - 1);
+      } else if (page === 'next') {
+        newPage = Math.min(totalPages, currentPage + 1);
+      } else {
+        newPage = Number(page);
+      }
 
-    if (newPage !== currentPage) {
-      onPageChange(newPage);
-    }
-  }
-
-  /**
-   * Create the pagination element
-   * @returns {HTMLElement} The pagination element
-   */
-  createComponentElement() {
-    const { currentPage, totalPages, className = '' } = this.props;
+      if (newPage !== currentPage && onPageChange) {
+        onPageChange(newPage);
+      }
+    };
 
     // Create pagination container
-    const pagination = this.createElement('nav', {
-      className: this.createClassNames('pagination', className),
-      'aria-label': 'Pagination Navigation',
+    const pagination = createElement('nav', {
+      className: `pagination ${className}`.trim(),
+      attributes: {
+        'aria-label': 'Pagination Navigation',
+      },
     });
 
     // Create pagination list
-    const list = this.createElement('ul', {
+    const list = createElement('ul', {
       className: 'pagination__list',
     });
 
     // Previous button
-    const prevButton = this.createElement('li', {
+    const prevButton = createElement('li', {
       className: 'pagination__item',
     });
 
-    const prevBtn = new Button({
+    const prevBtn = Button({
       text: 'Previous',
-      variant: 'ghost',
-      disabled: currentPage === 1,
+      disabled: currentPage <= 1,
       className: 'pagination__button pagination__button--prev',
-      onClick: () => this.handlePageClick('prev'),
+      onClick: () => handlePageClick('prev'),
     }).getElement();
 
     prevButton.appendChild(prevBtn);
     list.appendChild(prevButton);
 
     // Page numbers
-    const paginationRange = this.generatePaginationRange();
+    const paginationRange = generatePaginationRange(
+      currentPage,
+      totalPages,
+      siblingCount
+    );
 
     paginationRange.forEach((page) => {
-      const pageItem = this.createElement('li', {
+      const pageItem = createElement('li', {
         className: 'pagination__item',
       });
 
       if (page === '...') {
-        const dots = this.createElement('span', {
+        const dots = createElement('span', {
           className: 'pagination__dots',
-          textContent: '...',
+          text: '...',
         });
         pageItem.appendChild(dots);
       } else {
-        const pageBtn = new Button({
+        const isCurrentPage = page === currentPage;
+        const pageBtn = Button({
           text: String(page),
-          variant: page === currentPage ? 'primary' : 'ghost',
-          className: this.createClassNames(
-            'pagination__button',
-            page === currentPage ? 'pagination__button--active' : ''
-          ),
-          onClick: () => this.handlePageClick(page),
+          variant: isCurrentPage ? 'primary' : '',
+          className:
+            `pagination__button ${isCurrentPage ? 'pagination__button--active' : ''}`.trim(),
+          onClick: () => handlePageClick(page),
+          attributes: {
+            'aria-current': isCurrentPage ? 'page' : null,
+          },
         }).getElement();
 
         pageItem.appendChild(pageBtn);
@@ -156,16 +178,15 @@ export default class Pagination extends Component {
     });
 
     // Next button
-    const nextButton = this.createElement('li', {
+    const nextButton = createElement('li', {
       className: 'pagination__item',
     });
 
-    const nextBtn = new Button({
+    const nextBtn = Button({
       text: 'Next',
-      variant: 'ghost',
-      disabled: currentPage === totalPages,
+      disabled: currentPage >= totalPages,
       className: 'pagination__button pagination__button--next',
-      onClick: () => this.handlePageClick('next'),
+      onClick: () => handlePageClick('next'),
     }).getElement();
 
     nextButton.appendChild(nextBtn);
@@ -174,9 +195,44 @@ export default class Pagination extends Component {
     pagination.appendChild(list);
 
     return pagination;
-  }
+  };
 
-  getElement() {
-    return this.element;
-  }
-}
+  // Create the component using baseComponent
+  const component = createBaseComponent(renderPagination)(props);
+
+  // Add additional methods specifically for Pagination
+
+  /**
+   * Sets the current page
+   * @param {number} page - New current page
+   * @returns {Object} Component instance for chaining
+   */
+  component.setCurrentPage = (page) => {
+    return component.update({ currentPage: page });
+  };
+
+  /**
+   * Set the total pages
+   * @param {number} total - New total pages
+   * @returns {Object} Component instance for chaining
+   */
+  component.setTotalPages = (total) => {
+    return component.update({ totalPages: total });
+  };
+
+  // Add theme change handling
+  component.onThemeChange = () => {
+    // No specific theme handling needed for pagination
+    // CSS variables will handle the styling
+  };
+
+  // Return the enhanced component
+  return component;
+};
+
+// Only one default export
+const enhancedPagination = createComponent(
+  'Pagination',
+  withThemeAwareness(createPagination)
+);
+export default enhancedPagination;
