@@ -18,11 +18,11 @@ describe('BlogCard', () => {
   });
 
   it('should render correctly with all props', () => {
-    const card = new BlogCard(defaultProps);
+    const card = BlogCard(defaultProps);
     const element = card.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.classList.contains('card')).toBe(true);
+    expect(element.classList.contains('blog-card')).toBe(true);
     expect(element.querySelector('.blog-card__title').textContent).toBe(
       defaultProps.title
     );
@@ -34,12 +34,39 @@ describe('BlogCard', () => {
     );
   });
 
-  it('should render without optional props', () => {
+  it('should throw an error when required props are missing', () => {
+    expect(() => BlogCard({})).toThrow('BlogCard: title is required');
+    expect(() => BlogCard({ title: 'Title Only' })).toThrow(
+      'BlogCard: slug is required'
+    );
+    expect(() => BlogCard({ slug: 'slug-only' })).toThrow(
+      'BlogCard: title is required'
+    );
+  });
+
+  it('should throw an error when props have incorrect types', () => {
+    expect(() =>
+      BlogCard({
+        title: 42,
+        slug: 'test-slug',
+      })
+    ).toThrow('BlogCard: title must be a string');
+
+    expect(() =>
+      BlogCard({
+        title: 'Test Title',
+        slug: 'test-slug',
+        categories: 'not an array',
+      })
+    ).toThrow('BlogCard: categories must be an array');
+  });
+
+  it('should render with minimal required props', () => {
     const minimalProps = {
       title: 'Test Blog Post',
       slug: 'test-blog-post',
     };
-    const card = new BlogCard(minimalProps);
+    const card = BlogCard(minimalProps);
     const element = card.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -51,7 +78,7 @@ describe('BlogCard', () => {
   });
 
   it('should create correct links', () => {
-    const card = new BlogCard(defaultProps);
+    const card = BlogCard(defaultProps);
     const element = card.getElement();
     const links = element.querySelectorAll('a[href="/blog/test-blog-post"]');
 
@@ -59,12 +86,34 @@ describe('BlogCard', () => {
   });
 
   it('should display categories correctly', () => {
-    const card = new BlogCard(defaultProps);
+    const card = BlogCard(defaultProps);
     const element = card.getElement();
     const categories = element.querySelectorAll('.blog-card__category');
 
     expect(categories.length).toBe(2);
     expect(categories[0].textContent).toBe('Technology');
     expect(categories[1].textContent).toBe('Programming');
+  });
+
+  it('should update the card with new props', () => {
+    const card = BlogCard(defaultProps);
+    const element = card.getElement();
+
+    // Create a parent node for testing replacement
+    const parent = document.createElement('div');
+    parent.appendChild(element);
+
+    const updatedCard = card.update({
+      title: 'Updated Title',
+      author: 'Jane Smith',
+    });
+
+    const updatedElement = updatedCard.getElement();
+    expect(updatedElement.querySelector('.blog-card__title').textContent).toBe(
+      'Updated Title'
+    );
+    expect(
+      updatedElement.querySelector('.blog-card__author').textContent
+    ).toContain('Jane Smith');
   });
 });
