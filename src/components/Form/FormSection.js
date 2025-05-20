@@ -1,88 +1,126 @@
 // src/components/Form/FormSection.js
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createComponent,
+  createElement,
+  appendChildren,
+} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { validateRequiredProps } from '../../utils/validation.js';
 
 /**
- * FormSection component for grouping related form fields
- * @extends Component
+ * Creates a FormSection component for grouping related form fields
+ * @param {Object} props - FormSection properties
+ * @returns {Object} FormSection component API
  */
-export default class FormSection extends Component {
-  /**
-   * Creates a new FormSection instance
-   *
-   * @param {Object} props - FormSection properties
-   * @param {Array|Object} props.children - Section content
-   * @param {string} [props.title] - Section title
-   * @param {string} [props.description] - Section description
-   * @param {string} [props.className=''] - Additional CSS class names
-   */
-  constructor({ children, title, description, className = '' }) {
-    super();
+const createFormSection = (props) => {
+  // Validate required props
+  validateRequiredProps(
+    props,
+    {
+      children: { required: true },
+      title: { required: false, type: 'string' },
+      description: { required: false, type: 'string' },
+    },
+    'FormSection'
+  );
 
-    // Validation
-    if (!children) {
-      throw new Error('FormSection: children are required');
-    }
+  // Initialize state from props with defaults
+  const state = {
+    children: props.children,
+    title: props.title,
+    description: props.description,
+    className: props.className || '',
+  };
 
-    // Store props
-    this.props = {
-      children,
-      title,
-      description,
-      className,
-    };
-
-    // Create element
-    this.section = this.createSectionElement();
-  }
+  // Create base component with render function
+  const component = createBaseComponent((componentState) => {
+    return createSectionElement(componentState);
+  })(state);
 
   /**
    * Creates the section element
    * @private
+   * @param {Object} state - Current state
    * @returns {HTMLElement} The section element
    */
-  createSectionElement() {
-    const { title, description, className, children } = this.props;
+  function createSectionElement(state) {
+    const { title, description, className, children } = state;
 
     // Create section element
-    const section = this.createElement('div', {
-      className: this.createClassNames('form-section', className),
+    const section = createElement('div', {
+      classes: ['form-section', className],
     });
 
     // Add title if provided
     if (title) {
-      const titleElement = this.createElement('h3', {
-        className: 'form-section__title',
-        textContent: title,
+      const titleElement = createElement('h3', {
+        classes: ['form-section__title'],
+        text: title,
       });
       section.appendChild(titleElement);
     }
 
     // Add description if provided
     if (description) {
-      const descriptionElement = this.createElement('p', {
-        className: 'form-section__description',
-        textContent: description,
+      const descriptionElement = createElement('p', {
+        classes: ['form-section__description'],
+        text: description,
       });
       section.appendChild(descriptionElement);
     }
 
     // Create content container
-    const content = this.createElement('div', {
-      className: 'form-section__content',
+    const content = createElement('div', {
+      classes: ['form-section__content'],
     });
 
     // Add content
-    this.appendChildren(content, children);
+    appendChildren(content, children);
     section.appendChild(content);
 
     return section;
   }
 
-  /**
-   * Gets the section element
-   * @returns {HTMLElement} The section element
-   */
-  getElement() {
-    return this.section;
-  }
-}
+  // Get the section element
+  const sectionElement = component.getElement();
+
+  // Public API
+  return {
+    /**
+     * Gets the section element
+     * @returns {HTMLElement} The section element
+     */
+    getElement() {
+      return sectionElement;
+    },
+
+    /**
+     * Updates component with new props
+     * @param {Object} newProps - New properties
+     * @returns {Object} FormSection component for chaining
+     */
+    update(newProps) {
+      // Update state
+      Object.assign(state, newProps);
+
+      // Update component
+      component.update(state);
+
+      return this;
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      // Call base component's destroy
+      component.destroy();
+    },
+  };
+};
+
+// Define required props for validation
+createFormSection.requiredProps = ['children'];
+
+// Export as a component factory
+export default createComponent('FormSection', createFormSection);

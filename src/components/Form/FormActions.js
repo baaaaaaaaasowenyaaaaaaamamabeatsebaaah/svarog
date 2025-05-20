@@ -1,72 +1,117 @@
 // src/components/Form/FormActions.js
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createComponent,
+  createElement,
+  appendChildren,
+} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { validateRequiredProps } from '../../utils/validation.js';
 
 /**
- * FormActions component for form buttons and actions
- * @extends Component
+ * Creates a FormActions component for form buttons and actions
+ * @param {Object} props - FormActions properties
+ * @returns {Object} FormActions component API
  */
-export default class FormActions extends Component {
-  /**
-   * Creates a new FormActions instance
-   *
-   * @param {Object} props - FormActions properties
-   * @param {Array|Object} props.children - Button elements or components
-   * @param {string} [props.align='right'] - Alignment of buttons ('left', 'center', 'right', 'stretched')
-   * @param {string} [props.className=''] - Additional CSS class names
-   */
-  constructor({ children, align = 'right', className = '' }) {
-    super();
+const createFormActions = (props) => {
+  // Validate required props
+  validateRequiredProps(
+    props,
+    {
+      children: { required: true },
+      align: {
+        required: false,
+        type: 'string',
+        allowedValues: ['left', 'center', 'right', 'stretched'],
+        validator: (align) => {
+          if (
+            align &&
+            !['left', 'center', 'right', 'stretched'].includes(align)
+          ) {
+            return 'must be one of: left, center, right, stretched';
+          }
+          return true;
+        },
+      },
+    },
+    'FormActions'
+  );
 
-    // Validation
-    if (!children) {
-      throw new Error('FormActions: children are required');
-    }
+  // Initialize state from props with defaults
+  const state = {
+    children: props.children,
+    align: props.align || 'right',
+    className: props.className || '',
+  };
 
-    if (!['left', 'center', 'right', 'stretched'].includes(align)) {
-      throw new Error(
-        'FormActions: align must be one of: left, center, right, stretched'
-      );
-    }
-
-    // Store props
-    this.props = {
-      children,
-      align,
-      className,
-    };
-
-    // Create element
-    this.container = this.createActionsContainer();
-  }
+  // Create base component with render function
+  const component = createBaseComponent((componentState) => {
+    return createActionsContainer(componentState);
+  })(state);
 
   /**
    * Creates the actions container
    * @private
+   * @param {Object} state - Current state
    * @returns {HTMLElement} The actions container element
    */
-  createActionsContainer() {
-    const { align, className, children } = this.props;
+  function createActionsContainer(state) {
+    const { align, className, children } = state;
 
     // Create container element
-    const container = this.createElement('div', {
-      className: this.createClassNames(
+    const container = createElement('div', {
+      classes: [
         'form-actions',
         align !== 'right' ? `form-actions--${align}` : '',
-        className
-      ),
+        className,
+      ],
     });
 
     // Add buttons
-    this.appendChildren(container, children);
+    appendChildren(container, children);
 
     return container;
   }
 
-  /**
-   * Gets the actions container element
-   * @returns {HTMLElement} The actions container element
-   */
-  getElement() {
-    return this.container;
-  }
-}
+  // Get the container element
+  const containerElement = component.getElement();
+
+  // Public API
+  return {
+    /**
+     * Gets the actions container element
+     * @returns {HTMLElement} The actions container element
+     */
+    getElement() {
+      return containerElement;
+    },
+
+    /**
+     * Updates component with new props
+     * @param {Object} newProps - New properties
+     * @returns {Object} FormActions component for chaining
+     */
+    update(newProps) {
+      // Update state
+      Object.assign(state, newProps);
+
+      // Update component
+      component.update(state);
+
+      return this;
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      // Call base component's destroy
+      component.destroy();
+    },
+  };
+};
+
+// Define required props for validation
+createFormActions.requiredProps = ['children'];
+
+// Export as a component factory
+export default createComponent('FormActions', createFormActions);

@@ -1,15 +1,15 @@
 // src/components/Form/FormGroup.test.js
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import FormGroup from './FormGroup.js';
 import Input from '../Input/Input.js';
 
 describe('FormGroup component', () => {
   it('should create a form group element', () => {
-    const field = new Input({
+    const field = Input({
       name: 'test',
     });
 
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Label',
       field,
     });
@@ -31,12 +31,12 @@ describe('FormGroup component', () => {
   });
 
   it('should throw error when label is not provided', () => {
-    const field = new Input({
+    const field = Input({
       name: 'test',
     });
 
     expect(() => {
-      new FormGroup({
+      FormGroup({
         field,
       });
     }).toThrow('FormGroup: label is required');
@@ -44,25 +44,25 @@ describe('FormGroup component', () => {
 
   it('should throw error when field is not provided', () => {
     expect(() => {
-      new FormGroup({
+      FormGroup({
         label: 'Test Label',
       });
     }).toThrow('FormGroup: field is required');
   });
 
   it('should throw error for invalid label position', () => {
-    const field = new Input({
+    const field = Input({
       name: 'test',
     });
 
     expect(() => {
-      new FormGroup({
+      FormGroup({
         label: 'Test Label',
         field,
         labelPosition: 'invalid',
       });
     }).toThrow(
-      'FormGroup: labelPosition must be one of: top, left, right, bottom'
+      'FormGroup: labelPosition must be either "top" or "left" or "right" or "bottom"'
     );
   });
 
@@ -76,7 +76,7 @@ describe('FormGroup component', () => {
       },
     };
 
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Field',
       field: mockField,
     });
@@ -116,11 +116,11 @@ describe('FormGroup component', () => {
   });
 
   it('should apply label position class', () => {
-    const field = new Input({
+    const field = Input({
       name: 'test',
     });
 
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Label',
       field,
       labelPosition: 'left',
@@ -131,11 +131,11 @@ describe('FormGroup component', () => {
   });
 
   it('should show required indicator when required is true', () => {
-    const field = new Input({
+    const field = Input({
       name: 'test',
     });
 
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Label',
       field,
       required: true,
@@ -148,12 +148,12 @@ describe('FormGroup component', () => {
   });
 
   it('should show help text when provided', () => {
-    const field = new Input({
+    const field = Input({
       name: 'test',
     });
 
     const helpText = 'This is help text';
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Label',
       field,
       helpText,
@@ -168,12 +168,12 @@ describe('FormGroup component', () => {
 
   it('should set ID attributes correctly', () => {
     const id = 'test-field';
-    const field = new Input({
+    const field = Input({
       name: 'test',
       id,
     });
 
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Label',
       field,
       id,
@@ -191,7 +191,7 @@ describe('FormGroup component', () => {
     field.type = 'text';
     field.name = 'test';
 
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Label',
       field,
     });
@@ -203,11 +203,11 @@ describe('FormGroup component', () => {
   });
 
   it('should get field component', () => {
-    const field = new Input({
+    const field = Input({
       name: 'test',
     });
 
-    const formGroup = new FormGroup({
+    const formGroup = FormGroup({
       label: 'Test Label',
       field,
     });
