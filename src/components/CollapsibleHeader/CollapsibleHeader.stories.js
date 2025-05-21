@@ -29,7 +29,7 @@ const createStoryHeader = (props) => {
   container.style.border = '1px solid #ccc';
 
   // Create the header using CollapsibleHeaderContainer
-  const headerContainer = new CollapsibleHeaderContainer({
+  const headerContainer = CollapsibleHeaderContainer({
     ...props,
     // Override the default scroll handler to use our container
     _storyMode: true, // Signal that we're in story mode
@@ -54,18 +54,19 @@ const createStoryHeader = (props) => {
     const scrollTop = container.scrollTop;
     const shouldCollapse = scrollTop > (props.collapseThreshold || 100);
 
-    if (shouldCollapse !== headerContainer.state.isCollapsed) {
-      headerContainer.state.isCollapsed = shouldCollapse;
+    // Access via the safe story helper API
+    if (
+      headerContainer._story &&
+      shouldCollapse !== headerContainer._story.isCollapsed()
+    ) {
+      // Update collapsed state
+      headerContainer._story.setCollapsed(shouldCollapse);
 
-      // Update header
-      headerContainer.header.update({
-        isCollapsed: shouldCollapse,
-      });
+      // Get icon element
+      const iconElement = headerContainer._story.getIconElement();
 
-      // Update sticky icons manually
-      if (headerContainer.stickyIcons) {
-        const iconElement = headerContainer.stickyIcons.getElement();
-
+      // Handle icon display and positioning
+      if (iconElement) {
         // Make sure element is in the DOM
         if (shouldCollapse && !iconElement.parentNode) {
           container.appendChild(iconElement);
@@ -76,7 +77,7 @@ const createStoryHeader = (props) => {
         iconElement.style.position = 'fixed';
         iconElement.style.right = '0px';
 
-        if (headerContainer.state.isMobile) {
+        if (headerContainer._story.isMobile()) {
           iconElement.style.bottom = '16px';
           iconElement.style.top = 'auto';
           iconElement.style.flexDirection = 'row';
@@ -89,9 +90,6 @@ const createStoryHeader = (props) => {
       }
     }
   });
-
-  // Store references to help with cleanup
-  container._headerContainer = headerContainer;
 
   return container;
 };

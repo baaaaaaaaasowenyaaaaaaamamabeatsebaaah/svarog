@@ -17,8 +17,8 @@ const createCollapsibleHeaderContainer = (props) => {
   // Validate props
   validateProps(props, createCollapsibleHeaderContainer.requiredProps);
 
-  // Component state
-  const state = {
+  // Component state - use a simple object rather than getters/setters
+  const componentState = {
     // Pass through all props to the header
     ...props,
     // Container specific state
@@ -33,20 +33,20 @@ const createCollapsibleHeaderContainer = (props) => {
   };
 
   // Create header component
-  let header = CollapsibleHeader({
+  const header = CollapsibleHeader({
     ...props,
-    isCollapsed: state.isCollapsed,
-    isMobile: state.isMobile,
+    isCollapsed: componentState.isCollapsed,
+    isMobile: componentState.isMobile,
   });
 
   // Create sticky icons if enabled
   let stickyIcons = null;
-  if (state.showStickyIcons) {
+  if (componentState.showStickyIcons) {
     stickyIcons = StickyContactIcons({
       location: props.contactInfo.location,
       phone: props.contactInfo.phone,
       email: props.contactInfo.email,
-      position: state.stickyIconsPosition,
+      position: componentState.stickyIconsPosition,
       className: 'collapsible-header__sticky-icons',
     });
   }
@@ -58,7 +58,6 @@ const createCollapsibleHeaderContainer = (props) => {
   /**
    * Check if viewport is mobile
    * @returns {boolean} True if viewport is mobile
-   * @private
    */
   function checkIsMobile() {
     return typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -66,7 +65,6 @@ const createCollapsibleHeaderContainer = (props) => {
 
   /**
    * Handle scroll events
-   * @private
    */
   function handleScroll() {
     if (typeof window === 'undefined') return;
@@ -74,11 +72,11 @@ const createCollapsibleHeaderContainer = (props) => {
     const scrollY = window.scrollY;
 
     // Check if scroll position passed threshold
-    const shouldCollapse = scrollY > state.collapseThreshold;
+    const shouldCollapse = scrollY > componentState.collapseThreshold;
 
     // Only update if state changed
-    if (shouldCollapse !== state.isCollapsed) {
-      state.isCollapsed = shouldCollapse;
+    if (shouldCollapse !== componentState.isCollapsed) {
+      componentState.isCollapsed = shouldCollapse;
 
       // Update header
       header.update({
@@ -89,19 +87,18 @@ const createCollapsibleHeaderContainer = (props) => {
       updateStickyIconsVisibility();
     }
 
-    state.scrollY = scrollY;
+    componentState.scrollY = scrollY;
   }
 
   /**
    * Handle resize events
-   * @private
    */
   function handleResize() {
     const isMobile = checkIsMobile();
 
     // Only update if state changed
-    if (isMobile !== state.isMobile) {
-      state.isMobile = isMobile;
+    if (isMobile !== componentState.isMobile) {
+      componentState.isMobile = isMobile;
 
       // Update header
       header.update({
@@ -115,13 +112,12 @@ const createCollapsibleHeaderContainer = (props) => {
 
   /**
    * Update sticky icons visibility based on state
-   * @private
    */
   function updateStickyIconsVisibility() {
-    if (!stickyIcons || !state.showStickyIcons) return;
+    if (!stickyIcons || !componentState.showStickyIcons) return;
 
     const iconElement = stickyIcons.getElement();
-    const shouldShow = state.isCollapsed || state.isMobile;
+    const shouldShow = componentState.isCollapsed || componentState.isMobile;
 
     // First time showing the icons, add to DOM
     if (shouldShow && !iconElement.parentNode) {
@@ -132,7 +128,7 @@ const createCollapsibleHeaderContainer = (props) => {
     iconElement.style.display = shouldShow ? 'flex' : 'none';
 
     // Update position based on mobile state
-    if (state.isMobile) {
+    if (componentState.isMobile) {
       iconElement.style.position = 'fixed';
       iconElement.style.bottom = '16px';
       iconElement.style.right = '16px';
@@ -149,7 +145,7 @@ const createCollapsibleHeaderContainer = (props) => {
   }
 
   // Set up event listeners if not in story mode
-  if (!state.storyMode && typeof window !== 'undefined') {
+  if (!componentState.storyMode && typeof window !== 'undefined') {
     // Use debounced handlers for better performance
     windowScrollHandler = debounce(handleScroll, 10);
     windowResizeHandler = debounce(handleResize, 100);
@@ -157,6 +153,26 @@ const createCollapsibleHeaderContainer = (props) => {
     window.addEventListener('scroll', windowScrollHandler, { passive: true });
     window.addEventListener('resize', windowResizeHandler, { passive: true });
   }
+
+  // Special story mode helpers - completely isolated for testing only
+  const storyHelpers = {
+    setCollapsed(isCollapsed) {
+      componentState.isCollapsed = isCollapsed;
+      header.update({ isCollapsed });
+    },
+    getIconElement() {
+      return stickyIcons ? stickyIcons.getElement() : null;
+    },
+    getHeaderElement() {
+      return header.getElement();
+    },
+    isMobile() {
+      return componentState.isMobile;
+    },
+    isCollapsed() {
+      return componentState.isCollapsed;
+    },
+  };
 
   const containerComponent = {
     /**
@@ -174,14 +190,14 @@ const createCollapsibleHeaderContainer = (props) => {
      */
     update(newProps) {
       // Update internal state
-      Object.assign(state, newProps);
+      Object.assign(componentState, newProps);
 
       // Update header component
       header.update(newProps);
 
       // Update sticky icons if needed
       if (
-        state.showStickyIcons &&
+        componentState.showStickyIcons &&
         (newProps.isCollapsed !== undefined || newProps.isMobile !== undefined)
       ) {
         updateStickyIconsVisibility();
@@ -234,7 +250,8 @@ const createCollapsibleHeaderContainer = (props) => {
      * @returns {Object} Current state
      */
     getState() {
-      return state;
+      // Return a copy to prevent direct mutation
+      return { ...componentState };
     },
 
     /**
@@ -248,6 +265,12 @@ const createCollapsibleHeaderContainer = (props) => {
      * @public
      */
     handleResize,
+
+    /**
+     * Special accessor for stories - completely isolated API
+     * @public
+     */
+    _story: componentState.storyMode ? storyHelpers : null,
   };
 
   return containerComponent;
