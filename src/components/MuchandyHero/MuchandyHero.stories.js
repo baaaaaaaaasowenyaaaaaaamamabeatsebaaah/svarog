@@ -177,7 +177,7 @@ export default {
 export function Default() {
   const { repairForm, buybackForm } = createForms();
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     backgroundImage: muchandyHeroBg,
     title: 'Finden Sie<br>Ihren Preis:',
     subtitle: 'Jetzt Preis berechnen.',
@@ -192,7 +192,7 @@ export function Default() {
 export function WithSellTabDefault() {
   const { repairForm, buybackForm } = createForms();
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     backgroundImage: muchandyHeroBg,
     defaultTab: 'sell',
     title: 'Verkaufen Sie<br>Ihr Gerät:',
@@ -208,7 +208,7 @@ export function WithSellTabDefault() {
 export function WithCustomBackground() {
   const { repairForm, buybackForm } = createForms();
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     backgroundImage: muchandyHeroBg,
     title: 'Ihr Smartphone-<br>Service',
     subtitle: 'Reparatur oder Verkauf - Sie entscheiden!',
@@ -223,7 +223,7 @@ export function WithCustomBackground() {
 export function WithoutBackgroundImage() {
   const { repairForm, buybackForm } = createForms();
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     // No background image provided, will use default
     title: 'Finden Sie<br>Ihren Preis:',
     subtitle: 'Ohne Hintergrundbild.',
@@ -238,7 +238,7 @@ export function WithoutBackgroundImage() {
 export function WithCustomText() {
   const { repairForm, buybackForm } = createForms();
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     backgroundImage: muchandyHeroBg,
     title: 'Custom<br>Title Text',
     subtitle: 'This is a custom subtitle for demonstration.',
@@ -256,7 +256,7 @@ export function WithMuchandyTheme() {
 
   const { repairForm, buybackForm } = createForms();
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     backgroundImage: muchandyHeroBg,
     title: 'Muchandy<br>Theme Example',
     subtitle: 'Using the Muchandy theme styling.',
@@ -287,7 +287,7 @@ export function WithCallbacks() {
     },
   });
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     backgroundImage: muchandyHeroBg,
     title: 'With<br>Callbacks',
     subtitle: 'Select options to see callback alerts.',
@@ -302,7 +302,7 @@ export function WithCallbacks() {
 export function MinimalConfiguration() {
   const { repairForm, buybackForm } = createForms();
 
-  const hero = new MuchandyHero({
+  const hero = MuchandyHero({
     // Only provide required props
     repairForm,
     buybackForm,

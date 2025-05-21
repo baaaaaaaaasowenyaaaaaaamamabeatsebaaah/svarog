@@ -7,9 +7,18 @@
   background-color: var(--color-bg-dark);
   width: 100%;
   padding: var(--space-8) 0;
+  padding-left: 64px;
+  padding-right: 64px;
+}
+
+.muchandy-hero__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
 }
 
 .muchandy-hero__content-column {
+  grid-column: 2 / span 4; /* Start at column 2, span 4 columns */
   min-height: 820px;
 }
 

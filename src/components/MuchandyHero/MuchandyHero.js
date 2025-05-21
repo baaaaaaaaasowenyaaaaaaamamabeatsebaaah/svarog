@@ -1,133 +1,196 @@
 // src/components/MuchandyHero/MuchandyHero.js
 import './MuchandyHero.css';
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createElement,
+  validateProps,
+  createComponent,
+} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 import Tabs from '../Tabs/Tabs.js';
 
-export default class MuchandyHero extends Component {
-  constructor({
-    backgroundImage,
-    title = 'Finden Sie<br>Ihren Preis',
-    subtitle = 'Jetzt Preis berechnen.',
-    repairForm,
-    buybackForm,
-    defaultTab = 'repair',
-    className = '',
-  }) {
-    super();
-
-    this.props = {
-      backgroundImage,
-      title,
-      subtitle,
-      repairForm,
-      buybackForm,
-      defaultTab,
-      className,
-    };
-
-    // Validate required props
-    if (!this.props.repairForm) {
-      throw new Error('repairForm is required');
-    }
-
-    if (!this.props.buybackForm) {
-      throw new Error('buybackForm is required');
-    }
-
-    this.element = this.createMuchandyHero();
+/**
+ * Validates muchandy-hero-specific props
+ * @param {Object} props - MuchandyHero properties
+ */
+const validateMuchandyHeroProps = (props) => {
+  if (!props.repairForm) {
+    throw new Error('MuchandyHero: repairForm is required');
   }
 
-  createMuchandyHero() {
-    // Create main container with background image
-    const container = this.createElement('div', {
-      className: this.createClassNames('muchandy-hero', this.props.className),
-    });
+  if (!props.buybackForm) {
+    throw new Error('MuchandyHero: buybackForm is required');
+  }
+};
 
-    container.style.backgroundImage = `url(${this.props.backgroundImage})`;
-    container.style.paddingLeft = '64px';
-    container.style.paddingRight = '64px';
+/**
+ * Creates muchandy hero DOM element
+ * @param {Object} state - MuchandyHero state
+ * @returns {HTMLElement} - MuchandyHero element
+ */
+const renderMuchandyHero = (state) => {
+  // Create main container with background image
+  const container = createElement('div', {
+    classes: ['muchandy-hero', state.className].filter(Boolean),
+  });
 
-    // Create grid container
-    const gridContainer = this.createElement('div', {
-      className: 'muchandy-hero__grid',
-    });
-    gridContainer.style.display = 'grid';
-    gridContainer.style.gridTemplateColumns = 'repeat(12, 1fr)';
-    gridContainer.style.gap = '12px';
-
-    // Create content column (columns 2-5)
-    const contentColumn = this.createElement('div', {
-      className: 'muchandy-hero__content-column',
-    });
-    contentColumn.style.gridColumn = '2 / span 4'; // Start at column 2, span 4 columns
-
-    // Add title with line break
-    if (this.props.title) {
-      const title = this.createElement('h1', {
-        className: 'muchandy-hero__title',
-      });
-      // Use innerHTML to allow for line breaks with <br> tags
-      title.innerHTML = this.props.title;
-      contentColumn.appendChild(title);
-    }
-
-    // Add subtitle if provided
-    if (this.props.subtitle) {
-      const subtitle = this.createElement('h2', {
-        className: 'muchandy-hero__subtitle',
-        textContent: this.props.subtitle,
-      });
-      contentColumn.appendChild(subtitle);
-    }
-
-    // Create form container
-    const formContainer = this.createElement('div', {
-      className: 'muchandy-hero__form-container',
-    });
-
-    // Wrap forms in divs to control their display
-    const repairFormWrapper = this.createElement('div', {
-      className: 'muchandy-hero__form-wrapper',
-    });
-    repairFormWrapper.appendChild(this.props.repairForm.getElement());
-
-    const buybackFormWrapper = this.createElement('div', {
-      className: 'muchandy-hero__form-wrapper',
-    });
-    buybackFormWrapper.appendChild(this.props.buybackForm.getElement());
-
-    // Create tabs using the Tab component
-    const tabs = [
-      {
-        id: 'repair',
-        label: 'Reparatur',
-        content: repairFormWrapper,
-      },
-      {
-        id: 'sell',
-        label: 'Verkaufen',
-        content: buybackFormWrapper,
-      },
-    ];
-
-    // Use the existing Tab component with border variant
-    const tabsComponent = new Tabs({
-      tabs,
-      defaultActiveTab: this.props.defaultTab === 'sell' ? 1 : 0,
-      className: 'muchandy-hero__tabs',
-      variant: 'border',
-      align: 'center',
-    });
-
-    formContainer.appendChild(tabsComponent.getElement());
-    contentColumn.appendChild(formContainer);
-    gridContainer.appendChild(contentColumn);
-    container.appendChild(gridContainer);
-
-    return container;
+  // Apply background image if provided
+  if (state.backgroundImage) {
+    container.style.backgroundImage = `url(${state.backgroundImage})`;
   }
 
-  getElement() {
-    return this.element;
+  // Create grid container
+  const gridContainer = createElement('div', {
+    classes: ['muchandy-hero__grid'],
+  });
+
+  // Create content column (columns 2-5)
+  const contentColumn = createElement('div', {
+    classes: ['muchandy-hero__content-column'],
+  });
+
+  // Add title with line break
+  if (state.title) {
+    const title = createElement('h1', {
+      classes: ['muchandy-hero__title'],
+      html: state.title, // Use innerHTML to allow for line breaks with <br> tags
+    });
+    contentColumn.appendChild(title);
   }
-}
+
+  // Add subtitle if provided
+  if (state.subtitle) {
+    const subtitle = createElement('h2', {
+      classes: ['muchandy-hero__subtitle'],
+      text: state.subtitle,
+    });
+    contentColumn.appendChild(subtitle);
+  }
+
+  // Create form container
+  const formContainer = createElement('div', {
+    classes: ['muchandy-hero__form-container'],
+  });
+
+  // Wrap forms in divs to control their display
+  const repairFormWrapper = createElement('div', {
+    classes: ['muchandy-hero__form-wrapper'],
+  });
+  repairFormWrapper.appendChild(state.repairForm.getElement());
+
+  const buybackFormWrapper = createElement('div', {
+    classes: ['muchandy-hero__form-wrapper'],
+  });
+  buybackFormWrapper.appendChild(state.buybackForm.getElement());
+
+  // Create tabs using the Tab component
+  const tabs = [
+    {
+      id: 'repair',
+      label: 'Reparatur',
+      content: repairFormWrapper,
+    },
+    {
+      id: 'sell',
+      label: 'Verkaufen',
+      content: buybackFormWrapper,
+    },
+  ];
+
+  // Use the existing Tab component with border variant
+  const tabsComponent = Tabs({
+    tabs,
+    defaultActiveTab: state.defaultTab === 'sell' ? 1 : 0,
+    className: 'muchandy-hero__tabs',
+    variant: 'border',
+    align: 'center',
+  });
+
+  // Store the tabs component for cleanup
+  container._tabsComponent = tabsComponent;
+
+  formContainer.appendChild(tabsComponent.getElement());
+  contentColumn.appendChild(formContainer);
+  gridContainer.appendChild(contentColumn);
+  container.appendChild(gridContainer);
+
+  return container;
+};
+
+/**
+ * Create a MuchandyHero component
+ * @param {Object} props - MuchandyHero properties
+ * @returns {Object} MuchandyHero component
+ */
+const createMuchandyHero = (props) => {
+  // Validate props
+  validateProps(props, createMuchandyHero.requiredProps);
+  validateMuchandyHeroProps(props);
+
+  // Initial state with defaults
+  const initialState = {
+    backgroundImage: props.backgroundImage || '',
+    title: props.title || 'Finden Sie<br>Ihren Preis',
+    subtitle: props.subtitle || 'Jetzt Preis berechnen.',
+    repairForm: props.repairForm,
+    buybackForm: props.buybackForm,
+    defaultTab: props.defaultTab || 'repair',
+    className: props.className || '',
+  };
+
+  // Create the base component
+  const muchandyHeroComponent =
+    createBaseComponent(renderMuchandyHero)(initialState);
+
+  // Store original destroy method
+  const originalDestroy = muchandyHeroComponent.destroy;
+
+  // Override destroy to also clean up child components
+  muchandyHeroComponent.destroy = function () {
+    const element = this.getElement();
+
+    // Clean up the tabs component if it exists
+    if (element && element._tabsComponent) {
+      element._tabsComponent.destroy();
+      element._tabsComponent = null;
+    }
+
+    // Call the original destroy method
+    originalDestroy.call(this);
+  };
+
+  // Define when we need a full re-render
+  muchandyHeroComponent.shouldRerender = (newProps) => {
+    // Any of these props changing requires a full re-render
+    return [
+      'backgroundImage',
+      'title',
+      'subtitle',
+      'repairForm',
+      'buybackForm',
+      'defaultTab',
+      'className',
+    ].some((prop) => newProps[prop] !== undefined);
+  };
+
+  // Add theme change handler
+  muchandyHeroComponent.onThemeChange = (newTheme, previousTheme) => {
+    console.debug(
+      `MuchandyHero: theme changed from ${previousTheme} to ${newTheme}`
+    );
+    // Apply theme-specific adjustments if needed
+  };
+
+  return muchandyHeroComponent;
+};
+
+// Required props
+createMuchandyHero.requiredProps = ['repairForm', 'buybackForm'];
+
+// Create the component with theme awareness
+const MuchandyHeroComponent = withThemeAwareness(
+  createComponent('MuchandyHero', createMuchandyHero)
+);
+
+// Export as a factory function
+export default MuchandyHeroComponent;
