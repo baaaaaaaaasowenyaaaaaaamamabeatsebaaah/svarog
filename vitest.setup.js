@@ -1,14 +1,17 @@
 // vitest.setup.js
 // Global setup for vitest tests
 
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 
 // Match some Jest globals with Vitest equivalents
 global.expect.stringContaining = (value) =>
   expect.stringMatching(
     new RegExp(String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
   );
-global.expect.objectContaining = (expected) => expect.objContaining(expected);
+
+// Fix this line - was using objContaining instead of objectContaining
+global.expect.objectContaining = (expected) =>
+  expect.objectContaining(expected);
 global.expect.arrayContaining = (expected) => expect.arrayContaining(expected);
 
 // Add fetch mock helper functions to match jest functionality
