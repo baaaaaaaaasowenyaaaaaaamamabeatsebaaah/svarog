@@ -467,6 +467,9 @@ const createSelect = (props) => {
       newState
     );
 
+    // Add/remove a class to the container to manage stacking context
+    element.classList.toggle('select-open', newState);
+
     return newState;
   }
 

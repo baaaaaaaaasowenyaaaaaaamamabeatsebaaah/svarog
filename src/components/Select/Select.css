@@ -9,6 +9,10 @@
   margin-bottom: var(--select-margin-bottom);
   position: relative;
   width: 100%;
+  z-index: 1;
+}
+.select-container.select-open {
+  z-index: 2;
 }
 
 /* Hide native select but keep it accessible for screen readers and form submission */
@@ -95,7 +99,7 @@
   border: 0 solid var(--select-dropdown-border-color);
   border-top: none;
   border-radius: var(--select-dropdown-radius);
-  z-index: var(--z-index-dropdown, 1000); /* Use design system variable */
+  z-index: var(--z-index-dropdown);
   transition: var(--select-dropdown-transition);
   margin-top: -1px;
   box-shadow: var(--select-dropdown-shadow);
@@ -115,6 +119,7 @@ body > .select-custom__dropdown {
   overflow-y: auto;
   border-width: 1px;
   visibility: visible;
+  z-index: var(--z-index-dropdown);
 }
 
 /* Options */
