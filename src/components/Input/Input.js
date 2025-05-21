@@ -48,34 +48,7 @@ const createInput = (props) => {
       classes: ['input-wrapper'],
     });
 
-    // Create native input
-    const inputAttributes = {
-      type: type === 'password' && isPasswordVisible ? 'text' : type,
-      id,
-      name,
-      placeholder,
-      required: required ? 'required' : null,
-      pattern,
-      'aria-required': required ? 'true' : null,
-      'aria-invalid': isValid === false ? 'true' : null,
-      'data-element': 'input',
-    };
-
-    // Add optional attributes
-    if (minLength !== undefined) inputAttributes.minLength = minLength;
-    if (maxLength !== undefined) inputAttributes.maxLength = maxLength;
-    if (disabled) inputAttributes.disabled = true;
-    if (readonly) inputAttributes.readOnly = true;
-
-    const input = createElement('input', {
-      classes: ['input-native'],
-      attributes: inputAttributes,
-    });
-
-    // Set value directly
-    input.value = value;
-
-    // Create custom input UI
+    // Create custom input UI first (for proper z-index layering)
     const customClasses = ['input-custom', `input-custom--${type}`];
     if (disabled) customClasses.push('input-custom--disabled');
     if (readonly) customClasses.push('input-custom--readonly');
@@ -104,7 +77,11 @@ const createInput = (props) => {
         'data-placeholder': placeholder,
         'data-element': 'value-display',
       },
-      text: value,
+      // For password, display masked text when not visible
+      text:
+        type === 'password' && !isPasswordVisible && value
+          ? '•'.repeat(value.length)
+          : value,
     });
 
     customInput.appendChild(valueDisplay);
@@ -132,7 +109,7 @@ const createInput = (props) => {
         attributes: {
           type: 'button',
           'aria-label': isPasswordVisible ? 'Hide password' : 'Show password',
-          tabindex: '-1',
+          tabindex: '0', // Make it focusable and accessible
           'data-action': 'toggle-password',
         },
       });
@@ -148,7 +125,7 @@ const createInput = (props) => {
         attributes: {
           type: 'button',
           'aria-label': 'Increment value',
-          tabindex: '-1',
+          tabindex: '0', // Make it focusable
           'data-action': 'increment',
         },
       });
@@ -158,7 +135,7 @@ const createInput = (props) => {
         attributes: {
           type: 'button',
           'aria-label': 'Decrement value',
-          tabindex: '-1',
+          tabindex: '0', // Make it focusable
           'data-action': 'decrement',
         },
       });
@@ -167,8 +144,35 @@ const createInput = (props) => {
       customInput.appendChild(controlsWrapper);
     }
 
-    // Append elements
-    appendChildren(inputWrapper, [input, customInput]);
+    // Create native input (after custom UI for z-index layering)
+    const inputAttributes = {
+      type: type === 'password' && isPasswordVisible ? 'text' : type,
+      id,
+      name,
+      placeholder,
+      required: required ? 'required' : null,
+      pattern,
+      'aria-required': required ? 'true' : null,
+      'aria-invalid': isValid === false ? 'true' : null,
+      'data-element': 'input',
+    };
+
+    // Add optional attributes
+    if (minLength !== undefined) inputAttributes.minLength = minLength;
+    if (maxLength !== undefined) inputAttributes.maxLength = maxLength;
+    if (disabled) inputAttributes.disabled = true;
+    if (readonly) inputAttributes.readOnly = true;
+
+    const input = createElement('input', {
+      classes: ['input-native'],
+      attributes: inputAttributes,
+    });
+
+    // Set value directly
+    input.value = value;
+
+    // Append elements with input first, then custom UI
+    appendChildren(inputWrapper, [customInput, input]);
 
     // Create validation message element
     const validationMessageElement = createElement('div', {
@@ -194,6 +198,133 @@ const createInput = (props) => {
 
   // Store state
   let state = { ...props };
+  // Initialize password visibility to false
+  if (state.type === 'password' && state.isPasswordVisible === undefined) {
+    state.isPasswordVisible = false;
+  }
+
+  // Selection state tracking for displaying selections properly
+  let selectionStart = 0;
+  let selectionEnd = 0;
+
+  /**
+   * Handle input focus event
+   * @param {Event} event - The focus event
+   */
+  function handleFocus(event) {
+    element.classList.add('input-container--focused');
+    const customInput = element.querySelector('.input-custom');
+    if (customInput) {
+      customInput.classList.add('input-custom--focused');
+    }
+
+    if (typeof state.onFocus === 'function') {
+      state.onFocus(event);
+    }
+  }
+
+  /**
+   * Handle input blur event
+   * @param {Event} event - The blur event
+   */
+  function handleBlur(event) {
+    element.classList.remove('input-container--focused');
+    const customInput = element.querySelector('.input-custom');
+    if (customInput) {
+      customInput.classList.remove('input-custom--focused');
+    }
+
+    // Reset selection tracking
+    selectionStart = 0;
+    selectionEnd = 0;
+    updateValueDisplay();
+
+    if (state.showValidation && state.isValid !== null) {
+      validate();
+    }
+
+    if (typeof state.onBlur === 'function') {
+      state.onBlur(event);
+    }
+  }
+
+  /**
+   * Update password toggle button appearance
+   * @param {boolean} isVisible - Whether password is visible
+   */
+  function updatePasswordToggleButton(isVisible) {
+    const toggleButton = element.querySelector('.input-custom__toggle');
+    if (toggleButton) {
+      toggleButton.classList.toggle('input-custom__toggle--visible', isVisible);
+      toggleButton.setAttribute(
+        'aria-label',
+        isVisible ? 'Hide password' : 'Show password'
+      );
+    }
+  }
+
+  /**
+   * Handle password visibility toggle
+   */
+  function togglePasswordVisibility() {
+    state.isPasswordVisible = !state.isPasswordVisible;
+
+    const inputElement = element.querySelector('.input-native');
+    if (inputElement) {
+      inputElement.type = state.isPasswordVisible ? 'text' : 'password';
+      inputElement.focus();
+    }
+
+    // Update toggle button appearance
+    updatePasswordToggleButton(state.isPasswordVisible);
+
+    // Update display value
+    updateValueDisplay();
+  }
+
+  /**
+   * Directly handle button clicks for controls
+   * @param {Event} event - The click event
+   */
+  function handleControlClick(event) {
+    // Only handle direct clicks on buttons with data-action
+    const button = event.target.closest('[data-action]');
+    if (!button) return;
+
+    // Get the action type
+    const action = button.getAttribute('data-action');
+    if (!action) return;
+
+    // Reference to native input
+    const inputElement = element.querySelector('.input-native');
+    if (!inputElement) return;
+
+    // Process different actions
+    switch (action) {
+      case 'clear':
+        setValue('');
+        inputElement.focus();
+        event.stopPropagation(); // Stop event from reaching the input
+        break;
+
+      case 'toggle-password':
+        togglePasswordVisibility();
+        event.stopPropagation(); // Stop event from reaching the input
+        break;
+
+      case 'increment':
+        if (state.disabled || state.readonly) return;
+        incrementValue(inputElement);
+        event.stopPropagation();
+        break;
+
+      case 'decrement':
+        if (state.disabled || state.readonly) return;
+        decrementValue(inputElement);
+        event.stopPropagation();
+        break;
+    }
+  }
 
   // Event delegation handler
   function handleEvents(event) {
@@ -203,105 +334,94 @@ const createInput = (props) => {
     // Handle input element events
     if (targetElement.classList.contains('input-native')) {
       switch (eventType) {
-        case 'input': {
+        case 'input':
+          // Update state but don't re-render the component
           state.value = targetElement.value;
-          component.update({ value: targetElement.value });
+
+          // Directly update the display value without re-rendering
+          updateValueDisplay();
 
           // Update validation if needed
           if (state.showValidation && state.isValid !== null) {
             validate();
           }
           break;
-        }
 
-        case 'change': {
+        case 'select':
+        case 'click':
+        case 'keyup':
+          // Handle selection (even for password fields)
+          handleSelection(targetElement);
+          break;
+
+        case 'change':
           if (typeof state.onChange === 'function') {
             state.onChange(event, getValue());
           }
           break;
-        }
 
-        case 'focus': {
-          element.classList.add('input-container--focused');
-          const customInput = element.querySelector('.input-custom');
-          customInput.classList.add('input-custom--focused');
-
-          if (typeof state.onFocus === 'function') {
-            state.onFocus(event);
-          }
+        case 'focus':
+          handleFocus(event);
           break;
-        }
 
-        case 'blur': {
-          element.classList.remove('input-container--focused');
-          const customInput = element.querySelector('.input-custom');
-          customInput.classList.remove('input-custom--focused');
-
-          if (state.showValidation && state.isValid !== null) {
-            validate();
-          }
-
-          if (typeof state.onBlur === 'function') {
-            state.onBlur(event);
-          }
+        case 'blur':
+          handleBlur(event);
           break;
-        }
 
-        case 'keydown': {
+        case 'keydown':
           handleKeydown(event);
           break;
-        }
       }
     }
+  }
 
-    // Handle action buttons using delegation
-    const action = targetElement
-      .closest('[data-action]')
-      ?.getAttribute('data-action');
-    if (action && eventType === 'click') {
-      const inputElement = element.querySelector('.input-native');
+  /**
+   * Handle selection events
+   * @param {HTMLElement} inputElement - The input element
+   */
+  function handleSelection(inputElement) {
+    if (
+      inputElement.selectionStart !== undefined &&
+      inputElement.selectionEnd !== undefined
+    ) {
+      selectionStart = inputElement.selectionStart;
+      selectionEnd = inputElement.selectionEnd;
 
-      switch (action) {
-        case 'clear':
-          setValue('');
-          inputElement.focus();
-          break;
-
-        case 'toggle-password':
-          state.isPasswordVisible = !state.isPasswordVisible;
-          component.update({ isPasswordVisible: state.isPasswordVisible });
-          inputElement.focus();
-          break;
-
-        case 'increment': {
-          if (state.disabled || state.readonly) return;
-
-          const numValue = parseFloat(getValue()) || 0;
-          const step = parseFloat(inputElement.step) || 1;
-          const max = inputElement.max
-            ? parseFloat(inputElement.max)
-            : Infinity;
-
-          setValue(Math.min(numValue + step, max).toString());
-          inputElement.focus();
-          break;
-        }
-
-        case 'decrement': {
-          if (state.disabled || state.readonly) return;
-
-          const numValue = parseFloat(getValue()) || 0;
-          const step = parseFloat(inputElement.step) || 1;
-          const min = inputElement.min
-            ? parseFloat(inputElement.min)
-            : -Infinity;
-
-          setValue(Math.max(numValue - step, min).toString());
-          inputElement.focus();
-          break;
-        }
+      // For password fields we don't show selection visually, but still track it
+      if (state.type !== 'password') {
+        updateValueDisplay();
       }
     }
+  }
+
+  /**
+   * Increment the input value
+   * @param {HTMLElement} inputElement - The input element
+   */
+  function incrementValue(inputElement) {
+    const numValue = parseFloat(getValue()) || 0;
+    const step = parseFloat(inputElement.step) || 1;
+    const max = inputElement.hasAttribute('max')
+      ? parseFloat(inputElement.getAttribute('max'))
+      : Infinity;
+
+    setValue(Math.min(numValue + step, max).toString());
+    inputElement.focus();
+  }
+
+  /**
+   * Decrement the input value
+   * @param {HTMLElement} inputElement - The input element
+   */
+  function decrementValue(inputElement) {
+    const numValue = parseFloat(getValue()) || 0;
+    const step = parseFloat(inputElement.step) || 1;
+    const min = inputElement.hasAttribute('min')
+      ? parseFloat(inputElement.getAttribute('min'))
+      : -Infinity;
+
+    setValue(Math.max(numValue - step, min).toString());
+    inputElement.focus();
   }
 
   /**
@@ -309,21 +429,17 @@ const createInput = (props) => {
    * @param {KeyboardEvent} event - Keyboard event
    */
   function handleKeydown(event) {
-    // Remove the unused inputElement variable
+    const inputElement = element.querySelector('.input-native');
+    if (!inputElement) return;
+
     switch (state.type) {
       case 'number':
         if (event.key === 'ArrowUp') {
           event.preventDefault();
-          const incrementBtn = element.querySelector(
-            '.input-custom__increment'
-          );
-          if (incrementBtn) incrementBtn.click();
+          incrementValue(inputElement);
         } else if (event.key === 'ArrowDown') {
           event.preventDefault();
-          const decrementBtn = element.querySelector(
-            '.input-custom__decrement'
-          );
-          if (decrementBtn) decrementBtn.click();
+          decrementValue(inputElement);
         }
         break;
 
@@ -343,16 +459,60 @@ const createInput = (props) => {
     const valueDisplay = element.querySelector('.input-custom__value');
     const customInput = element.querySelector('.input-custom');
 
-    // Update text and classes
-    valueDisplay.textContent = state.value;
-    valueDisplay.classList.toggle(
-      'input-custom__value--has-value',
-      !!state.value
-    );
+    if (!valueDisplay || !customInput) return;
+
+    // Ensure value is always a string, never undefined
+    const value = state.value || '';
+
+    // Handle password masking
+    if (state.type === 'password') {
+      valueDisplay.textContent = state.isPasswordVisible
+        ? value
+        : '•'.repeat(value.length);
+    } else {
+      // For non-password fields, display the text with selection highlighting if needed
+      if (
+        selectionStart !== selectionEnd &&
+        document.activeElement === element.querySelector('.input-native')
+      ) {
+        // Clear the display
+        valueDisplay.innerHTML = '';
+
+        // If there's a selection, we need to create three parts:
+        // 1. Text before selection
+        if (selectionStart > 0) {
+          const beforeSpan = document.createElement('span');
+          beforeSpan.textContent = value.substring(0, selectionStart);
+          valueDisplay.appendChild(beforeSpan);
+        }
+
+        // 2. Selected text
+        const selectionSpan = document.createElement('span');
+        selectionSpan.className = 'input-custom__selection';
+        selectionSpan.textContent = value.substring(
+          selectionStart,
+          selectionEnd
+        );
+        valueDisplay.appendChild(selectionSpan);
+
+        // 3. Text after selection
+        if (selectionEnd < value.length) {
+          const afterSpan = document.createElement('span');
+          afterSpan.textContent = value.substring(selectionEnd);
+          valueDisplay.appendChild(afterSpan);
+        }
+      } else {
+        // No selection, just display the text
+        valueDisplay.textContent = value;
+      }
+    }
+
+    // Toggle has-value class based on whether there's content
+    valueDisplay.classList.toggle('input-custom__value--has-value', !!value);
 
     // Update search button visibility
     if (state.type === 'search') {
-      customInput.classList.toggle('input-custom--has-value', !!state.value);
+      customInput.classList.toggle('input-custom--has-value', !!value);
     }
   }
 
@@ -361,7 +521,7 @@ const createInput = (props) => {
    * @returns {string} Current value
    */
   function getValue() {
-    return state.value;
+    return state.value || '';
   }
 
   /**
@@ -373,7 +533,9 @@ const createInput = (props) => {
     state.value = newValue;
 
     const inputElement = element.querySelector('.input-native');
-    inputElement.value = newValue;
+    if (inputElement) {
+      inputElement.value = newValue;
+    }
 
     updateValueDisplay();
 
@@ -393,6 +555,8 @@ const createInput = (props) => {
     const customElement = element.querySelector('.input-custom');
     const messageElement = element.querySelector('.input-validation-message');
 
+    if (!inputElement || !customElement || !messageElement) return false;
+
     // Use the abstracted validation utility
     const isValid = validateInput(inputElement, {
       container: element,
@@ -405,13 +569,20 @@ const createInput = (props) => {
     return isValid;
   }
 
-  // Set up delegated event listeners
+  // Set up delegated event listeners for input events
   element.addEventListener('input', handleEvents);
   element.addEventListener('change', handleEvents);
   element.addEventListener('focus', handleEvents, true); // Use capture for focus/blur
   element.addEventListener('blur', handleEvents, true);
   element.addEventListener('keydown', handleEvents);
   element.addEventListener('click', handleEvents);
+
+  // Add dedicated click handler for control buttons
+  element.addEventListener('click', handleControlClick);
+
+  // Additional listeners for selection tracking
+  element.addEventListener('select', handleEvents);
+  element.addEventListener('keyup', handleEvents);
 
   // Public API
   const api = {
@@ -451,14 +622,14 @@ const createInput = (props) => {
       // Update state
       state = { ...state, ...newProps };
 
-      // Update component
+      // For full updates, we'll use the component update
       component.update(state);
 
       // Handle special update cases that need DOM mutation
       const inputElement = element.querySelector('.input-native');
 
       // Update value if changed
-      if (newProps.value !== undefined) {
+      if (newProps.value !== undefined && inputElement) {
         inputElement.value = newProps.value;
         updateValueDisplay();
       }
@@ -468,19 +639,12 @@ const createInput = (props) => {
         newProps.isPasswordVisible !== undefined &&
         state.type === 'password'
       ) {
-        inputElement.type = newProps.isPasswordVisible ? 'text' : 'password';
-
-        const toggleButton = element.querySelector('.input-custom__toggle');
-        if (toggleButton) {
-          toggleButton.classList.toggle(
-            'input-custom__toggle--visible',
-            newProps.isPasswordVisible
-          );
-          toggleButton.setAttribute(
-            'aria-label',
-            newProps.isPasswordVisible ? 'Hide password' : 'Show password'
-          );
+        if (inputElement) {
+          inputElement.type = newProps.isPasswordVisible ? 'text' : 'password';
         }
+
+        updatePasswordToggleButton(newProps.isPasswordVisible);
+        updateValueDisplay();
       }
 
       return api;
@@ -509,6 +673,9 @@ const createInput = (props) => {
       element.removeEventListener('blur', handleEvents, true);
       element.removeEventListener('keydown', handleEvents);
       element.removeEventListener('click', handleEvents);
+      element.removeEventListener('click', handleControlClick);
+      element.removeEventListener('select', handleEvents);
+      element.removeEventListener('keyup', handleEvents);
 
       // Call base component's destroy
       component.destroy();

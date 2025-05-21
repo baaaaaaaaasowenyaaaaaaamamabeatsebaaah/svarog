@@ -21,8 +21,8 @@
 .input-native {
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
+  /* Reduce width to not cover controls on right side */
+  width: calc(100% - 30px);
   height: 100%;
   opacity: 0;
   z-index: 1;
@@ -273,6 +273,33 @@
 .input-custom__increment:hover::after,
 .input-custom__decrement:hover::before {
   background-color: var(--color-gray-700);
+}
+
+/* Make all interactive elements show pointer cursor */
+.input-custom__toggle,
+.input-custom__increment,
+.input-custom__decrement,
+.input-custom__clear {
+  cursor: pointer;
+}
+
+/* Selection highlighting styles */
+.input-custom__selection {
+  background-color: var(
+    --color-brand-secondary
+  ); /* Light blue selection color */
+  color: var(--color-white);
+  padding: var(--space-1) 0;
+}
+
+/* For dark mode compatibility */
+@media (prefers-color-scheme: dark) {
+  .input-custom__selection {
+    background-color: var(
+      --color-brand-secondary-light
+    ); /* Darker blue for dark mode */
+    color: var(--color-white);
+  }
 }
 
 /* Responsive adjustments */
