@@ -1,5 +1,4 @@
 // src/utils/baseComponent.js
-// Remove the createElement import since it's not used directly
 
 /**
  * Creates a base component with standard lifecycle
@@ -84,6 +83,20 @@ export const createBaseComponent = (renderFn) => {
             element.removeEventListener(event, handler);
           });
           element._listeners = {};
+        }
+
+        // FIXED: Allow child components to clean up their resources
+        if (element && element._components) {
+          Object.values(element._components).forEach((component) => {
+            if (component && typeof component.destroy === 'function') {
+              try {
+                component.destroy();
+              } catch (error) {
+                console.warn('Error destroying child component:', error);
+              }
+            }
+          });
+          element._components = {};
         }
 
         // Allow GC to reclaim element

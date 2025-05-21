@@ -76,6 +76,19 @@ const createPhoneRepairFormContainer = (options) => {
         callbacks.onPriceChange(newState.data.price);
       }
     }
+
+    // Update selection state
+    if (newState.selection.manufacturer !== prevState.selection.manufacturer) {
+      form.update({ selectedManufacturer: newState.selection.manufacturer });
+    }
+
+    if (newState.selection.device !== prevState.selection.device) {
+      form.update({ selectedDevice: newState.selection.device });
+    }
+
+    if (newState.selection.action !== prevState.selection.action) {
+      form.update({ selectedAction: newState.selection.action });
+    }
   }
 
   /**
@@ -157,7 +170,9 @@ const createPhoneRepairFormContainer = (options) => {
    */
   function handleManufacturerChange(manufacturerId) {
     formContainer.setSelection('manufacturer', manufacturerId);
-    loadDevices(manufacturerId);
+    if (manufacturerId) {
+      loadDevices(manufacturerId);
+    }
   }
 
   /**
@@ -166,7 +181,9 @@ const createPhoneRepairFormContainer = (options) => {
    */
   function handleDeviceChange(deviceId) {
     formContainer.setSelection('device', deviceId);
-    loadActions(deviceId);
+    if (deviceId) {
+      loadActions(deviceId);
+    }
   }
 
   /**
@@ -175,7 +192,9 @@ const createPhoneRepairFormContainer = (options) => {
    */
   function handleActionChange(actionId) {
     formContainer.setSelection('action', actionId);
-    loadPrice(actionId);
+    if (actionId) {
+      loadPrice(actionId);
+    }
   }
 
   /**

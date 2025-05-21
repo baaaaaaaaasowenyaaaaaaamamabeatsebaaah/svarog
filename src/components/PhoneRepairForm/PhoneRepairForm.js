@@ -13,14 +13,6 @@ import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 
 /**
- * Validates phone repair form specific props
- * @param {Object} props - PhoneRepairForm properties
- */
-const validatePhoneRepairFormProps = () => {
-  // No required props to validate beyond what's already checked in validateProps
-};
-
-/**
  * Creates the phone repair form DOM element
  * @param {Object} state - Component state
  * @returns {HTMLElement} - Phone repair form element
@@ -260,7 +252,6 @@ const formatPrice = (price) => {
 const createPhoneRepairForm = (props) => {
   // Validate props
   validateProps(props, createPhoneRepairForm.requiredProps);
-  validatePhoneRepairFormProps(props);
 
   // Set default labels and merge with provided labels
   const defaultLabels = createDefaultLabels();
@@ -343,11 +334,14 @@ const createPhoneRepairForm = (props) => {
       }
     }
 
-    // Only update if steps or activeIndex changed
-    if (
-      JSON.stringify(updatedSteps) !== JSON.stringify(state.steps) ||
-      activeIndex !== state.activeStepIndex
-    ) {
+    // Check if steps or activeIndex changed using more efficient comparison
+    const stepsChanged = updatedSteps.some(
+      (step, index) =>
+        step.completed !== state.steps[index]?.completed ||
+        step.name !== state.steps[index]?.name
+    );
+
+    if (stepsChanged || activeIndex !== state.activeStepIndex) {
       state.steps = updatedSteps;
       state.activeStepIndex = activeIndex;
     }
@@ -366,7 +360,7 @@ const createPhoneRepairForm = (props) => {
    * Define the shouldRerender method to control when full re-renders happen
    */
   phoneRepairForm.shouldRerender = (newProps) => {
-    // These props require a full re-render
+    // These props require a full re-render if they've actually changed
     return [
       'manufacturers',
       'devices',
@@ -376,14 +370,21 @@ const createPhoneRepairForm = (props) => {
       'selectedAction',
       'steps',
       'className',
-    ].some((prop) => newProps[prop] !== undefined);
+    ].some(
+      (prop) => newProps[prop] !== undefined && newProps[prop] !== state[prop]
+    );
   };
 
   /**
    * Define the partialUpdate method for more efficient updates
    */
   phoneRepairForm.partialUpdate = (element, newProps) => {
-    if (!element || !element._components) return;
+    if (!element || !element._components) {
+      console.debug(
+        'PhoneRepairForm: Cannot perform partial update, invalid element'
+      );
+      return;
+    }
 
     const components = element._components;
 
