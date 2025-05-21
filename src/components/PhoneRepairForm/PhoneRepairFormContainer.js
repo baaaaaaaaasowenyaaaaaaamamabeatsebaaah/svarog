@@ -1,5 +1,4 @@
-// src/components/PhoneRepairForm/PhoneRepairFormContainer.js - New file
-
+// src/components/PhoneRepairForm/PhoneRepairFormContainer.js
 import FormContainer from '../../utils/FormContainer.js';
 import PhoneRepairForm from './PhoneRepairForm.js';
 
@@ -7,47 +6,38 @@ import PhoneRepairForm from './PhoneRepairForm.js';
  * Container component for PhoneRepairForm
  * Handles state management and API interactions
  */
-export default class PhoneRepairFormContainer {
-  /**
-   * Create a new PhoneRepairFormContainer
-   * @param {Object} options - Container options
-   * @param {Object} options.service - PhoneRepairService instance
-   * @param {Function} [options.onPriceChange] - Callback for price changes
-   */
-  constructor(options) {
-    const {
-      service,
-      onPriceChange,
-      onScheduleClick,
-      usedPhoneUrl,
-      labels = {},
-      className = '',
-    } = options;
+const createPhoneRepairFormContainer = (options) => {
+  const {
+    service,
+    onPriceChange,
+    onScheduleClick,
+    usedPhoneUrl,
+    labels = {},
+    className = '',
+  } = options;
 
-    // Create state container
-    this.formContainer = new FormContainer(
-      service,
-      this.handleStateChange.bind(this)
-    );
+  // Create state container
+  const formContainer = new FormContainer(service, handleStateChange);
 
-    // Create presentational component
-    this.form = new PhoneRepairForm({
-      labels,
-      className,
-      usedPhoneUrl,
-      onManufacturerChange: this.handleManufacturerChange.bind(this),
-      onDeviceChange: this.handleDeviceChange.bind(this),
-      onActionChange: this.handleActionChange.bind(this),
-      onScheduleClick: this.handleScheduleClick.bind(this),
-    });
+  // Create presentational component
+  const form = PhoneRepairForm({
+    labels,
+    className,
+    usedPhoneUrl,
+    onManufacturerChange: handleManufacturerChange,
+    onDeviceChange: handleDeviceChange,
+    onActionChange: handleActionChange,
+    onScheduleClick: handleScheduleClick,
+  });
 
-    // Store callbacks
-    this.onPriceChange = onPriceChange;
-    this.onScheduleClick = onScheduleClick;
+  // Store callbacks
+  const callbacks = {
+    onPriceChange,
+    onScheduleClick,
+  };
 
-    // Load initial data
-    this.loadManufacturers();
-  }
+  // Load initial data
+  loadManufacturers();
 
   /**
    * Handle state changes and update form
@@ -55,35 +45,35 @@ export default class PhoneRepairFormContainer {
    * @param {Object} prevState - Previous state
    * @private
    */
-  handleStateChange(newState, prevState) {
+  function handleStateChange(newState, prevState) {
     // Update form loading state
-    this.form.setLoading(newState.loading);
+    form.setLoading(newState.loading);
 
     // Update form error state
-    this.form.setErrors(newState.error);
+    form.setErrors(newState.error);
 
     // Update manufacturers if they changed
     if (newState.data.manufacturers !== prevState.data.manufacturers) {
-      this.form.setManufacturers(newState.data.manufacturers || []);
+      form.setManufacturers(newState.data.manufacturers || []);
     }
 
     // Update devices if they changed
     if (newState.data.devices !== prevState.data.devices) {
-      this.form.setDevices(newState.data.devices || []);
+      form.setDevices(newState.data.devices || []);
     }
 
     // Update actions if they changed
     if (newState.data.actions !== prevState.data.actions) {
-      this.form.setActions(newState.data.actions || []);
+      form.setActions(newState.data.actions || []);
     }
 
     // Update price if it changed
     if (newState.data.price !== prevState.data.price) {
-      this.form.setPrice(newState.data.price);
+      form.setPrice(newState.data.price);
 
       // Call external callback if provided
-      if (this.onPriceChange && newState.data.price) {
-        this.onPriceChange(newState.data.price);
+      if (callbacks.onPriceChange && newState.data.price) {
+        callbacks.onPriceChange(newState.data.price);
       }
     }
   }
@@ -92,10 +82,10 @@ export default class PhoneRepairFormContainer {
    * Load manufacturers from API
    * @private
    */
-  async loadManufacturers() {
+  async function loadManufacturers() {
     try {
-      await this.formContainer.fetchResource('manufacturers', () =>
-        this.formContainer.service.fetchManufacturers()
+      await formContainer.fetchResource('manufacturers', () =>
+        formContainer.service.fetchManufacturers()
       );
     } catch (error) {
       console.error('Error loading manufacturers:', error);
@@ -107,17 +97,17 @@ export default class PhoneRepairFormContainer {
    * @param {string} manufacturerId - Manufacturer ID
    * @private
    */
-  async loadDevices(manufacturerId) {
+  async function loadDevices(manufacturerId) {
     // Clear dependent selections
-    this.formContainer.setSelection('device', '');
-    this.formContainer.setSelection('action', '');
-    this.formContainer.setData('devices', []);
-    this.formContainer.setData('actions', []);
-    this.formContainer.setData('price', null);
+    formContainer.setSelection('device', '');
+    formContainer.setSelection('action', '');
+    formContainer.setData('devices', []);
+    formContainer.setData('actions', []);
+    formContainer.setData('price', null);
 
     try {
-      await this.formContainer.fetchResource('devices', () =>
-        this.formContainer.service.fetchDevices(manufacturerId)
+      await formContainer.fetchResource('devices', () =>
+        formContainer.service.fetchDevices(manufacturerId)
       );
     } catch (error) {
       console.error('Error loading devices:', error);
@@ -129,15 +119,15 @@ export default class PhoneRepairFormContainer {
    * @param {string} deviceId - Device ID
    * @private
    */
-  async loadActions(deviceId) {
+  async function loadActions(deviceId) {
     // Clear dependent selections
-    this.formContainer.setSelection('action', '');
-    this.formContainer.setData('actions', []);
-    this.formContainer.setData('price', null);
+    formContainer.setSelection('action', '');
+    formContainer.setData('actions', []);
+    formContainer.setData('price', null);
 
     try {
-      await this.formContainer.fetchResource('actions', () =>
-        this.formContainer.service.fetchActions(deviceId)
+      await formContainer.fetchResource('actions', () =>
+        formContainer.service.fetchActions(deviceId)
       );
     } catch (error) {
       console.error('Error loading actions:', error);
@@ -149,12 +139,12 @@ export default class PhoneRepairFormContainer {
    * @param {string} actionId - Action ID
    * @private
    */
-  async loadPrice(actionId) {
-    this.formContainer.setData('price', null);
+  async function loadPrice(actionId) {
+    formContainer.setData('price', null);
 
     try {
-      await this.formContainer.fetchResource('price', () =>
-        this.formContainer.service.fetchPrice(actionId)
+      await formContainer.fetchResource('price', () =>
+        formContainer.service.fetchPrice(actionId)
       );
     } catch (error) {
       console.error('Error loading price:', error);
@@ -165,44 +155,58 @@ export default class PhoneRepairFormContainer {
    * Handle manufacturer selection change
    * @param {string} manufacturerId - Selected manufacturer ID
    */
-  handleManufacturerChange(manufacturerId) {
-    this.formContainer.setSelection('manufacturer', manufacturerId);
-    this.loadDevices(manufacturerId);
+  function handleManufacturerChange(manufacturerId) {
+    formContainer.setSelection('manufacturer', manufacturerId);
+    loadDevices(manufacturerId);
   }
 
   /**
    * Handle device selection change
    * @param {string} deviceId - Selected device ID
    */
-  handleDeviceChange(deviceId) {
-    this.formContainer.setSelection('device', deviceId);
-    this.loadActions(deviceId);
+  function handleDeviceChange(deviceId) {
+    formContainer.setSelection('device', deviceId);
+    loadActions(deviceId);
   }
 
   /**
    * Handle action selection change
    * @param {string} actionId - Selected action ID
    */
-  handleActionChange(actionId) {
-    this.formContainer.setSelection('action', actionId);
-    this.loadPrice(actionId);
+  function handleActionChange(actionId) {
+    formContainer.setSelection('action', actionId);
+    loadPrice(actionId);
   }
 
   /**
    * Handle schedule button click
    * @param {Object} formData - Form data
    */
-  handleScheduleClick(formData) {
-    if (this.onScheduleClick) {
-      this.onScheduleClick(formData);
+  function handleScheduleClick(formData) {
+    if (callbacks.onScheduleClick) {
+      callbacks.onScheduleClick(formData);
     }
   }
 
-  /**
-   * Get the form element
-   * @returns {HTMLElement} Form element
-   */
-  getElement() {
-    return this.form.getElement();
-  }
-}
+  // Public API
+  return {
+    /**
+     * Get the form element
+     * @returns {HTMLElement} Form element
+     */
+    getElement() {
+      return form.getElement();
+    },
+
+    /**
+     * Destroy the container and form
+     */
+    destroy() {
+      if (form && typeof form.destroy === 'function') {
+        form.destroy();
+      }
+    },
+  };
+};
+
+export default createPhoneRepairFormContainer;

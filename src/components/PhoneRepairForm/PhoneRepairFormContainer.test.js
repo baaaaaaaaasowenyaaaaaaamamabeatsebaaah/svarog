@@ -26,7 +26,7 @@ describe('PhoneRepairFormContainer', () => {
   });
 
   it('should create a container with form element', () => {
-    const container = new PhoneRepairFormContainer({
+    const container = PhoneRepairFormContainer({
       service: mockService,
     });
 
@@ -37,7 +37,7 @@ describe('PhoneRepairFormContainer', () => {
 
   it('should load manufacturers on initialization', async () => {
     // Create the container
-    new PhoneRepairFormContainer({
+    PhoneRepairFormContainer({
       service: mockService,
     });
 
@@ -45,42 +45,63 @@ describe('PhoneRepairFormContainer', () => {
     expect(mockService.fetchManufacturers).toHaveBeenCalled();
   });
 
-  it('should load devices when manufacturer is selected', async () => {
-    // Create the container
-    const container = new PhoneRepairFormContainer({
+  it('should handle manufacturer selection and load devices', async () => {
+    // Create a spy for the fetchDevices method
+    vi.spyOn(mockService, 'fetchDevices');
+
+    // Create container and get the form element
+    const container = PhoneRepairFormContainer({
       service: mockService,
     });
 
-    // Call the manufacturer change handler
-    await container.handleManufacturerChange('1');
+    const element = container.getElement();
 
-    // Verify that fetchDevices was called with the right parameter
+    // Find manufacturer select and simulate a change
+    const manufacturerSelect = element.querySelector('#manufacturer');
+    manufacturerSelect.value = '1';
+    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Verify fetchDevices was called with the right parameter
     expect(mockService.fetchDevices).toHaveBeenCalledWith('1');
   });
 
-  it('should load actions when device is selected', async () => {
-    // Create the container
-    const container = new PhoneRepairFormContainer({
+  it('should handle device selection and load actions', async () => {
+    // Create a spy for the fetchActions method
+    vi.spyOn(mockService, 'fetchActions');
+
+    // Create container and get the form element
+    const container = PhoneRepairFormContainer({
       service: mockService,
     });
 
-    // Call the device change handler
-    await container.handleDeviceChange('2');
+    const element = container.getElement();
 
-    // Verify that fetchActions was called with the right parameter
+    // Find device select and simulate a change
+    const deviceSelect = element.querySelector('#device');
+    deviceSelect.value = '2';
+    deviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Verify fetchActions was called with the right parameter
     expect(mockService.fetchActions).toHaveBeenCalledWith('2');
   });
 
-  it('should load price when action is selected', async () => {
-    // Create the container
-    const container = new PhoneRepairFormContainer({
+  it('should handle action selection and load price', async () => {
+    // Create a spy for the fetchPrice method
+    vi.spyOn(mockService, 'fetchPrice');
+
+    // Create container and get the form element
+    const container = PhoneRepairFormContainer({
       service: mockService,
     });
 
-    // Call the action change handler
-    await container.handleActionChange('3');
+    const element = container.getElement();
 
-    // Verify that fetchPrice was called with the right parameter
+    // Find action select and simulate a change
+    const actionSelect = element.querySelector('#action');
+    actionSelect.value = '3';
+    actionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Verify fetchPrice was called with the right parameter
     expect(mockService.fetchPrice).toHaveBeenCalledWith('3');
   });
 
@@ -96,23 +117,23 @@ describe('PhoneRepairFormContainer', () => {
     };
 
     // Create the container
-    const container = new PhoneRepairFormContainer({
+    const container = PhoneRepairFormContainer({
       service: errorService,
     });
 
-    // Spy on the form's setErrors method
-    const setErrorsSpy = vi.spyOn(container.form, 'setErrors');
+    // Get the form element
+    const element = container.getElement();
 
-    // Call the manufacturer change handler which will trigger device loading
-    await container.handleManufacturerChange('1');
+    // Find manufacturer select and simulate a change to trigger device loading
+    const manufacturerSelect = element.querySelector('#manufacturer');
+    manufacturerSelect.value = '1';
+    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // Verify that setErrors was called at least once
-    expect(setErrorsSpy).toHaveBeenCalled();
-
-    // Verify that the error object matches the actual implementation structure
-    const firstCallArg = setErrorsSpy.mock.calls[0][0];
-    expect(firstCallArg).toHaveProperty('manufacturers');
-    expect(firstCallArg.manufacturers).toBeNull();
+    // Wait for the promise to resolve/reject
+    await vi.waitFor(() => {
+      // Error state should be visible in the form
+      expect(element.classList.contains('phone-repair-form--error')).toBe(true);
+    });
   });
 
   it('should handle submission when form is submitted', async () => {
@@ -120,100 +141,113 @@ describe('PhoneRepairFormContainer', () => {
     const onSubmitSpy = vi.fn();
 
     // Create the container
-    const container = new PhoneRepairFormContainer({
+    const container = PhoneRepairFormContainer({
       service: mockService,
       onScheduleClick: onSubmitSpy,
     });
 
-    // Create form data
-    const formData = {
-      manufacturer: { id: '1', name: 'Apple' },
-      device: { id: '2', name: 'iPhone 13' },
-      service: { id: '3', name: 'Display Repair' },
-      price: { price: 299 },
-      timestamp: expect.any(String),
-    };
+    // Get the form element
+    const element = container.getElement();
 
-    // Call the handleScheduleClick method directly
-    container.handleScheduleClick(formData);
+    // Setup form with all required selections
+    // First select manufacturer
+    const manufacturerSelect = element.querySelector('#manufacturer');
+    manufacturerSelect.value = '1';
+    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // Verify that the callback was called with the form data
-    expect(onSubmitSpy).toHaveBeenCalledWith(formData);
+    // Wait for devices to load and select a device
+    await vi.waitFor(() => {
+      const deviceSelect = element.querySelector('#device');
+      deviceSelect.value = '2';
+      deviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Wait for actions to load and select an action
+    await vi.waitFor(() => {
+      const actionSelect = element.querySelector('#action');
+      actionSelect.value = '3';
+      actionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Wait for price to load and button to be enabled
+    await vi.waitFor(() => {
+      const button = element.querySelector('.btn');
+      expect(button.disabled).toBe(false);
+
+      // Click the button
+      button.click();
+    });
+
+    // Verify that the callback was called
+    expect(onSubmitSpy).toHaveBeenCalled();
+
+    // Verify the structure of the data
+    const submittedData = onSubmitSpy.mock.calls[0][0];
+    expect(submittedData).toHaveProperty('manufacturer');
+    expect(submittedData).toHaveProperty('device');
+    expect(submittedData).toHaveProperty('service');
+    expect(submittedData).toHaveProperty('price');
   });
 
-  it('should update price callback when price changes', async () => {
+  it('should call onPriceChange callback when price changes', async () => {
     // Create a callback spy
     const onPriceChangeSpy = vi.fn();
 
     // Create the container
-    const container = new PhoneRepairFormContainer({
+    const container = PhoneRepairFormContainer({
       service: mockService,
       onPriceChange: onPriceChangeSpy,
     });
 
-    // Set the form container data to include price
-    const newState = {
-      data: { price: { price: 299 } },
-      loading: {},
-      error: {},
-    };
-    const prevState = {
-      data: {},
-      loading: {},
-      error: {},
-    };
+    // Get the form element
+    const element = container.getElement();
 
-    // Call handleStateChange directly
-    container.handleStateChange(newState, prevState);
+    // Setup form with all required selections to trigger price load
+    // First select manufacturer
+    const manufacturerSelect = element.querySelector('#manufacturer');
+    manufacturerSelect.value = '1';
+    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // Verify that the callback was called with the price data
-    expect(onPriceChangeSpy).toHaveBeenCalledWith({ price: 299 });
+    // Wait for devices to load and select a device
+    await vi.waitFor(() => {
+      const deviceSelect = element.querySelector('#device');
+      deviceSelect.value = '2';
+      deviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Wait for actions to load and select an action
+    await vi.waitFor(() => {
+      const actionSelect = element.querySelector('#action');
+      actionSelect.value = '3';
+      actionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Wait for price to load
+    await vi.waitFor(() => {
+      // Verify that the callback was called with price data
+      expect(onPriceChangeSpy).toHaveBeenCalled();
+      expect(onPriceChangeSpy.mock.calls[0][0]).toHaveProperty('price');
+    });
   });
 
-  it('should update presentational component when state changes', async () => {
-    // Create the container
-    const container = new PhoneRepairFormContainer({
+  it('should clean up resources when destroyed', () => {
+    // Create container
+    const container = PhoneRepairFormContainer({
       service: mockService,
     });
 
-    // Spy on the form's methods
-    const setLoadingSpy = vi.spyOn(container.form, 'setLoading');
-    const setManufacturersSpy = vi.spyOn(container.form, 'setManufacturers');
-    const setDevicesSpy = vi.spyOn(container.form, 'setDevices');
-    const setActionsSpy = vi.spyOn(container.form, 'setActions');
-    const setPriceSpy = vi.spyOn(container.form, 'setPrice');
+    // Mock the form's destroy method
+    const element = container.getElement();
+    const originalRemove = element.remove;
+    element.remove = vi.fn();
 
-    // Create new state with all data elements
-    const newState = {
-      data: {
-        manufacturers: mockPhoneRepairData.manufacturers,
-        devices: mockPhoneRepairData.manufacturers[0].devices,
-        actions: mockPhoneRepairData.manufacturers[0].devices[0].actions,
-        price: { price: 299 },
-      },
-      loading: { manufacturers: false },
-      error: {},
-    };
-    const prevState = {
-      data: {},
-      loading: {},
-      error: {},
-    };
+    // Call destroy
+    container.destroy();
 
-    // Call handleStateChange directly
-    container.handleStateChange(newState, prevState);
+    // Verify element was cleaned up
+    expect(element.remove).toHaveBeenCalled();
 
-    // Verify that all form update methods were called
-    expect(setLoadingSpy).toHaveBeenCalled();
-    expect(setManufacturersSpy).toHaveBeenCalledWith(
-      mockPhoneRepairData.manufacturers
-    );
-    expect(setDevicesSpy).toHaveBeenCalledWith(
-      mockPhoneRepairData.manufacturers[0].devices
-    );
-    expect(setActionsSpy).toHaveBeenCalledWith(
-      mockPhoneRepairData.manufacturers[0].devices[0].actions
-    );
-    expect(setPriceSpy).toHaveBeenCalledWith({ price: 299 });
+    // Restore original method
+    element.remove = originalRemove;
   });
 });

@@ -1,572 +1,596 @@
-// src/components/PhoneRepairForm/PhoneRepairForm.js - Simplified version
-
+// src/components/PhoneRepairForm/PhoneRepairForm.js
 import './PhoneRepairForm.css';
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createElement,
+  validateProps,
+  createComponent,
+} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { withThemeAwareness } from '../../utils/composition.js';
+import Button from '../Button/Button.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
-import Button from '../Button/Button.js';
 
 /**
- * PhoneRepairForm component for selecting phone repair options and viewing prices
- * This is a presentational component with no API calls or state management
- * @extends Component
+ * Validates phone repair form specific props
+ * @param {Object} props - PhoneRepairForm properties
  */
-export default class PhoneRepairForm extends Component {
-  /**
-   * Creates a new PhoneRepairForm instance
-   *
-   * @param {Object} props - PhoneRepairForm properties
-   * @param {Function} [props.onManufacturerChange] - Callback when manufacturer changes
-   * @param {Function} [props.onDeviceChange] - Callback when device changes
-   * @param {Function} [props.onActionChange] - Callback when action changes
-   * @param {Function} [props.onScheduleClick] - Callback when schedule button is clicked
-   * @param {Object} [props.labels={}] - Custom labels for form elements
-   * @param {string} [props.className=''] - Additional CSS class names
-   */
-  constructor({
-    onManufacturerChange,
-    onDeviceChange,
-    onActionChange,
-    onScheduleClick,
-    usedPhoneUrl = '#',
-    labels = {},
-    className = '',
-  }) {
-    super();
+const validatePhoneRepairFormProps = () => {
+  // No required props to validate beyond what's already checked in validateProps
+};
 
-    // Set default labels
-    this.labels = {
-      manufacturerStep: 'Hersteller',
-      deviceStep: 'Modell',
-      serviceStep: 'Service',
-      manufacturerPlaceholder: 'Hersteller auswählen',
-      devicePlaceholder: 'Zuerst Hersteller auswählen',
-      servicePlaceholder: 'Zuerst Modell auswählen',
-      initialPriceText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
-      loadingPriceText: 'Preis wird geladen...',
-      priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
-      usedPhoneText: 'Zu teuer? Finde hier ein günstiges Gebrauchtes!',
-      scheduleButtonText: 'Jetzt Termin vereinbaren',
-      ...labels,
-    };
+/**
+ * Creates the phone repair form DOM element
+ * @param {Object} state - Component state
+ * @returns {HTMLElement} - Phone repair form element
+ */
+const renderPhoneRepairForm = (state) => {
+  // Build CSS class list
+  const classNames = [
+    'phone-repair-form',
+    state.className,
+    state.isLoading ? 'phone-repair-form--loading' : '',
+    state.hasError ? 'phone-repair-form--error' : '',
+  ].filter(Boolean);
 
-    // Store callbacks
-    this.callbacks = {
-      onManufacturerChange,
-      onDeviceChange,
-      onActionChange,
-      onScheduleClick,
-    };
+  // Create the main form element
+  const form = createElement('form', {
+    classes: classNames,
+    events: {
+      submit: (e) => e.preventDefault(),
+    },
+  });
 
-    // Store props
-    this.props = {
-      usedPhoneUrl,
-      className,
-    };
+  // Track child components for easy access in updates
+  const components = {};
 
-    // UI state (visual state only, not including data)
-    this.state = {
-      loading: {},
-      error: {},
-      manufacturers: [],
-      devices: [],
-      actions: [],
-      selectedManufacturer: '',
-      selectedDevice: '',
-      selectedAction: '',
-      currentPrice: null,
-    };
-
-    // Create form element
-    this.form = this.createFormElement();
+  // Add steps indicator if we have steps
+  if (Array.isArray(state.steps) && state.steps.length > 0) {
+    components.stepsIndicator = StepsIndicator({
+      steps: state.steps,
+      activeIndex: state.activeStepIndex,
+    });
+    form.appendChild(components.stepsIndicator.getElement());
   }
 
-  /**
-   * Creates the form element with all components
-   * @private
-   * @returns {HTMLElement} The form element
-   */
-  createFormElement() {
-    // Build class names
-    const classNames = this.createClassNames(
-      'phone-repair-form',
-      this.props.className,
-      {
-        'phone-repair-form--loading': this.isAnyLoading(),
-        'phone-repair-form--error': this.hasAnyError(),
+  // Create manufacturer select
+  components.manufacturerSelect = Select({
+    id: 'manufacturer',
+    name: 'manufacturer',
+    placeholder: state.labels.manufacturerPlaceholder,
+    options: state.manufacturers.map((m) => ({
+      value: m.id.toString(),
+      label: m.name,
+    })),
+    value: state.selectedManufacturer,
+    onChange: (event, value) => {
+      if (typeof state.onManufacturerChange === 'function') {
+        state.onManufacturerChange(value);
       }
-    );
+    },
+  });
+  form.appendChild(components.manufacturerSelect.getElement());
 
-    // Create the main form element
-    const form = this.createElement('form', {
-      className: classNames,
-      events: {
-        submit: (e) => e.preventDefault(),
-      },
-    });
+  // Create device select
+  components.deviceSelect = Select({
+    id: 'device',
+    name: 'device',
+    placeholder: state.labels.devicePlaceholder,
+    options: state.devices.map((d) => ({
+      value: d.id.toString(),
+      label: d.name,
+    })),
+    value: state.selectedDevice,
+    disabled: state.devices.length === 0,
+    onChange: (event, value) => {
+      if (typeof state.onDeviceChange === 'function') {
+        state.onDeviceChange(value);
+      }
+    },
+  });
+  form.appendChild(components.deviceSelect.getElement());
 
-    // Add step indicator
-    this.stepsIndicator = new StepsIndicator({
-      steps: [
-        { name: this.labels.manufacturerStep, completed: false },
-        { name: this.labels.deviceStep, completed: false },
-        { name: this.labels.serviceStep, completed: false },
-      ],
-      activeIndex: 0,
-    });
-    form.appendChild(this.stepsIndicator.getElement());
+  // Create action select
+  components.actionSelect = Select({
+    id: 'action',
+    name: 'action',
+    placeholder: state.labels.servicePlaceholder,
+    options: state.actions.map((a) => ({
+      value: a.id.toString(),
+      label: a.name,
+    })),
+    value: state.selectedAction,
+    disabled: state.actions.length === 0,
+    onChange: (event, value) => {
+      if (typeof state.onActionChange === 'function') {
+        state.onActionChange(value);
+      }
+    },
+  });
+  form.appendChild(components.actionSelect.getElement());
 
-    // Create manufacturer select
-    this.manufacturerSelect = new Select({
-      id: 'manufacturer',
-      name: 'manufacturer',
-      placeholder: this.labels.manufacturerPlaceholder,
-      onChange: (event, value) => this.handleManufacturerChange(value),
-    });
-    form.appendChild(this.manufacturerSelect.getElement());
+  // Add price display
+  components.priceDisplay = PriceDisplay({
+    label: state.labels.priceLabel,
+    value: state.priceDisplayText,
+    isPlaceholder: !state.currentPrice,
+    isLoading: state.loading.price || false,
+    isError: state.error.price || false,
+  });
+  form.appendChild(components.priceDisplay.getElement());
 
-    // Create device select
-    this.deviceSelect = new Select({
-      id: 'device',
-      name: 'device',
-      placeholder: this.labels.devicePlaceholder,
-      disabled: true,
-      onChange: (event, value) => this.handleDeviceChange(value),
-    });
-    form.appendChild(this.deviceSelect.getElement());
+  // Create actions container
+  const actionsContainer = createElement('div', {
+    classes: 'phone-repair-form__actions',
+  });
 
-    // Create action select
-    this.actionSelect = new Select({
-      id: 'action',
-      name: 'action',
-      placeholder: this.labels.servicePlaceholder,
-      disabled: true,
-      onChange: (event, value) => this.handleActionChange(value),
-    });
-    form.appendChild(this.actionSelect.getElement());
+  // Create link to used phones
+  const usedPhoneLink = createElement('a', {
+    classes: 'phone-repair-form__link',
+    text: state.labels.usedPhoneText,
+    attributes: {
+      href: state.usedPhoneUrl,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    },
+  });
+  actionsContainer.appendChild(usedPhoneLink);
 
-    // Add price display
-    this.priceDisplay = new PriceDisplay({
-      label: this.labels.priceLabel,
-      value: this.labels.initialPriceText,
-      isPlaceholder: true,
-    });
-    form.appendChild(this.priceDisplay.getElement());
+  // Create schedule button
+  components.scheduleButton = Button({
+    text: state.labels.scheduleButtonText,
+    onClick: () => {
+      if (typeof state.onScheduleClick === 'function') {
+        const repairInfo = {
+          manufacturer: {
+            id: state.selectedManufacturer,
+            name: getSelectedName(
+              state.manufacturers,
+              state.selectedManufacturer
+            ),
+          },
+          device: {
+            id: state.selectedDevice,
+            name: getSelectedName(state.devices, state.selectedDevice),
+          },
+          service: {
+            id: state.selectedAction,
+            name: getSelectedName(state.actions, state.selectedAction),
+          },
+          price: state.currentPrice,
+          timestamp: new Date().toISOString(),
+        };
 
-    // Create actions container
-    const actionsContainer = this.createElement('div', {
-      className: 'phone-repair-form__actions',
-    });
+        state.onScheduleClick(repairInfo);
+      }
+    },
+    disabled: !canSchedule(state),
+  });
+  actionsContainer.appendChild(components.scheduleButton.getElement());
 
-    // Create link to used phones
-    const usedPhoneLink = this.createElement('a', {
-      className: 'phone-repair-form__link',
-      textContent: this.labels.usedPhoneText,
-      attributes: {
-        href: this.props.usedPhoneUrl,
-        target: '_blank',
-        rel: 'noopener noreferrer',
-      },
-    });
-    actionsContainer.appendChild(usedPhoneLink);
+  // Add actions container to form
+  form.appendChild(actionsContainer);
 
-    // Create schedule button
-    this.scheduleButton = new Button({
-      text: this.labels.scheduleButtonText,
-      onClick: () => this.handleScheduleClick(),
-      disabled: !this.canSchedule(),
-    });
-    actionsContainer.appendChild(this.scheduleButton.getElement());
+  // Store components for easier access in updates
+  form._components = components;
 
-    // Add actions container to form
-    form.appendChild(actionsContainer);
+  return form;
+};
 
-    return form;
+/**
+ * Helper function to get selected item name
+ * @private
+ * @param {Array} items - Array of items
+ * @param {string} selectedId - Selected ID
+ * @returns {string} Name of the selected item
+ */
+const getSelectedName = (items, selectedId) => {
+  const item = items.find((i) => i.id.toString() === selectedId);
+  return item ? item.name : '';
+};
+
+/**
+ * Check if scheduling is possible (all selections made)
+ * @private
+ * @param {Object} state - Component state
+ * @returns {boolean} Whether all selections are made
+ */
+const canSchedule = (state) => {
+  return (
+    !!state.selectedManufacturer &&
+    !!state.selectedDevice &&
+    !!state.selectedAction &&
+    !!state.currentPrice
+  );
+};
+
+/**
+ * Create default labels object with all required text
+ * @private
+ * @returns {Object} Default labels
+ */
+const createDefaultLabels = () => {
+  return {
+    manufacturerStep: 'Hersteller',
+    deviceStep: 'Modell',
+    serviceStep: 'Service',
+    manufacturerPlaceholder: 'Hersteller auswählen',
+    devicePlaceholder: 'Zuerst Hersteller auswählen',
+    servicePlaceholder: 'Zuerst Modell auswählen',
+    initialPriceText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
+    loadingPriceText: 'Preis wird geladen...',
+    priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
+    usedPhoneText: 'Zu teuer? Finde hier ein günstiges Gebrauchtes!',
+    scheduleButtonText: 'Jetzt Termin vereinbaren',
+  };
+};
+
+/**
+ * Format price for display
+ * @private
+ * @param {number} price - Price in cents or as a decimal
+ * @returns {string} Formatted price
+ */
+const formatPrice = (price) => {
+  // Check if price is valid
+  if (price === undefined || price === null) {
+    return 'Preis nicht verfügbar';
   }
+
+  // Determine if price is in cents or euros
+  let priceInEuros = price;
+  if (price > 1000) {
+    // Assuming price is in cents if it's a large number
+    priceInEuros = price / 100;
+  }
+
+  // Format price with euro sign
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(priceInEuros);
+};
+
+/**
+ * Create a PhoneRepairForm component
+ * @param {Object} props - PhoneRepairForm properties
+ * @returns {Object} PhoneRepairForm component API
+ */
+const createPhoneRepairForm = (props) => {
+  // Validate props
+  validateProps(props, createPhoneRepairForm.requiredProps);
+  validatePhoneRepairFormProps(props);
+
+  // Set default labels and merge with provided labels
+  const defaultLabels = createDefaultLabels();
+  const labels = { ...defaultLabels, ...(props.labels || {}) };
+
+  // Initial state
+  const initialState = {
+    manufacturers: props.manufacturers || [],
+    devices: props.devices || [],
+    actions: props.actions || [],
+    selectedManufacturer: props.selectedManufacturer || '',
+    selectedDevice: props.selectedDevice || '',
+    selectedAction: props.selectedAction || '',
+    currentPrice: props.currentPrice || null,
+    priceDisplayText: props.currentPrice
+      ? formatPrice(props.currentPrice.price)
+      : labels.initialPriceText,
+    loading: props.loading || {},
+    error: props.error || {},
+    steps: [
+      { name: labels.manufacturerStep, completed: false },
+      { name: labels.deviceStep, completed: false },
+      { name: labels.serviceStep, completed: false },
+    ],
+    activeStepIndex: 0,
+    labels,
+    className: props.className || '',
+    usedPhoneUrl: props.usedPhoneUrl || '#',
+    onManufacturerChange: props.onManufacturerChange,
+    onDeviceChange: props.onDeviceChange,
+    onActionChange: props.onActionChange,
+    onScheduleClick: props.onScheduleClick,
+    isLoading: Object.values(props.loading || {}).some(Boolean),
+    hasError: Object.values(props.error || {}).some(Boolean),
+  };
+
+  // Update active step based on selections
+  if (initialState.selectedManufacturer) {
+    initialState.steps[0].completed = true;
+    initialState.activeStepIndex = 1;
+
+    if (initialState.selectedDevice) {
+      initialState.steps[1].completed = true;
+      initialState.activeStepIndex = 2;
+
+      if (initialState.selectedAction) {
+        initialState.steps[2].completed = true;
+      }
+    }
+  }
+
+  // Create base component
+  const phoneRepairForm = createBaseComponent(renderPhoneRepairForm)(
+    initialState
+  );
+
+  // Track component state
+  let state = { ...initialState };
+
+  // Add state update method
+  phoneRepairForm.setState = function (newState) {
+    // Update state
+    state = { ...state, ...newState };
+
+    // Update active step and completion state based on selections
+    const updatedSteps = [...state.steps];
+    let activeIndex = 0;
+
+    if (state.selectedManufacturer) {
+      updatedSteps[0].completed = true;
+      activeIndex = 1;
+
+      if (state.selectedDevice) {
+        updatedSteps[1].completed = true;
+        activeIndex = 2;
+
+        if (state.selectedAction) {
+          updatedSteps[2].completed = true;
+        }
+      }
+    }
+
+    // Only update if steps or activeIndex changed
+    if (
+      JSON.stringify(updatedSteps) !== JSON.stringify(state.steps) ||
+      activeIndex !== state.activeStepIndex
+    ) {
+      state.steps = updatedSteps;
+      state.activeStepIndex = activeIndex;
+    }
+
+    // Update loading and error flags
+    state.isLoading = Object.values(state.loading || {}).some(Boolean);
+    state.hasError = Object.values(state.error || {}).some(Boolean);
+
+    // Update component with new state
+    this.update(state);
+
+    return this;
+  };
+
+  /**
+   * Define the shouldRerender method to control when full re-renders happen
+   */
+  phoneRepairForm.shouldRerender = (newProps) => {
+    // These props require a full re-render
+    return [
+      'manufacturers',
+      'devices',
+      'actions',
+      'selectedManufacturer',
+      'selectedDevice',
+      'selectedAction',
+      'steps',
+      'className',
+    ].some((prop) => newProps[prop] !== undefined);
+  };
+
+  /**
+   * Define the partialUpdate method for more efficient updates
+   */
+  phoneRepairForm.partialUpdate = (element, newProps) => {
+    if (!element || !element._components) return;
+
+    const components = element._components;
+
+    // Update price display if price changed
+    if (
+      newProps.currentPrice !== undefined ||
+      newProps.priceDisplayText !== undefined
+    ) {
+      if (components.priceDisplay) {
+        const displayText =
+          newProps.priceDisplayText ||
+          (newProps.currentPrice
+            ? formatPrice(newProps.currentPrice.price)
+            : state.priceDisplayText);
+
+        components.priceDisplay.setValue(
+          displayText,
+          !!newProps.currentPrice,
+          !newProps.currentPrice
+        );
+      }
+    }
+
+    // Update price display loading state
+    if (newProps.loading && components.priceDisplay) {
+      components.priceDisplay.setLoading(newProps.loading.price || false);
+    }
+
+    // Update price display error state
+    if (newProps.error && components.priceDisplay) {
+      if (newProps.error.price) {
+        components.priceDisplay.setError(newProps.error.price);
+      } else {
+        // Clear error if the error was resolved
+        if (state.error && state.error.price) {
+          components.priceDisplay.setValue(
+            state.priceDisplayText,
+            !!state.currentPrice,
+            !state.currentPrice
+          );
+        }
+      }
+    }
+
+    // Update steps indicator if steps or activeIndex changed
+    if (
+      (newProps.steps || newProps.activeStepIndex !== undefined) &&
+      components.stepsIndicator
+    ) {
+      components.stepsIndicator.update({
+        steps: newProps.steps || state.steps,
+        activeIndex:
+          newProps.activeStepIndex !== undefined
+            ? newProps.activeStepIndex
+            : state.activeStepIndex,
+      });
+    }
+
+    // Update schedule button state
+    if (
+      newProps.selectedManufacturer !== undefined ||
+      newProps.selectedDevice !== undefined ||
+      newProps.selectedAction !== undefined ||
+      newProps.currentPrice !== undefined
+    ) {
+      if (components.scheduleButton) {
+        const canScheduleNow = canSchedule({
+          ...state,
+          ...newProps,
+        });
+        components.scheduleButton.setDisabled(!canScheduleNow);
+      }
+    }
+
+    // Update form styling classes
+    if (newProps.isLoading !== undefined) {
+      element.classList.toggle(
+        'phone-repair-form--loading',
+        newProps.isLoading
+      );
+    }
+
+    if (newProps.hasError !== undefined) {
+      element.classList.toggle('phone-repair-form--error', newProps.hasError);
+    }
+  };
+
+  // Add convenience methods to match the previous API
 
   /**
    * Set form loading state
    * @param {Object} loading - Loading state object
+   * @returns {Object} Component instance for chaining
    */
-  setLoading(loading) {
-    this.state.loading = loading;
-    this.updateFormState();
-
-    // Update price display loading state
-    if (loading.price) {
-      this.priceDisplay.setValue(this.labels.loadingPriceText);
-      this.priceDisplay.setLoading(true);
-    }
-  }
+  phoneRepairForm.setLoading = function (loading) {
+    return this.setState({
+      loading,
+      isLoading: Object.values(loading).some(Boolean),
+    });
+  };
 
   /**
    * Set form error state
    * @param {Object} error - Error state object
+   * @returns {Object} Component instance for chaining
    */
-  setErrors(error) {
-    this.state.error = error;
-    this.updateFormState();
-
+  phoneRepairForm.setErrors = function (error) {
     // Update price display error state if needed
-    if (error.price) {
-      this.priceDisplay.setError(error.price);
+    const element = this.getElement();
+    if (element && element._components && element._components.priceDisplay) {
+      const priceDisplay = element._components.priceDisplay;
+
+      if (error.price) {
+        // Set error state on price display
+        priceDisplay.setError(error.price);
+      } else if (error.devices) {
+        // Set error for device loading
+        priceDisplay.setError(
+          state.labels.deviceLoadError || 'Error loading devices'
+        );
+      } else if (error.actions) {
+        // Set error for action loading
+        priceDisplay.setError(
+          state.labels.actionLoadError || 'Error loading services'
+        );
+      } else if (
+        Object.keys(error).length === 0 &&
+        state.error &&
+        (state.error.price || state.error.devices || state.error.actions)
+      ) {
+        // Clear error state if errors were removed
+        priceDisplay.setValue(
+          state.priceDisplayText || state.labels.initialPriceText,
+          !!state.currentPrice,
+          !state.currentPrice
+        );
+      }
     }
-  }
+
+    return this.setState({
+      error,
+      hasError: Object.values(error).some(Boolean),
+    });
+  };
 
   /**
    * Set manufacturers data
    * @param {Array} manufacturers - Manufacturers array
+   * @returns {Object} Component instance for chaining
    */
-  setManufacturers(manufacturers) {
-    this.state.manufacturers = manufacturers;
-
-    // Update manufacturer select options
-    const options = manufacturers.map((m) => ({
-      value: m.id.toString(),
-      label: m.name,
-    }));
-
-    // Update select with options
-    this.manufacturerSelect.setValue('');
-    this.updateSelectOptions(this.manufacturerSelect, options);
-  }
+  phoneRepairForm.setManufacturers = function (manufacturers) {
+    return this.setState({ manufacturers });
+  };
 
   /**
    * Set devices data
    * @param {Array} devices - Devices array
+   * @returns {Object} Component instance for chaining
    */
-  setDevices(devices) {
-    this.state.devices = devices;
-
-    // Update device select options
-    const options = devices.map((d) => ({
-      value: d.id.toString(),
-      label: d.name,
-    }));
-
-    // Enable select and set options
-    this.deviceSelect.setValue('');
-    this.updateSelectOptions(this.deviceSelect, options);
-    this.deviceSelect.getElement().querySelector('select').disabled =
-      !devices.length;
-  }
+  phoneRepairForm.setDevices = function (devices) {
+    return this.setState({ devices });
+  };
 
   /**
    * Set actions data
    * @param {Array} actions - Actions array
+   * @returns {Object} Component instance for chaining
    */
-  setActions(actions) {
-    this.state.actions = actions;
-
-    // Update action select options
-    const options = actions.map((a) => ({
-      value: a.id.toString(),
-      label: a.name,
-    }));
-
-    // Enable select and set options
-    this.actionSelect.setValue('');
-    this.updateSelectOptions(this.actionSelect, options);
-    this.actionSelect.getElement().querySelector('select').disabled =
-      !actions.length;
-  }
+  phoneRepairForm.setActions = function (actions) {
+    return this.setState({ actions });
+  };
 
   /**
    * Set price data
    * @param {Object} price - Price data object
+   * @returns {Object} Component instance for chaining
    */
-  setPrice(price) {
-    this.state.currentPrice = price;
+  phoneRepairForm.setPrice = function (price) {
+    let priceDisplayText = state.labels.initialPriceText;
 
     if (price) {
-      // Format and display price
-      const formattedPrice = this.formatPrice(price.price);
-      this.priceDisplay.setValue(formattedPrice, true, false);
-    } else {
-      this.priceDisplay.setValue(this.labels.initialPriceText, false, true);
+      priceDisplayText = formatPrice(price.price);
     }
 
-    this.priceDisplay.setLoading(false);
-    this.updateScheduleButton();
-  }
+    return this.setState({
+      currentPrice: price,
+      priceDisplayText,
+    });
+  };
 
-  /**
-   * Format price for display
-   * @private
-   * @param {number} price - Price in cents or as a decimal
-   * @returns {string} Formatted price
-   */
-  formatPrice(price) {
-    // Check if price is valid
-    if (price === undefined || price === null) {
-      return 'Preis nicht verfügbar';
-    }
-
-    // Determine if price is in cents or euros
-    let priceInEuros = price;
-    if (price > 1000) {
-      // Assuming price is in cents if it's a large number
-      priceInEuros = price / 100;
-    }
-
-    // Format price with euro sign
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(priceInEuros);
-  }
-
-  /**
-   * Update select options
-   * @private
-   * @param {Object} selectComponent - Select component
-   * @param {Array} options - Options array with value and label properties
-   */
-  updateSelectOptions(selectComponent, options) {
-    // Update select component with new options
-    selectComponent.props.options = options;
-
-    // Re-render the select component
-    const selectElement = selectComponent.getElement();
-    const parentNode = selectElement.parentNode;
-
-    if (parentNode) {
-      // Create a new select component with updated options
-      const newSelect = new Select({
-        ...selectComponent.props,
-        options,
-        disabled: false, // Explicitly set disabled to false
-      });
-
-      // Replace the old select with the new one
-      parentNode.replaceChild(newSelect.getElement(), selectElement);
-
-      // Update the reference
-      if (selectComponent === this.manufacturerSelect) {
-        this.manufacturerSelect = newSelect;
-      } else if (selectComponent === this.deviceSelect) {
-        this.deviceSelect = newSelect;
-      } else if (selectComponent === this.actionSelect) {
-        this.actionSelect = newSelect;
-      }
-    }
-  }
-
-  /**
-   * Update component state
-   * @private
-   * @param {Object} newState - New state object to merge with current state
-   */
-  setState(newState) {
-    this.state = { ...this.state, ...newState };
-  }
-
-  /**
-   * Handle manufacturer selection change
-   * @private
-   * @param {string} manufacturerId - Selected manufacturer ID
-   */
-  handleManufacturerChange(manufacturerId) {
-    if (!manufacturerId) return;
-
-    this.setState({ selectedManufacturer: manufacturerId });
-    this.updateFormState();
-
-    // Call callback if provided
-    if (this.callbacks.onManufacturerChange) {
-      this.callbacks.onManufacturerChange(manufacturerId);
-    }
-  }
-
-  /**
-   * Handle device selection change
-   * @private
-   * @param {string} deviceId - Selected device ID
-   */
-  handleDeviceChange(deviceId) {
-    if (!deviceId) return;
-
-    this.setState({ selectedDevice: deviceId });
-    this.updateFormState();
-
-    // Call callback if provided
-    if (this.callbacks.onDeviceChange) {
-      this.callbacks.onDeviceChange(deviceId);
-    }
-  }
-
-  /**
-   * Handle action selection change
-   * @private
-   * @param {string} actionId - Selected action ID
-   */
-  handleActionChange(actionId) {
-    if (!actionId) return;
-
-    this.setState({ selectedAction: actionId });
-    this.updateFormState();
-
-    // Call callback if provided
-    if (this.callbacks.onActionChange) {
-      this.callbacks.onActionChange(actionId);
-    }
-  }
-
-  /**
-   * Check if scheduling is possible (all selections made)
-   * @private
-   * @returns {boolean} Whether all selections are made
-   */
-  canSchedule() {
-    return (
-      !!this.state.selectedManufacturer &&
-      !!this.state.selectedDevice &&
-      !!this.state.selectedAction &&
-      !!this.state.currentPrice
+  // Add theme change handler
+  phoneRepairForm.onThemeChange = (newTheme, previousTheme) => {
+    console.debug(
+      `PhoneRepairForm: theme changed from ${previousTheme} to ${newTheme}`
     );
-  }
+  };
 
-  /**
-   * Handle schedule button click
-   * @private
-   */
-  handleScheduleClick() {
-    // Build repair info object with all selections
-    const repairInfo = {
-      manufacturer: {
-        id: this.state.selectedManufacturer,
-        name: this.getSelectedManufacturerName(),
-      },
-      device: {
-        id: this.state.selectedDevice,
-        name: this.getSelectedDeviceName(),
-      },
-      service: {
-        id: this.state.selectedAction,
-        name: this.getSelectedActionName(),
-      },
-      price: this.state.currentPrice,
-      timestamp: new Date().toISOString(),
-    };
+  return phoneRepairForm;
+};
 
-    // Call onScheduleClick callback if provided
-    if (this.callbacks.onScheduleClick) {
-      this.callbacks.onScheduleClick(repairInfo);
-    }
-  }
+// Define required props for validation
+createPhoneRepairForm.requiredProps = [];
 
-  /**
-   * Get the name of the selected manufacturer
-   * @private
-   * @returns {string} Name of the selected manufacturer
-   */
-  getSelectedManufacturerName() {
-    const manufacturer = this.state.manufacturers.find(
-      (m) => m.id.toString() === this.state.selectedManufacturer
-    );
-    return manufacturer ? manufacturer.name : '';
-  }
+// Create the component with theme awareness
+const PhoneRepairForm = withThemeAwareness(
+  createComponent('PhoneRepairForm', createPhoneRepairForm)
+);
 
-  /**
-   * Get the name of the selected device
-   * @private
-   * @returns {string} Name of the selected device
-   */
-  getSelectedDeviceName() {
-    const device = this.state.devices.find(
-      (d) => d.id.toString() === this.state.selectedDevice
-    );
-    return device ? device.name : '';
-  }
-
-  /**
-   * Get the name of the selected action
-   * @private
-   * @returns {string} Name of the selected action
-   */
-  getSelectedActionName() {
-    const action = this.state.actions.find(
-      (a) => a.id.toString() === this.state.selectedAction
-    );
-    return action ? action.name : '';
-  }
-
-  /**
-   * Update the schedule button state
-   * @private
-   */
-  updateScheduleButton() {
-    if (this.scheduleButton) {
-      const canSchedule = this.canSchedule();
-      this.scheduleButton.setDisabled(!canSchedule);
-    }
-  }
-
-  /**
-   * Check if any state is loading
-   * @private
-   * @returns {boolean} Whether any state is loading
-   */
-  isAnyLoading() {
-    return Object.values(this.state.loading).some(Boolean);
-  }
-
-  /**
-   * Check if any state has error
-   * @private
-   * @returns {boolean} Whether any state has error
-   */
-  hasAnyError() {
-    return Object.values(this.state.error).some(Boolean);
-  }
-
-  /**
-   * Update form state based on selection changes
-   * @private
-   */
-  updateFormState() {
-    // Update loading/error classes
-    const formElement = this.getElement();
-    formElement.classList.toggle(
-      'phone-repair-form--loading',
-      this.isAnyLoading()
-    );
-    formElement.classList.toggle(
-      'phone-repair-form--error',
-      this.hasAnyError()
-    );
-
-    // Update steps indicator
-    const steps = [
-      {
-        name: this.labels.manufacturerStep,
-        completed: !!this.state.selectedManufacturer,
-      },
-      { name: this.labels.deviceStep, completed: !!this.state.selectedDevice },
-      {
-        name: this.labels.serviceStep,
-        completed: !!this.state.selectedAction,
-      },
-    ];
-
-    // Determine active step
-    let activeIndex = 0;
-    if (this.state.selectedManufacturer) activeIndex = 1;
-    if (this.state.selectedDevice) activeIndex = 2;
-
-    // Update steps indicator
-    this.stepsIndicator.update({ steps, activeIndex });
-
-    // Update schedule button state
-    this.updateScheduleButton();
-  }
-
-  /**
-   * Gets the form element
-   * @returns {HTMLElement} The form element
-   */
-  getElement() {
-    return this.form;
-  }
-}
+// Export as a factory function
+export default PhoneRepairForm;
