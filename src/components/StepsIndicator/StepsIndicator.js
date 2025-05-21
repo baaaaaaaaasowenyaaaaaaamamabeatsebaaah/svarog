@@ -8,30 +8,74 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 
-/**
- * Validates steps indicator props
- * @param {Object} props - StepsIndicator properties
- */
-const validateStepsIndicatorProps = (props) => {
-  // Check if steps is an array when it's provided
-  if (props.steps && !Array.isArray(props.steps)) {
-    throw new Error('StepsIndicator: steps must be an array');
+// Helper to determine section state
+function getSectionState(sectionIndex, steps, activeIndex) {
+  const totalSteps = steps.length;
+
+  // For section active state
+  let isActive = false;
+  if (totalSteps <= 3) {
+    // Direct mapping for 3 or fewer steps
+    isActive = sectionIndex <= activeIndex;
+  } else {
+    // Proportional mapping for more than 3 steps
+    const progressRatio = (activeIndex + 1) / totalSteps;
+    const sectionThreshold = (sectionIndex + 1) / 3;
+    isActive = progressRatio >= sectionThreshold;
   }
 
-  if (typeof props.activeIndex !== 'number') {
-    throw new Error('StepsIndicator: activeIndex must be a number');
+  // For section completed state
+  let isCompleted = false;
+  if (totalSteps <= 3) {
+    isCompleted = sectionIndex < activeIndex;
+  } else {
+    const progressRatio = activeIndex / totalSteps;
+    const sectionThreshold = sectionIndex / 3;
+    isCompleted = progressRatio > sectionThreshold;
   }
-};
 
-/**
- * Creates the steps indicator DOM structure
- * @param {Object} state - Component state
- * @returns {HTMLElement} - Steps indicator element
- */
-const renderStepsIndicator = (state) => {
+  // For section success state
+  let isSuccess = false;
+  if (totalSteps <= 3) {
+    // If we have exactly 3 steps, check direct mapping
+    if (sectionIndex < totalSteps) {
+      // Special case for last step
+      const step = steps[sectionIndex];
+      isSuccess =
+        step &&
+        step.completed === true &&
+        (sectionIndex !== activeIndex || sectionIndex === totalSteps - 1);
+    }
+  } else {
+    // For more steps, calculate which steps correspond to this section
+    const stepsPerSection = totalSteps / 3;
+    const startStep = Math.floor(sectionIndex * stepsPerSection);
+    const endStep = Math.floor((sectionIndex + 1) * stepsPerSection) - 1;
+
+    // Check if all steps in this section are completed
+    let allCompleted = true;
+    for (let i = startStep; i <= endStep && i < steps.length; i++) {
+      if (!steps[i] || steps[i].completed !== true) {
+        allCompleted = false;
+        break;
+      }
+    }
+
+    // If all steps in this section are completed, it's a success
+    isSuccess =
+      allCompleted &&
+      startStep <= activeIndex &&
+      (endStep >= activeIndex || activeIndex === totalSteps - 1);
+  }
+
+  return { isActive, isCompleted, isSuccess };
+}
+
+// Render function to create component DOM
+function renderStepsIndicator(state) {
   const { steps, activeIndex, className } = state;
 
-  // Main container with ARIA attributes for accessibility
+  // Main container with ARIA attributes
   const container = createElement('div', {
     classes: ['steps-indicator', className].filter(Boolean),
     attributes: {
@@ -40,47 +84,54 @@ const renderStepsIndicator = (state) => {
     },
   });
 
+  // Store state directly on element for easier access
+  container.state = { ...state };
+
   // Progress bar with exactly 3 sections
   const progressBar = createElement('div', {
     classes: 'steps-indicator__progress-bar',
     attributes: {
-      'aria-hidden': 'true', // Hide from screen readers as it's decorative
+      'aria-hidden': 'true',
     },
   });
 
-  // Create the three progress sections
-  const sections = 3;
-  for (let i = 0; i < sections; i++) {
-    const isActive = isSectionActive(i, activeIndex, steps.length);
-    const isCompleted = isSectionCompleted(i, activeIndex, steps.length);
-    const isSuccess = isSectionSuccess(i, activeIndex, steps);
+  // Create the three sections
+  for (let i = 0; i < 3; i++) {
+    const sectionState = getSectionState(i, steps, activeIndex);
+    const isActive = sectionState.isActive;
+    const isCompleted = sectionState.isCompleted;
+    const isSuccess = sectionState.isSuccess;
+
+    // Apply CSS classes based on section state
+    const classes = ['steps-indicator__section'];
+
+    // Apply success class with highest priority
+    if (isSuccess) {
+      classes.push('steps-indicator__section--success');
+    } else if (isCompleted) {
+      classes.push('steps-indicator__section--completed');
+    } else if (isActive) {
+      classes.push('steps-indicator__section--active');
+    }
 
     const section = createElement('div', {
-      classes: [
-        'steps-indicator__section',
-        isActive && !isCompleted && !isSuccess
-          ? 'steps-indicator__section--active'
-          : '',
-        isCompleted && !isSuccess ? 'steps-indicator__section--completed' : '',
-        isSuccess ? 'steps-indicator__section--success' : '',
-      ].filter(Boolean),
+      classes: classes,
     });
 
     progressBar.appendChild(section);
   }
 
-  // Step indicators
+  // Step indicators row
   const stepsRow = createElement('div', {
     classes: 'steps-indicator__steps',
-    attributes: {
-      role: 'list', // Semantic list for screen readers
-    },
+    attributes: { role: 'list' },
   });
 
-  // Create each step
+  // Create each step marker
   steps.forEach((step, index) => {
     const isActive = index === activeIndex;
-    const isCompleted = step.completed;
+    const isCompleted = step && step.completed === true;
+    const stepName = step && (step.name || `Step ${index + 1}`);
 
     const stepEl = createElement('div', {
       classes: [
@@ -89,13 +140,14 @@ const renderStepsIndicator = (state) => {
         isCompleted ? 'steps-indicator__step--completed' : '',
       ].filter(Boolean),
       attributes: {
-        role: 'listitem', // Semantic list item
-        'aria-current': isActive ? 'step' : null, // Mark current step
-        'aria-label': `Step ${index + 1}: ${step.name}${isCompleted ? ', completed' : ''}${isActive ? ', current step' : ''}`,
+        role: 'listitem',
+        'aria-current': isActive ? 'step' : null,
+        'aria-label': `Step ${index + 1}: ${stepName}${isCompleted ? ', completed' : ''}${isActive ? ', current step' : ''}`,
+        'data-step-index': index.toString(),
       },
     });
 
-    // Container for the number to ensure fixed positioning
+    // Number container for positioning
     const numberContainer = createElement('div', {
       classes: 'steps-indicator__number-container',
     });
@@ -104,15 +156,13 @@ const renderStepsIndicator = (state) => {
     const number = createElement('div', {
       classes: 'steps-indicator__number',
       text: (index + 1).toString(),
-      attributes: {
-        'aria-hidden': 'true', // Hide redundant number from screen readers
-      },
+      attributes: { 'aria-hidden': 'true' },
     });
 
     // Step label
     const label = createElement('div', {
       classes: 'steps-indicator__label',
-      text: step.name,
+      text: stepName,
     });
 
     numberContainer.appendChild(number);
@@ -126,169 +176,82 @@ const renderStepsIndicator = (state) => {
   container.appendChild(stepsRow);
 
   return container;
-};
+}
 
-/**
- * Determines if a progress section should be active
- * @private
- * @param {number} sectionIndex - Index of the section (0-2)
- * @param {number} activeStepIndex - Index of the active step
- * @param {number} totalSteps - Total number of steps
- * @returns {boolean} Whether the section should be active
- *
- * For 3 steps or fewer, each section maps directly to a step.
- * For more than 3 steps, progress is distributed proportionally
- * across the sections based on the ratio of active step to total steps.
- */
-const isSectionActive = (sectionIndex, activeStepIndex, totalSteps) => {
-  // For 3 steps, map directly (section 0 → step 0, section 1 → step 1, etc.)
-  if (totalSteps <= 3) {
-    return sectionIndex <= activeStepIndex;
+// Factory function to create the component
+function createStepsIndicator(props) {
+  // Validate required props with component name
+  validateProps(props, ['steps', 'activeIndex'], 'StepsIndicator');
+
+  // Validate numeric activeIndex
+  if (typeof props.activeIndex !== 'number') {
+    throw new Error('StepsIndicator: activeIndex must be a number');
   }
 
-  // For more than 3 steps, distribute progress proportionally
-  const progressRatio = (activeStepIndex + 1) / totalSteps;
-  const sectionThreshold = (sectionIndex + 1) / 3;
-
-  return progressRatio >= sectionThreshold;
-};
-
-/**
- * Determines if a progress section should be marked as completed
- * @private
- * @param {number} sectionIndex - Index of the section (0-2)
- * @param {number} activeStepIndex - Index of the active step
- * @param {number} totalSteps - Total number of steps
- * @returns {boolean} Whether the section should be completed
- *
- * For 3 steps or fewer, a section is completed if its corresponding
- * step index is less than the active step index.
- * For more than 3 steps, a section is completed based on progress ratio.
- */
-const isSectionCompleted = (sectionIndex, activeStepIndex, totalSteps) => {
-  // For 3 steps, map directly
-  if (totalSteps <= 3) {
-    return sectionIndex < activeStepIndex;
+  // Validate steps array
+  if (!Array.isArray(props.steps)) {
+    throw new Error('StepsIndicator: steps must be an array');
   }
 
-  // For more than 3 steps, distribute progress proportionally
-  const progressRatio = activeStepIndex / totalSteps;
-  const sectionThreshold = sectionIndex / 3;
+  // Validate empty steps array
+  if (props.steps.length === 0) {
+    throw new Error('StepsIndicator: steps array cannot be empty');
+  }
 
-  return progressRatio > sectionThreshold;
-};
-
-/**
- * Determines if a progress section should be marked as success
- * @private
- * @param {number} sectionIndex - Index of the section (0-2)
- * @param {number} activeStepIndex - Index of the active step
- * @param {Array} steps - The steps array
- * @returns {boolean} Whether the section should have success state
- *
- * A section is in a "success" state when all steps corresponding to that
- * section are completed, except for the active step which is currently in progress.
- * For 3 or fewer steps, each section corresponds to one step.
- * For more steps, each section corresponds to a range of steps.
- */
-const isSectionSuccess = (sectionIndex, activeStepIndex, steps) => {
-  // If we have 3 or fewer steps, check if this section's corresponding step is completed
-  if (steps.length <= 3) {
-    // If this exact section has a completed step and it's not the active one
-    return (
-      steps[sectionIndex] &&
-      steps[sectionIndex].completed &&
-      sectionIndex !== activeStepIndex
+  // Validate activeIndex within bounds
+  if (props.activeIndex < 0 || props.activeIndex >= props.steps.length) {
+    throw new Error(
+      'StepsIndicator: activeIndex must be within steps array bounds'
     );
   }
 
-  // For more steps, calculate which steps correspond to this section
-  const stepsPerSection = steps.length / 3;
-  const startStep = Math.floor(sectionIndex * stepsPerSection);
-  const endStep = Math.floor((sectionIndex + 1) * stepsPerSection) - 1;
-
-  // Check if all steps in this section are completed
-  let allCompleted = true;
-  for (let i = startStep; i <= endStep && i < steps.length; i++) {
-    // Skip the active step
-    if (i === activeStepIndex) continue;
-
-    if (!steps[i] || !steps[i].completed) {
-      allCompleted = false;
-      break;
-    }
-  }
-
-  return (
-    allCompleted && startStep <= activeStepIndex && endStep >= activeStepIndex
-  );
-};
-
-/**
- * Create a StepsIndicator component
- * @param {Object} props - StepsIndicator properties
- * @returns {Object} StepsIndicator component
- */
-const createStepsIndicator = (props) => {
-  // Validate required props
-  validateProps(props, createStepsIndicator.requiredProps);
-
-  // Validate component-specific props
-  validateStepsIndicatorProps(props);
-
-  // Initial state
-  const initialState = {
+  // Create base component with render function
+  const stepsIndicator = createBaseComponent(renderStepsIndicator)({
     steps: props.steps,
     activeIndex: props.activeIndex,
     className: props.className || '',
-  };
+    onStepChange: props.onStepChange, // Support for callback, but component doesn't trigger it
+  });
 
-  // Create the base component
-  const stepsIndicator =
-    createBaseComponent(renderStepsIndicator)(initialState);
-
-  // Define the shouldRerender method
-  stepsIndicator.shouldRerender = (newProps) => {
-    // These props require a full re-render
-    return ['steps', 'activeIndex', 'className'].some(
-      (prop) => newProps[prop] !== undefined
-    );
-  };
-
-  // Add theme change handler
-  stepsIndicator.onThemeChange = (newTheme, previousTheme) => {
-    // This could apply theme-specific adjustments if needed
-    console.debug(
-      `StepsIndicator: theme changed from ${previousTheme} to ${newTheme}`
-    );
-  };
-
-  /**
-   * Get a copy of the component's current state
-   * @returns {Object} Copy of current state
-   */
+  // Add component API methods
   stepsIndicator.getState = function () {
     return { ...this.getElement().state };
   };
 
-  /**
-   * Set the active step
-   * @param {number} index - Index of the step to set as active
-   * @returns {Object} Component instance for chaining
-   */
   stepsIndicator.setActiveStep = function (index) {
+    // Validate index within bounds
+    const currentState = this.getState();
+    const steps = currentState.steps || [];
+
+    if (index < 0 || index >= steps.length) {
+      throw new Error(
+        'StepsIndicator: activeIndex must be within steps array bounds'
+      );
+    }
+
+    // Call onStepChange callback if provided
+    if (
+      currentState.onStepChange &&
+      typeof currentState.onStepChange === 'function'
+    ) {
+      currentState.onStepChange(index);
+    }
+
     return this.update({ activeIndex: index });
   };
 
-  /**
-   * Mark a step as completed
-   * @param {number} index - Index of the step to mark as completed
-   * @returns {Object} Component instance for chaining
-   */
   stepsIndicator.completeStep = function (index) {
     const currentState = this.getState();
     const updatedSteps = [...currentState.steps];
 
+    // Validate index
+    if (index < 0 || index >= updatedSteps.length) {
+      throw new Error(
+        'StepsIndicator: index must be within steps array bounds'
+      );
+    }
+
+    // Ensure proper cloning and property setting
     if (updatedSteps[index]) {
       updatedSteps[index] = {
         ...updatedSteps[index],
@@ -300,10 +263,6 @@ const createStepsIndicator = (props) => {
     return this;
   };
 
-  /**
-   * Reset all steps to incomplete
-   * @returns {Object} Component instance for chaining
-   */
   stepsIndicator.resetSteps = function () {
     const currentState = this.getState();
     const updatedSteps = currentState.steps.map((step) => ({
@@ -311,22 +270,32 @@ const createStepsIndicator = (props) => {
       completed: false,
     }));
 
+    // Call onStepChange callback if provided since we're moving to step 0
+    if (
+      currentState.onStepChange &&
+      typeof currentState.onStepChange === 'function' &&
+      currentState.activeIndex !== 0
+    ) {
+      currentState.onStepChange(0);
+    }
+
     return this.update({
       steps: updatedSteps,
       activeIndex: 0,
     });
   };
 
-  return stepsIndicator;
-};
+  // Force full re-render on update
+  stepsIndicator.shouldRerender = function () {
+    return true;
+  };
 
-// Define required props for validation
-createStepsIndicator.requiredProps = ['steps', 'activeIndex'];
+  return stepsIndicator;
+}
 
 // Create the component with theme awareness
 const StepsIndicator = withThemeAwareness(
   createComponent('StepsIndicator', createStepsIndicator)
 );
 
-// Export as a factory function
 export default StepsIndicator;
