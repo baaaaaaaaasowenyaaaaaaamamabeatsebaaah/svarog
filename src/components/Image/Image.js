@@ -1,30 +1,24 @@
-/// src/components/Image/Image.js
+// src/components/Image/Image.js
 import './Image.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 
 /**
- * Creates an Image component
+ * Creates an Image component with lazy-loading, fallback support, and responsive options
  * @param {Object} props - Image properties
- * @param {string} props.src - Path to the image
+ * @param {string} props.src - Path to the image (required)
  * @param {string} [props.alt='Image'] - Alt text for the image
- * @param {string} [props.fallbackSrc=''] - Fallback image path if the primary image fails to load
- * @param {string} [props.className=''] - Additional CSS classes
- * @param {Function} [props.onClick=null] - Click event handler
+ * @param {string} [props.fallbackSrc] - Fallback image path if the primary image fails
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {Function} [props.onClick] - Click event handler
  * @param {boolean} [props.responsive=true] - Whether image should be responsive
  * @returns {Object} Image component API object
  */
 const createImage = (props) => {
-  // Validate props
   if (!props.src) {
     throw new Error('Image: src is required');
   }
 
-  /**
-   * Renders the image element based on current state
-   * @param {Object} state - Current component state
-   * @returns {HTMLElement} Image container element
-   */
   const renderImage = (state) => {
     // Create container with proper classes
     const containerClasses = [
@@ -33,33 +27,60 @@ const createImage = (props) => {
       state.className,
     ].filter(Boolean);
 
-    // Important change: Use 'classes' instead of 'className' for createElement
     const container = createElement('div', {
       classes: containerClasses,
-      events: {
-        click: state.onClick,
-      },
+      events: state.onClick ? { click: state.onClick } : {},
     });
 
     // Create and append the image element
     const img = createElement('img', {
+      classes: ['image-element'],
       attributes: {
         src: state.src,
         alt: state.alt,
+        loading: 'lazy',
       },
-      classes: ['image-element'],
     });
+
+    // Track error state to prevent infinite loops
+    let errorHandled = false;
 
     // Handle image loading errors
     img.onerror = () => {
+      // Prevent multiple error handling
+      if (errorHandled) return;
+      errorHandled = true;
+
       console.error(`Failed to load image from path: ${state.src}`);
 
-      // Try fallback if available
       if (state.fallbackSrc) {
+        // Set new error handler for fallback image
+        img.onerror = () => {
+          console.error(
+            `Failed to load fallback image from path: ${state.fallbackSrc}`
+          );
+          // Remove the error handler to prevent further attempts
+          img.onerror = null;
+          // Show error text as last resort
+          container.innerHTML = '';
+          container.appendChild(
+            createElement('span', {
+              classes: ['image-error'],
+              text: state.alt,
+            })
+          );
+        };
+
         img.src = state.fallbackSrc;
       } else {
-        // Create a text fallback if we can't load the image
-        container.innerHTML = `<span class="image-error">${state.alt}</span>`;
+        // Show error text immediately if no fallback
+        container.innerHTML = '';
+        container.appendChild(
+          createElement('span', {
+            classes: ['image-error'],
+            text: state.alt,
+          })
+        );
       }
     };
 
@@ -67,34 +88,27 @@ const createImage = (props) => {
     return container;
   };
 
-  // Create component using baseComponent with default props
-  const baseComponent = createBaseComponent(renderImage)({
+  // Initialize with default props
+  const defaultProps = {
     src: props.src,
     alt: props.alt || 'Image',
     fallbackSrc: props.fallbackSrc || '',
     className: props.className || '',
     onClick: props.onClick || null,
     responsive: props.responsive !== undefined ? props.responsive : true,
-  });
+  };
 
-  /**
-   * Determines if component needs to fully re-render based on prop changes
-   * @param {Object} newProps - New properties
-   * @returns {boolean} Whether a full re-render is required
-   */
+  // Create base component
+  const baseComponent = createBaseComponent(renderImage)(defaultProps);
+
+  // Determine if component needs full re-render based on props
   const shouldRerender = (newProps) => {
-    // Only rebuild if these props change
     const criticalProps = ['src', 'fallbackSrc', 'responsive'];
     return Object.keys(newProps).some((key) => criticalProps.includes(key));
   };
 
-  /**
-   * Perform partial update without full re-render
-   * @param {HTMLElement} element - Current element
-   * @param {Object} newProps - New properties
-   */
+  // Perform partial update for non-critical props
   const partialUpdate = (element, newProps) => {
-    // Update classes directly
     if (newProps.className !== undefined) {
       const classes = [
         'image-container',
@@ -109,60 +123,51 @@ const createImage = (props) => {
       element.className = classes;
     }
 
-    // Update alt text on image
     if (newProps.alt !== undefined) {
       const img = element.querySelector('img');
-      if (img) {
-        img.alt = newProps.alt;
-      }
+      if (img) img.alt = newProps.alt;
     }
 
-    // Update click handler
     if (newProps.onClick !== undefined) {
-      // Remove old listener if it exists
-      if (element._listeners && element._listeners.click) {
+      if (element._listeners?.click) {
         element.removeEventListener('click', element._listeners.click);
       }
 
-      // Add new listener if provided
       if (newProps.onClick) {
         element.addEventListener('click', newProps.onClick);
-        if (!element._listeners) element._listeners = {};
+        element._listeners = element._listeners || {};
         element._listeners.click = newProps.onClick;
       }
     }
   };
 
-  // Extended component with custom methods
-  const imageComponent = {
+  // Enhanced component API
+  return {
     ...baseComponent,
     shouldRerender,
     partialUpdate,
 
     /**
      * Set image source
-     * @param {string} newSrc - New src
-     * @returns {Object} Image component (for chaining)
+     * @param {string} src - New image source
+     * @returns {Object} Component for chaining
      */
-    setSrc(newSrc) {
-      return this.update({ src: newSrc });
+    setSrc(src) {
+      return this.update({ src });
     },
 
     /**
      * Set image alt text
-     * @param {string} newAlt - New alt text
-     * @returns {Object} Image component (for chaining)
+     * @param {string} alt - New alt text
+     * @returns {Object} Component for chaining
      */
-    setAlt(newAlt) {
-      return this.update({ alt: newAlt });
+    setAlt(alt) {
+      return this.update({ alt });
     },
   };
-
-  return imageComponent;
 };
 
-// Define required props for validation
+// Required props
 createImage.requiredProps = ['src'];
 
-// Export the factory function
 export default createImage;
