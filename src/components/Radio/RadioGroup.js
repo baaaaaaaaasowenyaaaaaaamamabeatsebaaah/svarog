@@ -14,7 +14,6 @@ import Radio from './Radio.js';
  * @returns {HTMLElement} The RadioGroup element
  */
 const createRadioGroupDOM = (props) => {
-  // Get default props
   const layout = props.layout || 'vertical';
   const className = props.className || '';
 
@@ -25,97 +24,36 @@ const createRadioGroupDOM = (props) => {
   container.setAttribute('name', props.name);
 
   // Set accessibility attributes
-  setRadioGroupAccessibilityAttributes(container, props);
+  container.setAttribute('role', 'radiogroup');
+  container.setAttribute('aria-labelledby', `legend-${props.name}`);
+  if (props.required) container.setAttribute('aria-required', 'true');
+  if (props.disabled) container.setAttribute('aria-disabled', 'true');
 
   // Add legend if provided
   if (props.legend) {
-    const legend = createLegendElement(props);
+    const legend = document.createElement('legend');
+    legend.className = 'radio-group__legend';
+    legend.textContent = props.legend;
+    legend.id = `legend-${props.name}`;
     container.appendChild(legend);
   }
 
   // Create options wrapper
-  const optionsWrapper = createOptionsWrapper(props);
+  const optionsWrapper = document.createElement('div');
+  optionsWrapper.className = `radio-group__options radio-group__options--${layout}`;
+  optionsWrapper.setAttribute('role', 'presentation');
 
   // Add keyboard navigation
-  setupKeyboardNavigation(optionsWrapper);
-
-  // Create and add radio options
-  const radioComponents = createRadioOptions(props, optionsWrapper);
-  container.appendChild(optionsWrapper);
-
-  // Create validation message element if needed
-  if (props.showValidation !== false) {
-    const messageElement = createValidationMessage(props);
-    container.appendChild(messageElement);
-    container._messageElement = messageElement;
-
-    // Link validation message to group for accessibility
-    container.setAttribute('aria-describedby', messageElement.id);
-  }
-
-  // Store references
-  container._radioComponents = radioComponents;
-
-  return container;
-};
-
-/**
- * Set accessibility attributes for the RadioGroup
- * @param {HTMLElement} container - The container element
- * @param {Object} props - Component properties
- */
-const setRadioGroupAccessibilityAttributes = (container, props) => {
-  container.setAttribute('role', 'radiogroup');
-  container.setAttribute('aria-labelledby', `legend-${props.name}`);
-
-  if (props.required) container.setAttribute('aria-required', 'true');
-  if (props.disabled) container.setAttribute('aria-disabled', 'true');
-};
-
-/**
- * Create the legend element
- * @param {Object} props - Component properties
- * @returns {HTMLLegendElement} The legend element
- */
-const createLegendElement = (props) => {
-  const legend = document.createElement('legend');
-  legend.className = 'radio-group__legend';
-  legend.textContent = props.legend;
-  legend.id = `legend-${props.name}`;
-  return legend;
-};
-
-/**
- * Create the options wrapper element
- * @param {Object} props - Component properties
- * @returns {HTMLDivElement} The options wrapper element
- */
-const createOptionsWrapper = (props) => {
-  const layout = props.layout || 'vertical';
-  const wrapper = document.createElement('div');
-  wrapper.className = `radio-group__options radio-group__options--${layout}`;
-  wrapper.setAttribute('role', 'presentation');
-  return wrapper;
-};
-
-/**
- * Set up keyboard navigation for the RadioGroup
- * @param {HTMLElement} optionsWrapper - The options wrapper element
- */
-const setupKeyboardNavigation = (optionsWrapper) => {
   optionsWrapper.addEventListener('keydown', (event) => {
-    // Find all radio buttons
     const radios = Array.from(
       optionsWrapper.querySelectorAll('input[type="radio"]')
     );
     const currentIndex = radios.findIndex(
       (radio) => radio === document.activeElement
     );
-
     if (currentIndex === -1) return;
 
     let nextIndex;
-
     switch (event.key) {
       case 'ArrowDown':
       case 'ArrowRight':
@@ -129,10 +67,55 @@ const setupKeyboardNavigation = (optionsWrapper) => {
         nextIndex = (currentIndex - 1 + radios.length) % radios.length;
         focusAndSelectRadio(radios[nextIndex]);
         break;
-      default:
-        break;
     }
   });
+
+  // Create and add radio options
+  const fragment = document.createDocumentFragment();
+  const radioComponents = [];
+  const isInTestEnv = isTestEnvironment();
+
+  props.options.forEach((option, index) => {
+    // In test environment, directly attach onChange to make testing easier
+    let onChangeHandler =
+      isInTestEnv && props.onChange
+        ? (event, value) => props.onChange(event, value)
+        : null;
+
+    const radio = Radio({
+      label: option.label,
+      value: option.value,
+      id: option.id || `${props.name}-${index}`,
+      name: props.name,
+      checked: option.value === props.value,
+      required: props.required && index === 0, // Only set required on first radio
+      disabled: props.disabled || option.disabled,
+      onChange: onChangeHandler,
+    });
+
+    fragment.appendChild(radio.getElement());
+    radioComponents.push(radio);
+  });
+
+  optionsWrapper.appendChild(fragment);
+  container.appendChild(optionsWrapper);
+
+  // Create validation message element if needed
+  if (props.showValidation !== false) {
+    const messageElement = document.createElement('div');
+    messageElement.className = 'radio-group__validation-message';
+    messageElement.textContent = '';
+    messageElement.setAttribute('aria-live', 'polite');
+    messageElement.id = `validation-${props.name}`;
+    container.appendChild(messageElement);
+    container._messageElement = messageElement;
+    container.setAttribute('aria-describedby', messageElement.id);
+  }
+
+  // Store references
+  container._radioComponents = radioComponents;
+  container._options = props.options; // Store option data for later reference
+  return container;
 };
 
 /**
@@ -146,125 +129,8 @@ const focusAndSelectRadio = (radio) => {
 };
 
 /**
- * Create the radio options
- * @param {Object} props - Component properties
- * @param {HTMLElement} optionsWrapper - The options wrapper element
- * @returns {Array} Array of radio component instances
- */
-const createRadioOptions = (props, optionsWrapper) => {
-  // For large numbers of options, use a DocumentFragment for better performance
-  const fragment = document.createDocumentFragment();
-  const radioComponents = [];
-
-  // Detect test environment
-  const isInTestEnv = isTestEnvironment();
-
-  // Create radio buttons for each option
-  props.options.forEach((option, index) => {
-    // In test environment, directly attach onChange to make testing easier
-    let onChangeHandler = null;
-
-    if (isInTestEnv && props.onChange) {
-      onChangeHandler = (event, value) => props.onChange(event, value);
-    }
-
-    const radio = Radio({
-      label: option.label,
-      value: option.value,
-      id: option.id || `${props.name}-${index}`,
-      name: props.name,
-      checked: option.value === props.value,
-      required: props.required && index === 0, // Only set required on first radio
-      disabled: props.disabled || option.disabled,
-      onChange: onChangeHandler,
-    });
-
-    // Add to fragment
-    fragment.appendChild(radio.getElement());
-
-    // Store reference
-    radioComponents.push(radio);
-  });
-
-  // Add all radios at once for better performance
-  optionsWrapper.appendChild(fragment);
-
-  return radioComponents;
-};
-
-/**
- * Create the validation message element
- * @param {Object} props - Component properties
- * @returns {HTMLDivElement} The validation message element
- */
-const createValidationMessage = (props) => {
-  const validationMessage = document.createElement('div');
-  validationMessage.className = 'radio-group__validation-message';
-  validationMessage.textContent = '';
-  validationMessage.setAttribute('aria-live', 'polite');
-  validationMessage.id = `validation-${props.name}`;
-  return validationMessage;
-};
-
-/**
- * Handle radio change with event delegation
- * @param {Event} event - The change event
- * @param {HTMLElement} target - The radio input that changed
- * @param {Object} component - The component instance
- * @param {Object} props - The component props
- */
-const handleRadioChange = (event, target, component, props) => {
-  // Skip if not a radio button
-  if (target.type !== 'radio') return;
-
-  // Get the selected value
-  const value = target.value;
-
-  // Update internal state
-  props.value = value;
-
-  // Update checked state of all radios
-  updateAriaAttributes(component);
-
-  // Validate if needed
-  if (props.showValidation !== false) {
-    component.validate();
-  }
-
-  // Call onChange callback if provided
-  if (typeof props.onChange === 'function') {
-    props.onChange(event, value);
-  }
-};
-
-/**
- * Update ARIA attributes for all radio buttons
- * @param {Object} component - The component instance
- */
-const updateAriaAttributes = (component) => {
-  const radioElements = component
-    .getElement()
-    .querySelectorAll('input[type="radio"]');
-
-  radioElements.forEach((radio) => {
-    radio.setAttribute('aria-checked', radio.checked ? 'true' : 'false');
-  });
-};
-
-/**
  * Creates a radio group component
  * @param {Object} props - RadioGroup properties
- * @param {Array<Object>} props.options - Radio options
- * @param {string} [props.name] - Group name
- * @param {string} [props.value] - Selected value
- * @param {string} [props.legend] - Group legend/title
- * @param {boolean} [props.required=false] - Whether a selection is required
- * @param {boolean} [props.disabled=false] - Whether the group is disabled
- * @param {string} [props.className=''] - Additional CSS class names
- * @param {Function} [props.onChange] - Change event handler
- * @param {string} [props.layout='vertical'] - Layout direction ('vertical' or 'horizontal')
- * @param {string} [props.validationMessage] - Custom validation message
- * @param {boolean} [props.showValidation=true] - Whether to show validation messages
  * @returns {Object} RadioGroup component API
  */
 const createRadioGroup = createBaseComponent((props) => {
@@ -309,7 +175,6 @@ const createRadioGroup = createBaseComponent((props) => {
     'RadioGroup'
   );
 
-  // Create the RadioGroup DOM
   return createRadioGroupDOM(props);
 });
 
@@ -329,56 +194,75 @@ const RadioGroupFactory = (props) => {
   const component = createRadioGroup(stateProps);
   const element = component.getElement();
 
-  // Handle event delegated changes
-  component.handleChange = (event, target) => {
+  // Create the validate method first since it will be called from handleChange
+  const validate = () => {
+    const endBenchmark = benchmark.start('validate');
+    const isValid = !stateProps.required || stateProps.value !== undefined;
+
+    if (isValid) {
+      element.classList.remove('radio-group--invalid');
+      element.classList.add('radio-group--valid');
+      element.setAttribute('aria-invalid', 'false');
+
+      // Clear validation message
+      if (element._messageElement) {
+        element._messageElement.textContent = '';
+      }
+    } else {
+      element.classList.add('radio-group--invalid');
+      element.classList.remove('radio-group--valid');
+      element.setAttribute('aria-invalid', 'true');
+
+      // Update validation message
+      if (element._messageElement) {
+        element._messageElement.textContent =
+          stateProps.validationMessage || 'Please select an option';
+      }
+    }
+
+    endBenchmark();
+    return isValid;
+  };
+
+  // Handle radio change event - uses module-scoped function to avoid scope issues
+  const handleChange = (event, target) => {
     const endBenchmark = benchmark.start('events');
 
-    // Use appropriate handler based on environment
+    // Skip if not a radio button
+    if (target.type !== 'radio') return;
+
+    // Update internal state
+    stateProps.value = target.value;
+
+    // Update checked state of all radios
+    const radioElements = element.querySelectorAll('input[type="radio"]');
+    radioElements.forEach((radio) => {
+      radio.setAttribute('aria-checked', radio.checked ? 'true' : 'false');
+    });
+
+    // Validate if needed
+    if (stateProps.showValidation !== false) {
+      validate();
+    }
+
+    // Call onChange callback if provided
+    if (typeof stateProps.onChange === 'function') {
+      stateProps.onChange(event, stateProps.value);
+    }
+
+    endBenchmark();
+  };
+
+  // Set up event handler that uses throttle for better performance
+  component.handleChange = (event, target) => {
     if (isTestEnvironment()) {
-      handleRadioChange(event, target, component, stateProps);
+      handleChange(event, target);
     } else {
-      // Use throttle for better performance in production
-      const throttledHandler = throttle((e, t) => {
-        handleRadioChange(e, t, component, stateProps);
-      }, 50);
-      throttledHandler(event, target);
+      throttle(handleChange, 50)(event, target);
     }
-
-    endBenchmark();
   };
 
-  // Add partial update implementation for efficient updates
-  component.shouldRerender = (newProps) => {
-    // Full rerender needed if structure changes significantly
-    return (
-      newProps.options !== stateProps.options ||
-      newProps.layout !== stateProps.layout ||
-      newProps.legend !== stateProps.legend ||
-      newProps.className !== stateProps.className ||
-      (newProps.showValidation !== stateProps.showValidation &&
-        newProps.showValidation !== undefined)
-    );
-  };
-
-  // Partial update implementation for performance
-  component.partialUpdate = (element, newProps) => {
-    const endBenchmark = benchmark.start('updates');
-
-    // Update disabled state
-    if (updateDisabledState(element, stateProps, newProps)) {
-      // Only proceed with other updates if disabled state changed
-      updateRequiredState(element, stateProps, newProps);
-      updateSelectedValue(element, stateProps, newProps);
-      updateValidationMessage(element, stateProps, newProps);
-    }
-
-    // Update props reference
-    Object.assign(stateProps, newProps);
-
-    endBenchmark();
-  };
-
-  // Add additional methods to the component API
+  // Enhanced component API
   return {
     ...component,
 
@@ -407,11 +291,14 @@ const RadioGroupFactory = (props) => {
       });
 
       // Update ARIA attributes
-      updateAriaAttributes(component);
+      const radioElements = element.querySelectorAll('input[type="radio"]');
+      radioElements.forEach((radio) => {
+        radio.setAttribute('aria-checked', radio.checked ? 'true' : 'false');
+      });
 
       // Validate if needed
       if (stateProps.showValidation !== false) {
-        this.validate();
+        validate();
       }
 
       endBenchmark();
@@ -422,42 +309,13 @@ const RadioGroupFactory = (props) => {
      * Validates the radio group
      * @returns {boolean} Whether the radio group is valid
      */
-    validate: function () {
-      const endBenchmark = benchmark.start('validate');
-
-      const isValid = !stateProps.required || stateProps.value !== undefined;
-
-      if (isValid) {
-        element.classList.remove('radio-group--invalid');
-        element.classList.add('radio-group--valid');
-        element.setAttribute('aria-invalid', 'false');
-
-        // Clear validation message
-        if (element._messageElement) {
-          element._messageElement.textContent = '';
-        }
-      } else {
-        element.classList.add('radio-group--invalid');
-        element.classList.remove('radio-group--valid');
-        element.setAttribute('aria-invalid', 'true');
-
-        // Update validation message
-        if (element._messageElement) {
-          element._messageElement.textContent =
-            stateProps.validationMessage || 'Please select an option';
-        }
-      }
-
-      endBenchmark();
-      return isValid;
-    },
+    validate,
 
     /**
      * Focuses the first or checked radio
      * @returns {Object} Component instance for chaining
      */
     focus: function () {
-      // Find the checked radio, or first radio if none checked
       const radios = element.querySelectorAll('input[type="radio"]');
       const checkedRadio =
         Array.from(radios).find((r) => r.checked) || radios[0];
@@ -473,103 +331,98 @@ const RadioGroupFactory = (props) => {
      * Get performance metrics
      * @returns {Object} Performance metrics
      */
-    getPerformanceMetrics: function () {
-      return benchmark.getSummary();
-    },
+    getPerformanceMetrics: () => benchmark.getSummary(),
 
     /**
      * Custom destroy method to clean up radio components
      */
     destroy: function () {
-      // Clean up all radio components
       if (element._radioComponents) {
         element._radioComponents.forEach((radio) => radio.destroy());
       }
-
-      // Call the original destroy method
       component.destroy();
     },
+
+    /**
+     * Custom update handler - avoids full rerender when possible
+     */
+    shouldRerender: (newProps) => {
+      return (
+        newProps.options !== stateProps.options ||
+        newProps.layout !== stateProps.layout ||
+        newProps.legend !== stateProps.legend ||
+        newProps.className !== stateProps.className ||
+        (newProps.showValidation !== stateProps.showValidation &&
+          newProps.showValidation !== undefined)
+      );
+    },
+
+    /**
+     * Partial update implementation - used when shouldRerender returns false
+     */
+    partialUpdate: function (element, newProps) {
+      const endBenchmark = benchmark.start('updates');
+
+      // Update disabled state
+      if (
+        newProps.disabled !== undefined &&
+        newProps.disabled !== stateProps.disabled
+      ) {
+        element.setAttribute(
+          'aria-disabled',
+          newProps.disabled ? 'true' : 'false'
+        );
+
+        // Update all child radios
+        element._radioComponents.forEach((radio, index) => {
+          const option = stateProps.options[index];
+          radio.update({
+            disabled: newProps.disabled || (option && option.disabled) || false,
+          });
+        });
+      }
+
+      // Update required state
+      if (
+        newProps.required !== undefined &&
+        newProps.required !== stateProps.required
+      ) {
+        element.setAttribute(
+          'aria-required',
+          newProps.required ? 'true' : 'false'
+        );
+
+        // Only set required on first radio
+        if (element._radioComponents.length > 0) {
+          element._radioComponents[0].update({ required: newProps.required });
+        }
+      }
+
+      // Update selected value
+      if (newProps.value !== undefined && newProps.value !== stateProps.value) {
+        element._radioComponents.forEach((radio) => {
+          radio.setChecked(radio.getValue() === newProps.value);
+        });
+      }
+
+      // Update validation message
+      if (
+        newProps.validationMessage !== undefined &&
+        element._messageElement &&
+        stateProps.validationMessage !== newProps.validationMessage
+      ) {
+        if (element.classList.contains('radio-group--invalid')) {
+          element._messageElement.textContent =
+            newProps.validationMessage || 'Please select an option';
+        }
+      }
+
+      // Update props reference
+      Object.assign(stateProps, newProps);
+
+      endBenchmark();
+    },
   };
-};
-
-/**
- * Update the disabled state of the RadioGroup
- * @param {HTMLElement} element - The RadioGroup element
- * @param {Object} stateProps - The current props
- * @param {Object} newProps - The new props
- * @returns {boolean} Whether the disabled state changed
- */
-const updateDisabledState = (element, stateProps, newProps) => {
-  if (
-    newProps.disabled !== undefined &&
-    newProps.disabled !== stateProps.disabled
-  ) {
-    element.setAttribute('aria-disabled', newProps.disabled ? 'true' : 'false');
-
-    // Update all child radios
-    element._radioComponents.forEach((radio) => {
-      radio.update({
-        disabled: newProps.disabled || radio.getValue().disabled || false,
-      });
-    });
-
-    return true;
-  }
-  return false;
-};
-
-/**
- * Update the required state of the RadioGroup
- * @param {HTMLElement} element - The RadioGroup element
- * @param {Object} stateProps - The current props
- * @param {Object} newProps - The new props
- */
-const updateRequiredState = (element, stateProps, newProps) => {
-  if (
-    newProps.required !== undefined &&
-    newProps.required !== stateProps.required
-  ) {
-    element.setAttribute('aria-required', newProps.required ? 'true' : 'false');
-
-    // Only set required on first radio
-    if (element._radioComponents.length > 0) {
-      element._radioComponents[0].update({ required: newProps.required });
-    }
-  }
-};
-
-/**
- * Update the selected value of the RadioGroup
- * @param {HTMLElement} element - The RadioGroup element
- * @param {Object} stateProps - The current props
- * @param {Object} newProps - The new props
- */
-const updateSelectedValue = (element, stateProps, newProps) => {
-  if (newProps.value !== undefined && newProps.value !== stateProps.value) {
-    element._radioComponents.forEach((radio) => {
-      radio.setChecked(radio.getValue() === newProps.value);
-    });
-  }
-};
-
-/**
- * Update the validation message of the RadioGroup
- * @param {HTMLElement} element - The RadioGroup element
- * @param {Object} stateProps - The current props
- * @param {Object} newProps - The new props
- */
-const updateValidationMessage = (element, stateProps, newProps) => {
-  if (
-    newProps.validationMessage !== undefined &&
-    element._messageElement &&
-    stateProps.validationMessage !== newProps.validationMessage
-  ) {
-    // Only update if validation is showing
-    if (element.classList.contains('radio-group--invalid')) {
-      element._messageElement.textContent =
-        newProps.validationMessage || 'Please select an option';
-    }
-  }
 };
 
 /**
