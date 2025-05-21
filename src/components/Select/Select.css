@@ -44,6 +44,7 @@
   outline: none;
   position: relative;
   box-sizing: border-box;
+  z-index: 1; /* Establish stacking context */
 }
 
 .select-custom:hover {
@@ -55,6 +56,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  pointer-events: none; /* Pass clicks through to parent */
 }
 
 .select-custom__selected--placeholder {
@@ -74,6 +76,7 @@
   transform: translateY(-75%) rotate(45deg);
   transform-origin: center;
   transition: var(--select-arrow-transition);
+  pointer-events: none; /* Pass clicks through to parent */
 }
 
 .select-custom--open .select-custom__arrow {
@@ -92,7 +95,7 @@
   border: 0 solid var(--select-dropdown-border-color);
   border-top: none;
   border-radius: var(--select-dropdown-radius);
-  z-index: var(--select-dropdown-z-index);
+  z-index: 100; /* Ensure dropdown is above other elements */
   transition: var(--select-dropdown-transition);
   margin-top: -1px;
   box-shadow: var(--select-dropdown-shadow);
@@ -113,6 +116,7 @@
   transition: var(--select-option-transition);
   display: flex;
   align-items: center;
+  user-select: none; /* Prevent text selection */
 }
 
 .select-custom__option:hover,
@@ -144,6 +148,8 @@
   border-bottom: var(--select-group-header-border-bottom);
   border-top: var(--select-group-header-border-top);
   margin-top: -1px;
+  pointer-events: none; /* Cannot be clicked */
+  user-select: none; /* Prevent text selection */
 }
 
 /* Multiple selection checkboxes */
@@ -155,6 +161,7 @@
   border-radius: var(--select-checkbox-radius);
   margin-right: var(--select-checkbox-margin);
   position: relative;
+  pointer-events: none; /* Pass clicks through to parent */
 }
 
 .select-custom__checkbox--checked::after {

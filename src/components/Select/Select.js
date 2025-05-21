@@ -1,8 +1,4 @@
-/**
- * Creates a performance-optimized Select component with enhanced UI and accessibility
- * @param {Object} props - Component configuration
- * @returns {Object} Component API object
- */ // src/components/Select/Select.js
+// src/components/Select/Select.js
 import './Select.css';
 import { createElement, appendChildren } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
@@ -76,15 +72,6 @@ const createSelect = (props) => {
 
   // Track component state for updates
   let state = { ...props };
-
-  // Set up document click handler for dropdown
-  const documentClickHandler = debounce((event) => {
-    if (!element.contains(event.target) && state.isOpen) {
-      closeDropdown();
-    }
-  }, 50);
-
-  document.addEventListener('click', documentClickHandler);
 
   // CREATION HELPERS
 
@@ -218,6 +205,19 @@ const createSelect = (props) => {
       },
     });
 
+    // Directly attach the click handler to ensure it works
+    customSelect.addEventListener('click', function (e) {
+      if (disabled) return;
+      e.stopPropagation();
+      // Direct toggling of the dropdown without going through state update
+      // for more immediate response
+      if (state.isOpen) {
+        closeDropdownDirectly();
+      } else {
+        openDropdownDirectly();
+      }
+    });
+
     // Selected value display
     const selectedDisplay = createElement('div', {
       classes: [
@@ -318,6 +318,20 @@ const createSelect = (props) => {
         children: optionChildren,
       });
 
+      // Direct click handler on each option
+      optionElement.addEventListener('click', function (e) {
+        if (isDisabled) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (multiple) {
+          toggleOptionSelection(option.value);
+        } else {
+          selectOption(option.value);
+          closeDropdownDirectly();
+        }
+      });
+
       dropdownOptions.push(optionElement);
     });
 
@@ -352,301 +366,100 @@ const createSelect = (props) => {
     });
   }
 
-  // EVENT HANDLERS
-
-  /**
-   * Global document click handler
-   * @private
-   */
-  function handleDocumentClick(event) {
-    if (!element.contains(event.target) && state.isOpen) {
-      closeDropdown();
-    }
-  }
-
-  /**
-   * Handles all events with delegation
-   * @private
-   */
-  function handleEvents(event) {
-    // Early return if disabled
-    if (state.disabled) return;
-
-    const targetElement = event.target;
-    const eventType = event.type;
-    const elementType =
-      targetElement.getAttribute('data-element') ||
-      targetElement.closest('[data-element]')?.getAttribute('data-element');
-    const targetValue =
-      targetElement.getAttribute('data-value') ||
-      targetElement.closest('[data-value]')?.getAttribute('data-value');
-
-    // Handle events by element type
-    switch (elementType) {
-      case 'native-select':
-        handleNativeSelectEvents(eventType, targetElement, event);
-        break;
-
-      case 'custom-select':
-        if (eventType === 'click') {
-          event.stopPropagation();
-          toggleDropdown();
-          element.querySelector('.select-native').focus();
-        } else if (eventType === 'keydown') {
-          handleSelectKeydown(event);
-        }
-        break;
-
-      case 'option':
-        if (
-          (eventType === 'click' ||
-            (eventType === 'keydown' &&
-              (event.key === 'Enter' || event.key === ' '))) &&
-          targetValue &&
-          !targetElement.classList.contains('select-custom__option--disabled')
-        ) {
-          event.preventDefault();
-          if (eventType === 'click') event.stopPropagation();
-
-          if (state.multiple) {
-            toggleOptionSelection(targetValue);
-          } else {
-            selectOption(targetValue);
-            closeDropdown();
-          }
-        } else if (eventType === 'keydown') {
-          handleOptionKeydown(event);
-        }
-        break;
-    }
-  }
-
-  /**
-   * Handles native select events
-   * @private
-   */
-  function handleNativeSelectEvents(eventType, selectElement, event) {
-    switch (eventType) {
-      case 'change': {
-        // Update value based on selection type
-        if (state.multiple) {
-          const selectedOptions = Array.from(selectElement.selectedOptions);
-          state.value = selectedOptions.map((opt) => opt.value);
-        } else {
-          state.value = selectElement.value;
-        }
-
-        component.update(state);
-
-        // Validate if needed
-        if (state.showValidation && state.isValid !== null) {
-          validate();
-        }
-
-        // Call onChange callback
-        if (typeof state.onChange === 'function') {
-          state.onChange(event, getValue());
-        }
-        break;
-      }
-
-      case 'focus': {
-        element.classList.add('select-container--focused');
-        element
-          .querySelector('.select-custom')
-          .classList.add('select-custom--focused');
-
-        if (typeof state.onFocus === 'function') {
-          state.onFocus(event);
-        }
-        break;
-      }
-
-      case 'blur': {
-        const customSelect = element.querySelector('.select-custom');
-
-        // Don't remove focus if clicking within custom select
-        if (!customSelect.contains(event.relatedTarget)) {
-          element.classList.remove('select-container--focused');
-          customSelect.classList.remove('select-custom--focused');
-
-          // Validate if needed
-          if (state.showValidation && state.isValid !== null) {
-            validate();
-          }
-
-          // Call onBlur callback
-          if (typeof state.onBlur === 'function') {
-            state.onBlur(event);
-          }
-        }
-        break;
-      }
-    }
-  }
-
-  /**
-   * Handles keyboard navigation
-   * @private
-   */
-  function handleSelectKeydown(event) {
-    switch (event.key) {
-      case 'Enter':
-      case ' ':
-        event.preventDefault();
-        toggleDropdown();
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        openDropdown();
-        focusNextOption();
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        openDropdown();
-        focusPreviousOption();
-        break;
-      case 'Escape':
-        event.preventDefault();
-        closeDropdown();
-        break;
-      case 'Tab':
-        closeDropdown();
-        break;
-    }
-  }
-
-  /**
-   * Handles option keyboard navigation
-   * @private
-   */
-  function handleOptionKeydown(event) {
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        focusNextOption();
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        focusPreviousOption();
-        break;
-      case 'Escape':
-        event.preventDefault();
-        closeDropdown();
-        element.querySelector('.select-custom').focus();
-        break;
-      case 'Tab':
-        closeDropdown();
-        break;
-    }
-  }
-
   // DROPDOWN MANAGEMENT
 
   /**
-   * Toggles dropdown open/closed
+   * Opens the dropdown directly by manipulating the DOM
+   * This bypasses state update for more immediate response
    * @private
    */
-  function toggleDropdown() {
-    if (state.isOpen) {
-      closeDropdown();
-    } else {
-      openDropdown();
-    }
-  }
+  function openDropdownDirectly() {
+    if (state.disabled) return;
 
-  /**
-   * Opens the dropdown
-   * @private
-   */
-  function openDropdown() {
-    if (!state.isOpen && !state.disabled) {
-      state.isOpen = true;
-      component.update(state);
-    }
-  }
+    // Update internal state
+    state.isOpen = true;
 
-  /**
-   * Closes the dropdown
-   * @private
-   */
-  function closeDropdown() {
-    if (state.isOpen) {
-      state.isOpen = false;
-      component.update(state);
-    }
-  }
-
-  /**
-   * Focuses the next option
-   * @private
-   */
-  function focusNextOption() {
-    const options = getSelectableOptions();
-    if (!options.length) return;
-
-    const currentFocused = element.querySelector(
-      '.select-custom__option:focus'
-    );
-    let nextIndex = 0;
-
-    if (currentFocused) {
-      const currentIndex = Array.from(options).indexOf(currentFocused);
-      nextIndex = (currentIndex + 1) % options.length;
-    }
-
-    options[nextIndex].focus();
-    scrollOptionIntoView(options[nextIndex]);
-  }
-
-  /**
-   * Focuses the previous option
-   * @private
-   */
-  function focusPreviousOption() {
-    const options = getSelectableOptions();
-    if (!options.length) return;
-
-    const currentFocused = element.querySelector(
-      '.select-custom__option:focus'
-    );
-    let prevIndex = options.length - 1;
-
-    if (currentFocused) {
-      const currentIndex = Array.from(options).indexOf(currentFocused);
-      prevIndex = (currentIndex - 1 + options.length) % options.length;
-    }
-
-    options[prevIndex].focus();
-    scrollOptionIntoView(options[prevIndex]);
-  }
-
-  /**
-   * Scrolls option into view
-   * @private
-   */
-  function scrollOptionIntoView(option) {
+    // Update DOM directly
     const dropdown = element.querySelector('.select-custom__dropdown');
-    const optionTop = option.offsetTop;
-    const optionBottom = optionTop + option.offsetHeight;
-    const dropdownScrollTop = dropdown.scrollTop;
-    const dropdownHeight = dropdown.offsetHeight;
+    const customSelect = element.querySelector('.select-custom');
 
-    if (optionTop < dropdownScrollTop) {
-      dropdown.scrollTop = optionTop;
-    } else if (optionBottom > dropdownScrollTop + dropdownHeight) {
-      dropdown.scrollTop = optionBottom - dropdownHeight;
-    }
+    customSelect.classList.add('select-custom--open');
+    customSelect.setAttribute('aria-expanded', 'true');
+    dropdown.classList.add('select-custom__dropdown--open');
   }
 
   /**
-   * Gets selectable options
+   * Closes the dropdown directly by manipulating the DOM
+   * This bypasses state update for more immediate response
    * @private
    */
-  function getSelectableOptions() {
-    return element.querySelectorAll(
-      '.select-custom__option:not(.select-custom__option--disabled)'
-    );
+  function closeDropdownDirectly() {
+    // Update internal state
+    state.isOpen = false;
+
+    // Update DOM directly
+    const dropdown = element.querySelector('.select-custom__dropdown');
+    const customSelect = element.querySelector('.select-custom');
+
+    customSelect.classList.remove('select-custom--open');
+    customSelect.setAttribute('aria-expanded', 'false');
+    dropdown.classList.remove('select-custom__dropdown--open');
+  }
+
+  /**
+   * Updates the display text directly after selection
+   * @private
+   */
+  function updateDisplayTextDirectly() {
+    const displayData = getDisplayTextAndState(state);
+    const selectedDisplay = element.querySelector('.select-custom__selected');
+
+    if (selectedDisplay) {
+      // Update text
+      selectedDisplay.textContent = displayData.displayText;
+
+      // Update placeholder class
+      selectedDisplay.classList.toggle(
+        'select-custom__selected--placeholder',
+        displayData.isPlaceholderVisible
+      );
+    }
+
+    // Also update selected states on all options
+    updateOptionsSelectedState();
+  }
+
+  /**
+   * Updates the visual selected state of all options
+   * @private
+   */
+  function updateOptionsSelectedState() {
+    const options = element.querySelectorAll('.select-custom__option');
+    const { value, multiple } = state;
+
+    options.forEach((option) => {
+      const optionValue = option.getAttribute('data-value');
+      const isSelected = multiple
+        ? Array.isArray(value) && value.includes(optionValue)
+        : value === optionValue;
+
+      // Update class
+      option.classList.toggle('select-custom__option--selected', isSelected);
+
+      // Update aria attribute
+      option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+
+      // Update checkbox if multiple
+      if (multiple) {
+        const checkbox = option.querySelector('.select-custom__checkbox');
+        if (checkbox) {
+          checkbox.classList.toggle(
+            'select-custom__checkbox--checked',
+            isSelected
+          );
+        }
+      }
+    });
   }
 
   // VALUE MANAGEMENT
@@ -666,6 +479,9 @@ const createSelect = (props) => {
     const nativeSelect = element.querySelector('.select-native');
     nativeSelect.value = value;
     state.value = value;
+
+    // Update display text directly
+    updateDisplayTextDirectly();
 
     // Dispatch change event to trigger handlers
     const changeEvent = new Event('change');
@@ -700,6 +516,9 @@ const createSelect = (props) => {
 
     // Update internal state
     state.value = newValues;
+
+    // Update display text directly
+    updateDisplayTextDirectly();
 
     // Dispatch change event to trigger handlers
     const changeEvent = new Event('change');
@@ -756,12 +575,100 @@ const createSelect = (props) => {
     });
   }
 
-  // Set up delegated event listeners
-  element.addEventListener('change', handleEvents);
-  element.addEventListener('focus', handleEvents, true); // Use capture for focus/blur
-  element.addEventListener('blur', handleEvents, true);
-  element.addEventListener('keydown', handleEvents);
-  element.addEventListener('click', handleEvents);
+  // Set up event listeners
+  element.addEventListener('change', handleNativeSelectChange);
+  element.addEventListener('focus', handleNativeSelectFocus, true);
+  element.addEventListener('blur', handleNativeSelectBlur, true);
+
+  // Document click handler to close dropdown when clicking outside
+  const documentClickHandler = debounce((event) => {
+    if (!element.contains(event.target) && state.isOpen) {
+      closeDropdownDirectly();
+    }
+  }, 10);
+
+  document.addEventListener('click', documentClickHandler);
+
+  /**
+   * Handle native select change events
+   * @private
+   */
+  function handleNativeSelectChange(event) {
+    if (state.disabled) return;
+
+    const selectElement = event.target;
+    if (selectElement.getAttribute('data-element') !== 'native-select') return;
+
+    // Update value based on selection type
+    if (state.multiple) {
+      const selectedOptions = Array.from(selectElement.selectedOptions);
+      state.value = selectedOptions.map((opt) => opt.value);
+    } else {
+      state.value = selectElement.value;
+    }
+
+    // Update display directly
+    updateDisplayTextDirectly();
+
+    // Validate if needed
+    if (state.showValidation && state.isValid !== null) {
+      validate();
+    }
+
+    // Call onChange callback
+    if (typeof state.onChange === 'function') {
+      state.onChange(event, getValue());
+    }
+  }
+
+  /**
+   * Handle native select focus events
+   * @private
+   */
+  function handleNativeSelectFocus(event) {
+    if (state.disabled) return;
+
+    const selectElement = event.target;
+    if (selectElement.getAttribute('data-element') !== 'native-select') return;
+
+    element.classList.add('select-container--focused');
+    element
+      .querySelector('.select-custom')
+      .classList.add('select-custom--focused');
+
+    if (typeof state.onFocus === 'function') {
+      state.onFocus(event);
+    }
+  }
+
+  /**
+   * Handle native select blur events
+   * @private
+   */
+  function handleNativeSelectBlur(event) {
+    if (state.disabled) return;
+
+    const selectElement = event.target;
+    if (selectElement.getAttribute('data-element') !== 'native-select') return;
+
+    const customSelect = element.querySelector('.select-custom');
+
+    // Don't remove focus if clicking within custom select
+    if (!customSelect.contains(event.relatedTarget)) {
+      element.classList.remove('select-container--focused');
+      customSelect.classList.remove('select-custom--focused');
+
+      // Validate if needed
+      if (state.showValidation && state.isValid !== null) {
+        validate();
+      }
+
+      // Call onBlur callback
+      if (typeof state.onBlur === 'function') {
+        state.onBlur(event);
+      }
+    }
+  }
 
   /**
    * Validate the current selection
@@ -792,6 +699,10 @@ const createSelect = (props) => {
 
     // Update internal state
     state.isValid = isValid;
+
+    // Also update component DOM classes directly to ensure they're applied
+    customSelect.classList.toggle('select-custom--valid', isValid);
+    customSelect.classList.toggle('select-custom--invalid', !isValid);
 
     return isValid;
   }
@@ -844,8 +755,8 @@ const createSelect = (props) => {
         nativeSelect.value = state.value;
       }
 
-      // Update component
-      component.update(state);
+      // Update display directly
+      updateDisplayTextDirectly();
 
       // Validate if needed
       if (state.showValidation && state.isValid !== null) {
@@ -936,14 +847,26 @@ const createSelect = (props) => {
      */
     destroy() {
       // Remove document event listener
-      document.removeEventListener('click', handleDocumentClick);
+      document.removeEventListener('click', documentClickHandler);
 
       // Remove element event listeners
-      element.removeEventListener('change', handleEvents);
-      element.removeEventListener('focus', handleEvents, true);
-      element.removeEventListener('blur', handleEvents, true);
-      element.removeEventListener('keydown', handleEvents);
-      element.removeEventListener('click', handleEvents);
+      element.removeEventListener('change', handleNativeSelectChange);
+      element.removeEventListener('focus', handleNativeSelectFocus, true);
+      element.removeEventListener('blur', handleNativeSelectBlur, true);
+
+      // Clean up any direct event listeners on elements
+      const customSelect = element.querySelector('.select-custom');
+      if (customSelect) {
+        const newCustomSelect = customSelect.cloneNode(true);
+        customSelect.parentNode.replaceChild(newCustomSelect, customSelect);
+      }
+
+      // Clean up direct event listeners on options
+      const options = element.querySelectorAll('.select-custom__option');
+      options.forEach((option) => {
+        const newOption = option.cloneNode(true);
+        option.parentNode.replaceChild(newOption, option);
+      });
 
       // Call base component's destroy
       component.destroy();
