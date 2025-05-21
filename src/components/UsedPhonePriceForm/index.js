@@ -2,8 +2,9 @@
 import UsedPhonePriceForm from './UsedPhonePriceForm.js';
 import createUsedPhonePriceFormContainer from './UsedPhonePriceFormContainer.js';
 
-// Export the factory function directly for the container
+// Export the factory function with both names for backward compatibility
 export const UsedPhonePriceFormContainer = createUsedPhonePriceFormContainer;
+export { createUsedPhonePriceFormContainer };
 
 // Export the Form component
 export { UsedPhonePriceForm };
