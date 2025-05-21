@@ -1,87 +1,135 @@
 # Svarog Component Library
 
-Svarog is a lightweight, vanilla JavaScript component library with built-in theme support. It provides reusable UI components for web applications without any framework dependencies.
+A lightweight, highly optimized vanilla JavaScript component library with powerful theming capabilities. Built with performance, maintainability, and flexibility in mind - **all with zero external dependencies**.
 
 ## Features
 
-- 🛠️ **Pure JavaScript** - No framework dependencies
-- 🎨 **Theme System** - Multiple themes with CSS variables
-- 📱 **Responsive** - Mobile-friendly components
-- 🧪 **Tested** - Comprehensive test coverage
-- 📚 **Component Viewer** - Built-in Storybook-like component explorer
+- 🔍 **Zero Dependencies** - Pure JavaScript with no external runtime dependencies
+- 🎨 **Powerful Theming** - Comprehensive CSS variable-based theming system
+- 🧱 **Factory Pattern** - Consistent component API using factory functions
+- 🚀 **Performance Optimized** - Event delegation, DOM batching, and more
+- ♿ **Accessible** - Follows accessibility best practices
+- 🧪 **Well Tested** - Comprehensive test coverage with Vitest
+- 📚 **Custom Component Explorer** - Built-in Storybook-like viewer developed from scratch in vanilla JS
 
-## Getting Started
-
-### Installation
+## Installation
 
 ```bash
-npm install @baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog
+npm install svarog-ui
 ```
 
-### Usage
+## Quick Start
 
 ```javascript
-import { Button } from '@baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog';
+import { Button, Typography, Card, switchTheme } from 'svarog-ui';
 
-// Create a button
-const myButton = new Button({
+// Create a button component
+const button = Button({
   text: 'Click Me',
-  onClick: () => alert('Button clicked!'),
+  variant: 'primary',
+  onClick: () => console.log('Button clicked'),
 });
 
-// Add the button to the DOM
-document.body.appendChild(myButton.getElement());
+// Add it to the DOM
+document.body.appendChild(button.getElement());
+
+// Switch themes dynamically
+switchTheme('cabalou');
 ```
 
-### Using Themes
+## Component API Pattern
 
-Svarog includes a powerful theme system:
+All components follow a consistent API pattern:
 
 ```javascript
-import { switchTheme } from '@baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog';
+const component = Component({
+  // Component configuration props
+});
 
-// Switch to the cabalou theme
-switchTheme('cabalou');
+// Get the DOM element to insert into the document
+const element = component.getElement();
 
-// Switch back to the default theme
-switchTheme('default');
+// Update component properties after creation
+component.update({
+  // New properties
+});
+
+// Clean up when removing the component
+component.destroy();
 ```
 
-## Available Components
+## Component Categories
 
-Svarog currently provides the following components:
+Svarog includes a comprehensive set of components organized by category:
 
-- **Button** - Standard button with variants
-- **Card** - Container for content with optional image, title, and footer
-- **Grid** - Responsive grid layout system
-- **Link** - Enhanced anchor elements
-- **Logo** - SVG logo container
-- **Navigation** - Navigation menu with responsive support
-- **Section** - Content section container
-- **Typography** - Text components with consistent styling
+### Layout
 
-## Development
+- Grid - Flexible grid system
+- Section - Content section with variants
+- Card - Content container with theming
 
-### Prerequisites
+### UI Elements
 
-- Node.js (v20 or later)
-- npm
+- Button - Buttons with variants and states
+- Typography - Text components with consistent styling
+- Link - Enhanced anchor elements
 
-### Setup
+### Form
+
+- Input - Text input fields
+- Select - Dropdown selection
+- Checkbox - Checkbox inputs
+- Radio - Radio button inputs
+- Form - Form layout container
+
+### Navigation
+
+- Navigation - Responsive navigation menu
+- Pagination - Page navigation controls
+- Tabs - Tabbed interface
+
+### Media
+
+- Image - Responsive image component
+- Logo - Brand logo component
+- Map - Map integration
+
+### Page Structure
+
+- Header - Page header component
+- Footer - Page footer component
+- Hero - Hero banner section
+
+## Theming System
+
+Svarog includes a powerful theming system with three built-in themes: `default`, `cabalou`, and `muchandy`.
+
+```javascript
+import { switchTheme, getCurrentTheme, setThemeVariable } from 'svarog-ui';
+
+// Switch to a different theme
+switchTheme('cabalou');
+
+// Get the current theme
+const theme = getCurrentTheme();
+
+// Override a specific theme variable
+setThemeVariable('--button-bg', '#ff0000');
+```
+
+Themes are built with CSS variables, making them easy to extend and customize.
+
+## Development Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog.git
+git clone https://github.com/your-username/svarog.git
 cd svarog
 
 # Install dependencies
 npm install
-```
 
-### Development Workflow
-
-```bash
-# Start the development server with component viewer
+# Start development server with component viewer
 npm start
 
 # Run tests
@@ -89,62 +137,192 @@ npm test
 
 # Build for production
 npm run build
-
-# Create a new component
-npm run create-component ComponentName
 ```
 
-### Project Structure
+## Project Structure
 
 ```
 svarog/
-├── .storybook/       # Component viewer setup
-├── docs/             # Documentation
-├── public/           # Static assets
-├── scripts/          # Build scripts
+├── .storybook/       # Component viewer configuration
+├── docs/             # Additional documentation
 ├── src/
 │   ├── components/   # UI components
-│   ├── constants/    # Constants and enums
-│   ├── styles/       # CSS styles and themes
+│   │   └── ComponentName/
+│   │       ├── ComponentName.js
+│   │       ├── ComponentName.css
+│   │       ├── ComponentName.stories.js
+│   │       ├── ComponentName.test.js
+│   │       ├── index.js
+│   │       └── README.md
+│   ├── constants/    # Shared constants
+│   ├── styles/       # Theme system
+│   │   ├── base/     # Base styles
+│   │   └── themes/   # Theme definitions
 │   └── utils/        # Utility functions
-└── tests/            # Test helpers
+├── scripts/          # Build and maintenance scripts
+└── tests/            # Testing utilities
 ```
 
 ## Component Design Principles
 
-All Svarog components follow these principles:
+All Svarog components adhere to these principles:
 
-1. **Self-contained** - Each component includes its own CSS and tests
-2. **Accessible** - Components follow accessibility best practices
-3. **Themeable** - Styling is based on CSS variables for easy theming
-4. **Extensible** - Components can be customized through props
-5. **Predictable** - Consistent API across all components
+1. **Factory Functions** - Components use factory functions for creation
+2. **Consistent API** - All components have getElement(), update(), and destroy() methods
+3. **DOM Efficiency** - Minimizes DOM operations for better performance
+4. **Event Delegation** - Uses event delegation for improved performance
+5. **Memory Management** - Cleans up listeners and references in destroy()
+6. **Validation** - Properly validates inputs with helpful error messages
+7. **Accessibility** - Uses semantic markup and ARIA attributes
+8. **Theming** - Uses CSS variables for consistent theming
 
-## Creating Custom Components
+## Creating a Component
 
-Use our component generator to create new components:
+Components follow this pattern:
 
-```bash
-npm run create-component MyComponent
+```javascript
+// src/components/MyComponent/MyComponent.js
+import './MyComponent.css';
+import {
+  createComponent,
+  createElement,
+} from '../../utils/componentFactory.js';
+
+const createMyComponent = (props) => {
+  // Validate required props
+  validateProps(props, createMyComponent.requiredProps);
+
+  // Initial state
+  const state = { ...props };
+
+  // Render function
+  const render = () => {
+    const element = createElement('div', {
+      classes: ['my-component'],
+      // Add attributes, event handlers, etc.
+    });
+
+    return element;
+  };
+
+  // Create initial element
+  let element = render();
+
+  // Return public API
+  return {
+    getElement() {
+      return element;
+    },
+
+    update(newProps) {
+      Object.assign(state, newProps);
+      const oldElement = element;
+      element = render();
+
+      if (oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(element, oldElement);
+      }
+
+      return this;
+    },
+
+    destroy() {
+      // Clean up event listeners and resources
+    },
+  };
+};
+
+// Define required props
+createMyComponent.requiredProps = ['prop1', 'prop2'];
+
+// Export as a factory function
+export default createComponent('MyComponent', createMyComponent);
 ```
 
-This creates a new component with the standard structure:
+## Performance Utilities
 
-```
-src/components/MyComponent/
-├── MyComponent.js        # Component implementation
-├── MyComponent.css       # Component styles
-├── MyComponent.stories.js # Component examples
-└── MyComponent.test.js   # Component tests
-```
+Svarog includes several performance optimization utilities:
 
-## Theme System
-
-Learn more about the theme system in [THEMES.md](docs/THEMES.md).
+- `debounce` - Limit function call frequency
+- `throttle` - Restrict execution rate
+- `rafThrottle` - Animation frame-based throttling
+- `memoize` - Cache function results
+- `batchDomUpdates` - Batch DOM operations
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome and appreciated! This project adheres to specific coding standards and practices that help maintain the library's quality and consistency.
+
+### Development Workflow
+
+1. Fork the repository
+2. Clone your fork: `git clone https://github.com/your-username/svarog.git`
+3. Create a feature branch: `git checkout -b feature/amazing-feature`
+4. Install dependencies: `npm install`
+5. Make your changes following our guidelines below
+6. Test your changes: `npm test`
+7. Commit with a descriptive message: `git commit -m 'Add some amazing feature'`
+8. Push to your branch: `git push origin feature/amazing-feature`
+9. Open a pull request with a detailed description
+
+### Code Standards
+
+- **Factory Functions**: Use factory functions instead of classes
+- **Code Conciseness**: Write minimal code without sacrificing functionality
+- **No Unused Variables**: Eliminate all unused variables and functions
+- **Single Responsibility**: Functions should do one thing well
+- **Component API**: Follow the standard `getElement()`, `update()`, `destroy()` pattern
+- **Documentation**: Document "why" not just "what"
+- **Error Handling**: Include proper validation and error messages
+- **Theming**: Use CSS variables for all themeable properties
+
+### Creating Components
+
+New components should:
+
+1. Follow the directory structure in `src/components/ComponentName/`
+2. Include all required files:
+   - `ComponentName.js` - Component implementation
+   - `ComponentName.css` - Component styles
+   - `ComponentName.stories.js` - Example stories
+   - `ComponentName.test.js` - Unit tests
+   - `index.js` - Export file
+   - `README.md` - Component documentation
+
+Use the component generator to scaffold a new component:
+
+```bash
+npm run create-component MyComponentName
+```
+
+### Testing Requirements
+
+- All components must have unit tests
+- Tests should cover:
+  - Basic rendering
+  - Props validation
+  - Event handling
+  - Update method
+  - Destroy method
+- Run tests before submitting: `npm test`
+- Maintain or improve code coverage
+
+### Documentation Standards
+
+- Document all public methods with JSDoc comments
+- Focus on explaining "why" rather than "what"
+- Include usage examples in component README.md
+- Document theme variables used by the component
+
+### Pull Request Process
+
+1. Ensure all tests pass
+2. Update documentation if needed
+3. Add stories for new features
+4. Request review from at least one maintainer
+5. Address review feedback promptly
+
+By following these guidelines, you help maintain the quality and consistency of the Svarog Component Library. Thank you for your contributions!
 
 ## License
 
