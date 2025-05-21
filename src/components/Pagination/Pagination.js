@@ -1,11 +1,8 @@
 // src/components/Pagination/Pagination.js
 import './Pagination.css';
-import {
-  createComponent,
-  createElement,
-} from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { createComponent } from '../../utils/componentFactory.js';
 import Button from '../Button/Button.js';
 
 /**
@@ -15,27 +12,20 @@ import Button from '../Button/Button.js';
  * @param {number} [props.totalPages=1] - Total number of pages
  * @param {Function} [props.onPageChange] - Callback when page changes (receives page number)
  * @param {number} [props.siblingCount=1] - Number of siblings to show around current page
- * @param {string} [props.className=''] - Additional CSS class names for the root element
+ * @param {string} [props.className=''] - Additional CSS class names
  * @param {string} [props.prevText='Previous'] - Text for the previous button
  * @param {string} [props.nextText='Next'] - Text for the next button
  * @returns {Object} Pagination component API
  */
 const createPagination = (props) => {
-  // Track button instances for proper cleanup
   let buttonInstances = [];
 
   /**
-   * Generates the pagination range with appropriate ellipses
-   * @param {number} currentPage - Current active page
-   * @param {number} totalPages - Total number of pages
-   * @param {number} siblingCount - Number of siblings to show around current page
-   * @returns {Array} Array of page numbers and ellipsis markers
+   * Generates the pagination range with ellipses
    */
   const generatePaginationRange = (currentPage, totalPages, siblingCount) => {
-    // Handle invalid inputs gracefully
     if (totalPages <= 0) return [];
-    if (currentPage < 1) currentPage = 1;
-    if (currentPage > totalPages) currentPage = totalPages;
+    currentPage = Math.max(1, Math.min(currentPage, totalPages));
 
     // For small page counts, show all pages
     if (totalPages <= siblingCount * 2 + 5) {
@@ -45,58 +35,35 @@ const createPagination = (props) => {
     // For larger page counts, use intelligent paging with ellipses
     const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
     const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
-
-    // Determine if we need ellipses
     const shouldShowLeftDots = leftSiblingIndex > 2;
     const shouldShowRightDots = rightSiblingIndex < totalPages - 1;
 
-    // Always show first and last page
-    let pages = [];
+    const pages = [1];
+    if (shouldShowLeftDots) pages.push('...');
 
-    // Add first page
-    pages.push(1);
-
-    // Add left ellipsis if needed
-    if (shouldShowLeftDots) {
-      pages.push('...');
-    }
-
-    // Add sibling pages and current page
+    // Add sibling pages
     for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) {
-      if (i > 1 && i < totalPages) {
-        pages.push(i);
-      }
+      if (i > 1 && i < totalPages) pages.push(i);
     }
 
-    // Add right ellipsis if needed
-    if (shouldShowRightDots) {
-      pages.push('...');
-    }
-
-    // Add last page if not already included
-    if (totalPages > 1 && !pages.includes(totalPages)) {
-      pages.push(totalPages);
-    }
+    if (shouldShowRightDots) pages.push('...');
+    if (totalPages > 1 && !pages.includes(totalPages)) pages.push(totalPages);
 
     return pages;
   };
 
   /**
-   * Clean up button instances to prevent memory leaks
+   * Clean up button instances
    */
   const cleanupButtons = () => {
     buttonInstances.forEach((button) => {
-      if (button && typeof button.destroy === 'function') {
-        button.destroy();
-      }
+      if (button?.destroy) button.destroy();
     });
     buttonInstances = [];
   };
 
   /**
    * Renders the pagination component
-   * @param {Object} state - Current state of the pagination component
-   * @returns {HTMLElement} The pagination DOM element
    */
   const renderPagination = (state) => {
     const {
@@ -109,52 +76,39 @@ const createPagination = (props) => {
       nextText = 'Next',
     } = state;
 
-    // Define page click handler
+    // Handle page changes
     const handlePageClick = (page) => {
       if (page === '...') return;
 
-      let newPage = currentPage;
-
-      if (page === 'prev') {
-        newPage = Math.max(1, currentPage - 1);
-      } else if (page === 'next') {
-        newPage = Math.min(totalPages, currentPage + 1);
-      } else {
-        newPage = Number(page);
-      }
+      const newPage =
+        page === 'prev'
+          ? Math.max(1, currentPage - 1)
+          : page === 'next'
+            ? Math.min(totalPages, currentPage + 1)
+            : Number(page);
 
       if (newPage !== currentPage && typeof onPageChange === 'function') {
         onPageChange(newPage);
       }
     };
 
-    // Clean up previous button instances
+    // Clean up previous buttons
     cleanupButtons();
 
-    // Create pagination container with proper class names
-    const container = createElement('nav', {
-      className: `pagination ${className}`.trim(),
-      attributes: {
-        'aria-label': 'Pagination Navigation',
-        role: 'navigation',
-      },
-    });
+    // Create container and list - directly create DOM elements to ensure classes are applied
+    const container = document.createElement('nav');
+    container.className = `pagination ${className}`.trim();
+    container.setAttribute('aria-label', 'Pagination Navigation');
+    container.setAttribute('role', 'navigation');
 
-    // Create pagination list
-    const list = createElement('ul', {
-      className: 'pagination__list',
-      attributes: {
-        role: 'list',
-      },
-    });
+    const list = document.createElement('ul');
+    list.className = 'pagination__list';
+    list.setAttribute('role', 'list');
 
-    // Previous button
-    const prevItem = createElement('li', {
-      className: 'pagination__item',
-      attributes: {
-        role: 'listitem',
-      },
-    });
+    // Add previous button
+    const prevItem = document.createElement('li');
+    prevItem.className = 'pagination__item';
+    prevItem.setAttribute('role', 'listitem');
 
     const prevBtn = Button({
       text: prevText,
@@ -165,74 +119,48 @@ const createPagination = (props) => {
     });
 
     buttonInstances.push(prevBtn);
+    prevItem.appendChild(prevBtn.getElement());
+    list.appendChild(prevItem);
 
-    // Ensure button is created successfully before appending
-    const prevBtnElement = prevBtn.getElement();
-    if (prevBtnElement) {
-      prevItem.appendChild(prevBtnElement);
-      list.appendChild(prevItem);
-    }
+    // Add page buttons
+    generatePaginationRange(currentPage, totalPages, siblingCount).forEach(
+      (page) => {
+        const pageItem = document.createElement('li');
+        pageItem.className = 'pagination__item';
+        pageItem.setAttribute('role', 'listitem');
 
-    // Generate pages to display
-    const pages = generatePaginationRange(
-      currentPage,
-      totalPages,
-      siblingCount
+        if (page === '...') {
+          const dots = document.createElement('span');
+          dots.className = 'pagination__dots';
+          dots.textContent = '...';
+          dots.setAttribute('aria-hidden', 'true');
+          pageItem.appendChild(dots);
+        } else {
+          const isCurrentPage = page === currentPage;
+          const pageBtn = Button({
+            text: String(page),
+            variant: isCurrentPage ? 'primary' : '',
+            className:
+              `pagination__button ${isCurrentPage ? 'pagination__button--active' : ''}`.trim(),
+            onClick: () => handlePageClick(page),
+            attributes: {
+              'aria-current': isCurrentPage ? 'page' : null,
+              'aria-label': `Go to page ${page}${isCurrentPage ? ', current page' : ''}`,
+            },
+          });
+
+          buttonInstances.push(pageBtn);
+          pageItem.appendChild(pageBtn.getElement());
+        }
+
+        list.appendChild(pageItem);
+      }
     );
 
-    // Render page buttons
-    pages.forEach((page) => {
-      const pageItem = createElement('li', {
-        className: 'pagination__item',
-        attributes: {
-          role: 'listitem',
-        },
-      });
-
-      if (page === '...') {
-        // Create ellipsis element
-        const dots = createElement('span', {
-          className: 'pagination__dots',
-          text: '...',
-          attributes: {
-            'aria-hidden': 'true',
-          },
-        });
-        pageItem.appendChild(dots);
-      } else {
-        // Create page button
-        const isCurrentPage = page === currentPage;
-        const pageBtn = Button({
-          text: String(page),
-          variant: isCurrentPage ? 'primary' : '',
-          className:
-            `pagination__button ${isCurrentPage ? 'pagination__button--active' : ''}`.trim(),
-          onClick: () => handlePageClick(page),
-          attributes: {
-            'aria-current': isCurrentPage ? 'page' : null,
-            'aria-label': `Go to page ${page}${isCurrentPage ? ', current page' : ''}`,
-          },
-        });
-
-        buttonInstances.push(pageBtn);
-
-        // Ensure button is created successfully before appending
-        const pageBtnElement = pageBtn.getElement();
-        if (pageBtnElement) {
-          pageItem.appendChild(pageBtnElement);
-        }
-      }
-
-      list.appendChild(pageItem);
-    });
-
-    // Next button
-    const nextItem = createElement('li', {
-      className: 'pagination__item',
-      attributes: {
-        role: 'listitem',
-      },
-    });
+    // Add next button
+    const nextItem = document.createElement('li');
+    nextItem.className = 'pagination__item';
+    nextItem.setAttribute('role', 'listitem');
 
     const nextBtn = Button({
       text: nextText,
@@ -243,46 +171,28 @@ const createPagination = (props) => {
     });
 
     buttonInstances.push(nextBtn);
-
-    // Ensure button is created successfully before appending
-    const nextBtnElement = nextBtn.getElement();
-    if (nextBtnElement) {
-      nextItem.appendChild(nextBtnElement);
-      list.appendChild(nextItem);
-    }
+    nextItem.appendChild(nextBtn.getElement());
+    list.appendChild(nextItem);
 
     container.appendChild(list);
     return container;
   };
 
-  // Create the component with base lifecycle methods
+  // Create the component
   const component = createBaseComponent(renderPagination)(props);
 
-  /**
-   * Custom destroy method to clean up button instances
-   */
+  // Enhance destroy method
   const originalDestroy = component.destroy;
   component.destroy = function () {
     cleanupButtons();
-    if (originalDestroy) {
-      originalDestroy.call(this);
-    }
+    if (originalDestroy) originalDestroy.call(this);
   };
 
-  /**
-   * Sets the current page
-   * @param {number} page - New current page
-   * @returns {Object} Component instance for chaining
-   */
+  // Add convenience methods
   component.setCurrentPage = function (page) {
     return this.update({ currentPage: page });
   };
 
-  /**
-   * Sets the total number of pages
-   * @param {number} total - New total pages
-   * @returns {Object} Component instance for chaining
-   */
   component.setTotalPages = function (total) {
     return this.update({ totalPages: total });
   };
