@@ -1,6 +1,12 @@
 // src/components/CollapsibleHeader/CollapsibleHeader.js
 import './CollapsibleHeader.css';
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createElement,
+  validateProps,
+  createComponent,
+} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 import Navigation from '../Navigation/Navigation.js';
 import ContactInfo from '../ContactInfo/ContactInfo.js';
 import Logo from '../Logo/Logo.js';
@@ -8,291 +14,350 @@ import Link from '../Link/Link.js';
 import Button from '../Button/Button.js';
 
 /**
- * CollapsibleHeader component that combines Header and ContactInfo
- *
- * This is a presentational component that renders UI based on props.
- * It does NOT manage its own state or listen to scroll events.
- *
- * @class CollapsibleHeader
- * @extends Component
+ * Validates collapsible header specific props
+ * @param {Object} props - CollapsibleHeader properties
  */
-export default class CollapsibleHeader extends Component {
-  /**
-   * Create a new CollapsibleHeader component
-   * @param {Object} props - Component properties
-   * @param {string} props.siteName - Site name to display
-   * @param {Object} props.navigation - Navigation configuration object
-   * @param {Array} props.navigation.items - Navigation items array
-   * @param {Object} props.contactInfo - Contact information
-   * @param {string} props.contactInfo.location - Location address
-   * @param {string} props.contactInfo.phone - Phone number
-   * @param {string} props.contactInfo.email - Email address
-   * @param {string} props.logo - URL to logo image
-   * @param {string} props.compactLogo - URL to compact logo image for collapsed state
-   * @param {string} props.callButtonText - Text for the call button (default: "Anrufen")
-   * @param {Function} props.onCallButtonClick - Callback for call button click
-   * @param {string} props.className - Additional CSS class names
-   * @param {boolean} props.isCollapsed - Whether the header is collapsed
-   * @param {boolean} props.isMobile - Whether the component is in mobile view
-   */
-  constructor({
-    siteName = '',
-    navigation = { items: [] },
-    contactInfo = {},
-    logo = '',
-    compactLogo = '',
-    callButtonText = 'Anrufen',
-    onCallButtonClick = null,
-    className = '',
-    isCollapsed = false,
-    isMobile = false,
-  }) {
-    super();
+const validateCollapsibleHeaderProps = (props) => {
+  const missingProps = [];
 
-    // Validate required properties
-    const missingProps = [];
-    if (!siteName && !logo) missingProps.push('siteName or logo');
-    if (!navigation.items || navigation.items.length === 0)
-      missingProps.push('navigation.items');
-    if (!contactInfo.location) missingProps.push('contactInfo.location');
-    if (!contactInfo.phone) missingProps.push('contactInfo.phone');
-    if (!contactInfo.email) missingProps.push('contactInfo.email');
+  if (!props.siteName && !props.logo) missingProps.push('siteName or logo');
+  if (!props.navigation.items || props.navigation.items.length === 0)
+    missingProps.push('navigation.items');
+  if (!props.contactInfo.location) missingProps.push('contactInfo.location');
+  if (!props.contactInfo.phone) missingProps.push('contactInfo.phone');
+  if (!props.contactInfo.email) missingProps.push('contactInfo.email');
 
-    if (missingProps.length > 0) {
-      throw new Error(
-        `CollapsibleHeader: Missing required props: ${missingProps.join(', ')}`
-      );
-    }
-
-    this.props = {
-      siteName,
-      navigation,
-      contactInfo,
-      logo,
-      compactLogo: compactLogo || logo,
-      callButtonText,
-      onCallButtonClick,
-      className,
-      isCollapsed,
-      isMobile,
-    };
-
-    // Create main element
-    this.element = this.createCollapsibleHeaderElement();
+  if (missingProps.length > 0) {
+    throw new Error(`Missing required props: ${missingProps.join(', ')}`);
   }
+};
 
-  /**
-   * Create the collapsible header element
-   * @returns {HTMLElement} The header element
-   * @private
-   */
-  createCollapsibleHeaderElement() {
-    const {
-      siteName,
-      navigation,
-      contactInfo,
-      callButtonText,
-      onCallButtonClick,
-      className,
-      isCollapsed,
-      isMobile,
-    } = this.props;
+/**
+ * Creates CollapsibleHeader DOM element
+ * @param {Object} state - CollapsibleHeader state
+ * @returns {HTMLElement} - CollapsibleHeader element
+ */
+const renderCollapsibleHeader = (state) => {
+  const {
+    siteName,
+    navigation,
+    contactInfo,
+    callButtonText,
+    onCallButtonClick,
+    className,
+    isCollapsed,
+    isMobile,
+  } = state;
 
-    const headerClasses = this.createClassNames(
+  // Create header element with proper classes
+  // The componentFactory.createElement takes an array for 'classes'
+  const headerElement = createElement('header', {
+    classes: [
       'collapsible-header',
-      {
-        'collapsible-header--collapsed': isCollapsed,
-        'collapsible-header--mobile': isMobile,
-      },
-      className
-    );
+      isCollapsed ? 'collapsible-header--collapsed' : '',
+      isMobile ? 'collapsible-header--mobile' : '',
+      className,
+    ].filter(Boolean),
+  });
 
-    const headerElement = this.createElement('header', {
-      className: headerClasses,
+  // Create container
+  const container = createElement('div', {
+    classes: ['collapsible-header__container'],
+  });
+
+  // Create logo container (left-aligned and vertically centered)
+  const logoContainer = createElement('div', {
+    classes: ['collapsible-header__logo'],
+  });
+
+  // Determine which logo to use based on state
+  const shouldUseCompactLogo = isMobile || isCollapsed;
+  const logoToUse = shouldUseCompactLogo ? state.compactLogo : state.logo;
+
+  // Add logo to logo container
+  if (logoToUse) {
+    const logoComponent = Logo({
+      src: logoToUse,
+      alt: siteName || 'Logo',
+      responsive: true,
+      width: isMobile ? 100 : 120,
     });
 
-    const container = this.createElement('div', {
-      className: 'collapsible-header__container',
+    const logoLink = Link({
+      children: logoComponent.getElement(),
+      href: '/',
+      block: true,
     });
 
-    // Create logo container (left-aligned and vertically centered)
-    const logoContainer = this.createElement('div', {
-      className: 'collapsible-header__logo',
+    logoContainer.appendChild(logoLink.getElement());
+  } else if (siteName) {
+    const siteNameLink = Link({
+      children: siteName,
+      href: '/',
+      block: true,
+      className: 'header__site-name',
     });
 
-    // Determine which logo to use based on props
-    const shouldUseCompactLogo = isMobile || isCollapsed;
-    const logoToUse = shouldUseCompactLogo
-      ? this.props.compactLogo
-      : this.props.logo;
-
-    // Add logo to logo container
-    if (logoToUse) {
-      const logoComponent = new Logo({
-        sources: logoToUse,
-        alt: siteName || 'Logo',
-        responsive: true,
-        width: isMobile ? 100 : 120, // Different width based on mobile state
-      });
-
-      const logoLink = new Link({
-        children: logoComponent.getElement(),
-        href: '/',
-        block: true,
-      });
-
-      logoContainer.appendChild(logoLink.getElement());
-    } else if (siteName) {
-      const siteNameLink = new Link({
-        children: siteName,
-        href: '/',
-        block: true,
-        className: 'header__site-name',
-      });
-
-      logoContainer.appendChild(siteNameLink.getElement());
-    }
-
-    // Create content container for contact and navigation
-    const contentContainer = this.createElement('div', {
-      className: 'collapsible-header__content',
-    });
-
-    // Create contact info container (top-right aligned)
-    const contactContainer = this.createElement('div', {
-      className: 'collapsible-header__contact-container',
-    });
-
-    const contactInfoComponent = new ContactInfo({
-      location: contactInfo.location,
-      phone: contactInfo.phone,
-      email: contactInfo.email,
-    });
-
-    contactContainer.appendChild(contactInfoComponent.getElement());
-
-    // Create navigation container (bottom-right aligned)
-    const navigationContainer = this.createElement('div', {
-      className: 'collapsible-header__navigation',
-    });
-
-    // Add navigation with proper mobile configuration
-    if (navigation.items && navigation.items.length > 0) {
-      const nav = new Navigation({
-        items: navigation.items,
-        responsive: true,
-        burgerPosition: 'right',
-        mobileMenuStyle: 'fullscreen',
-      });
-      navigationContainer.appendChild(nav.getElement());
-
-      // Only add call button if not on mobile
-      if (!isMobile) {
-        // Create call button
-        const callButtonContainer = this.createElement('div', {
-          className: 'collapsible-header__call-button',
-        });
-
-        // Default click handler that uses the phone number if no custom handler provided
-        const handleCallClick =
-          onCallButtonClick ||
-          (() => {
-            window.location.href = `tel:${contactInfo.phone.replace(/[\s()/-]/g, '')}`;
-          });
-
-        const callButton = new Button({
-          text: callButtonText,
-          variant: 'default',
-          onClick: handleCallClick,
-        });
-
-        callButtonContainer.appendChild(callButton.getElement());
-        navigationContainer.appendChild(callButtonContainer);
-      }
-    }
-
-    // Assemble the header
-    contentContainer.appendChild(contactContainer);
-    contentContainer.appendChild(navigationContainer);
-
-    container.appendChild(logoContainer);
-    container.appendChild(contentContainer);
-
-    headerElement.appendChild(container);
-
-    return headerElement;
+    logoContainer.appendChild(siteNameLink.getElement());
   }
 
-  /**
-   * Update the component with new props
-   * @param {Object} props - New props to update the component with
-   * @public
-   */
-  update(props) {
-    // Merge new props with existing props
-    this.props = { ...this.props, ...props };
+  // Create content container for contact and navigation
+  const contentContainer = createElement('div', {
+    classes: ['collapsible-header__content'],
+  });
 
-    // Update collapsed and mobile classes
-    this.element.classList.toggle(
-      'collapsible-header--collapsed',
-      this.props.isCollapsed
-    );
-    this.element.classList.toggle(
-      'collapsible-header--mobile',
-      this.props.isMobile
-    );
+  // Create contact info container
+  const contactContainer = createElement('div', {
+    classes: ['collapsible-header__contact-container'],
+  });
 
-    // Update logo based on new state
-    this.updateLogo();
+  const contactInfoComponent = ContactInfo({
+    location: contactInfo.location,
+    phone: contactInfo.phone,
+    email: contactInfo.email,
+  });
 
-    // Update call button visibility based on mobile state
-    this.updateCallButtonVisibility();
+  contactContainer.appendChild(contactInfoComponent.getElement());
+
+  // Create navigation container
+  const navigationContainer = createElement('div', {
+    classes: ['collapsible-header__navigation'],
+  });
+
+  // Add navigation with proper mobile configuration
+  if (navigation.items && navigation.items.length > 0) {
+    const nav = Navigation({
+      items: navigation.items,
+      responsive: true,
+      burgerPosition: 'right',
+      mobileMenuStyle: 'fullscreen',
+    });
+    navigationContainer.appendChild(nav.getElement());
+
+    // Only add call button if not on mobile
+    if (!isMobile) {
+      // Create call button
+      const callButtonContainer = createElement('div', {
+        classes: ['collapsible-header__call-button'],
+      });
+
+      // Default click handler that uses the phone number if no custom handler provided
+      const handleCallClick =
+        onCallButtonClick ||
+        (() => {
+          window.location.href = `tel:${contactInfo.phone.replace(/[\s()/-]/g, '')}`;
+        });
+
+      const callButton = Button({
+        text: callButtonText,
+        variant: 'primary',
+        onClick: handleCallClick,
+      });
+
+      callButtonContainer.appendChild(callButton.getElement());
+      navigationContainer.appendChild(callButtonContainer);
+    }
   }
 
+  // Assemble the header
+  contentContainer.appendChild(contactContainer);
+  contentContainer.appendChild(navigationContainer);
+
+  container.appendChild(logoContainer);
+  container.appendChild(contentContainer);
+
+  headerElement.appendChild(container);
+
+  return headerElement;
+};
+
+/**
+ * Creates a CollapsibleHeader component
+ * @param {Object} props - CollapsibleHeader properties
+ * @returns {Object} CollapsibleHeader component API
+ */
+const createCollapsibleHeader = (props) => {
+  // Validate props
+  validateProps(props, createCollapsibleHeader.requiredProps);
+
+  // Custom validation
+  try {
+    validateCollapsibleHeaderProps(props);
+  } catch (error) {
+    throw new Error(`CollapsibleHeader: ${error.message}`);
+  }
+
+  // Initial state with defaults
+  const initialState = {
+    siteName: props.siteName || '',
+    navigation: props.navigation || { items: [] },
+    contactInfo: props.contactInfo || {},
+    logo: props.logo || '',
+    compactLogo: props.compactLogo || props.logo || '',
+    callButtonText: props.callButtonText || 'Anrufen',
+    onCallButtonClick: props.onCallButtonClick || null,
+    className: props.className || '',
+    isCollapsed: props.isCollapsed || false,
+    isMobile: props.isMobile || false,
+  };
+
+  // Create the base component
+  const component = createBaseComponent(renderCollapsibleHeader)(initialState);
+
   /**
-   * Update the logo based on current props
+   * We maintain a separate state object (componentState) for efficient partial updates.
+   * While the baseComponent has its own internal state used for full re-renders,
+   * this additional state allows us to:
+   * 1. Track the current state for partial DOM updates without triggering full re-renders
+   * 2. Provide a getState() method that clients can use to inspect component state
+   * 3. Support complex state transitions that don't require complete DOM rebuilding
+   * @type {Object}
    * @private
    */
-  updateLogo() {
-    const shouldUseCompactLogo = this.props.isMobile || this.props.isCollapsed;
-    const logoSrc = shouldUseCompactLogo
-      ? this.props.compactLogo
-      : this.props.logo;
+  let componentState = { ...initialState };
+
+  /**
+   * Update logo based on current state
+   * @param {HTMLElement} element - The header element
+   * @param {Object} state - Current component state
+   * @private
+   */
+  const updateLogo = (element, state) => {
+    const shouldUseCompactLogo = state.isMobile || state.isCollapsed;
+    const logoSrc = shouldUseCompactLogo ? state.compactLogo : state.logo;
 
     // Find and update logo image
-    const logoImg = this.element.querySelector('.logo-image');
+    const logoImg = element.querySelector('.logo-image');
     if (logoImg && logoImg.src !== logoSrc) {
       logoImg.src = logoSrc;
 
       // Update width based on mobile state
-      const logoContainer = this.element.querySelector('.logo-container');
+      const logoContainer = element.querySelector('.logo-container');
       if (logoContainer) {
-        logoContainer.style.width = this.props.isMobile ? '100px' : '120px';
+        logoContainer.style.width = state.isMobile ? '100px' : '120px';
       }
     }
-  }
+  };
 
   /**
    * Update call button visibility based on mobile state
+   * @param {HTMLElement} element - The header element
+   * @param {Object} state - Current component state
    * @private
    */
-  updateCallButtonVisibility() {
-    const callButtonContainer = this.element.querySelector(
+  const updateCallButtonVisibility = (element, state) => {
+    const callButtonContainer = element.querySelector(
       '.collapsible-header__call-button'
     );
     if (callButtonContainer) {
-      callButtonContainer.style.display = this.props.isMobile
-        ? 'none'
-        : 'block';
+      callButtonContainer.style.display = state.isMobile ? 'none' : 'block';
     }
-  }
+  };
 
-  /**
-   * Get the header element
-   * @returns {HTMLElement} The header element
-   * @public
-   */
-  getElement() {
-    return this.element;
-  }
-}
+  // Create extended component with additional properties
+  const headerComponent = {
+    ...component,
+
+    /**
+     * Get the current component state
+     * @returns {Object} Current component state
+     * @public
+     */
+    getState() {
+      return componentState;
+    },
+
+    /**
+     * Update component with new props
+     * @param {Object} newProps - New properties to update
+     * @returns {Object} Component instance for chaining
+     * @public
+     */
+    update(newProps) {
+      // Update our stored state
+      componentState = { ...componentState, ...newProps };
+
+      // Check if we should do a full re-render
+      if (this.shouldRerender(newProps)) {
+        // Let the base component handle the complete re-render
+        return component.update(newProps);
+      }
+
+      const element = this.getElement();
+
+      // Handle partial updates
+      if (newProps.isCollapsed !== undefined) {
+        element.classList.toggle(
+          'collapsible-header--collapsed',
+          newProps.isCollapsed
+        );
+
+        // Update logo based on collapsed state
+        if (element.querySelector('.logo-image')) {
+          updateLogo(element, componentState);
+        }
+      }
+
+      if (newProps.isMobile !== undefined) {
+        element.classList.toggle(
+          'collapsible-header--mobile',
+          newProps.isMobile
+        );
+
+        // Update logo based on mobile state
+        if (element.querySelector('.logo-image')) {
+          updateLogo(element, componentState);
+        }
+
+        // Update call button visibility
+        updateCallButtonVisibility(element, componentState);
+      }
+
+      // Update className if provided
+      if (newProps.className !== undefined) {
+        // Remove old custom class if it exists
+        if (componentState.className) {
+          element.classList.remove(componentState.className);
+        }
+
+        // Add new custom class if provided
+        if (newProps.className) {
+          element.classList.add(newProps.className);
+        }
+      }
+
+      return this;
+    },
+
+    /**
+     * Determines if component should fully re-render
+     * @param {Object} newProps - New properties
+     * @returns {boolean} Whether a full re-render is required
+     * @public
+     */
+    shouldRerender(newProps) {
+      // These props require a full re-render
+      return [
+        'navigation',
+        'contactInfo',
+        'logo',
+        'compactLogo',
+        'siteName',
+        'callButtonText',
+      ].some((prop) => newProps[prop] !== undefined);
+    },
+  };
+
+  return headerComponent;
+};
+
+// Define required props for validation
+createCollapsibleHeader.requiredProps = ['navigation', 'contactInfo'];
+
+// Create the component with theme awareness
+const CollapsibleHeader = withThemeAwareness(
+  createComponent('CollapsibleHeader', createCollapsibleHeader)
+);
+
+// Export as a factory function
+export default CollapsibleHeader;
