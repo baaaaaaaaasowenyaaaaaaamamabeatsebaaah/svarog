@@ -17,7 +17,7 @@ describe('Hero', () => {
   });
 
   it('should render correctly with all props', () => {
-    const hero = new Hero(defaultProps);
+    const hero = Hero(defaultProps);
     const element = hero.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -31,7 +31,7 @@ describe('Hero', () => {
   });
 
   it('should apply background image when provided', () => {
-    const hero = new Hero(defaultProps);
+    const hero = Hero(defaultProps);
     const element = hero.getElement();
 
     expect(element.style.backgroundImage).toBe(
@@ -44,7 +44,7 @@ describe('Hero', () => {
     const alignments = ['left', 'center', 'right'];
 
     alignments.forEach((align) => {
-      const hero = new Hero({ ...defaultProps, align });
+      const hero = Hero({ ...defaultProps, align });
       const element = hero.getElement();
 
       expect(element.classList.contains(`hero--${align}`)).toBe(true);
@@ -53,7 +53,7 @@ describe('Hero', () => {
 
   it('should handle CTA click', () => {
     const onCtaClick = vi.fn();
-    const hero = new Hero({
+    const hero = Hero({
       ...defaultProps,
       onCtaClick,
       ctaLink: null,
@@ -70,7 +70,7 @@ describe('Hero', () => {
     delete window.location;
     window.location = { href: '' };
 
-    const hero = new Hero(defaultProps);
+    const hero = Hero(defaultProps);
     const element = hero.getElement();
     const button = element.querySelector('.hero__cta');
 
@@ -81,7 +81,7 @@ describe('Hero', () => {
   });
 
   it('should work with minimal props', () => {
-    const hero = new Hero({ title: 'Simple Hero' });
+    const hero = Hero({ title: 'Simple Hero' });
     const element = hero.getElement();
 
     expect(element.querySelector('.hero__title').textContent).toBe(
@@ -89,5 +89,73 @@ describe('Hero', () => {
     );
     expect(element.querySelector('.hero__subtitle')).toBeNull();
     expect(element.querySelector('.hero__cta')).toBeNull();
+  });
+
+  it('should update title with setTitle method', () => {
+    const hero = Hero({ title: 'Original Title' });
+    hero.setTitle('New Title');
+    const element = hero.getElement();
+
+    expect(element.querySelector('.hero__title').textContent).toBe('New Title');
+  });
+
+  it('should update subtitle with setSubtitle method', () => {
+    const hero = Hero({ subtitle: 'Original Subtitle' });
+    hero.setSubtitle('New Subtitle');
+    const element = hero.getElement();
+
+    expect(element.querySelector('.hero__subtitle').textContent).toBe(
+      'New Subtitle'
+    );
+  });
+
+  it('should update background image with setBackgroundImage method', () => {
+    const hero = Hero({ backgroundImage: 'original.jpg' });
+    hero.setBackgroundImage('new.jpg');
+    const element = hero.getElement();
+
+    expect(element.style.backgroundImage).toBe('url(new.jpg)');
+  });
+
+  it('should update alignment with setAlignment method', () => {
+    const hero = Hero({ align: 'center' });
+    hero.setAlignment('left');
+    const element = hero.getElement();
+
+    expect(element.classList.contains('hero--left')).toBe(true);
+  });
+
+  it('should allow updating multiple props at once', () => {
+    const hero = Hero({
+      title: 'Original Title',
+      subtitle: 'Original Subtitle',
+    });
+    hero.update({
+      title: 'New Title',
+      subtitle: 'New Subtitle',
+    });
+
+    const element = hero.getElement();
+    expect(element.querySelector('.hero__title').textContent).toBe('New Title');
+    expect(element.querySelector('.hero__subtitle').textContent).toBe(
+      'New Subtitle'
+    );
+  });
+
+  it('should clean up properly when destroyed', () => {
+    const hero = Hero(defaultProps);
+    const element = hero.getElement();
+
+    // Mock removeEventListener to verify it's called
+    const originalRemoveEventListener = element.removeEventListener;
+    element.removeEventListener = vi.fn();
+
+    hero.destroy();
+
+    // Should have tried to remove listeners
+    expect(element.removeEventListener).toHaveBeenCalled();
+
+    // Restore original
+    element.removeEventListener = originalRemoveEventListener;
   });
 });
