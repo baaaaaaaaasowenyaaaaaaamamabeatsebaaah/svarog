@@ -44,7 +44,7 @@
   outline: none;
   position: relative;
   box-sizing: border-box;
-  z-index: 1; /* Establish stacking context */
+  z-index: 2; /* Establish stacking context - slightly higher than default */
 }
 
 .select-custom:hover {
@@ -95,11 +95,19 @@
   border: 0 solid var(--select-dropdown-border-color);
   border-top: none;
   border-radius: var(--select-dropdown-radius);
-  z-index: 100; /* Ensure dropdown is above other elements */
+  z-index: var(--z-index-dropdown, 1000); /* Use design system variable */
   transition: var(--select-dropdown-transition);
   margin-top: -1px;
   box-shadow: var(--select-dropdown-shadow);
   visibility: hidden;
+}
+
+/* When portaled to body, ensure proper styling */
+body > .select-custom__dropdown {
+  /* Override any container styles */
+  margin-top: 0;
+  /* Ensure proper behavior for portaled element */
+  box-shadow: var(--shadow-lg, 0 10px 15px rgba(0, 0, 0, 0.1));
 }
 
 .select-custom__dropdown--open {
@@ -111,6 +119,8 @@
 
 /* Options */
 .select-custom__option {
+  font-family: var(--select-font-family);
+  font-size: var(--select-font-size);
   padding: var(--select-option-padding);
   cursor: pointer;
   transition: var(--select-option-transition);

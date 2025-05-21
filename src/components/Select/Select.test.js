@@ -328,21 +328,17 @@ describe('Select component', () => {
     );
 
     // Click to open dropdown
-    customSelect.click();
+    customSelect.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-    // Manually add open class for test
-    dropdown.classList.add('select-custom__dropdown--open');
-
+    // After click, dropdown should be open
     expect(dropdown.classList.contains('select-custom__dropdown--open')).toBe(
       true
     );
 
     // Click again to close dropdown
-    customSelect.click();
+    customSelect.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-    // Manually remove open class for test
-    dropdown.classList.remove('select-custom__dropdown--open');
-
+    // After second click, dropdown should be closed
     expect(dropdown.classList.contains('select-custom__dropdown--open')).toBe(
       false
     );

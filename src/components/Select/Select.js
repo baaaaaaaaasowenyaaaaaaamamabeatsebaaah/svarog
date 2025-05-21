@@ -70,8 +70,33 @@ const createSelect = (props) => {
   const component = baseComponent(props);
   const element = component.getElement();
 
+  // Cached DOM elements for better performance
+  const elements = {
+    nativeSelect: null,
+    customSelect: null,
+    dropdown: null,
+    selectedDisplay: null,
+    messageElement: null,
+  };
+
   // Track component state for updates
   let state = { ...props };
+
+  // Cache DOM elements for better performance
+  function cacheElements() {
+    elements.nativeSelect = element.querySelector('.select-native');
+    elements.customSelect = element.querySelector('.select-custom');
+    elements.dropdown = element.querySelector('.select-custom__dropdown');
+    elements.selectedDisplay = element.querySelector(
+      '.select-custom__selected'
+    );
+    elements.messageElement = element.querySelector(
+      '.select-validation-message'
+    );
+  }
+
+  // Cache elements after initial render
+  cacheElements();
 
   // CREATION HELPERS
 
@@ -95,16 +120,7 @@ const createSelect = (props) => {
 
     // Add placeholder for single select
     if (!multiple && placeholder) {
-      selectOptions.push(
-        createElement('option', {
-          attributes: {
-            value: '',
-            disabled: true,
-            selected: value === '',
-          },
-          text: placeholder,
-        })
-      );
+      selectOptions.push(createPlaceholderOption(placeholder, value === ''));
     }
 
     // Add regular options
@@ -113,16 +129,7 @@ const createSelect = (props) => {
         ? Array.isArray(value) && value.includes(option.value)
         : value === option.value;
 
-      selectOptions.push(
-        createElement('option', {
-          attributes: {
-            value: option.value,
-            disabled: !!option.disabled,
-            selected: isSelected,
-          },
-          text: option.label || option.value,
-        })
-      );
+      selectOptions.push(createNativeOption(option, isSelected));
     });
 
     return createElement('select', {
@@ -138,6 +145,36 @@ const createSelect = (props) => {
         'data-element': 'native-select',
       },
       children: selectOptions,
+    });
+  }
+
+  /**
+   * Creates a placeholder option element
+   * @private
+   */
+  function createPlaceholderOption(text, isSelected) {
+    return createElement('option', {
+      attributes: {
+        value: '',
+        disabled: true,
+        selected: isSelected,
+      },
+      text,
+    });
+  }
+
+  /**
+   * Creates a native option element
+   * @private
+   */
+  function createNativeOption(option, isSelected) {
+    return createElement('option', {
+      attributes: {
+        value: option.value,
+        disabled: !!option.disabled,
+        selected: isSelected,
+      },
+      text: option.label || option.value,
     });
   }
 
@@ -159,23 +196,38 @@ const createSelect = (props) => {
       : !value;
 
     if (multiple && Array.isArray(value) && value.length) {
-      const selectedLabels = value.map((val) => {
-        const option = options.find((opt) => opt.value === val);
-        return option ? option.label || option.value : val;
-      });
-
-      displayText =
-        selectedLabels.length <= 2
-          ? selectedLabels.join(', ')
-          : `${selectedLabels.length} items selected`;
+      displayText = formatMultipleSelection(options, value);
     } else if (value) {
-      const selectedOption = options.find((opt) => opt.value === value);
-      displayText = selectedOption
-        ? selectedOption.label || selectedOption.value
-        : value;
+      displayText = formatSingleSelection(options, value);
     }
 
     return { displayText, isPlaceholderVisible };
+  }
+
+  /**
+   * Format display text for multiple selection
+   * @private
+   */
+  function formatMultipleSelection(options, value) {
+    const selectedLabels = value.map((val) => {
+      const option = options.find((opt) => opt.value === val);
+      return option ? option.label || option.value : val;
+    });
+
+    return selectedLabels.length <= 2
+      ? selectedLabels.join(', ')
+      : `${selectedLabels.length} items selected`;
+  }
+
+  /**
+   * Format display text for single selection
+   * @private
+   */
+  function formatSingleSelection(options, value) {
+    const selectedOption = options.find((opt) => opt.value === value);
+    return selectedOption
+      ? selectedOption.label || selectedOption.value
+      : value;
   }
 
   /**
@@ -205,17 +257,13 @@ const createSelect = (props) => {
       },
     });
 
-    // Directly attach the click handler to ensure it works
+    // Direct DOM manipulation for the click handler that works in tests
     customSelect.addEventListener('click', function (e) {
       if (disabled) return;
       e.stopPropagation();
-      // Direct toggling of the dropdown without going through state update
-      // for more immediate response
-      if (state.isOpen) {
-        closeDropdownDirectly();
-      } else {
-        openDropdownDirectly();
-      }
+
+      // Use direct DOM inspection for reliable toggling
+      toggleDropdown();
     });
 
     // Selected value display
@@ -262,77 +310,19 @@ const createSelect = (props) => {
     const dropdownOptions = [];
 
     options.forEach((option) => {
-      const isDisabled = !!option.disabled;
-
-      // For group headers
-      if (
-        isDisabled &&
-        option.label &&
-        (!option.value || option.value === option.label)
-      ) {
-        dropdownOptions.push(
-          createElement('div', {
-            classes: ['select-custom__group-header'],
-            attributes: {
-              'data-element': 'group-header',
-            },
-            text: option.label,
-          })
-        );
+      if (isGroupHeader(option)) {
+        dropdownOptions.push(createGroupHeader(option));
         return;
       }
 
+      const isDisabled = !!option.disabled;
       const isSelected = multiple
         ? Array.isArray(value) && value.includes(option.value)
         : value === option.value;
 
-      const optionClasses = ['select-custom__option'];
-      if (isDisabled) optionClasses.push('select-custom__option--disabled');
-      if (isSelected) optionClasses.push('select-custom__option--selected');
-
-      const optionChildren = [];
-
-      // Create checkbox for multiple select
-      if (multiple) {
-        optionChildren.push(
-          createElement('span', {
-            classes: [
-              'select-custom__checkbox',
-              isSelected ? 'select-custom__checkbox--checked' : '',
-            ],
-          })
-        );
-      }
-
-      const optionElement = createElement('div', {
-        classes: optionClasses,
-        attributes: {
-          'data-value': option.value,
-          role: 'option',
-          'aria-disabled': isDisabled ? 'true' : 'false',
-          'aria-selected': isSelected ? 'true' : 'false',
-          tabindex: isDisabled ? '-1' : '0',
-          'data-element': 'option',
-        },
-        text: option.label || option.value,
-        children: optionChildren,
-      });
-
-      // Direct click handler on each option
-      optionElement.addEventListener('click', function (e) {
-        if (isDisabled) return;
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (multiple) {
-          toggleOptionSelection(option.value);
-        } else {
-          selectOption(option.value);
-          closeDropdownDirectly();
-        }
-      });
-
-      dropdownOptions.push(optionElement);
+      dropdownOptions.push(
+        createDropdownOption(option, isSelected, isDisabled, multiple)
+      );
     });
 
     return createElement('div', {
@@ -344,6 +334,86 @@ const createSelect = (props) => {
       },
       children: dropdownOptions,
     });
+  }
+
+  /**
+   * Check if an option is a group header
+   * @private
+   */
+  function isGroupHeader(option) {
+    return (
+      !!option.disabled &&
+      option.label &&
+      (!option.value || option.value === option.label)
+    );
+  }
+
+  /**
+   * Create a group header element
+   * @private
+   */
+  function createGroupHeader(option) {
+    return createElement('div', {
+      classes: ['select-custom__group-header'],
+      attributes: {
+        'data-element': 'group-header',
+      },
+      text: option.label,
+    });
+  }
+
+  /**
+   * Create a dropdown option element
+   * @private
+   */
+  function createDropdownOption(option, isSelected, isDisabled, multiple) {
+    const optionClasses = ['select-custom__option'];
+    if (isDisabled) optionClasses.push('select-custom__option--disabled');
+    if (isSelected) optionClasses.push('select-custom__option--selected');
+
+    const optionChildren = [];
+
+    // Create checkbox for multiple select
+    if (multiple) {
+      optionChildren.push(
+        createElement('span', {
+          classes: [
+            'select-custom__checkbox',
+            isSelected ? 'select-custom__checkbox--checked' : '',
+          ],
+        })
+      );
+    }
+
+    const optionElement = createElement('div', {
+      classes: optionClasses,
+      attributes: {
+        'data-value': option.value,
+        role: 'option',
+        'aria-disabled': isDisabled ? 'true' : 'false',
+        'aria-selected': isSelected ? 'true' : 'false',
+        tabindex: isDisabled ? '-1' : '0',
+        'data-element': 'option',
+      },
+      text: option.label || option.value,
+      children: optionChildren,
+    });
+
+    // Direct click handler on each option
+    optionElement.addEventListener('click', function (e) {
+      if (isDisabled) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (multiple) {
+        toggleOptionSelection(option.value);
+      } else {
+        selectOption(option.value);
+        toggleDropdown(false);
+      }
+    });
+
+    return optionElement;
   }
 
   /**
@@ -369,41 +439,35 @@ const createSelect = (props) => {
   // DROPDOWN MANAGEMENT
 
   /**
-   * Opens the dropdown directly by manipulating the DOM
-   * This bypasses state update for more immediate response
+   * Toggles dropdown state
+   * @param {boolean} [force] - Force specific state
+   * @returns {boolean} New dropdown state
    * @private
    */
-  function openDropdownDirectly() {
-    if (state.disabled) return;
+  function toggleDropdown(force) {
+    if (state.disabled) return state.isOpen;
+
+    // Determine new state
+    const isCurrentlyOpen = elements.dropdown?.classList.contains(
+      'select-custom__dropdown--open'
+    );
+    const newState = typeof force === 'boolean' ? force : !isCurrentlyOpen;
 
     // Update internal state
-    state.isOpen = true;
+    state.isOpen = newState;
 
     // Update DOM directly
-    const dropdown = element.querySelector('.select-custom__dropdown');
-    const customSelect = element.querySelector('.select-custom');
+    elements.customSelect.classList.toggle('select-custom--open', newState);
+    elements.customSelect.setAttribute(
+      'aria-expanded',
+      newState ? 'true' : 'false'
+    );
+    elements.dropdown.classList.toggle(
+      'select-custom__dropdown--open',
+      newState
+    );
 
-    customSelect.classList.add('select-custom--open');
-    customSelect.setAttribute('aria-expanded', 'true');
-    dropdown.classList.add('select-custom__dropdown--open');
-  }
-
-  /**
-   * Closes the dropdown directly by manipulating the DOM
-   * This bypasses state update for more immediate response
-   * @private
-   */
-  function closeDropdownDirectly() {
-    // Update internal state
-    state.isOpen = false;
-
-    // Update DOM directly
-    const dropdown = element.querySelector('.select-custom__dropdown');
-    const customSelect = element.querySelector('.select-custom');
-
-    customSelect.classList.remove('select-custom--open');
-    customSelect.setAttribute('aria-expanded', 'false');
-    dropdown.classList.remove('select-custom__dropdown--open');
+    return newState;
   }
 
   /**
@@ -412,14 +476,13 @@ const createSelect = (props) => {
    */
   function updateDisplayTextDirectly() {
     const displayData = getDisplayTextAndState(state);
-    const selectedDisplay = element.querySelector('.select-custom__selected');
 
-    if (selectedDisplay) {
+    if (elements.selectedDisplay) {
       // Update text
-      selectedDisplay.textContent = displayData.displayText;
+      elements.selectedDisplay.textContent = displayData.displayText;
 
       // Update placeholder class
-      selectedDisplay.classList.toggle(
+      elements.selectedDisplay.classList.toggle(
         'select-custom__selected--placeholder',
         displayData.isPlaceholderVisible
       );
@@ -469,6 +532,11 @@ const createSelect = (props) => {
    * @private
    */
   function selectOption(value) {
+    if (state.disabled) {
+      console.warn('Cannot select option on disabled select');
+      return;
+    }
+
     // Validate value exists in options
     if (!state.options?.some((opt) => opt.value === value)) {
       console.warn(`Select: value "${value}" not found in options`);
@@ -476,8 +544,7 @@ const createSelect = (props) => {
     }
 
     // Update native select and internal state
-    const nativeSelect = element.querySelector('.select-native');
-    nativeSelect.value = value;
+    elements.nativeSelect.value = value;
     state.value = value;
 
     // Update display text directly
@@ -485,7 +552,7 @@ const createSelect = (props) => {
 
     // Dispatch change event to trigger handlers
     const changeEvent = new Event('change');
-    nativeSelect.dispatchEvent(changeEvent);
+    elements.nativeSelect.dispatchEvent(changeEvent);
   }
 
   /**
@@ -493,11 +560,17 @@ const createSelect = (props) => {
    * @private
    */
   function toggleOptionSelection(value) {
+    if (state.disabled) {
+      console.warn('Cannot toggle option on disabled select');
+      return;
+    }
+
     // Validate multiple mode
     if (!state.multiple) {
-      throw new Error(
+      console.warn(
         'toggleOptionSelection can only be used with multiple selects'
       );
+      return;
     }
 
     // Get current values
@@ -509,8 +582,7 @@ const createSelect = (props) => {
       : [...currentValues, value];
 
     // Update native select options
-    const nativeSelect = element.querySelector('.select-native');
-    Array.from(nativeSelect.options).forEach((option) => {
+    Array.from(elements.nativeSelect.options).forEach((option) => {
       option.selected = newValues.includes(option.value);
     });
 
@@ -522,7 +594,7 @@ const createSelect = (props) => {
 
     // Dispatch change event to trigger handlers
     const changeEvent = new Event('change');
-    nativeSelect.dispatchEvent(changeEvent);
+    elements.nativeSelect.dispatchEvent(changeEvent);
   }
 
   /**
@@ -583,7 +655,7 @@ const createSelect = (props) => {
   // Document click handler to close dropdown when clicking outside
   const documentClickHandler = debounce((event) => {
     if (!element.contains(event.target) && state.isOpen) {
-      closeDropdownDirectly();
+      toggleDropdown(false);
     }
   }, 10);
 
@@ -632,9 +704,7 @@ const createSelect = (props) => {
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
 
     element.classList.add('select-container--focused');
-    element
-      .querySelector('.select-custom')
-      .classList.add('select-custom--focused');
+    elements.customSelect.classList.add('select-custom--focused');
 
     if (typeof state.onFocus === 'function') {
       state.onFocus(event);
@@ -651,12 +721,10 @@ const createSelect = (props) => {
     const selectElement = event.target;
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
 
-    const customSelect = element.querySelector('.select-custom');
-
     // Don't remove focus if clicking within custom select
-    if (!customSelect.contains(event.relatedTarget)) {
+    if (!elements.customSelect.contains(event.relatedTarget)) {
       element.classList.remove('select-container--focused');
-      customSelect.classList.remove('select-custom--focused');
+      elements.customSelect.classList.remove('select-custom--focused');
 
       // Validate if needed
       if (state.showValidation && state.isValid !== null) {
@@ -686,14 +754,10 @@ const createSelect = (props) => {
     }
 
     // Use validation utility to update UI
-    const nativeSelect = element.querySelector('.select-native');
-    const customSelect = element.querySelector('.select-custom');
-    const messageElement = element.querySelector('.select-validation-message');
-
-    validateInput(nativeSelect, {
+    validateInput(elements.nativeSelect, {
       container: element,
-      customElement: customSelect,
-      messageElement,
+      customElement: elements.customSelect,
+      messageElement: elements.messageElement,
       customMessage: state.validationMessage,
     });
 
@@ -701,8 +765,8 @@ const createSelect = (props) => {
     state.isValid = isValid;
 
     // Also update component DOM classes directly to ensure they're applied
-    customSelect.classList.toggle('select-custom--valid', isValid);
-    customSelect.classList.toggle('select-custom--invalid', !isValid);
+    elements.customSelect.classList.toggle('select-custom--valid', isValid);
+    elements.customSelect.classList.toggle('select-custom--invalid', !isValid);
 
     return isValid;
   }
@@ -737,6 +801,11 @@ const createSelect = (props) => {
      * @returns {Object} Select component (for chaining)
      */
     setValue(value) {
+      if (state.disabled) {
+        console.warn('Cannot set value on disabled select');
+        return api;
+      }
+
       // Convert value type if needed
       if (state.multiple) {
         state.value = Array.isArray(value) ? value : value ? [value] : [];
@@ -745,14 +814,12 @@ const createSelect = (props) => {
       }
 
       // Update native select to match
-      const nativeSelect = element.querySelector('.select-native');
-
       if (state.multiple && Array.isArray(state.value)) {
-        Array.from(nativeSelect.options).forEach((option) => {
+        Array.from(elements.nativeSelect.options).forEach((option) => {
           option.selected = state.value.includes(option.value);
         });
       } else {
-        nativeSelect.value = state.value;
+        elements.nativeSelect.value = state.value;
       }
 
       // Update display directly
@@ -780,6 +847,9 @@ const createSelect = (props) => {
 
       // Update component
       component.update(state);
+
+      // Re-cache elements
+      cacheElements();
 
       return api;
     },
@@ -822,6 +892,9 @@ const createSelect = (props) => {
       // Update component
       component.update(state);
 
+      // Re-cache elements
+      cacheElements();
+
       return api;
     },
 
@@ -854,18 +927,18 @@ const createSelect = (props) => {
       element.removeEventListener('focus', handleNativeSelectFocus, true);
       element.removeEventListener('blur', handleNativeSelectBlur, true);
 
-      // Clean up any direct event listeners on elements
-      const customSelect = element.querySelector('.select-custom');
-      if (customSelect) {
-        const newCustomSelect = customSelect.cloneNode(true);
-        customSelect.parentNode.replaceChild(newCustomSelect, customSelect);
+      // More comprehensive cleanup
+      if (element) {
+        // Use a more reliable approach to remove all listeners
+        const newElement = element.cloneNode(true);
+        if (element.parentNode) {
+          element.parentNode.replaceChild(newElement, element);
+        }
       }
 
-      // Clean up direct event listeners on options
-      const options = element.querySelectorAll('.select-custom__option');
-      options.forEach((option) => {
-        const newOption = option.cloneNode(true);
-        option.parentNode.replaceChild(newOption, option);
+      // Clear cached elements
+      Object.keys(elements).forEach((key) => {
+        elements[key] = null;
       });
 
       // Call base component's destroy
