@@ -1,88 +1,139 @@
 // src/components/Footer/Footer.js
 import './Footer.css';
-import { Component } from '../../utils/componentFactory.js';
-import Link from '../Link/Link.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { createElement } from '../../utils/componentFactory.js';
+import { validateRequiredProps } from '../../utils/validation.js';
 
-export default class Footer extends Component {
-  constructor(props) {
-    super();
-    this.props = {
-      siteName: '',
-      footer: {
-        copyright: '',
-        links: [],
-        social: [],
+/**
+ * Creates a Footer component
+ * @param {Object} props - Footer properties
+ * @param {string} [props.siteName=''] - Site name for copyright text
+ * @param {Object} [props.footer={}] - Footer configuration
+ * @param {string} [props.footer.copyright=''] - Copyright text
+ * @param {Array} [props.footer.links=[]] - Footer links
+ * @param {Array} [props.footer.social=[]] - Social media links
+ * @param {string} [props.className=''] - Additional CSS class names
+ * @returns {Object} Footer component
+ */
+const createFooter = (props) => {
+  // Validate props
+  const requirements = {
+    siteName: { type: 'string', required: false },
+    footer: { type: 'object', required: false },
+    className: { type: 'string', required: false },
+  };
+
+  validateRequiredProps(props, requirements, 'Footer');
+
+  // Initialize with default props
+  const initialProps = {
+    siteName: '',
+    footer: {
+      copyright: '',
+      links: [],
+      social: [],
+    },
+    className: '',
+    ...props,
+  };
+
+  // Ensure footer contains all required properties
+  initialProps.footer = {
+    copyright: '',
+    links: [],
+    social: [],
+    ...initialProps.footer,
+  };
+
+  // Reference to latest state
+  let currentState = { ...initialProps };
+
+  /**
+   * Renders the footer element based on current state
+   * @param {Object} state - Current component state
+   * @returns {HTMLElement} Footer element
+   */
+  const renderFooter = (state) => {
+    // Update our reference to current state
+    currentState = { ...state };
+
+    const { siteName, footer, className } = state;
+    const { copyright, links, social } = footer;
+
+    // Create footer element
+    const footerElement = createElement('footer', {
+      classes: ['footer', className].filter(Boolean),
+      attributes: {
+        'data-testid': 'footer',
       },
-      className: '',
-      ...props,
-    };
-    this.element = this.createComponentElement();
-  }
-
-  createComponentElement() {
-    const { siteName, footer = {}, className = '' } = this.props;
-    const { copyright, links = [], social = [] } = footer;
-
-    const footerElement = this.createElement('footer', {
-      className: this.createClassNames('footer', className),
     });
 
-    const container = this.createElement('div', {
-      className: 'footer__container',
+    // Create container
+    const container = createElement('div', {
+      classes: ['footer__container'],
     });
 
     // Links section
-    if (links.length > 0) {
-      const linksSection = this.createElement('div', {
-        className: 'footer__links',
+    if (links && links.length > 0) {
+      const linksSection = createElement('div', {
+        classes: ['footer__links'],
       });
 
       links.forEach((link) => {
-        const linkElement = new Link({
-          children: link.label,
-          href: link.url,
-          underline: false,
+        const linkElement = createElement('a', {
+          classes: ['footer__link'],
+          attributes: {
+            href: link.url || '#',
+            'data-label': link.label, // Add data attribute for testing
+          },
+          text: link.label,
         });
-        linkElement.getElement().className = 'footer__link';
-        linksSection.appendChild(linkElement.getElement());
+
+        linksSection.appendChild(linkElement);
       });
 
       container.appendChild(linksSection);
     }
 
     // Social links section
-    if (social.length > 0) {
-      const socialSection = this.createElement('div', {
-        className: 'footer__social',
+    if (social && social.length > 0) {
+      const socialSection = createElement('div', {
+        classes: ['footer__social'],
       });
 
       social.forEach((item) => {
-        const socialLink = new Link({
-          children: item.platform,
-          href: item.url,
-          target: '_blank',
-          underline: false,
+        const socialLink = createElement('a', {
+          classes: ['footer__social-link'],
+          attributes: {
+            href: item.url || '#',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            'data-platform': item.platform, // Add data attribute for testing
+          },
+          text: item.platform,
         });
-        socialLink.getElement().className = 'footer__social-link';
-        socialSection.appendChild(socialLink.getElement());
+
+        socialSection.appendChild(socialLink);
       });
 
       container.appendChild(socialSection);
     }
 
     // Copyright section
-    const copyrightSection = this.createElement('div', {
-      className: 'footer__copyright',
+    const copyrightSection = createElement('div', {
+      classes: ['footer__copyright'],
     });
 
     const copyrightText =
       copyright ||
       `© ${new Date().getFullYear()} ${siteName || ''}. All rights reserved.`;
 
-    // Fix: Use createElement directly instead of Typography
-    const copyrightElement = this.createElement('p', {
-      className: 'footer__copyright-text',
-      textContent: copyrightText,
+    const copyrightElement = createElement('p', {
+      classes: ['footer__copyright-text'],
+      attributes: {
+        'data-copyright': copyright || 'default', // Add data attribute for testing
+      },
+      text: copyrightText,
     });
 
     copyrightSection.appendChild(copyrightElement);
@@ -90,9 +141,103 @@ export default class Footer extends Component {
 
     footerElement.appendChild(container);
     return footerElement;
-  }
+  };
 
-  getElement() {
-    return this.element;
-  }
-}
+  // Create component using baseComponent
+  const baseComponent = createBaseComponent(renderFooter)(initialProps);
+
+  /**
+   * Determines if component needs to fully re-render based on prop changes
+   * @param {Object} newProps - New properties
+   * @returns {boolean} Whether a full re-render is required
+   */
+  const shouldRerender = (newProps) => {
+    // Critical props that require a full re-render
+    const criticalProps = ['siteName', 'footer'];
+    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+  };
+
+  /**
+   * Perform partial update without full re-render
+   * @param {HTMLElement} element - Current element
+   * @param {Object} newProps - New properties
+   */
+  const partialUpdate = (element, newProps) => {
+    // Update className
+    if (newProps.className !== undefined) {
+      const baseClass = 'footer';
+      const newClasses = newProps.className
+        ? [baseClass, newProps.className]
+        : [baseClass];
+      element.className = newClasses.join(' ');
+    }
+  };
+
+  // Extended component with custom methods
+  const footerComponent = {
+    ...baseComponent,
+    shouldRerender,
+    partialUpdate,
+
+    /**
+     * Updates the copyright text
+     * @param {string} copyright - New copyright text
+     * @returns {Object} Footer component (for chaining)
+     */
+    setCopyright(copyright) {
+      const newFooter = {
+        ...currentState.footer,
+        copyright,
+      };
+
+      return baseComponent.update({
+        footer: newFooter,
+      });
+    },
+
+    /**
+     * Updates the footer links
+     * @param {Array} links - New footer links
+     * @returns {Object} Footer component (for chaining)
+     */
+    setLinks(links) {
+      const newFooter = {
+        ...currentState.footer,
+        links,
+      };
+
+      return baseComponent.update({
+        footer: newFooter,
+      });
+    },
+
+    /**
+     * Updates the social links
+     * @param {Array} social - New social links
+     * @returns {Object} Footer component (for chaining)
+     */
+    setSocial(social) {
+      const newFooter = {
+        ...currentState.footer,
+        social,
+      };
+
+      return baseComponent.update({
+        footer: newFooter,
+      });
+    },
+  };
+
+  // Add theme change handler
+  footerComponent.onThemeChange = (newTheme, previousTheme) => {
+    console.debug(`Footer: theme changed from ${previousTheme} to ${newTheme}`);
+  };
+
+  return footerComponent;
+};
+
+// Define required props for validation
+createFooter.requiredProps = [];
+
+// Export as a factory function
+export default createFooter;

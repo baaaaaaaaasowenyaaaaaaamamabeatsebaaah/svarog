@@ -1,199 +1,120 @@
 // src/components/Logo/Logo.js
 import './Logo.css';
-import { Component } from '../../utils/componentFactory.js';
-import { getCurrentTheme } from '../../utils/theme.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { createElement } from '../../utils/componentFactory.js';
+import Image from '../Image/index.js';
 
 /**
- * Logo component that supports theme-specific assets
- *
- * This component automatically displays the correct logo for the current theme.
- * In a real application, each project would typically use a single theme,
- * so you would only need to provide the logo for that specific theme.
- *
- * @extends Component
+ * Creates a Logo component
+ * @param {Object} props - Logo properties
+ * @param {string} props.src - Path to the logo image
+ * @param {string} [props.alt='Logo'] - Alt text for the logo
+ * @param {string} [props.fallbackSrc=''] - Fallback image path if the primary image fails to load
+ * @param {string} [props.className=''] - Additional CSS classes
+ * @param {Function} [props.onClick=null] - Click event handler
+ * @param {boolean} [props.responsive=true] - Whether logo should be responsive
+ * @returns {Object} Logo component API object
  */
-export default class Logo extends Component {
-  /**
-   * Creates a new Logo instance
-   *
-   * @param {Object} props - Logo properties
-   * @param {Object|string} props.sources - Either a single path string or an object mapping theme names to paths
-   * @param {string} [props.alt='Logo'] - Alt text for the logo
-   * @param {string} [props.fallbackPath] - Fallback path if theme-specific logo isn't found
-   * @param {string} [props.className=''] - Additional CSS class names
-   * @param {Function} [props.onClick] - Click event handler
-   * @param {boolean} [props.responsive=true] - Whether the logo should be responsive
-   */
-  constructor({
-    sources,
-    alt = 'Logo',
-    fallbackPath = '',
-    className = '',
-    onClick = null,
-    responsive = true,
-  }) {
-    super();
-
-    // Validate required props
-    if (!sources) {
-      throw new Error('Logo: sources is required');
-    }
-
-    // SVG validation - for backward compatibility
-    if (
-      typeof sources === 'string' &&
-      sources.toLowerCase().endsWith('.svg') &&
-      !fallbackPath
-    ) {
-      console.warn(
-        'Logo: Using SVG without fallback may not work in all environments'
-      );
-    }
-
-    // Store props
-    this.props = {
-      sources,
-      alt,
-      fallbackPath,
-      className,
-      onClick,
-      responsive,
-    };
-
-    // Create logo container
-    this.container = this.createLogoContainer();
-
-    // Bind the theme change handler once to ensure proper event removal
-    this._themeChangeHandler = this.handleThemeChange.bind(this);
-
-    // Listen for theme changes to update the logo if needed
-    if (typeof window !== 'undefined') {
-      window.addEventListener('themechange', this._themeChangeHandler);
-    }
+const createLogo = (props) => {
+  // Validate props
+  if (!props.src) {
+    throw new Error('Logo: src is required');
   }
 
   /**
-   * Creates the logo container with the appropriate image
-   * @private
-   * @returns {HTMLElement} The logo container element
+   * Renders the logo element based on current state
+   * @param {Object} state - Current component state
+   * @returns {HTMLElement} Logo container element
    */
-  createLogoContainer() {
-    // Create container
-    const container = this.createElement('div', {
-      className: this.createClassNames(
-        'logo-container',
-        this.props.responsive ? 'logo-container--responsive' : '',
-        this.props.className
-      ),
-      events: {
-        click: this.props.onClick,
-      },
+  const renderLogo = (state) => {
+    // Create container with proper classes
+    const containerClasses = [
+      'logo-container',
+      state.responsive ? 'logo-container--responsive' : '',
+      state.className,
+    ].filter(Boolean);
+
+    // Use 'classes' instead of 'className' for createElement
+    const container = createElement('div', {
+      classes: containerClasses,
     });
 
-    // Add image element with current theme's logo
-    this.updateLogoImage(container);
+    // Create logo image using Image component
+    const image = Image({
+      src: state.src,
+      fallbackSrc: state.fallbackSrc,
+      alt: state.alt,
+      onClick: state.onClick,
+      responsive: true, // Always make image responsive
+      className: 'logo-image',
+    });
 
+    container.appendChild(image.getElement());
     return container;
-  }
+  };
+
+  // Create component using baseComponent with default props
+  const baseComponent = createBaseComponent(renderLogo)({
+    src: props.src,
+    alt: props.alt || 'Logo',
+    fallbackSrc: props.fallbackSrc || '',
+    className: props.className || '',
+    onClick: props.onClick || null,
+    responsive: props.responsive !== undefined ? props.responsive : true,
+  });
 
   /**
-   * Updates the logo image based on the current theme
-   * @private
-   * @param {HTMLElement} container - The container to update (defaults to this.container)
+   * Determines if component needs to fully re-render based on prop changes
+   * @param {Object} newProps - New properties
+   * @returns {boolean} Whether a full re-render is required
    */
-  updateLogoImage(container = this.container) {
-    if (!container) return;
+  const shouldRerender = (newProps) => {
+    // Only rebuild if these props change
+    const criticalProps = ['src', 'fallbackSrc', 'responsive'];
+    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+  };
 
-    // Clear existing content
-    container.innerHTML = '';
+  /**
+   * Perform partial update without full re-render
+   * @param {HTMLElement} element - Current element
+   * @param {Object} newProps - New properties
+   */
+  const partialUpdate = (element, newProps) => {
+    // Update classes directly
+    if (newProps.className !== undefined) {
+      const classes = [
+        'logo-container',
+        baseComponent.getState().responsive ? 'logo-container--responsive' : '',
+        newProps.className,
+      ]
+        .filter(Boolean)
+        .join(' ');
 
-    // Get the current theme
-    const currentTheme = getCurrentTheme();
-
-    // Determine which logo path to use
-    let logoPath;
-
-    if (typeof this.props.sources === 'string') {
-      // If sources is just a string, use it directly
-      logoPath = this.props.sources;
-    } else if (typeof this.props.sources === 'object') {
-      // If sources is an object, try to get the theme-specific path
-      logoPath =
-        this.props.sources[currentTheme] ||
-        this.props.sources.default ||
-        this.props.fallbackPath ||
-        Object.values(this.props.sources)[0];
+      element.className = classes;
     }
+  };
 
-    // Create and append the image element
-    if (logoPath) {
-      const img = this.createElement('img', {
-        attributes: {
-          src: logoPath,
-          alt: this.props.alt,
-          'data-theme': currentTheme,
-        },
-        className: 'logo-image',
-      });
+  // Extended component with custom methods
+  const logoComponent = {
+    ...baseComponent,
+    shouldRerender,
+    partialUpdate,
 
-      // Handle image loading errors
-      img.onerror = () => {
-        console.error(`Failed to load logo from path: ${logoPath}`);
+    /**
+     * Set logo source
+     * @param {string} newSrc - New src
+     * @returns {Object} Logo component (for chaining)
+     */
+    setSrc(newSrc) {
+      return this.update({ src: newSrc });
+    },
+  };
 
-        // Try fallback if available and not already using it
-        if (this.props.fallbackPath && logoPath !== this.props.fallbackPath) {
-          img.src = this.props.fallbackPath;
-          img.setAttribute('data-theme', 'fallback');
-        } else {
-          // Create a text fallback if we can't load the image
-          container.innerHTML = `<span class="logo-error">${this.props.alt}</span>`;
-        }
-      };
+  return logoComponent;
+};
 
-      // Add a themed badge for story demo purposes
-      if (
-        typeof this.props.sources === 'object' &&
-        Object.keys(this.props.sources).length > 1
-      ) {
-        // Only add theme badge if we have multiple themes (for demo purposes)
-        const themeBadge = this.createElement('span', {
-          className: 'logo-theme-badge',
-          textContent: currentTheme,
-        });
-        container.appendChild(themeBadge);
-      }
+// Define required props for validation
+createLogo.requiredProps = ['src'];
 
-      container.appendChild(img);
-    } else {
-      // If no valid path found, show error text
-      container.innerHTML = `<span class="logo-error">${this.props.alt}</span>`;
-    }
-  }
-
-  /**
-   * Handles theme change events
-   * @private
-   */
-  handleThemeChange() {
-    this.updateLogoImage();
-  }
-
-  /**
-   * Clean up event listeners when the component is destroyed
-   */
-  destroy() {
-    if (typeof window !== 'undefined' && this._themeChangeHandler) {
-      // Use the stored bound handler reference for proper removal
-      window.removeEventListener('themechange', this._themeChangeHandler);
-      this._themeChangeHandler = null;
-    }
-  }
-
-  /**
-   * Gets the logo element
-   * @returns {HTMLElement} The logo container element
-   */
-  getElement() {
-    return this.container;
-  }
-}
+// Export the factory function
+export default createLogo;

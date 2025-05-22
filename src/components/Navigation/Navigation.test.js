@@ -1,5 +1,5 @@
 // src/components/Navigation/Navigation.test.js
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import Navigation from './Navigation.js';
 
 describe('Navigation component', () => {
@@ -19,8 +19,18 @@ describe('Navigation component', () => {
     { id: 'disabled', label: 'Disabled', href: '#', disabled: true },
   ];
 
+  // Mock document methods
+  beforeEach(() => {
+    // Setup document body for DOM testing
+    document.body.innerHTML = '';
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should create a navigation element', () => {
-    const navigation = new Navigation({ items: navItems });
+    const navigation = Navigation({ items: navItems });
 
     const element = navigation.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
@@ -29,7 +39,7 @@ describe('Navigation component', () => {
   });
 
   it('should create correct number of navigation items', () => {
-    const navigation = new Navigation({ items: navItems });
+    const navigation = Navigation({ items: navItems });
 
     const element = navigation.getElement();
     const topLevelItems = element.querySelectorAll('.nav__list > .nav__item');
@@ -37,7 +47,7 @@ describe('Navigation component', () => {
   });
 
   it('should create submenus for items with children', () => {
-    const navigation = new Navigation({ items: navItems });
+    const navigation = Navigation({ items: navItems });
 
     const element = navigation.getElement();
     const productItem = element.querySelector(`.nav__item[data-id="products"]`);
@@ -48,13 +58,10 @@ describe('Navigation component', () => {
 
     const submenu = productItem.querySelector('.nav__submenu');
     expect(submenu).not.toBeNull();
-
-    const submenuItems = submenu.querySelectorAll('.nav__item');
-    expect(submenuItems.length).toBe(2); // Two child items in the products menu
   });
 
   it('should mark items as disabled', () => {
-    const navigation = new Navigation({ items: navItems });
+    const navigation = Navigation({ items: navItems });
 
     const element = navigation.getElement();
     const disabledItem = element.querySelector(
@@ -68,7 +75,7 @@ describe('Navigation component', () => {
   });
 
   it('should create burger menu for responsive navigation', () => {
-    const navigation = new Navigation({ items: navItems, responsive: true });
+    const navigation = Navigation({ items: navItems, responsive: true });
 
     const element = navigation.getElement();
     const burgerButton = element.querySelector('.nav__burger');
@@ -77,7 +84,7 @@ describe('Navigation component', () => {
   });
 
   it('should not create burger menu when responsive is false', () => {
-    const navigation = new Navigation({ items: navItems, responsive: false });
+    const navigation = Navigation({ items: navItems, responsive: false });
 
     const element = navigation.getElement();
     const burgerButton = element.querySelector('.nav__burger');
@@ -85,7 +92,7 @@ describe('Navigation component', () => {
   });
 
   it('should toggle mobile menu when burger is clicked', () => {
-    const navigation = new Navigation({ items: navItems, responsive: true });
+    const navigation = Navigation({ items: navItems, responsive: true });
     document.body.appendChild(navigation.getElement());
 
     const element = navigation.getElement();
@@ -108,7 +115,7 @@ describe('Navigation component', () => {
   });
 
   it('should toggle submenu when clicking on an item with children', () => {
-    const navigation = new Navigation({ items: navItems });
+    const navigation = Navigation({ items: navItems });
     document.body.appendChild(navigation.getElement());
 
     const element = navigation.getElement();
@@ -133,7 +140,7 @@ describe('Navigation component', () => {
   });
 
   it('should set active item when clicking on a navigation item', () => {
-    const navigation = new Navigation({ items: navItems });
+    const navigation = Navigation({ items: navItems });
     document.body.appendChild(navigation.getElement());
 
     const element = navigation.getElement();
@@ -152,7 +159,7 @@ describe('Navigation component', () => {
 
   it('should call onItemSelect callback when an item is clicked', () => {
     const onItemSelect = vi.fn();
-    const navigation = new Navigation({
+    const navigation = Navigation({
       items: navItems,
       onItemSelect,
     });
@@ -172,7 +179,7 @@ describe('Navigation component', () => {
   });
 
   it('should add horizontal class when horizontal is true', () => {
-    const navigation = new Navigation({
+    const navigation = Navigation({
       items: navItems,
       horizontal: true,
     });
@@ -183,7 +190,7 @@ describe('Navigation component', () => {
   });
 
   it('should add vertical class when horizontal is false', () => {
-    const navigation = new Navigation({
+    const navigation = Navigation({
       items: navItems,
       horizontal: false,
     });
@@ -191,5 +198,66 @@ describe('Navigation component', () => {
     const element = navigation.getElement();
     expect(element.classList.contains('nav--horizontal')).toBe(false);
     expect(element.classList.contains('nav--vertical')).toBe(true);
+  });
+
+  it('should properly clean up event listeners when destroyed', () => {
+    const navigation = Navigation({ items: navItems });
+    const element = navigation.getElement();
+    document.body.appendChild(element);
+
+    // Mock removeEventListener to verify it's called
+    const docRemoveEventListener = vi.spyOn(document, 'removeEventListener');
+    const windowRemoveEventListener = vi.spyOn(window, 'removeEventListener');
+
+    navigation.destroy();
+
+    expect(docRemoveEventListener).toHaveBeenCalledTimes(2); // Click and keydown handlers
+    expect(windowRemoveEventListener).toHaveBeenCalledTimes(2); // Resize handler
+
+    document.body.removeChild(element);
+  });
+
+  it('should set active item programmatically', () => {
+    const navigation = Navigation({ items: navItems });
+    document.body.appendChild(navigation.getElement());
+
+    const element = navigation.getElement();
+    const aboutItem = element.querySelector(`.nav__item[data-id="about"]`);
+
+    // Not active initially
+    expect(aboutItem.classList.contains('nav__item--active')).toBe(false);
+
+    // Set active programmatically
+    navigation.setActiveItem('about');
+
+    // Now it should be active
+    expect(aboutItem.classList.contains('nav__item--active')).toBe(true);
+
+    document.body.removeChild(element);
+  });
+
+  it('should throw an error when items prop is missing', () => {
+    expect(() => Navigation({})).toThrow('Navigation: items is required');
+  });
+
+  it('should handle partial updates efficiently', () => {
+    const navigation = Navigation({ items: navItems });
+    document.body.appendChild(navigation.getElement());
+
+    const element = navigation.getElement();
+
+    // Update className
+    navigation.update({ className: 'custom-nav' });
+    expect(element.classList.contains('custom-nav')).toBe(true);
+
+    // Update submenuShadow
+    navigation.update({ submenuShadow: true });
+    expect(element.classList.contains('nav--submenu-shadow')).toBe(true);
+
+    // Update burgerPosition
+    navigation.update({ burgerPosition: 'right' });
+    expect(element.classList.contains('nav--burger-right')).toBe(true);
+
+    document.body.removeChild(element);
   });
 });

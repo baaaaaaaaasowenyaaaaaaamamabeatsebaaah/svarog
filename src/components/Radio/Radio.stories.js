@@ -8,7 +8,7 @@ export default {
 };
 
 export const SingleRadio = () => {
-  return new Radio({
+  return Radio({
     label: 'Single radio button',
     value: 'single',
     name: 'singleRadio',
@@ -17,7 +17,7 @@ export const SingleRadio = () => {
 };
 
 export const CheckedRadio = () => {
-  return new Radio({
+  return Radio({
     label: 'Checked radio button',
     value: 'checked',
     name: 'checkedRadio',
@@ -27,7 +27,7 @@ export const CheckedRadio = () => {
 };
 
 export const DisabledRadio = () => {
-  return new Radio({
+  return Radio({
     label: 'Disabled radio button',
     value: 'disabled',
     name: 'disabledRadio',
@@ -37,7 +37,7 @@ export const DisabledRadio = () => {
 };
 
 export const DisabledCheckedRadio = () => {
-  return new Radio({
+  return Radio({
     label: 'Disabled checked radio button',
     value: 'disabledChecked',
     name: 'disabledCheckedRadio',
@@ -48,7 +48,7 @@ export const DisabledCheckedRadio = () => {
 };
 
 export const RequiredRadio = () => {
-  return new Radio({
+  return Radio({
     label: 'Required radio button',
     value: 'required',
     name: 'requiredRadio',
@@ -66,7 +66,7 @@ export const BasicRadioGroup = () => {
     { label: 'Option 3', value: 'option3' },
   ];
 
-  return new RadioGroup({
+  return RadioGroup({
     options,
     name: 'basicGroup',
     legend: 'Basic Radio Group',
@@ -81,7 +81,7 @@ export const WithSelectedValue = () => {
     { label: 'Option 3', value: 'option3' },
   ];
 
-  return new RadioGroup({
+  return RadioGroup({
     options,
     name: 'preselectedGroup',
     legend: 'Preselected Radio Group',
@@ -97,7 +97,7 @@ export const HorizontalLayout = () => {
     { label: 'Option 3', value: 'option3' },
   ];
 
-  return new RadioGroup({
+  return RadioGroup({
     options,
     name: 'horizontalGroup',
     legend: 'Horizontal Radio Group',
@@ -115,7 +115,7 @@ export const RequiredGroup = () => {
 
   const container = document.createElement('div');
 
-  const radioGroup = new RadioGroup({
+  const radioGroup = RadioGroup({
     options,
     name: 'requiredGroup',
     legend: 'Required Radio Group',
@@ -145,7 +145,7 @@ export const DisabledGroup = () => {
     { label: 'Option 3', value: 'option3' },
   ];
 
-  return new RadioGroup({
+  return RadioGroup({
     options,
     name: 'disabledGroup',
     legend: 'Disabled Radio Group',
@@ -161,7 +161,7 @@ export const MixedDisabled = () => {
     { label: 'Option 3', value: 'option3' },
   ];
 
-  return new RadioGroup({
+  return RadioGroup({
     options,
     name: 'mixedDisabledGroup',
     legend: 'Mixed Disabled Options',
@@ -178,7 +178,7 @@ export const ProgrammaticControl = () => {
 
   const container = document.createElement('div');
 
-  const radioGroup = new RadioGroup({
+  const radioGroup = RadioGroup({
     options,
     name: 'controlledGroup',
     legend: 'Programmatically Controlled',

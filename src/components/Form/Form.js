@@ -1,112 +1,78 @@
 // src/components/Form/Form.js
 import './Form.css';
 import './FormValidation.css';
-import { Component } from '../../utils/componentFactory.js';
+import {
+  createComponent,
+  createElement,
+  appendChildren,
+} from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { validateRequiredProps } from '../../utils/validation.js';
+import { debounce } from '../../utils/performance.js';
 
 /**
- * Form component
- * @extends Component
+ * Creates a Form component for handling form functionality
+ * @param {Object} props - Form properties
+ * @returns {Object} Form component API
  */
-export default class Form extends Component {
-  /**
-   * Creates a new Form instance
-   *
-   * @param {Object} props - Form properties
-   * @param {Array|Object} props.children - Form content
-   * @param {string} [props.id] - Form id
-   * @param {string} [props.className=''] - Additional CSS class names
-   * @param {Function} [props.onSubmit] - Submit event handler
-   * @param {Function} [props.onChange] - Change event handler
-   * @param {boolean} [props.autoValidate=true] - Whether to validate on submit
-   * @param {string} [props.layout='vertical'] - Form layout ('vertical' or 'horizontal')
-   */
-  constructor({
-    children,
-    id,
-    className = '',
-    onSubmit,
-    onChange,
-    autoValidate = true,
-    layout = 'vertical',
-  }) {
-    super();
-
-    // Validation
-    if (!children) {
-      throw new Error('Form: children are required');
-    }
-
-    if (layout !== 'vertical' && layout !== 'horizontal') {
-      throw new Error('Form: layout must be either "vertical" or "horizontal"');
-    }
-
-    // Store props
-    this.props = {
-      children,
-      id,
-      className,
-      onSubmit,
-      onChange,
-      autoValidate,
-      layout,
-    };
-
-    // Store fields
-    this.fields = [];
-
-    // Create element
-    this.form = this.createFormElement();
-  }
-
-  /**
-   * Creates the form element
-   * @private
-   * @returns {HTMLFormElement} The form element
-   */
-  createFormElement() {
-    const { id, className, layout, children } = this.props;
-
-    // Create form element
-    const form = this.createElement('form', {
-      className: this.createClassNames('form', `form--${layout}`, className),
-      attributes: {
-        id,
-        novalidate: this.props.autoValidate ? 'novalidate' : null,
+const createForm = (props) => {
+  // Validate required props
+  validateRequiredProps(
+    props,
+    {
+      children: { required: true },
+      layout: {
+        required: false,
+        type: 'string',
+        allowedValues: ['vertical', 'horizontal'],
+        validator: (layout) => {
+          if (layout && layout !== 'vertical' && layout !== 'horizontal') {
+            return 'must be either "vertical" or "horizontal"';
+          }
+          return true;
+        },
       },
-      events: {
-        submit: this.handleSubmit.bind(this),
-        change: this.handleChange.bind(this),
-        input: this.handleInput.bind(this),
-      },
-    });
+    },
+    'Form'
+  );
 
-    // Add content
-    this.appendChildren(form, children);
+  // Initialize state from props with defaults
+  const state = {
+    children: props.children,
+    id: props.id,
+    className: props.className || '',
+    onSubmit: props.onSubmit,
+    onChange: props.onChange,
+    autoValidate: props.autoValidate !== undefined ? props.autoValidate : true,
+    layout: props.layout || 'vertical',
+  };
 
-    return form;
-  }
+  // Store registered form fields
+  const fields = [];
+
+  // Define event handlers before using them in createFormElement
 
   /**
    * Handles form submission
    * @private
    * @param {Event} event - The submit event
    */
-  handleSubmit(event) {
+  function handleSubmit(event) {
     // Prevent default form submission
     event.preventDefault();
 
     // Validate form if autoValidate is true
     let isValid = true;
-    if (this.props.autoValidate) {
-      isValid = this.validate();
+    if (state.autoValidate) {
+      isValid = validate();
     }
 
     // Get form data
-    const formData = this.getFormData();
+    const formData = getFormData();
 
     // Call onSubmit callback if provided
-    if (typeof this.props.onSubmit === 'function') {
-      this.props.onSubmit(event, formData, isValid);
+    if (typeof state.onSubmit === 'function') {
+      state.onSubmit(event, formData, isValid);
     }
   }
 
@@ -115,46 +81,73 @@ export default class Form extends Component {
    * @private
    * @param {Event} event - The change event
    */
-  handleChange(event) {
+  function handleChange(event) {
     // Call onChange callback if provided
-    if (typeof this.props.onChange === 'function') {
-      const formData = this.getFormData();
-      this.props.onChange(event, formData);
+    if (typeof state.onChange === 'function') {
+      const formData = getFormData();
+      state.onChange(event, formData);
     }
   }
 
   /**
    * Handles input events
    * @private
+   * @param {Event} event - The input event
    */
-  handleInput() {
+  const handleInput = debounce(() => {
     // This is mainly for real-time validation if needed
-  }
+    // Currently a stub but can be expanded for real-time validation
+    // Using _event prefix to indicate intentionally unused parameter
+  }, 100);
 
   /**
-   * Registers a form field component
-   * @param {Object} field - The field component to register
+   * Creates the form element
+   * @private
+   * @param {Object} state - Current state
+   * @returns {HTMLFormElement} The form element
    */
-  registerField(field) {
-    if (field && !this.fields.includes(field)) {
-      this.fields.push(field);
-    }
+  function createFormElement(state) {
+    const { id, className, layout, children, autoValidate } = state;
 
-    return this;
+    // Create form element
+    const form = createElement('form', {
+      classes: ['form', `form--${layout}`, className],
+      attributes: {
+        id,
+        novalidate: autoValidate ? 'novalidate' : null,
+      },
+      events: {
+        submit: handleSubmit,
+        change: handleChange,
+        input: handleInput,
+      },
+    });
+
+    // Add content
+    appendChildren(form, children);
+
+    return form;
   }
+
+  // Create base component with render function
+  const component = createBaseComponent((componentState) => {
+    return createFormElement(componentState);
+  })(state);
+
+  // Get the form element
+  const formElement = component.getElement();
 
   /**
    * Validates all registered form fields
    * @returns {boolean} Whether the form is valid
    */
-  validate() {
+  function validate() {
     // Validate all registered fields
-    const fieldResults = this.fields.map((field) => {
+    const fieldResults = fields.map((field) => {
       // Skip fields that don't have a validate method
       if (typeof field.validate !== 'function') {
         return true;
       }
-
       return field.validate();
     });
 
@@ -166,8 +159,8 @@ export default class Form extends Component {
    * Gets the form data
    * @returns {Object} Form data as key-value pairs
    */
-  getFormData() {
-    const formData = new FormData(this.form);
+  function getFormData() {
+    const formData = new FormData(formElement);
     const data = {};
 
     // Convert FormData to plain object
@@ -186,83 +179,149 @@ export default class Form extends Component {
     return data;
   }
 
-  /**
-   * Resets the form
-   */
-  reset() {
-    this.form.reset();
+  // Public API
+  return {
+    /**
+     * Gets the form element
+     * @returns {HTMLFormElement} The form element
+     */
+    getElement() {
+      return formElement;
+    },
 
-    // Reset all registered fields with reset method
-    this.fields.forEach((field) => {
-      if (typeof field.reset === 'function') {
-        field.reset();
+    /**
+     * Registers a form field component
+     * @param {Object} field - The field component to register
+     * @returns {Object} Form component for chaining
+     */
+    registerField(field) {
+      if (field && !fields.includes(field)) {
+        fields.push(field);
       }
-    });
-
-    return this;
-  }
-
-  /**
-   * Sets form values
-   * @param {Object} values - Object containing form values
-   */
-  setValues(values) {
-    if (!values || typeof values !== 'object') {
       return this;
-    }
+    },
 
-    // Set values for form elements
-    Object.entries(values).forEach(([name, value]) => {
-      const elements = this.form.elements[name];
+    /**
+     * Validates all registered form fields
+     * @returns {boolean} Whether the form is valid
+     */
+    validate,
 
-      if (!elements) {
-        return;
-      }
+    /**
+     * Gets the form data
+     * @returns {Object} Form data as key-value pairs
+     */
+    getFormData,
 
-      // Handle radio groups and multiple elements with the same name
-      if (elements instanceof RadioNodeList) {
-        Array.from(elements).forEach((element) => {
-          // Handle checkboxes and radio buttons
-          if (element.type === 'checkbox' || element.type === 'radio') {
-            if (Array.isArray(value)) {
-              element.checked = value.includes(element.value);
-            } else {
-              element.checked = element.value === value;
-            }
-          } else {
-            element.value = value;
-          }
-        });
-      } else {
-        // Handle single elements
-        if (elements.type === 'checkbox') {
-          elements.checked = Boolean(value);
-        } else {
-          elements.value = value;
+    /**
+     * Resets the form
+     * @returns {Object} Form component for chaining
+     */
+    reset() {
+      formElement.reset();
+
+      // Reset all registered fields with reset method
+      fields.forEach((field) => {
+        if (typeof field.reset === 'function') {
+          field.reset();
         }
+      });
+
+      return this;
+    },
+
+    /**
+     * Sets form values
+     * @param {Object} values - Object containing form values
+     * @returns {Object} Form component for chaining
+     */
+    setValues(values) {
+      if (!values || typeof values !== 'object') {
+        return this;
       }
-    });
 
-    // Update registered field components
-    this.fields.forEach((field) => {
-      const name = field.props?.name;
-      if (
-        name &&
-        values[name] !== undefined &&
-        typeof field.setValue === 'function'
-      ) {
-        field.setValue(values[name]);
-      }
-    });
+      // Set values for form elements
+      Object.entries(values).forEach(([name, value]) => {
+        const elements = formElement.elements[name];
 
-    return this;
-  }
+        if (!elements) {
+          return;
+        }
 
-  /**
-   * Gets the form element
-   * @returns {HTMLFormElement} The form element
-   */
-  getElement() {
-    return this.form;
-  }
-}
+        // Handle radio groups and multiple elements with the same name
+        if (elements instanceof RadioNodeList) {
+          Array.from(elements).forEach((element) => {
+            // Handle checkboxes and radio buttons
+            if (element.type === 'checkbox' || element.type === 'radio') {
+              if (Array.isArray(value)) {
+                element.checked = value.includes(element.value);
+              } else {
+                element.checked = element.value === value;
+              }
+            } else {
+              element.value = value;
+            }
+          });
+        } else {
+          // Handle single elements
+          if (elements.type === 'checkbox') {
+            elements.checked = Boolean(value);
+          } else {
+            elements.value = value;
+          }
+        }
+      });
+
+      // Update registered field components
+      fields.forEach((field) => {
+        const name = field.props?.name;
+        if (
+          name &&
+          values[name] !== undefined &&
+          typeof field.setValue === 'function'
+        ) {
+          field.setValue(values[name]);
+        }
+      });
+
+      return this;
+    },
+
+    /**
+     * Updates component with new props
+     * @param {Object} newProps - New properties
+     * @returns {Object} Form component for chaining
+     */
+    update(newProps) {
+      // Update state
+      Object.assign(state, newProps);
+
+      // Update component
+      component.update(state);
+
+      return this;
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      // Clean up event listeners
+      formElement.removeEventListener('submit', handleSubmit);
+      formElement.removeEventListener('change', handleChange);
+      formElement.removeEventListener('input', handleInput);
+
+      // Clear field references
+      fields.length = 0;
+
+      // Call base component's destroy
+      component.destroy();
+    },
+  };
+};
+
+// Define required props for validation
+createForm.requiredProps = ['children'];
+
+// Export as a component factory
+export default createComponent('Form', createForm);

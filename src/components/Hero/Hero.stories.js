@@ -7,7 +7,7 @@ export default {
 };
 
 export const Default = () => {
-  const hero = new Hero({
+  const hero = Hero({
     title: 'Welcome to Svarog',
     subtitle: 'Build amazing web applications with our component library',
     ctaText: 'Get Started',
@@ -17,7 +17,7 @@ export const Default = () => {
 };
 
 export const WithBackground = () => {
-  const hero = new Hero({
+  const hero = Hero({
     title: 'Create Beautiful Websites',
     subtitle: 'Modern components for modern web development',
     ctaText: 'Explore Components',
@@ -29,7 +29,7 @@ export const WithBackground = () => {
 };
 
 export const LeftAligned = () => {
-  const hero = new Hero({
+  const hero = Hero({
     title: 'Left Aligned Hero',
     subtitle: 'This hero section is aligned to the left',
     ctaText: 'Learn More',
@@ -40,7 +40,7 @@ export const LeftAligned = () => {
 };
 
 export const RightAligned = () => {
-  const hero = new Hero({
+  const hero = Hero({
     title: 'Right Aligned Hero',
     subtitle: 'This hero section is aligned to the right',
     ctaText: 'Contact Us',
@@ -51,7 +51,7 @@ export const RightAligned = () => {
 };
 
 export const WithCallbackAction = () => {
-  const hero = new Hero({
+  const hero = Hero({
     title: 'Interactive Hero',
     subtitle: 'Click the button to see an alert',
     ctaText: 'Click Me',
@@ -61,14 +61,14 @@ export const WithCallbackAction = () => {
 };
 
 export const MinimalHero = () => {
-  const hero = new Hero({
+  const hero = Hero({
     title: 'Simple Hero Section',
   });
   return hero.getElement();
 };
 
 export const WithLongContent = () => {
-  const hero = new Hero({
+  const hero = Hero({
     title: 'Discover the Power of Modern Web Development',
     subtitle:
       "Our comprehensive component library provides everything you need to build stunning, responsive web applications. From basic UI elements to complex interactive components, we've got you covered.",

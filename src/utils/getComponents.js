@@ -2,212 +2,12 @@
 
 export const getComponents = () => {
   const components = [
-    {
-      name: 'Button',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Default
-            ),
-        },
-        {
-          name: 'Primary',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Primary
-            ),
-        },
-        {
-          name: 'Secondary',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Secondary
-            ),
-        },
-        {
-          name: 'Text',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Text
-            ),
-        },
-        // ADD THESE NEW STORIES:
-        {
-          name: 'Success',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Success
-            ),
-        },
-        {
-          name: 'Danger',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Danger
-            ),
-        },
-        {
-          name: 'Outlined',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Outlined
-            ),
-        },
-        {
-          name: 'IconButton',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.IconButton
-            ),
-        },
-        // KEEP EXISTING ONES:
-        {
-          name: 'Small',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Small
-            ),
-        },
-        {
-          name: 'Large',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Large
-            ),
-        },
-        {
-          name: 'Disabled',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.Disabled
-            ),
-        },
-        {
-          name: 'WithCustomClass',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.WithCustomClass
-            ),
-        },
-        {
-          name: 'AllVariants',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.AllVariants
-            ),
-        },
-        // ADD THESE NEW STORIES:
-        {
-          name: 'ButtonWithIcon',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.ButtonWithIcon
-            ),
-        },
-        {
-          name: 'ButtonIconRight',
-          module: () =>
-            import('../components/Button/Button.stories.js').then(
-              (m) => m.ButtonIconRight
-            ),
-        },
-      ],
-    },
-
-    {
-      name: 'Card',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/Card/Card.stories.js').then((m) => m.Default),
-        },
-        {
-          name: 'WithImage',
-          module: () =>
-            import('../components/Card/Card.stories.js').then(
-              (m) => m.WithImage
-            ),
-        },
-        {
-          name: 'WithFooter',
-          module: () =>
-            import('../components/Card/Card.stories.js').then(
-              (m) => m.WithFooter
-            ),
-        },
-        {
-          name: 'Outlined',
-          module: () =>
-            import('../components/Card/Card.stories.js').then(
-              (m) => m.Outlined
-            ),
-        },
-        {
-          name: 'Elevated',
-          module: () =>
-            import('../components/Card/Card.stories.js').then(
-              (m) => m.Elevated
-            ),
-        },
-        {
-          name: 'ComplexCard',
-          module: () =>
-            import('../components/Card/Card.stories.js').then(
-              (m) => m.ComplexCard
-            ),
-        },
-      ],
-    },
-
-    {
-      name: 'Grid',
-      stories: [
-        {
-          name: 'TwoColumns',
-          module: () =>
-            import('../components/Grid/Grid.stories.js').then(
-              (m) => m.TwoColumns
-            ),
-        },
-        {
-          name: 'ThreeColumns',
-          module: () =>
-            import('../components/Grid/Grid.stories.js').then(
-              (m) => m.ThreeColumns
-            ),
-        },
-        {
-          name: 'ResponsiveGrid',
-          module: () =>
-            import('../components/Grid/Grid.stories.js').then(
-              (m) => m.ResponsiveGrid
-            ),
-        },
-      ],
-    },
-
-    {
-      name: 'Link',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/Link/Link.stories.js').then((m) => m.Default),
-        },
-        {
-          name: 'BlockLink',
-          module: () =>
-            import('../components/Link/Link.stories.js').then(
-              (m) => m.BlockLink
-            ),
-        },
-      ],
-    },
+    // =========================================
+    // FOUNDATION COMPONENTS
+    // =========================================
     {
       name: 'Typography',
+      category: 'Foundation',
       stories: [
         {
           name: 'AllHeadings',
@@ -309,9 +109,169 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Button',
+      category: 'Foundation',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'Primary',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Primary
+            ),
+        },
+        {
+          name: 'Secondary',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Secondary
+            ),
+        },
+        {
+          name: 'Text',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Text
+            ),
+        },
+        {
+          name: 'Success',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Success
+            ),
+        },
+        {
+          name: 'Danger',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Danger
+            ),
+        },
+        {
+          name: 'Outlined',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Outlined
+            ),
+        },
+        {
+          name: 'IconButton',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.IconButton
+            ),
+        },
+        {
+          name: 'Small',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Small
+            ),
+        },
+        {
+          name: 'Large',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Large
+            ),
+        },
+        {
+          name: 'Disabled',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.Disabled
+            ),
+        },
+        {
+          name: 'WithCustomClass',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.WithCustomClass
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.AllVariants
+            ),
+        },
+        {
+          name: 'ButtonWithIcon',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.ButtonWithIcon
+            ),
+        },
+        {
+          name: 'ButtonIconRight',
+          module: () =>
+            import('../components/Button/Button.stories.js').then(
+              (m) => m.ButtonIconRight
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Link',
+      category: 'Foundation',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Link/Link.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'BlockLink',
+          module: () =>
+            import('../components/Link/Link.stories.js').then(
+              (m) => m.BlockLink
+            ),
+        },
+      ],
+    },
 
+    // =========================================
+    // LAYOUT COMPONENTS
+    // =========================================
+    {
+      name: 'Grid',
+      category: 'Layout',
+      stories: [
+        {
+          name: 'TwoColumns',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.TwoColumns
+            ),
+        },
+        {
+          name: 'ThreeColumns',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.ThreeColumns
+            ),
+        },
+        {
+          name: 'ResponsiveGrid',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.ResponsiveGrid
+            ),
+        },
+      ],
+    },
     {
       name: 'Section',
+      category: 'Layout',
       stories: [
         {
           name: 'Default',
@@ -378,9 +338,133 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Card',
+      category: 'Layout',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Card/Card.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'WithImage',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.WithImage
+            ),
+        },
+        {
+          name: 'WithFooter',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.WithFooter
+            ),
+        },
+        {
+          name: 'Outlined',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.Outlined
+            ),
+        },
+        {
+          name: 'Elevated',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.Elevated
+            ),
+        },
+        {
+          name: 'ComplexCard',
+          module: () =>
+            import('../components/Card/Card.stories.js').then(
+              (m) => m.ComplexCard
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Tabs',
+      category: 'Layout',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'SimpleVariant',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.SimpleVariant
+            ),
+        },
+        {
+          name: 'BorderVariant',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.BorderVariant
+            ),
+        },
+        {
+          name: 'WithComponents',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithComponents
+            ),
+        },
+        {
+          name: 'WithDefaultActiveTab',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithDefaultActiveTab
+            ),
+        },
+        {
+          name: 'WithCallback',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithCallback
+            ),
+        },
+        {
+          name: 'WithCustomStyling',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithCustomStyling
+            ),
+        },
+        {
+          name: 'WithHTMLContent',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.WithHTMLContent
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.AllVariants
+            ),
+        },
+        {
+          name: 'TabAlignments',
+          module: () =>
+            import('../components/Tabs/Tabs.stories.js').then(
+              (m) => m.TabAlignments
+            ),
+        },
+      ],
+    },
 
+    // =========================================
+    // NAVIGATION COMPONENTS
+    // =========================================
     {
       name: 'Navigation',
+      category: 'Navigation',
       stories: [
         {
           name: 'Default',
@@ -445,56 +529,77 @@ export const getComponents = () => {
               (m) => m.CustomStyling
             ),
         },
+        {
+          name: 'ProgrammaticControl',
+          module: () =>
+            import('../components/Navigation/Navigation.stories.js').then(
+              (m) => m.CustomStyling
+            ),
+        },
       ],
     },
-
     {
-      name: 'Logo',
+      name: 'Pagination',
+      category: 'Navigation',
       stories: [
         {
           name: 'Default',
           module: () =>
-            import('../components/Logo/Logo.stories.js').then((m) => m.Default),
-        },
-        {
-          name: 'WithThemeSpecificLogos',
-          module: () =>
-            import('../components/Logo/Logo.stories.js').then(
-              (m) => m.WithThemeSpecificLogos
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.Default
             ),
         },
         {
-          name: 'WithCustomSizes',
+          name: 'MiddlePage',
           module: () =>
-            import('../components/Logo/Logo.stories.js').then(
-              (m) => m.WithCustomSizes
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.MiddlePage
             ),
         },
         {
-          name: 'WithFallback',
+          name: 'LastPage',
           module: () =>
-            import('../components/Logo/Logo.stories.js').then(
-              (m) => m.WithFallback
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.LastPage
             ),
         },
         {
-          name: 'WithClickHandler',
+          name: 'ManyPages',
           module: () =>
-            import('../components/Logo/Logo.stories.js').then(
-              (m) => m.WithClickHandler
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.ManyPages
             ),
         },
         {
-          name: 'SingleLogo',
+          name: 'FewPages',
           module: () =>
-            import('../components/Logo/Logo.stories.js').then(
-              (m) => m.SingleLogo
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.FewPages
+            ),
+        },
+        {
+          name: 'SinglePage',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.SinglePage
+            ),
+        },
+        {
+          name: 'WithCustomSiblingCount',
+          module: () =>
+            import('../components/Pagination/Pagination.stories.js').then(
+              (m) => m.WithCustomSiblingCount
             ),
         },
       ],
     },
+
+    // =========================================
+    // FORM COMPONENTS
+    // =========================================
     {
       name: 'Input',
+      category: 'Form',
       stories: [
         {
           name: 'Default',
@@ -573,10 +678,11 @@ export const getComponents = () => {
         },
       ],
     },
-
     {
       name: 'Select',
+      category: 'Form',
       stories: [
+        // Basic stories
         {
           name: 'Default',
           module: () =>
@@ -591,22 +697,6 @@ export const getComponents = () => {
               (m) => m.WithValue
             ),
         },
-        // Add these new stories:
-        {
-          name: 'ValidState',
-          module: () =>
-            import('../components/Select/Select.stories.js').then(
-              (m) => m.ValidState
-            ),
-        },
-        {
-          name: 'InvalidState',
-          module: () =>
-            import('../components/Select/Select.stories.js').then(
-              (m) => m.InvalidState
-            ),
-        },
-        // Existing stories:
         {
           name: 'Required',
           module: () =>
@@ -629,24 +719,89 @@ export const getComponents = () => {
             ),
         },
         {
-          name: 'WithValidation',
-          module: () =>
-            import('../components/Select/Select.stories.js').then(
-              (m) => m.WithValidation
-            ),
-        },
-        {
           name: 'GroupedOptions',
           module: () =>
             import('../components/Select/Select.stories.js').then(
               (m) => m.GroupedOptions
             ),
         },
+        // Validation stories
+        {
+          name: 'ValidState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.ValidState
+            ),
+        },
+        {
+          name: 'InvalidState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.InvalidState
+            ),
+        },
+        {
+          name: 'WithValidation',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.WithValidation
+            ),
+        },
+        // NEW: Loading and async stories
+        {
+          name: 'LoadingState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.LoadingState
+            ),
+        },
+        {
+          name: 'EmptyState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.EmptyState
+            ),
+        },
+        {
+          name: 'AutoLoading',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.AutoLoading
+            ),
+        },
+        {
+          name: 'ManualLoading',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.ManualLoading
+            ),
+        },
+        {
+          name: 'DependentSelects',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.DependentSelects
+            ),
+        },
+        {
+          name: 'WithErrorHandling',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.WithErrorHandling
+            ),
+        },
+        {
+          name: 'MultipleWithLoading',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.MultipleWithLoading
+            ),
+        },
       ],
     },
-
     {
       name: 'Checkbox',
+      category: 'Form',
       stories: [
         {
           name: 'Default',
@@ -715,6 +870,7 @@ export const getComponents = () => {
     },
     {
       name: 'Radio',
+      category: 'Form',
       stories: [
         {
           name: 'SingleRadio',
@@ -766,24 +922,10 @@ export const getComponents = () => {
             ),
         },
         {
-          name: 'BasicRadioGroup',
-          module: () =>
-            import('../components/Radio/Radio.stories.js').then(
-              (m) => m.BasicRadioGroup
-            ),
-        },
-        {
           name: 'WithSelectedValue',
           module: () =>
             import('../components/Radio/Radio.stories.js').then(
               (m) => m.WithSelectedValue
-            ),
-        },
-        {
-          name: 'HorizontalLayout',
-          module: () =>
-            import('../components/Radio/Radio.stories.js').then(
-              (m) => m.HorizontalLayout
             ),
         },
         {
@@ -818,6 +960,7 @@ export const getComponents = () => {
     },
     {
       name: 'Form',
+      category: 'Form',
       stories: [
         {
           name: 'SimpleForm',
@@ -863,456 +1006,13 @@ export const getComponents = () => {
         },
       ],
     },
-    {
-      name: 'Rating',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/Rating/Rating.stories.js').then(
-              (m) => m.Default
-            ),
-        },
-        {
-          name: 'Facebook',
-          module: () =>
-            import('../components/Rating/Rating.stories.js').then(
-              (m) => m.Facebook
-            ),
-        },
-        {
-          name: 'Trustpilot',
-          module: () =>
-            import('../components/Rating/Rating.stories.js').then(
-              (m) => m.Trustpilot
-            ),
-        },
-        {
-          name: 'NoImages',
-          module: () =>
-            import('../components/Rating/Rating.stories.js').then(
-              (m) => m.NoImages
-            ),
-        },
-        {
-          name: 'LimitedImages',
-          module: () =>
-            import('../components/Rating/Rating.stories.js').then(
-              (m) => m.LimitedImages
-            ),
-        },
-      ],
-    },
-    {
-      name: 'Map',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/Map/Map.stories.js').then((m) => m.Default),
-        },
-        {
-          name: 'SpecificCoordinates',
-          module: () =>
-            import('../components/Map/Map.stories.js').then(
-              (m) => m.SpecificCoordinates
-            ),
-        },
-        {
-          name: 'SanFrancisco',
-          module: () =>
-            import('../components/Map/Map.stories.js').then(
-              (m) => m.SanFrancisco
-            ),
-        },
-        {
-          name: 'LosAngeles',
-          module: () =>
-            import('../components/Map/Map.stories.js').then(
-              (m) => m.LosAngeles
-            ),
-        },
-        {
-          name: 'StoreLocation',
-          module: () =>
-            import('../components/Map/Map.stories.js').then(
-              (m) => m.StoreLocation
-            ),
-        },
-      ],
-    },
-    {
-      name: 'Head',
-      stories: [
-        {
-          name: 'BasicSEO',
-          module: () =>
-            import('../components/Head/Head.stories.js').then(
-              (m) => m.BasicSEO
-            ),
-        },
-        {
-          name: 'AdvancedSEO',
-          module: () =>
-            import('../components/Head/Head.stories.js').then(
-              (m) => m.AdvancedSEO
-            ),
-        },
-        {
-          name: 'RestrictedIndexing',
-          module: () =>
-            import('../components/Head/Head.stories.js').then(
-              (m) => m.RestrictedIndexing
-            ),
-        },
-        {
-          name: 'MultiLanguage',
-          module: () =>
-            import('../components/Head/Head.stories.js').then(
-              (m) => m.MultiLanguage
-            ),
-        },
-      ],
-    },
 
-    {
-      name: 'PhoneRepairForm',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.Default),
-        },
-        {
-          name: 'WithPreselectedData',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithPreselectedData),
-        },
-        {
-          name: 'WithCustomTheme',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithCustomTheme),
-        },
-        {
-          name: 'WithErrorHandling',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithErrorHandling),
-        },
-        {
-          name: 'WithoutSteps',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithoutSteps),
-        },
-        {
-          name: 'WithCustomLabels',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithCustomLabels),
-        },
-      ],
-    },
-
-    {
-      name: 'UsedPhonePriceForm',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import(
-              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
-            ).then((m) => m.Default),
-        },
-        {
-          name: 'WithPreselectedData',
-          module: () =>
-            import(
-              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
-            ).then((m) => m.WithPreselectedData),
-        },
-        {
-          name: 'WithCustomTheme',
-          module: () =>
-            import(
-              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
-            ).then((m) => m.WithCustomTheme),
-        },
-        {
-          name: 'WithErrorHandling',
-          module: () =>
-            import(
-              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
-            ).then((m) => m.WithErrorHandling),
-        },
-        {
-          name: 'WithoutSteps',
-          module: () =>
-            import(
-              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
-            ).then((m) => m.WithoutSteps),
-        },
-        {
-          name: 'WithCustomLabels',
-          module: () =>
-            import(
-              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
-            ).then((m) => m.WithCustomLabels),
-        },
-      ],
-    },
-
-    {
-      name: 'StepsIndicator',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import(
-              '../components/StepsIndicator/StepsIndicator.stories.js'
-            ).then((m) => m.Default),
-        },
-        {
-          name: 'AllSteps',
-          module: () =>
-            import(
-              '../components/StepsIndicator/StepsIndicator.stories.js'
-            ).then((m) => m.AllSteps),
-        },
-        {
-          name: 'Interactive',
-          module: () =>
-            import(
-              '../components/StepsIndicator/StepsIndicator.stories.js'
-            ).then((m) => m.Interactive),
-        },
-      ],
-    },
-
-    {
-      name: 'PriceDisplay',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
-              (m) => m.Default
-            ),
-        },
-        {
-          name: 'Loading',
-          module: () =>
-            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
-              (m) => m.Loading
-            ),
-        },
-        {
-          name: 'Highlighted',
-          module: () =>
-            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
-              (m) => m.Highlighted
-            ),
-        },
-        {
-          name: 'WithCustomLabel',
-          module: () =>
-            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
-              (m) => m.WithCustomLabel
-            ),
-        },
-        {
-          name: 'DynamicUpdate',
-          module: () =>
-            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
-              (m) => m.DynamicUpdate
-            ),
-        },
-        {
-          name: 'DifferentPrices',
-          module: () =>
-            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
-              (m) => m.DifferentPrices
-            ),
-        },
-      ],
-    },
-
-    {
-      name: 'ConditionSelector',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import(
-              '../components/ConditionSelector/ConditionSelector.stories.js'
-            ).then((m) => m.Default),
-        },
-        // Add these new stories:
-        {
-          name: 'WithSelectedCondition',
-          module: () =>
-            import(
-              '../components/ConditionSelector/ConditionSelector.stories.js'
-            ).then((m) => m.WithSelectedCondition),
-        },
-        {
-          name: 'LoadingState',
-          module: () =>
-            import(
-              '../components/ConditionSelector/ConditionSelector.stories.js'
-            ).then((m) => m.LoadingState),
-        },
-        {
-          name: 'Interactive',
-          module: () =>
-            import(
-              '../components/ConditionSelector/ConditionSelector.stories.js'
-            ).then((m) => m.Interactive),
-        },
-        {
-          name: 'AllStates',
-          module: () =>
-            import(
-              '../components/ConditionSelector/ConditionSelector.stories.js'
-            ).then((m) => m.AllStates),
-        },
-        {
-          name: 'CustomStyling',
-          module: () =>
-            import(
-              '../components/ConditionSelector/ConditionSelector.stories.js'
-            ).then((m) => m.CustomStyling),
-        },
-      ],
-    },
-
-    {
-      name: 'BlogCard',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/BlogCard/BlogCard.stories.js').then(
-              (m) => m.Default
-            ),
-        },
-        {
-          name: 'WithoutImage',
-          module: () =>
-            import('../components/BlogCard/BlogCard.stories.js').then(
-              (m) => m.WithoutImage
-            ),
-        },
-        {
-          name: 'WithoutAuthor',
-          module: () =>
-            import('../components/BlogCard/BlogCard.stories.js').then(
-              (m) => m.WithoutAuthor
-            ),
-        },
-        {
-          name: 'WithLongExcerpt',
-          module: () =>
-            import('../components/BlogCard/BlogCard.stories.js').then(
-              (m) => m.WithLongExcerpt
-            ),
-        },
-        {
-          name: 'WithManyCategories',
-          module: () =>
-            import('../components/BlogCard/BlogCard.stories.js').then(
-              (m) => m.WithManyCategories
-            ),
-        },
-      ],
-    },
-
-    {
-      name: 'BlogList',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/BlogList/BlogList.stories.js').then(
-              (m) => m.Default
-            ),
-        },
-        {
-          name: 'WithoutTitle',
-          module: () =>
-            import('../components/BlogList/BlogList.stories.js').then(
-              (m) => m.WithoutTitle
-            ),
-        },
-        {
-          name: 'EmptyState',
-          module: () =>
-            import('../components/BlogList/BlogList.stories.js').then(
-              (m) => m.EmptyState
-            ),
-        },
-        {
-          name: 'TwoColumns',
-          module: () =>
-            import('../components/BlogList/BlogList.stories.js').then(
-              (m) => m.TwoColumns
-            ),
-        },
-        {
-          name: 'SingleColumn',
-          module: () =>
-            import('../components/BlogList/BlogList.stories.js').then(
-              (m) => m.SingleColumn
-            ),
-        },
-      ],
-    },
-
-    {
-      name: 'BlogDetail',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/BlogDetail/BlogDetail.stories.js').then(
-              (m) => m.Default
-            ),
-        },
-        {
-          name: 'WithoutImage',
-          module: () =>
-            import('../components/BlogDetail/BlogDetail.stories.js').then(
-              (m) => m.WithoutImage
-            ),
-        },
-        {
-          name: 'MinimalContent',
-          module: () =>
-            import('../components/BlogDetail/BlogDetail.stories.js').then(
-              (m) => m.MinimalContent
-            ),
-        },
-        {
-          name: 'LongContent',
-          module: () =>
-            import('../components/BlogDetail/BlogDetail.stories.js').then(
-              (m) => m.LongContent
-            ),
-        },
-      ],
-    },
-
+    // =========================================
+    // PAGE STRUCTURE COMPONENTS
+    // =========================================
     {
       name: 'Header',
+      category: 'Page Structure',
       stories: [
         {
           name: 'Default',
@@ -1351,9 +1051,9 @@ export const getComponents = () => {
         },
       ],
     },
-
     {
       name: 'Footer',
+      category: 'Page Structure',
       stories: [
         {
           name: 'Default',
@@ -1392,9 +1092,9 @@ export const getComponents = () => {
         },
       ],
     },
-
     {
       name: 'Hero',
+      category: 'Page Structure',
       stories: [
         {
           name: 'Default',
@@ -1445,138 +1145,662 @@ export const getComponents = () => {
         },
       ],
     },
-
     {
-      name: 'Pagination',
+      name: 'CollapsibleHeader',
+      category: 'Page Structure',
+      stories: [
+        {
+          name: 'MuchandyHeader',
+          module: () =>
+            import(
+              '../components/CollapsibleHeader/CollapsibleHeader.stories.js'
+            ).then((m) => m.MuchandyHeader),
+        },
+        {
+          name: 'SecondDesign',
+          module: () =>
+            import(
+              '../components/CollapsibleHeader/CollapsibleHeader.stories.js'
+            ).then((m) => m.SecondDesign),
+        },
+      ],
+    },
+
+    // =========================================
+    // MEDIA COMPONENTS
+    // =========================================
+    {
+      name: 'Image',
+      category: 'Media',
       stories: [
         {
           name: 'Default',
           module: () =>
-            import('../components/Pagination/Pagination.stories.js').then(
+            import('../components/Image/Image.stories.js').then(
               (m) => m.Default
             ),
         },
         {
-          name: 'MiddlePage',
+          name: 'WithFallback',
           module: () =>
-            import('../components/Pagination/Pagination.stories.js').then(
-              (m) => m.MiddlePage
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.WithFallback
             ),
         },
         {
-          name: 'LastPage',
+          name: 'Responsive',
           module: () =>
-            import('../components/Pagination/Pagination.stories.js').then(
-              (m) => m.LastPage
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.Responsive
             ),
         },
         {
-          name: 'ManyPages',
+          name: 'WithCustomSizes',
           module: () =>
-            import('../components/Pagination/Pagination.stories.js').then(
-              (m) => m.ManyPages
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.WithCustomSizes
             ),
         },
         {
-          name: 'FewPages',
+          name: 'WithClickHandler',
           module: () =>
-            import('../components/Pagination/Pagination.stories.js').then(
-              (m) => m.FewPages
-            ),
-        },
-        {
-          name: 'SinglePage',
-          module: () =>
-            import('../components/Pagination/Pagination.stories.js').then(
-              (m) => m.SinglePage
-            ),
-        },
-        {
-          name: 'WithCustomSiblingCount',
-          module: () =>
-            import('../components/Pagination/Pagination.stories.js').then(
-              (m) => m.WithCustomSiblingCount
+            import('../components/Image/Image.stories.js').then(
+              (m) => m.WithClickHandler
             ),
         },
       ],
     },
-
     {
-      name: 'Tabs',
+      name: 'Logo',
+      category: 'Media',
       stories: [
         {
           name: 'Default',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then((m) => m.Default),
+            import('../components/Logo/Logo.stories.js').then((m) => m.Default),
         },
         {
-          name: 'SimpleVariant',
+          name: 'WithCustomSizes',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.SimpleVariant
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.WithCustomSizes
             ),
         },
         {
-          name: 'BorderVariant',
+          name: 'WithFallback',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.BorderVariant
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.WithFallback
             ),
         },
         {
-          name: 'WithComponents',
+          name: 'WithClickHandler',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.WithComponents
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.WithClickHandler
             ),
         },
         {
-          name: 'WithDefaultActiveTab',
+          name: 'SingleLogo', // Keep for backward compatibility
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.WithDefaultActiveTab
+            import('../components/Logo/Logo.stories.js').then(
+              (m) => m.SingleLogo
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Map',
+      category: 'Media',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Map/Map.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'SpecificCoordinates',
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.SpecificCoordinates
             ),
         },
         {
-          name: 'WithCallback',
+          name: 'SanFrancisco',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.WithCallback
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.SanFrancisco
             ),
         },
         {
-          name: 'WithCustomStyling',
+          name: 'LosAngeles',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.WithCustomStyling
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.LosAngeles
             ),
         },
         {
-          name: 'WithHTMLContent',
+          name: 'StoreLocation',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.WithHTMLContent
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.StoreLocation
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Rating',
+      category: 'Media',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.Default
             ),
         },
         {
-          name: 'AllVariants',
+          name: 'Facebook',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.AllVariants
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.Facebook
             ),
         },
         {
-          name: 'TabAlignments',
+          name: 'Trustpilot',
           module: () =>
-            import('../components/Tabs/Tabs.stories.js').then(
-              (m) => m.TabAlignments
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.Trustpilot
+            ),
+        },
+        {
+          name: 'NoImages',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.NoImages
+            ),
+        },
+        {
+          name: 'LimitedImages',
+          module: () =>
+            import('../components/Rating/Rating.stories.js').then(
+              (m) => m.LimitedImages
             ),
         },
       ],
     },
 
+    // =========================================
+    // DOMAIN-SPECIFIC COMPONENTS
+    // =========================================
+    {
+      name: 'BlogCard',
+      category: 'Blog',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithoutImage',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithoutImage
+            ),
+        },
+        {
+          name: 'WithoutAuthor',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithoutAuthor
+            ),
+        },
+        {
+          name: 'WithLongExcerpt',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithLongExcerpt
+            ),
+        },
+        {
+          name: 'WithManyCategories',
+          module: () =>
+            import('../components/BlogCard/BlogCard.stories.js').then(
+              (m) => m.WithManyCategories
+            ),
+        },
+      ],
+    },
+    {
+      name: 'BlogList',
+      category: 'Blog',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithoutTitle',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.WithoutTitle
+            ),
+        },
+        {
+          name: 'EmptyState',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.EmptyState
+            ),
+        },
+        {
+          name: 'TwoColumns',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.TwoColumns
+            ),
+        },
+        {
+          name: 'SingleColumn',
+          module: () =>
+            import('../components/BlogList/BlogList.stories.js').then(
+              (m) => m.SingleColumn
+            ),
+        },
+      ],
+    },
+    {
+      name: 'BlogDetail',
+      category: 'Blog',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithoutImage',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.WithoutImage
+            ),
+        },
+        {
+          name: 'MinimalContent',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.MinimalContent
+            ),
+        },
+        {
+          name: 'LongContent',
+          module: () =>
+            import('../components/BlogDetail/BlogDetail.stories.js').then(
+              (m) => m.LongContent
+            ),
+        },
+      ],
+    },
+    {
+      name: 'PhoneRepairForm',
+      category: 'Repair',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithPreselectedManufacturer',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithPreselectedManufacturer),
+        },
+        {
+          name: 'WithFullSelection',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithFullSelection),
+        },
+        {
+          name: 'WithCustomLabels',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithCustomLabels),
+        },
+        {
+          name: 'WithLoading',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithLoading),
+        },
+        {
+          name: 'WithError',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithError),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.Interactive),
+        },
+      ],
+    },
+    {
+      name: 'UsedPhonePriceForm',
+      category: 'Repair',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithoutSteps',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithoutSteps),
+        },
+        {
+          name: 'WithPreselectedData',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithPreselectedData),
+        },
+        {
+          name: 'WithCustomTheme',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithCustomTheme),
+        },
+        {
+          name: 'WithErrorHandling',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithErrorHandling),
+        },
+        {
+          name: 'WithCustomLabels',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithCustomLabels),
+        },
+        {
+          name: 'WithLoading',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithLoading),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.Interactive),
+        },
+      ],
+    },
+    {
+      name: 'StepsIndicator',
+      category: 'UI Elements',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/StepsIndicator/StepsIndicator.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'AllSteps',
+          module: () =>
+            import(
+              '../components/StepsIndicator/StepsIndicator.stories.js'
+            ).then((m) => m.AllSteps),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import(
+              '../components/StepsIndicator/StepsIndicator.stories.js'
+            ).then((m) => m.Interactive),
+        },
+      ],
+    },
+    {
+      name: 'PriceDisplay',
+      category: 'Commerce',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'Loading',
+          module: () =>
+            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
+              (m) => m.Loading
+            ),
+        },
+        {
+          name: 'Highlighted',
+          module: () =>
+            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
+              (m) => m.Highlighted
+            ),
+        },
+        {
+          name: 'WithCustomLabel',
+          module: () =>
+            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
+              (m) => m.WithCustomLabel
+            ),
+        },
+        {
+          name: 'DynamicUpdate',
+          module: () =>
+            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
+              (m) => m.DynamicUpdate
+            ),
+        },
+        {
+          name: 'DifferentPrices',
+          module: () =>
+            import('../components/PriceDisplay/PriceDisplay.stories.js').then(
+              (m) => m.DifferentPrices
+            ),
+        },
+      ],
+    },
+    {
+      name: 'ConditionSelector',
+      category: 'Commerce',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithSelectedCondition',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.WithSelectedCondition),
+        },
+        {
+          name: 'LoadingState',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.LoadingState),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.Interactive),
+        },
+        {
+          name: 'AllStates',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.AllStates),
+        },
+        {
+          name: 'CustomStyling',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.CustomStyling),
+        },
+      ],
+    },
+    {
+      name: 'ProductCard',
+      category: 'Commerce',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.DefaultProductCard
+            ),
+        },
+        {
+          name: 'WithCustomCurrency',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithCustomCurrency
+            ),
+        },
+        {
+          name: 'MuchandyThemed',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.MuchandyThemed
+            ),
+        },
+        {
+          name: 'WithMultipleSpecs',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithMultipleSpecs
+            ),
+        },
+        {
+          name: 'ProductGrid',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.ProductGrid
+            ),
+        },
+      ],
+    },
+    {
+      name: 'ContactInfo',
+      category: 'Contact',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithCustomClass',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.WithCustomClass
+            ),
+        },
+        {
+          name: 'WithCustomLocationId',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.WithCustomLocationId
+            ),
+        },
+        {
+          name: 'WithClickHandlers',
+          module: () =>
+            import('../components/ContactInfo/ContactInfo.stories.js').then(
+              (m) => m.WithClickHandlers
+            ),
+        },
+      ],
+    },
+    {
+      name: 'StickyContactIcons',
+      category: 'Contact',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithoutTooltips',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.WithoutTooltips),
+        },
+        {
+          name: 'WithCustomClass',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.WithCustomClass),
+        },
+        {
+          name: 'WithClickHandlers',
+          module: () =>
+            import(
+              '../components/StickyContactIcons/StickyContactIcons.stories.js'
+            ).then((m) => m.WithClickHandlers),
+        },
+      ],
+    },
     {
       name: 'MuchandyHero',
+      category: 'Branding',
       stories: [
         {
           name: 'Default',
@@ -1627,133 +1851,49 @@ export const getComponents = () => {
               (m) => m.MinimalConfiguration
             ),
         },
-      ],
-    },
-
-    {
-      name: 'ContactInfo',
-      stories: [
         {
-          name: 'Default',
+          name: 'WithDynamicUpdates',
           module: () =>
-            import('../components/ContactInfo/ContactInfo.stories.js').then(
-              (m) => m.Default
-            ),
-        },
-        {
-          name: 'WithCustomClass',
-          module: () =>
-            import('../components/ContactInfo/ContactInfo.stories.js').then(
-              (m) => m.WithCustomClass
-            ),
-        },
-        {
-          name: 'WithCustomLocationId',
-          module: () =>
-            import('../components/ContactInfo/ContactInfo.stories.js').then(
-              (m) => m.WithCustomLocationId
-            ),
-        },
-        {
-          name: 'WithClickHandlers',
-          module: () =>
-            import('../components/ContactInfo/ContactInfo.stories.js').then(
-              (m) => m.WithClickHandlers
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithDynamicUpdates
             ),
         },
       ],
     },
 
+    // =========================================
+    // UTILITY COMPONENTS
+    // =========================================
     {
-      name: 'CollapsibleHeader',
+      name: 'Head',
+      category: 'Utility',
       stories: [
         {
-          name: 'MuchandyHeader',
+          name: 'BasicSEO',
           module: () =>
-            import(
-              '../components/CollapsibleHeader/CollapsibleHeader.stories.js'
-            ).then((m) => m.MuchandyHeader),
-        },
-        {
-          name: 'SecondDesign',
-          module: () =>
-            import(
-              '../components/CollapsibleHeader/CollapsibleHeader.stories.js'
-            ).then((m) => m.SecondDesign),
-        },
-      ],
-    },
-
-    {
-      name: 'StickyContactIcons',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import(
-              '../components/StickyContactIcons/StickyContactIcons.stories.js'
-            ).then((m) => m.Default),
-        },
-        {
-          name: 'WithoutTooltips',
-          module: () =>
-            import(
-              '../components/StickyContactIcons/StickyContactIcons.stories.js'
-            ).then((m) => m.WithoutTooltips),
-        },
-        {
-          name: 'WithCustomClass',
-          module: () =>
-            import(
-              '../components/StickyContactIcons/StickyContactIcons.stories.js'
-            ).then((m) => m.WithCustomClass),
-        },
-        {
-          name: 'WithClickHandlers',
-          module: () =>
-            import(
-              '../components/StickyContactIcons/StickyContactIcons.stories.js'
-            ).then((m) => m.WithClickHandlers),
-        },
-      ],
-    },
-
-    {
-      name: 'ProductCard',
-      stories: [
-        {
-          name: 'Default',
-          module: () =>
-            import('../components/ProductCard/ProductCard.stories.js').then(
-              (m) => m.DefaultProductCard
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.BasicSEO
             ),
         },
         {
-          name: 'WithCustomCurrency',
+          name: 'AdvancedSEO',
           module: () =>
-            import('../components/ProductCard/ProductCard.stories.js').then(
-              (m) => m.WithCustomCurrency
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.AdvancedSEO
             ),
         },
         {
-          name: 'MuchandyThemed',
+          name: 'RestrictedIndexing',
           module: () =>
-            import('../components/ProductCard/ProductCard.stories.js').then(
-              (m) => m.MuchandyThemed
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.RestrictedIndexing
             ),
         },
         {
-          name: 'WithMultipleSpecs',
+          name: 'MultiLanguage',
           module: () =>
-            import('../components/ProductCard/ProductCard.stories.js').then(
-              (m) => m.WithMultipleSpecs
-            ),
-        },
-        {
-          name: 'ProductGrid',
-          module: () =>
-            import('../components/ProductCard/ProductCard.stories.js').then(
-              (m) => m.ProductGrid
+            import('../components/Head/Head.stories.js').then(
+              (m) => m.MultiLanguage
             ),
         },
       ],

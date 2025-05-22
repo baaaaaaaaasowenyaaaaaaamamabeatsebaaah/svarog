@@ -15,14 +15,14 @@ export default {
 };
 
 export const Default = () => {
-  return new PriceDisplay({
+  return PriceDisplay({
     label: 'Price:',
     value: '€29.99',
   });
 };
 
 export const Loading = () => {
-  return new PriceDisplay({
+  return PriceDisplay({
     label: 'Price:',
     value: 'Loading price...',
     isLoading: true,
@@ -30,7 +30,7 @@ export const Loading = () => {
 };
 
 export const Highlighted = () => {
-  return new PriceDisplay({
+  return PriceDisplay({
     label: 'Price:',
     value: '€29.99',
     isHighlighted: true,
@@ -38,7 +38,7 @@ export const Highlighted = () => {
 };
 
 export const WithCustomLabel = () => {
-  return new PriceDisplay({
+  return PriceDisplay({
     label: 'Total Amount:',
     value: '€129.99',
     isHighlighted: true,
@@ -53,7 +53,7 @@ export const DynamicUpdate = () => {
   container.style.gap = '20px';
 
   // Initial price display with placeholder
-  const priceDisplay = new PriceDisplay({
+  const priceDisplay = PriceDisplay({
     label: 'Price:',
     value: 'Select options to see price',
     isPlaceholder: true, // Mark as placeholder to apply the same styling as loading
@@ -113,24 +113,24 @@ export const DifferentPrices = () => {
   container.appendChild(heading);
 
   // Create different price displays
-  const regularPrice = new PriceDisplay({
+  const regularPrice = PriceDisplay({
     label: 'Regular Price:',
     value: '€99.99',
   });
 
-  const salePrice = new PriceDisplay({
+  const salePrice = PriceDisplay({
     label: 'Sale Price:',
     value: '€79.99',
     isHighlighted: true,
   });
 
-  const memberPrice = new PriceDisplay({
+  const memberPrice = PriceDisplay({
     label: 'Member Price:',
     value: '€69.99',
     isHighlighted: true,
   });
 
-  const shippingPrice = new PriceDisplay({
+  const shippingPrice = PriceDisplay({
     label: 'Shipping:',
     value: '€4.99',
   });
@@ -142,4 +142,13 @@ export const DifferentPrices = () => {
   container.appendChild(shippingPrice.getElement());
 
   return container;
+};
+
+// Let's add a new story to show the error state
+export const ErrorState = () => {
+  return PriceDisplay({
+    label: 'Price:',
+    value: 'Error loading price',
+    isError: true,
+  });
 };

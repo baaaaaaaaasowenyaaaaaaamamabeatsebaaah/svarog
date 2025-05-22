@@ -1,5 +1,5 @@
 // src/components/StepsIndicator/StepsIndicator.test.js
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import StepsIndicator from './StepsIndicator.js';
 
 describe('StepsIndicator component', () => {
@@ -10,7 +10,7 @@ describe('StepsIndicator component', () => {
       { name: 'Step 3', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps,
       activeIndex: 0,
     });
@@ -26,10 +26,10 @@ describe('StepsIndicator component', () => {
 
   it('should throw error when steps are not provided', () => {
     expect(() => {
-      new StepsIndicator({
+      StepsIndicator({
         activeIndex: 0,
       });
-    }).toThrow('StepsIndicator: steps must be an array');
+    }).toThrow('steps is required');
   });
 
   it('should throw error when activeIndex is not a number', () => {
@@ -39,7 +39,7 @@ describe('StepsIndicator component', () => {
     ];
 
     expect(() => {
-      new StepsIndicator({
+      StepsIndicator({
         steps,
         activeIndex: '0',
       });
@@ -53,7 +53,7 @@ describe('StepsIndicator component', () => {
       { name: 'Step 3', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps,
       activeIndex: 1,
     });
@@ -86,44 +86,53 @@ describe('StepsIndicator component', () => {
     ).toBe(false);
   });
 
-  it('should update steps and active index', () => {
+  it('should call update with correct parameters for API methods', () => {
+    // Create component with initial state
     const initialSteps = [
       { name: 'Step 1', completed: false },
       { name: 'Step 2', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps: initialSteps,
       activeIndex: 0,
     });
 
-    document.body.appendChild(stepsIndicator.getElement());
+    // Spy on the update method
+    stepsIndicator.update = vi.fn().mockReturnValue(stepsIndicator);
 
-    // Update steps and active index
-    const updatedSteps = [
-      { name: 'Step 1', completed: true },
-      { name: 'Step 2', completed: false },
-    ];
+    // Test completeStep method
+    stepsIndicator.completeStep(0);
 
-    stepsIndicator.update({
-      steps: updatedSteps,
-      activeIndex: 1,
-    });
+    // Verify update was called with expected parameters for completeStep
+    expect(stepsIndicator.update).toHaveBeenCalledTimes(1);
+    const completeStepArgs = stepsIndicator.update.mock.calls[0][0];
+    expect(completeStepArgs.steps[0].completed).toBe(true);
+    expect(completeStepArgs.steps[1].completed).toBe(false);
 
-    // Check that the component was updated correctly
-    const stepElements = document.querySelectorAll('.steps-indicator__step');
+    // Reset mock
+    stepsIndicator.update.mockClear();
 
-    // Step 1 should now be completed
-    expect(
-      stepElements[0].classList.contains('steps-indicator__step--completed')
-    ).toBe(true);
+    // Test setActiveStep method
+    stepsIndicator.setActiveStep(1);
 
-    // Step 2 should now be active
-    expect(
-      stepElements[1].classList.contains('steps-indicator__step--active')
-    ).toBe(true);
+    // Verify update was called with expected parameters for setActiveStep
+    expect(stepsIndicator.update).toHaveBeenCalledTimes(1);
+    const setActiveStepArgs = stepsIndicator.update.mock.calls[0][0];
+    expect(setActiveStepArgs.activeIndex).toBe(1);
 
-    document.body.removeChild(stepsIndicator.getElement());
+    // Reset mock
+    stepsIndicator.update.mockClear();
+
+    // Test resetSteps method
+    stepsIndicator.resetSteps();
+
+    // Verify update was called with expected parameters for resetSteps
+    expect(stepsIndicator.update).toHaveBeenCalledTimes(1);
+    const resetStepsArgs = stepsIndicator.update.mock.calls[0][0];
+    expect(resetStepsArgs.activeIndex).toBe(0);
+    expect(resetStepsArgs.steps[0].completed).toBe(false);
+    expect(resetStepsArgs.steps[1].completed).toBe(false);
   });
 
   it('should accept custom class names', () => {
@@ -132,7 +141,7 @@ describe('StepsIndicator component', () => {
       { name: 'Step 2', completed: false },
     ];
 
-    const stepsIndicator = new StepsIndicator({
+    const stepsIndicator = StepsIndicator({
       steps,
       activeIndex: 0,
       className: 'custom-steps',

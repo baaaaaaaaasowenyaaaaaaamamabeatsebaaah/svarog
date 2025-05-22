@@ -10,7 +10,7 @@ describe('ContactInfo', () => {
   };
 
   it('should render correctly', () => {
-    const contactInfo = new ContactInfo(defaultProps);
+    const contactInfo = ContactInfo(defaultProps);
     const element = contactInfo.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -18,7 +18,7 @@ describe('ContactInfo', () => {
   });
 
   it('should render location as a link with default location ID', () => {
-    const contactInfo = new ContactInfo(defaultProps);
+    const contactInfo = ContactInfo(defaultProps);
     const element = contactInfo.getElement();
 
     const locationElement = element.querySelector(
@@ -26,7 +26,6 @@ describe('ContactInfo', () => {
     );
     expect(locationElement).not.toBeNull();
     expect(locationElement.tagName).toBe('A');
-    // Use dataset attribute instead of href which might not work in test environment
     expect(locationElement.dataset.href).toBe('#location');
 
     const locationText = locationElement.querySelector('.contact-info__text');
@@ -34,7 +33,7 @@ describe('ContactInfo', () => {
   });
 
   it('should render location with custom location ID', () => {
-    const contactInfo = new ContactInfo({
+    const contactInfo = ContactInfo({
       ...defaultProps,
       locationId: 'store-location',
     });
@@ -47,7 +46,7 @@ describe('ContactInfo', () => {
   });
 
   it('should render phone with correct href', () => {
-    const contactInfo = new ContactInfo(defaultProps);
+    const contactInfo = ContactInfo(defaultProps);
     const element = contactInfo.getElement();
 
     const phoneLink = element.querySelector('.contact-info__item--phone');
@@ -60,7 +59,7 @@ describe('ContactInfo', () => {
   });
 
   it('should render email with correct href', () => {
-    const contactInfo = new ContactInfo(defaultProps);
+    const contactInfo = ContactInfo(defaultProps);
     const element = contactInfo.getElement();
 
     const emailLink = element.querySelector('.contact-info__item--email');
@@ -74,7 +73,7 @@ describe('ContactInfo', () => {
 
   it('should handle location click callback', () => {
     const onLocationClick = vi.fn(() => false);
-    const contactInfo = new ContactInfo({
+    const contactInfo = ContactInfo({
       ...defaultProps,
       onLocationClick,
     });
@@ -92,7 +91,7 @@ describe('ContactInfo', () => {
 
   it('should handle phone click callback', () => {
     const onPhoneClick = vi.fn(() => false);
-    const contactInfo = new ContactInfo({
+    const contactInfo = ContactInfo({
       ...defaultProps,
       onPhoneClick,
     });
@@ -110,7 +109,7 @@ describe('ContactInfo', () => {
 
   it('should handle email click callback', () => {
     const onEmailClick = vi.fn(() => false);
-    const contactInfo = new ContactInfo({
+    const contactInfo = ContactInfo({
       ...defaultProps,
       onEmailClick,
     });
@@ -127,18 +126,17 @@ describe('ContactInfo', () => {
   });
 
   it('should throw error if required props are missing', () => {
-    expect(
-      () =>
-        new ContactInfo({
-          location: 'Luisenstr. 1',
-          phone: '0176/88778877',
-          // email is missing
-        })
-    ).toThrow('ContactInfo: Missing required props: email');
+    expect(() =>
+      ContactInfo({
+        location: 'Luisenstr. 1',
+        phone: '0176/88778877',
+        // email is missing
+      })
+    ).toThrow('ContactInfo: email is required'); // Updated to match actual error message
   });
 
   it('should accept additional className', () => {
-    const contactInfo = new ContactInfo({
+    const contactInfo = ContactInfo({
       ...defaultProps,
       className: 'custom-class',
     });
@@ -146,5 +144,64 @@ describe('ContactInfo', () => {
 
     expect(element.className).toContain('contact-info');
     expect(element.className).toContain('custom-class');
+  });
+
+  it('should update contact information', () => {
+    const contactInfo = ContactInfo(defaultProps);
+
+    // Update location
+    contactInfo.update({ location: 'New Location' });
+    // Get the updated element
+    const updatedElement = contactInfo.getElement();
+    const locationText = updatedElement.querySelector(
+      '.contact-info__item--location .contact-info__text'
+    );
+    expect(locationText.textContent).toBe('New Location');
+
+    // Update phone
+    contactInfo.update({ phone: '9876543210' });
+    // Get the updated element again
+    const updatedElement2 = contactInfo.getElement();
+    const phoneText = updatedElement2.querySelector(
+      '.contact-info__item--phone .contact-info__text'
+    );
+    expect(phoneText.textContent).toBe('9876543210');
+
+    // Update email
+    contactInfo.update({ email: 'new@example.com' });
+    // Get the updated element again
+    const updatedElement3 = contactInfo.getElement();
+    const emailText = updatedElement3.querySelector(
+      '.contact-info__item--email .contact-info__text'
+    );
+    expect(emailText.textContent).toBe('new@example.com');
+  });
+
+  it('should use convenience methods to update information', () => {
+    const contactInfo = ContactInfo(defaultProps);
+
+    contactInfo.setLocation('Updated Location');
+    // Get the updated element
+    const updatedElement = contactInfo.getElement();
+    const locationText = updatedElement.querySelector(
+      '.contact-info__item--location .contact-info__text'
+    );
+    expect(locationText.textContent).toBe('Updated Location');
+
+    contactInfo.setPhone('123-456-7890');
+    // Get the updated element again
+    const updatedElement2 = contactInfo.getElement();
+    const phoneText = updatedElement2.querySelector(
+      '.contact-info__item--phone .contact-info__text'
+    );
+    expect(phoneText.textContent).toBe('123-456-7890');
+
+    contactInfo.setEmail('updated@example.com');
+    // Get the updated element again
+    const updatedElement3 = contactInfo.getElement();
+    const emailText = updatedElement3.querySelector(
+      '.contact-info__item--email .contact-info__text'
+    );
+    expect(emailText.textContent).toBe('updated@example.com');
   });
 });

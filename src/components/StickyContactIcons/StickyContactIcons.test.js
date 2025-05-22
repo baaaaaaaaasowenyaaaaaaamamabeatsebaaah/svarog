@@ -13,7 +13,7 @@ describe('StickyContactIcons', () => {
   let element;
 
   beforeEach(() => {
-    stickyIcons = new StickyContactIcons(defaultProps);
+    stickyIcons = StickyContactIcons(defaultProps);
     element = stickyIcons.getElement();
     document.body.appendChild(element);
   });
@@ -21,6 +21,9 @@ describe('StickyContactIcons', () => {
   afterEach(() => {
     if (element && element.parentNode) {
       element.parentNode.removeChild(element);
+    }
+    if (stickyIcons && stickyIcons.destroy) {
+      stickyIcons.destroy();
     }
   });
 
@@ -30,37 +33,48 @@ describe('StickyContactIcons', () => {
   });
 
   it('should render location icon with correct href', () => {
-    const locationIcon = element.querySelector(
-      '.sticky-contact-icons__icon--location'
-    );
-    expect(locationIcon).not.toBeNull();
+    // Find all links first and then test the first one (location)
+    const links = element.querySelectorAll('a');
+    expect(links.length).toBe(3);
 
-    const locationLink = locationIcon.closest('a');
+    const locationLink = links[0];
     expect(locationLink).not.toBeNull();
+    expect(locationLink.className).toContain('sticky-contact-icons__item');
+
+    const locationIcon = locationLink.querySelector('span');
+    expect(locationIcon).not.toBeNull();
+    expect(locationIcon.className).toContain(
+      'sticky-contact-icons__icon--location'
+    );
+
     expect(locationLink.getAttribute('data-href')).toBe('#location');
     expect(locationLink.getAttribute('title')).toBe(defaultProps.location);
   });
 
   it('should render phone icon with correct href', () => {
-    const phoneIcon = element.querySelector(
-      '.sticky-contact-icons__icon--phone'
-    );
-    expect(phoneIcon).not.toBeNull();
-
-    const phoneLink = phoneIcon.closest('a');
+    const links = element.querySelectorAll('a');
+    const phoneLink = links[1];
     expect(phoneLink).not.toBeNull();
+    expect(phoneLink.className).toContain('sticky-contact-icons__item');
+
+    const phoneIcon = phoneLink.querySelector('span');
+    expect(phoneIcon).not.toBeNull();
+    expect(phoneIcon.className).toContain('sticky-contact-icons__icon--phone');
+
     expect(phoneLink.getAttribute('data-href')).toBe('tel:017688778877');
     expect(phoneLink.getAttribute('title')).toBe(defaultProps.phone);
   });
 
   it('should render email icon with correct href', () => {
-    const emailIcon = element.querySelector(
-      '.sticky-contact-icons__icon--email'
-    );
-    expect(emailIcon).not.toBeNull();
-
-    const emailLink = emailIcon.closest('a');
+    const links = element.querySelectorAll('a');
+    const emailLink = links[2];
     expect(emailLink).not.toBeNull();
+    expect(emailLink.className).toContain('sticky-contact-icons__item');
+
+    const emailIcon = emailLink.querySelector('span');
+    expect(emailIcon).not.toBeNull();
+    expect(emailIcon.className).toContain('sticky-contact-icons__icon--email');
+
     expect(emailLink.getAttribute('data-href')).toBe(
       `mailto:${defaultProps.email}`
     );
@@ -68,7 +82,7 @@ describe('StickyContactIcons', () => {
   });
 
   it('should hide tooltips when showTooltips is false', () => {
-    const iconsWithoutTooltips = new StickyContactIcons({
+    const iconsWithoutTooltips = StickyContactIcons({
       ...defaultProps,
       showTooltips: false,
     });
@@ -78,76 +92,87 @@ describe('StickyContactIcons', () => {
     links.forEach((link) => {
       expect(link.getAttribute('title')).toBe('');
     });
+
+    // Clean up
+    iconsWithoutTooltips.destroy();
   });
 
   it('should call location click handler', () => {
     const onLocationClick = vi.fn(() => false);
-    const iconsWithHandler = new StickyContactIcons({
+    const iconsWithHandler = StickyContactIcons({
       ...defaultProps,
       onLocationClick,
     });
     const el = iconsWithHandler.getElement();
     document.body.appendChild(el);
 
-    const locationLink = el
-      .querySelector('.sticky-contact-icons__icon--location')
-      .closest('a');
+    const links = el.querySelectorAll('a');
+    const locationLink = links[0];
+    expect(locationLink).not.toBeNull();
     locationLink.click();
 
     expect(onLocationClick).toHaveBeenCalledTimes(1);
+
+    // Clean up
     document.body.removeChild(el);
+    iconsWithHandler.destroy();
   });
 
   it('should call phone click handler', () => {
     const onPhoneClick = vi.fn(() => false);
-    const iconsWithHandler = new StickyContactIcons({
+    const iconsWithHandler = StickyContactIcons({
       ...defaultProps,
       onPhoneClick,
     });
     const el = iconsWithHandler.getElement();
     document.body.appendChild(el);
 
-    const phoneLink = el
-      .querySelector('.sticky-contact-icons__icon--phone')
-      .closest('a');
+    const links = el.querySelectorAll('a');
+    const phoneLink = links[1];
+    expect(phoneLink).not.toBeNull();
     phoneLink.click();
 
     expect(onPhoneClick).toHaveBeenCalledTimes(1);
+
+    // Clean up
     document.body.removeChild(el);
+    iconsWithHandler.destroy();
   });
 
   it('should call email click handler', () => {
     const onEmailClick = vi.fn(() => false);
-    const iconsWithHandler = new StickyContactIcons({
+    const iconsWithHandler = StickyContactIcons({
       ...defaultProps,
       onEmailClick,
     });
     const el = iconsWithHandler.getElement();
     document.body.appendChild(el);
 
-    const emailLink = el
-      .querySelector('.sticky-contact-icons__icon--email')
-      .closest('a');
+    const links = el.querySelectorAll('a');
+    const emailLink = links[2];
+    expect(emailLink).not.toBeNull();
     emailLink.click();
 
     expect(onEmailClick).toHaveBeenCalledTimes(1);
+
+    // Clean up
     document.body.removeChild(el);
+    iconsWithHandler.destroy();
   });
 
   it('should throw error if required props are missing', () => {
-    expect(
-      () =>
-        new StickyContactIcons({
-          location: 'Luisenstr. 1',
-          // phone is missing
-          email: 'info@muchandy.de',
-        })
-    ).toThrow('StickyContactIcons: Missing required props: phone');
+    expect(() =>
+      StickyContactIcons({
+        location: 'Luisenstr. 1',
+        // phone is missing
+        email: 'info@muchandy.de',
+      })
+    ).toThrow('StickyContactIcons: phone is required');
   });
 
   it('should apply custom class name', () => {
     const customClass = 'custom-icons-class';
-    const iconsWithClass = new StickyContactIcons({
+    const iconsWithClass = StickyContactIcons({
       ...defaultProps,
       className: customClass,
     });
@@ -155,5 +180,25 @@ describe('StickyContactIcons', () => {
 
     expect(el.className).toContain('sticky-contact-icons');
     expect(el.className).toContain(customClass);
+
+    // Clean up
+    iconsWithClass.destroy();
+  });
+
+  it('should update with new props', () => {
+    const newLocation = 'New Address';
+
+    // Update the component
+    stickyIcons.update({ location: newLocation });
+
+    // Get the updated element
+    const updatedElement = stickyIcons.getElement();
+    const links = updatedElement.querySelectorAll('a');
+    const locationLink = links[0];
+
+    expect(locationLink).not.toBeNull();
+    expect(locationLink.getAttribute('aria-label')).toBe(
+      `Go to ${newLocation} location`
+    );
   });
 });

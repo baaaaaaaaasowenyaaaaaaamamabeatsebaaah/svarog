@@ -1,11 +1,11 @@
 // src/components/Tabs/Tabs.stories.js
-import Tabs from './Tabs.js';
+import createTabs from './Tabs.js';
 import Button from '../Button/Button.js';
 import Card from '../Card/Card.js';
 
 export default {
   title: 'Components/Tabs',
-  component: Tabs,
+  component: createTabs,
 };
 
 // Helper function to create the same tabs for each variant
@@ -29,33 +29,31 @@ const createTabsConfig = () => ({
   ],
 });
 
-// Make sure each story function is properly exported
 export const Default = () => {
-  return new Tabs(createTabsConfig());
+  return createTabs(createTabsConfig());
 };
 
 export const SimpleVariant = () => {
-  return new Tabs({
+  return createTabs({
     ...createTabsConfig(),
     variant: 'simple',
   });
 };
 
 export const BorderVariant = () => {
-  return new Tabs({
+  return createTabs({
     ...createTabsConfig(),
     variant: 'border',
   });
 };
 
-// Keep the existing story exports
 export const WithComponents = () => {
-  return new Tabs({
+  return createTabs({
     tabs: [
       {
         id: 'button',
         label: 'Button',
-        content: new Button({
+        content: Button({
           text: 'Click me!',
           variant: 'primary',
         }),
@@ -63,7 +61,7 @@ export const WithComponents = () => {
       {
         id: 'card',
         label: 'Card',
-        content: new Card({
+        content: Card({
           title: 'Card Title',
           children: 'This is a card component inside a tab',
         }),
@@ -76,7 +74,7 @@ export const WithComponents = () => {
           container.appendChild(
             document.createTextNode('Some text with a button: ')
           );
-          container.appendChild(new Button({ text: 'Button' }).getElement());
+          container.appendChild(Button({ text: 'Button' }).getElement());
           return container;
         },
       },
@@ -85,7 +83,7 @@ export const WithComponents = () => {
 };
 
 export const WithDefaultActiveTab = () => {
-  return new Tabs({
+  return createTabs({
     tabs: [
       {
         id: 'tab1',
@@ -114,7 +112,7 @@ export const WithCallback = () => {
   output.style.marginBottom = '20px';
   output.textContent = 'Click a tab to see the callback in action';
 
-  const tabs = new Tabs({
+  const tabs = createTabs({
     tabs: [
       {
         id: 'tab1',
@@ -144,7 +142,7 @@ export const WithCallback = () => {
 };
 
 export const WithCustomStyling = () => {
-  return new Tabs({
+  return createTabs({
     tabs: [
       {
         id: 'tab1',
@@ -162,7 +160,7 @@ export const WithCustomStyling = () => {
 };
 
 export const WithHTMLContent = () => {
-  return new Tabs({
+  return createTabs({
     tabs: [
       {
         id: 'html1',
@@ -235,7 +233,7 @@ export const AllVariants = () => {
     desc.textContent = description;
     desc.style.marginBottom = '1rem';
 
-    const tabs = new Tabs({
+    const tabs = createTabs({
       ...createTabsConfig(),
       variant: variant,
     });
@@ -269,7 +267,7 @@ export const TabAlignments = () => {
     header.textContent = name;
     header.style.marginBottom = '1rem';
 
-    const tabs = new Tabs({
+    const tabs = createTabs({
       ...createTabsConfig(),
       align: align,
     });

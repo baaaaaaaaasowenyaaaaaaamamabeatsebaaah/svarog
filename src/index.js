@@ -2,73 +2,184 @@
 // Import styles first
 import './styles/index.js';
 
-// Import components
-import Button from './components/Button/Button.js';
-import Grid from './components/Grid/Grid.js';
-import Navigation from './components/Navigation/Navigation.js';
-import Link from './components/Link/Link.js';
-import { Section } from './components/Section/Section.js';
-import Typography from './components/Typography/Typography.js';
-import Logo from './components/Logo/Logo.js';
-import Card from './components/Card/Card.js';
-import Input from './components/Input/Input.js';
-import Select from './components/Select/Select.js';
-import Checkbox from './components/Checkbox/Checkbox.js';
-import Radio from './components/Radio/Radio.js';
-import RadioGroup from './components/Radio/RadioGroup.js';
-import Rating from './components/Rating/Rating.js';
+/**
+ * @file Main library entry point for Svarog UI
+ * @description Provides categorized components and utility exports
+ */
+
+// ---- LAYOUT COMPONENTS ----
+import Grid from './components/Grid/index.js';
+import { Section } from './components/Section/index.js';
+import Header from './components/Header/index.js';
+import Footer from './components/Footer/index.js';
+import Hero from './components/Hero/index.js';
+import MuchandyHero from './components/MuchandyHero/index.js';
+import CollapsibleHeader from './components/CollapsibleHeader/index.js';
+
+// ---- NAVIGATION COMPONENTS ----
+import Navigation from './components/Navigation/index.js';
+import Link from './components/Link/index.js';
+import Tabs from './components/Tabs/index.js';
+import Pagination from './components/Pagination/index.js';
+import StickyContactIcons from './components/StickyContactIcons/index.js';
+
+// ---- UI COMPONENTS ----
+import Button from './components/Button/index.js';
+import Typography from './components/Typography/index.js';
+import Logo from './components/Logo/index.js';
+import Card from './components/Card/index.js';
+import Rating from './components/Rating/index.js';
+import StepsIndicator from './components/StepsIndicator/index.js';
+import PriceDisplay from './components/PriceDisplay/index.js';
+import ContactInfo from './components/ContactInfo/index.js';
+import ProductCard from './components/ProductCard/index.js';
+import Image from './components/Image/index.js';
+
+// ---- FORM COMPONENTS ----
+import Input from './components/Input/index.js';
+import Select from './components/Select/index.js';
+import Checkbox from './components/Checkbox/index.js';
+import Radio from './components/Radio/index.js';
+import RadioGroup from './components/Radio/index.js';
 import {
   Form,
   FormGroup,
   FormSection,
   FormActions,
 } from './components/Form/index.js';
+import PhoneRepairForm from './components/PhoneRepairForm/index.js';
+import UsedPhonePriceForm from './components/UsedPhonePriceForm/index.js';
+import PhoneRepairFormContainer from './components/PhoneRepairForm/PhoneRepairFormContainer.js';
+import UsedPhonePriceFormContainer from './components/UsedPhonePriceForm/UsedPhonePriceFormContainer.js';
+import ConditionSelector from './components/ConditionSelector/index.js';
+
+// ---- BLOG/CONTENT COMPONENTS ----
+import BlogCard from './components/BlogCard/index.js';
+import BlogList from './components/BlogList/index.js';
+import BlogDetail from './components/BlogDetail/index.js';
+
+// ---- MAP COMPONENTS ----
+import Map from './components/Map/index.js';
+
+// ---- META COMPONENTS ----
+import Head from './components/Head/index.js';
+
+// ---- UTILITIES ----
 import {
   themeManager,
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
 } from './utils/theme.js';
-import Map from './components/Map/Map.js';
-import Head from './components/Head/Head.js';
-import Header from './components/Header/Header.js';
-import Footer from './components/Footer/Footer.js';
-import PhoneRepairForm from './components/PhoneRepairForm/PhoneRepairForm.js';
-import UsedPhonePriceForm from './components/UsedPhonePriceForm/UsedPhonePriceForm.js';
-import PhoneRepairFormContainer from './components/PhoneRepairForm/PhoneRepairFormContainer.js';
-import UsedPhonePriceFormContainer from './components/UsedPhonePriceForm/UsedPhonePriceFormContainer.js';
-import StepsIndicator from './components/StepsIndicator/StepsIndicator.js';
-import PriceDisplay from './components/PriceDisplay/PriceDisplay.js';
-import ConditionSelector from './components/ConditionSelector/ConditionSelector.js';
-import BlogCard from './components/BlogCard/BlogCard.js';
-import BlogList from './components/BlogList/BlogList.js';
-import BlogDetail from './components/BlogDetail/BlogDetail.js';
-import Hero from './components/Hero/Hero.js';
-import Pagination from './components/Pagination/Pagination.js';
-import MuchandyHero from './components/MuchandyHero/MuchandyHero.js';
-import Tabs from './components/Tabs/Tabs.js';
-import ContactInfo from './components/ContactInfo/ContactInfo.js';
-import CollapsibleHeader from './components/CollapsibleHeader/CollapsibleHeader.js';
-import StickyContactIcons from './components/StickyContactIcons/StickyContactIcons.js';
-import ProductCard from './components/ProductCard/ProductCard.js';
 
-// Export components
+/**
+ * Component categories for organized imports
+ */
+const Layout = {
+  Grid,
+  Section,
+  Header,
+  Footer,
+  Hero,
+  MuchandyHero,
+  CollapsibleHeader,
+};
+
+// Using the name "Nav" for the category to avoid conflict with the Navigation component
+const Nav = {
+  Navigation,
+  Link,
+  Tabs,
+  Pagination,
+  StickyContactIcons,
+};
+
+const UI = {
+  Button,
+  Typography,
+  Logo,
+  Card,
+  Rating,
+  StepsIndicator,
+  PriceDisplay,
+  ContactInfo,
+  ProductCard,
+  Image,
+};
+
+const Forms = {
+  Input,
+  Select,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  Form,
+  FormGroup,
+  FormSection,
+  FormActions,
+  PhoneRepairForm,
+  PhoneRepairFormContainer,
+  UsedPhonePriceForm,
+  UsedPhonePriceFormContainer,
+  ConditionSelector,
+};
+
+const Content = {
+  BlogCard,
+  BlogList,
+  BlogDetail,
+};
+
+const Utils = {
+  themeManager,
+  switchTheme,
+  getCurrentTheme,
+  setThemeVariable,
+};
+
+// Define the library with categorized components
 const Svarog = {
-  ProductCard,
-  StickyContactIcons,
-  CollapsibleHeader,
-  ContactInfo,
-  Tabs,
-  MuchandyHero,
-  // Components
-  Button,
+  Layout,
+  Nav,
+  UI,
+  Forms,
+  Content,
+  Map,
+  Head,
+  Utils,
+};
+
+// Export all components individually to allow destructured imports
+export {
+  // Layout
   Grid,
+  Section,
+  Header,
+  Footer,
+  Hero,
+  MuchandyHero,
+  CollapsibleHeader,
+
+  // Navigation
   Navigation,
   Link,
-  Section,
+  Tabs,
+  Pagination,
+  StickyContactIcons,
+
+  // UI
+  Button,
   Typography,
   Logo,
   Card,
+  Rating,
+  StepsIndicator,
+  PriceDisplay,
+  ContactInfo,
+  ProductCard,
+  Image,
+
+  // Form
   Input,
   Select,
   Checkbox,
@@ -78,77 +189,32 @@ const Svarog = {
   FormGroup,
   FormSection,
   FormActions,
-  Rating,
-  Map,
-  Head,
-  Header,
-  Footer,
   PhoneRepairForm,
   PhoneRepairFormContainer,
   UsedPhonePriceForm,
   UsedPhonePriceFormContainer,
-  StepsIndicator,
-  PriceDisplay,
   ConditionSelector,
+
+  // Blog/Content
   BlogCard,
   BlogList,
   BlogDetail,
-  Hero,
-  Pagination,
-  // Utilities
+
+  // Map
+  Map,
+
+  // Meta
+  Head,
+
+  // Utils
   themeManager,
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
 };
 
-// Individual named exports
-export {
-  Button,
-  Grid,
-  Navigation,
-  Link,
-  Section,
-  Typography,
-  Logo,
-  Card,
-  Input,
-  Select,
-  Checkbox,
-  Radio,
-  RadioGroup,
-  Rating,
-  Form,
-  FormGroup,
-  FormSection,
-  FormActions,
-  Map,
-  Head,
-  Header,
-  Footer,
-  PhoneRepairForm,
-  PhoneRepairFormContainer,
-  UsedPhonePriceForm,
-  UsedPhonePriceFormContainer,
-  ProductCard,
-  StepsIndicator,
-  PriceDisplay,
-  ConditionSelector,
-  BlogCard,
-  BlogList,
-  BlogDetail,
-  Hero,
-  Pagination,
-  themeManager,
-  CollapsibleHeader,
-  StickyContactIcons,
-  ContactInfo,
-  Tabs,
-  MuchandyHero,
-  switchTheme,
-  getCurrentTheme,
-  setThemeVariable,
-};
+// Export categorized imports - keep Nav as Nav to avoid conflict with Navigation component
+export { Layout, Nav, UI, Forms, Content, Utils };
 
 // Default export of the whole library
 export default Svarog;

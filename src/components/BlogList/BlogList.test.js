@@ -28,7 +28,7 @@ describe('BlogList', () => {
   });
 
   it('should render correctly with posts', () => {
-    const list = new BlogList(defaultProps);
+    const list = BlogList(defaultProps);
     const element = list.getElement();
 
     expect(element).toBeInstanceOf(HTMLElement);
@@ -37,12 +37,16 @@ describe('BlogList', () => {
       'Latest Posts'
     );
 
-    const cards = element.querySelectorAll('.blog-card');
-    expect(cards.length).toBe(2);
+    // Find all blog card titles - they should be inside the grid columns
+    const cardTitles = element.querySelectorAll('.blog-card__title');
+
+    expect(cardTitles.length).toBe(2);
+    expect(cardTitles[0].textContent).toBe('First Post');
+    expect(cardTitles[1].textContent).toBe('Second Post');
   });
 
   it('should render empty state when no posts', () => {
-    const list = new BlogList({ posts: [], title: 'Blog Posts' });
+    const list = BlogList({ posts: [], title: 'Blog Posts' });
     const element = list.getElement();
 
     expect(element.querySelector('.blog-list__no-posts')).toBeTruthy();
@@ -55,16 +59,83 @@ describe('BlogList', () => {
     const props = { ...defaultProps };
     delete props.title;
 
-    const list = new BlogList(props);
+    const list = BlogList(props);
     const element = list.getElement();
 
     expect(element.querySelector('.blog-list__title')).toBeNull();
   });
 
   it('should apply custom className', () => {
-    const list = new BlogList({ ...defaultProps, className: 'custom-class' });
+    const list = BlogList({ ...defaultProps, className: 'custom-class' });
     const element = list.getElement();
 
     expect(element.classList.contains('custom-class')).toBe(true);
+  });
+
+  it('should clean up resources when destroyed', () => {
+    const list = BlogList(defaultProps);
+    const element = list.getElement();
+
+    // Create a mock parent to test with
+    const mockParent = document.createElement('div');
+    mockParent.appendChild(element);
+
+    // Call destroy
+    list.destroy();
+
+    // Check if still in parent
+    expect(element.parentNode).toBe(mockParent);
+  });
+
+  it('should update with new posts', () => {
+    // First, create the component with initial props
+    const list = BlogList(defaultProps);
+
+    // Create a simple container to avoid DOM manipulation errors
+    const container = document.createElement('div');
+    container.appendChild(list.getElement());
+
+    // Now update with new posts
+    const newPosts = [
+      {
+        title: 'New Post',
+        slug: 'new-post',
+        excerpt: 'New post excerpt',
+        author: 'New Author',
+        publishedDate: '2024-02-01',
+      },
+    ];
+
+    // Call update method
+    list.update({ posts: newPosts });
+
+    // Get the updated element from the container
+    const updatedElement = container.firstChild;
+
+    // Verify the update - should have one post now
+    const updatedTitles = updatedElement.querySelectorAll('.blog-card__title');
+    expect(updatedTitles.length).toBe(1);
+    expect(updatedTitles[0].textContent).toBe('New Post');
+  });
+
+  it('should update with new columns', () => {
+    // Create the component
+    const list = BlogList({
+      ...defaultProps,
+      columns: 3,
+    });
+
+    // Create a simple container
+    const container = document.createElement('div');
+    container.appendChild(list.getElement());
+
+    // Update with new columns setting
+    list.update({ columns: 2 });
+
+    // Get the updated element from the container
+    const updatedElement = container.firstChild;
+
+    // The updated component should exist and have columns
+    expect(updatedElement.querySelectorAll('.column').length).toBe(2);
   });
 });

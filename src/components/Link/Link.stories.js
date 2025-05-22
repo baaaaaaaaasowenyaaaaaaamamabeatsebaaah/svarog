@@ -1,3 +1,4 @@
+// src/components/Link/Link.stories.js
 import Link from './Link.js';
 
 export default {
@@ -6,7 +7,7 @@ export default {
 };
 
 export const Default = () => {
-  const link = new Link({
+  const link = Link({
     children: 'Click me',
     href: '#',
     target: '_blank',
@@ -17,12 +18,38 @@ export const Default = () => {
 };
 
 export const BlockLink = () => {
-  const link = new Link({
+  const link = Link({
     children: 'Block link',
     href: '#',
     target: '_self',
     underline: false,
     block: true,
   });
+  return link.getElement();
+};
+
+export const WithClick = () => {
+  const link = Link({
+    children: 'Click event',
+    href: '#',
+    onClick: () => alert('Link clicked!'),
+  });
+  return link.getElement();
+};
+
+export const WithComponent = () => {
+  // Create a simple icon span
+  const icon = document.createElement('span');
+  icon.textContent = '🔗 ';
+
+  const link = Link({
+    children: icon,
+    href: 'https://example.com',
+    target: '_blank',
+  });
+
+  // Add text node after the icon
+  link.getElement().appendChild(document.createTextNode('Link with icon'));
+
   return link.getElement();
 };

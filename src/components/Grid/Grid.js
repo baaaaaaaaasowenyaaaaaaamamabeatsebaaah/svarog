@@ -1,8 +1,19 @@
 // src/components/Grid/Grid.js
 import './Grid.css';
+import {
+  createComponent,
+  createElement,
+  appendChildren,
+} from '../../utils/componentFactory.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 
-class Column {
-  constructor({
+/**
+ * Creates a Column component for use within a Grid
+ * @param {Object} props - Column properties
+ * @returns {Object} Column component
+ */
+const createColumn = (props) => {
+  const {
     children,
     width = 12,
     mobileWidth,
@@ -10,84 +21,225 @@ class Column {
     desktopWidth,
     desktopOffset,
     offset,
-  }) {
-    // Validation
-    if (!children) {
-      throw new Error('Column requires children content');
-    }
+  } = props;
 
-    this.validateColumnWidth('width', width);
-    if (mobileWidth) this.validateColumnWidth('mobileWidth', mobileWidth);
-    if (tabletWidth) this.validateColumnWidth('tabletWidth', tabletWidth);
-    if (desktopWidth) this.validateColumnWidth('desktopWidth', desktopWidth);
-    if (desktopOffset) this.validateColumnWidth('desktopOffset', desktopOffset);
-    if (offset) this.validateColumnWidth('offset', offset);
+  // State
+  let columnState = {
+    children,
+    width,
+    mobileWidth,
+    tabletWidth,
+    desktopWidth,
+    desktopOffset,
+    offset,
+  };
 
-    this.width = width;
-    this.mobileWidth = mobileWidth;
-    this.tabletWidth = tabletWidth;
-    this.desktopWidth = desktopWidth;
-    this.desktopOffset = desktopOffset;
-    this.offset = offset;
-
-    this.column = document.createElement('div');
-    this.setStyles();
-    this.appendChildren(children);
-  }
-
-  validateColumnWidth(prop, value) {
+  // Validate column width
+  const validateColumnWidth = (prop, value) => {
     if (!Number.isInteger(value) || value < 1 || value > 12) {
       throw new Error(`${prop} must be an integer between 1 and 12`);
     }
-  }
+  };
 
-  setStyles() {
-    this.column.className = 'column';
-    this.column.style.gridColumnEnd = `span ${this.width}`;
+  // Validate all widths
+  validateColumnWidth('width', width);
+  if (mobileWidth) validateColumnWidth('mobileWidth', mobileWidth);
+  if (tabletWidth) validateColumnWidth('tabletWidth', tabletWidth);
+  if (desktopWidth) validateColumnWidth('desktopWidth', desktopWidth);
+  if (desktopOffset) validateColumnWidth('desktopOffset', desktopOffset);
+  if (offset) validateColumnWidth('offset', offset);
+
+  // Create the column element
+  const buildColumnElement = () => {
+    const column = createElement('div', {
+      classes: ['column'],
+      style: {
+        gridColumnEnd: `span ${columnState.width}`,
+      },
+    });
 
     // Handle offset
-    if (this.offset) {
-      this.column.style.gridColumnStart = this.offset + 1;
+    if (columnState.offset) {
+      column.style.gridColumnStart = columnState.offset + 1;
     }
 
     // Add responsive classes
-    if (this.mobileWidth) {
-      this.column.classList.add(`column--mobile-${this.mobileWidth}`);
+    if (columnState.mobileWidth) {
+      column.classList.add(`column--mobile-${columnState.mobileWidth}`);
     }
-    if (this.tabletWidth) {
-      this.column.classList.add(`column--tablet-${this.tabletWidth}`);
+    if (columnState.tabletWidth) {
+      column.classList.add(`column--tablet-${columnState.tabletWidth}`);
     }
-    if (this.desktopWidth) {
-      this.column.classList.add(`column--desktop-${this.desktopWidth}`);
+    if (columnState.desktopWidth) {
+      column.classList.add(`column--desktop-${columnState.desktopWidth}`);
     }
-    if (this.desktopOffset) {
-      this.column.classList.add(`column--desktop-offset-${this.desktopOffset}`);
+    if (columnState.desktopOffset) {
+      column.classList.add(
+        `column--desktop-offset-${columnState.desktopOffset}`
+      );
     }
-  }
 
-  appendChildren(children) {
-    if (Array.isArray(children)) {
-      children.forEach((child) => {
-        if (child instanceof HTMLElement) {
-          this.column.appendChild(child);
+    // Append children - properly handle both array and single child
+    if (Array.isArray(columnState.children)) {
+      appendChildren(column, columnState.children);
+    } else if (columnState.children instanceof HTMLElement) {
+      column.appendChild(columnState.children);
+    } else if (columnState.children) {
+      column.textContent = String(columnState.children);
+    }
+
+    return column;
+  };
+
+  // Initial column element
+  let columnElement = buildColumnElement();
+
+  // Public API
+  const column = {
+    /**
+     * Get the column element
+     * @returns {HTMLElement} Column element
+     */
+    getElement() {
+      return columnElement;
+    },
+
+    /**
+     * Update column properties
+     * @param {Object} newProps - New properties
+     * @returns {Object} Column component (for chaining)
+     */
+    update(newProps) {
+      // Update state
+      Object.assign(columnState, newProps);
+
+      // Rebuild element (for simplicity)
+      const oldElement = columnElement;
+      columnElement = buildColumnElement();
+
+      // Replace in DOM if the old element was inserted
+      if (oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(columnElement, oldElement);
+      }
+
+      return this;
+    },
+
+    /**
+     * Efficient partial update for the column
+     * @param {HTMLElement} element - Element to update
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate(element, newProps) {
+      // Update state first
+      Object.assign(columnState, newProps);
+
+      // Update specific properties only if they changed
+      if (newProps.width !== undefined) {
+        element.style.gridColumnEnd = `span ${newProps.width}`;
+      }
+
+      if (newProps.offset !== undefined) {
+        if (newProps.offset) {
+          element.style.gridColumnStart = newProps.offset + 1;
         } else {
-          throw new Error('Each child must be an HTMLElement');
+          element.style.removeProperty('grid-column-start');
         }
-      });
-    } else if (children instanceof HTMLElement) {
-      this.column.appendChild(children);
-    } else {
-      throw new Error('Children must be HTMLElement or array of HTMLElements');
-    }
-  }
+      }
 
-  getElement() {
-    return this.column;
-  }
-}
+      // Handle responsive classes
+      if (newProps.mobileWidth !== undefined) {
+        const mobileClasses = [...element.classList].filter((c) =>
+          c.startsWith('column--mobile-')
+        );
+        mobileClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.mobileWidth) {
+          element.classList.add(`column--mobile-${newProps.mobileWidth}`);
+        }
+      }
 
-class Grid {
-  constructor({
+      if (newProps.tabletWidth !== undefined) {
+        const tabletClasses = [...element.classList].filter((c) =>
+          c.startsWith('column--tablet-')
+        );
+        tabletClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.tabletWidth) {
+          element.classList.add(`column--tablet-${newProps.tabletWidth}`);
+        }
+      }
+
+      if (newProps.desktopWidth !== undefined) {
+        const desktopClasses = [...element.classList].filter(
+          (c) =>
+            c.startsWith('column--desktop-') &&
+            !c.startsWith('column--desktop-offset-')
+        );
+        desktopClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.desktopWidth) {
+          element.classList.add(`column--desktop-${newProps.desktopWidth}`);
+        }
+      }
+
+      if (newProps.desktopOffset !== undefined) {
+        const offsetClasses = [...element.classList].filter((c) =>
+          c.startsWith('column--desktop-offset-')
+        );
+        offsetClasses.forEach((c) => element.classList.remove(c));
+        if (newProps.desktopOffset) {
+          element.classList.add(
+            `column--desktop-offset-${newProps.desktopOffset}`
+          );
+        }
+      }
+
+      // Update children if needed
+      if (newProps.children !== undefined) {
+        // Clear existing children
+        while (element.firstChild) {
+          element.removeChild(element.firstChild);
+        }
+
+        // Add new children properly handling both array and single child
+        if (Array.isArray(newProps.children)) {
+          appendChildren(element, newProps.children);
+        } else if (newProps.children instanceof HTMLElement) {
+          element.appendChild(newProps.children);
+        } else if (newProps.children) {
+          element.textContent = String(newProps.children);
+        }
+      }
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      columnElement = null;
+    },
+
+    /**
+     * Handle theme changes
+     * @param {string} newTheme - New theme name
+     * @param {string} previousTheme - Previous theme name
+     */
+    onThemeChange(newTheme, previousTheme) {
+      // Handle theme changes if needed
+      console.debug(
+        `Column: Theme changed from ${previousTheme} to ${newTheme}`
+      );
+    },
+  };
+
+  return column;
+};
+
+/**
+ * Creates a Grid component
+ * @param {Object} props - Grid properties
+ * @returns {Object} Grid component
+ */
+const createGrid = (props = {}) => {
+  const {
     rowGap,
     columnGap,
     gap,
@@ -95,45 +247,21 @@ class Grid {
     justifyItems,
     mobileReverse = false,
     reverse = false,
-  } = {}) {
-    // Validation
-    if (gap && !this.isValidCSSValue(gap)) {
-      throw new Error('Invalid gap value');
-    }
-    if (rowGap && !this.isValidCSSValue(rowGap)) {
-      throw new Error('Invalid rowGap value');
-    }
-    if (columnGap && !this.isValidCSSValue(columnGap)) {
-      throw new Error('Invalid columnGap value');
-    }
+  } = props;
 
-    const validAlignments = ['start', 'end', 'center', 'stretch'];
-    if (alignItems && !validAlignments.includes(alignItems)) {
-      throw new Error(
-        `alignItems must be one of: ${validAlignments.join(', ')}`
-      );
-    }
-    if (justifyItems && !validAlignments.includes(justifyItems)) {
-      throw new Error(
-        `justifyItems must be one of: ${validAlignments.join(', ')}`
-      );
-    }
+  // State
+  let gridState = {
+    rowGap,
+    columnGap,
+    gap,
+    alignItems,
+    justifyItems,
+    mobileReverse,
+    reverse,
+  };
 
-    this.config = {
-      rowGap,
-      columnGap,
-      gap,
-      alignItems,
-      justifyItems,
-      mobileReverse,
-      reverse,
-    };
-
-    this.grid = document.createElement('div');
-    this.setStyles();
-  }
-
-  isValidCSSValue(value) {
+  // Validation
+  const isValidCSSValue = (value) => {
     return (
       typeof value === 'string' &&
       (value.endsWith('px') ||
@@ -142,55 +270,193 @@ class Grid {
         value.endsWith('%') ||
         value === 'auto')
     );
+  };
+
+  if (gap && !isValidCSSValue(gap)) {
+    throw new Error('Invalid gap value');
+  }
+  if (rowGap && !isValidCSSValue(rowGap)) {
+    throw new Error('Invalid rowGap value');
+  }
+  if (columnGap && !isValidCSSValue(columnGap)) {
+    throw new Error('Invalid columnGap value');
   }
 
-  setStyles() {
-    this.grid.className = 'grid';
+  const validAlignments = ['start', 'end', 'center', 'stretch'];
+  if (alignItems && !validAlignments.includes(alignItems)) {
+    throw new Error(`alignItems must be one of: ${validAlignments.join(', ')}`);
+  }
+  if (justifyItems && !validAlignments.includes(justifyItems)) {
+    throw new Error(
+      `justifyItems must be one of: ${validAlignments.join(', ')}`
+    );
+  }
 
-    // Base grid styles
-    this.grid.style.display = 'grid';
-    this.grid.style.gridTemplateColumns = 'repeat(12, 1fr)';
+  // Create the grid element
+  const buildGridElement = () => {
+    const classNames = ['grid'];
+    if (gridState.reverse) classNames.push('grid--reverse');
+    if (gridState.mobileReverse) classNames.push('grid--mobile-reverse');
+
+    const grid = createElement('div', {
+      classes: classNames,
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(12, 1fr)',
+      },
+    });
 
     // Gap handling
-    if (this.config.gap) {
-      this.grid.style.gap = this.config.gap;
+    if (gridState.gap) {
+      grid.style.gap = gridState.gap;
     } else {
-      if (this.config.rowGap) this.grid.style.rowGap = this.config.rowGap;
-      if (this.config.columnGap)
-        this.grid.style.columnGap = this.config.columnGap;
+      if (gridState.rowGap) grid.style.rowGap = gridState.rowGap;
+      if (gridState.columnGap) grid.style.columnGap = gridState.columnGap;
     }
 
     // Alignment
-    if (this.config.alignItems) {
-      this.grid.style.alignItems = this.config.alignItems;
+    if (gridState.alignItems) {
+      grid.style.alignItems = gridState.alignItems;
     }
-    if (this.config.justifyItems) {
-      this.grid.style.justifyItems = this.config.justifyItems;
+    if (gridState.justifyItems) {
+      grid.style.justifyItems = gridState.justifyItems;
     }
 
-    // Direction
-    if (this.config.reverse) {
-      this.grid.classList.add('grid--reverse');
-    }
-    if (this.config.mobileReverse) {
-      this.grid.classList.add('grid--mobile-reverse');
-    }
-  }
+    return grid;
+  };
 
-  appendChild(child) {
-    if (!(child instanceof HTMLElement)) {
-      throw new Error('Child must be an HTMLElement');
-    }
-    this.grid.appendChild(child);
-  }
+  // Initial grid element
+  let gridElement = buildGridElement();
 
-  getElement() {
-    return this.grid;
-  }
-}
+  // Public API
+  const grid = {
+    /**
+     * Get the grid element
+     * @returns {HTMLElement} Grid element
+     */
+    getElement() {
+      return gridElement;
+    },
+
+    /**
+     * Append a child to the grid
+     * @param {HTMLElement} child - Child element
+     * @returns {Object} Grid component (for chaining)
+     */
+    appendChild(child) {
+      if (!(child instanceof HTMLElement)) {
+        throw new Error('Child must be an HTMLElement');
+      }
+      gridElement.appendChild(child);
+      return this;
+    },
+
+    /**
+     * Update grid properties
+     * @param {Object} newProps - New properties
+     * @returns {Object} Grid component (for chaining)
+     */
+    update(newProps) {
+      // Update state
+      Object.assign(gridState, newProps);
+
+      // Rebuild element (for simplicity)
+      const oldElement = gridElement;
+      gridElement = buildGridElement();
+
+      // Move all children to the new element
+      while (oldElement.firstChild) {
+        gridElement.appendChild(oldElement.firstChild);
+      }
+
+      // Replace in DOM if the old element was inserted
+      if (oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(gridElement, oldElement);
+      }
+
+      return this;
+    },
+
+    /**
+     * Efficient partial update for the grid
+     * @param {HTMLElement} element - Element to update
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate(element, newProps) {
+      // Update state first
+      Object.assign(gridState, newProps);
+
+      // Update direction classes
+      if (newProps.reverse !== undefined) {
+        element.classList.toggle('grid--reverse', newProps.reverse);
+      }
+
+      if (newProps.mobileReverse !== undefined) {
+        element.classList.toggle(
+          'grid--mobile-reverse',
+          newProps.mobileReverse
+        );
+      }
+
+      // Handle gap styling
+      if (newProps.gap !== undefined) {
+        element.style.gap = newProps.gap;
+        // When setting gap, remove individual gaps
+        element.style.removeProperty('row-gap');
+        element.style.removeProperty('column-gap');
+      }
+
+      // Update row gap if no unified gap is set
+      if (newProps.rowGap !== undefined && !element.style.gap) {
+        element.style.rowGap = newProps.rowGap;
+      }
+
+      // Update column gap if no unified gap is set
+      if (newProps.columnGap !== undefined && !element.style.gap) {
+        element.style.columnGap = newProps.columnGap;
+      }
+
+      // Update alignment properties
+      if (newProps.alignItems !== undefined) {
+        element.style.alignItems = newProps.alignItems;
+      }
+
+      if (newProps.justifyItems !== undefined) {
+        element.style.justifyItems = newProps.justifyItems;
+      }
+    },
+
+    /**
+     * Clean up resources
+     */
+    destroy() {
+      gridElement = null;
+    },
+
+    /**
+     * Handle theme changes
+     * @param {string} newTheme - New theme name
+     * @param {string} previousTheme - Previous theme name
+     */
+    onThemeChange(newTheme, previousTheme) {
+      // Handle theme changes if needed
+      console.debug(`Grid: Theme changed from ${previousTheme} to ${newTheme}`);
+    },
+  };
+
+  return grid;
+};
+
+// Define required props for validation
+createColumn.requiredProps = ['children'];
+createGrid.requiredProps = [];
+
+// Create theme-aware components
+const Column = withThemeAwareness(createComponent('Column', createColumn));
+const Grid = withThemeAwareness(createComponent('Grid', createGrid));
 
 // Add Column as a static property of Grid
 Grid.Column = Column;
 
-// Export only Grid as default
+// Export
 export default Grid;

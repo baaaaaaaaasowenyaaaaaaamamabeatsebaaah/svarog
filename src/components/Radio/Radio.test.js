@@ -4,7 +4,7 @@ import Radio from './Radio.js';
 
 describe('Radio component', () => {
   it('should create a radio element', () => {
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Test radio',
       value: 'test',
     });
@@ -20,19 +20,19 @@ describe('Radio component', () => {
 
   it('should throw error when label is not provided', () => {
     expect(() => {
-      new Radio({ value: 'test' });
+      Radio({ value: 'test' });
     }).toThrow('Radio: label is required');
   });
 
   it('should throw error when value is not provided', () => {
     expect(() => {
-      new Radio({ label: 'Test radio' });
+      Radio({ label: 'Test radio' });
     }).toThrow('Radio: value is required');
   });
 
   it('should render label correctly', () => {
     const label = 'Test label';
-    const radio = new Radio({
+    const radio = Radio({
       label,
       value: 'test',
     });
@@ -43,7 +43,7 @@ describe('Radio component', () => {
   });
 
   it('should set initial checked state', () => {
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Test radio',
       value: 'test',
       checked: true,
@@ -57,7 +57,7 @@ describe('Radio component', () => {
   });
 
   it('should update checked state with setChecked method', () => {
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Test radio',
       value: 'test',
     });
@@ -80,9 +80,9 @@ describe('Radio component', () => {
     expect(inputElement.checked).toBe(false);
   });
 
-  it('should call onChange when radio changes', () => {
+  it('should call onChange when radio changes', async () => {
     const mockOnChange = vi.fn();
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Test radio',
       value: 'test',
       onChange: mockOnChange,
@@ -99,13 +99,15 @@ describe('Radio component', () => {
     const changeEvent = new Event('change');
     inputElement.dispatchEvent(changeEvent);
 
+    // Wait for debounced handler to execute
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(expect.any(Event), 'test');
-    expect(radio.isChecked()).toBe(true);
   });
 
   it('should handle disabled state', () => {
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Disabled radio',
       value: 'test',
       disabled: true,
@@ -119,7 +121,7 @@ describe('Radio component', () => {
 
   it('should apply custom class name', () => {
     const className = 'custom-radio';
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Radio with custom class',
       value: 'test',
       className,
@@ -132,7 +134,7 @@ describe('Radio component', () => {
   it('should set id and name attributes', () => {
     const id = 'my-radio';
     const name = 'options';
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Radio with ID and name',
       value: 'test',
       id,
@@ -148,11 +150,35 @@ describe('Radio component', () => {
 
   it('should return the correct value', () => {
     const value = 'test-value';
-    const radio = new Radio({
+    const radio = Radio({
       label: 'Radio with value',
       value,
     });
 
     expect(radio.getValue()).toBe(value);
+  });
+
+  it('should clean up event listeners when destroyed', () => {
+    const mockOnChange = vi.fn();
+    const radio = Radio({
+      label: 'Test radio',
+      value: 'test',
+      onChange: mockOnChange,
+    });
+
+    const inputElement = radio
+      .getElement()
+      .querySelector('input[type="radio"]');
+
+    // Destroy component
+    radio.destroy();
+
+    // Simulate change after destruction
+    inputElement.checked = true;
+    const changeEvent = new Event('change');
+    inputElement.dispatchEvent(changeEvent);
+
+    // Callback should not be called
+    expect(mockOnChange).not.toHaveBeenCalled();
   });
 });

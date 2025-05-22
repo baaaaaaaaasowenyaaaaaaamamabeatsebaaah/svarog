@@ -1,9 +1,9 @@
 // src/components/Footer/Footer.stories.js
-import Footer from './Footer.js';
+import createFooter from './Footer.js';
 
 export default {
   title: 'Components/Layout/Footer',
-  component: Footer,
+  component: createFooter,
 };
 
 const defaultFooterConfig = {
@@ -21,14 +21,14 @@ const defaultFooterConfig = {
 };
 
 export const Default = () => {
-  return new Footer({
+  return createFooter({
     siteName: 'Svarog Site',
     footer: defaultFooterConfig,
   });
 };
 
 export const MinimalFooter = () => {
-  return new Footer({
+  return createFooter({
     siteName: 'Minimal Site',
     footer: {
       copyright: '© 2024 Minimal Site',
@@ -37,7 +37,7 @@ export const MinimalFooter = () => {
 };
 
 export const WithLinksOnly = () => {
-  return new Footer({
+  return createFooter({
     siteName: 'Site with Links',
     footer: {
       links: [
@@ -50,7 +50,7 @@ export const WithLinksOnly = () => {
 };
 
 export const WithSocialOnly = () => {
-  return new Footer({
+  return createFooter({
     siteName: 'Social Site',
     footer: {
       social: [
@@ -63,7 +63,7 @@ export const WithSocialOnly = () => {
 };
 
 export const ExtensiveFooter = () => {
-  return new Footer({
+  return createFooter({
     siteName: 'Large Website',
     footer: {
       copyright: '© 2024 Large Website. All rights reserved.',

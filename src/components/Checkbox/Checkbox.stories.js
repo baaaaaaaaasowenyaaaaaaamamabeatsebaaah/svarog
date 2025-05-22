@@ -7,49 +7,49 @@ export default {
 };
 
 export const Default = () => {
-  return new Checkbox({
+  return Checkbox({
     label: 'Default checkbox',
     onChange: (event, checked) => console.log('Checkbox state:', checked),
-  });
+  }).getElement();
 };
 
 export const Checked = () => {
-  return new Checkbox({
+  return Checkbox({
     label: 'Checked checkbox',
     checked: true,
     onChange: (event, checked) => console.log('Checkbox state:', checked),
-  });
+  }).getElement();
 };
 
 export const Required = () => {
-  return new Checkbox({
+  return Checkbox({
     label: 'Required checkbox',
     required: true,
     onChange: (event, checked) => console.log('Checkbox state:', checked),
-  });
+  }).getElement();
 };
 
 export const Disabled = () => {
-  return new Checkbox({
+  return Checkbox({
     label: 'Disabled checkbox',
     disabled: true,
     onChange: (event, checked) => console.log('Checkbox state:', checked),
-  });
+  }).getElement();
 };
 
 export const DisabledChecked = () => {
-  return new Checkbox({
+  return Checkbox({
     label: 'Disabled checked checkbox',
     checked: true,
     disabled: true,
     onChange: (event, checked) => console.log('Checkbox state:', checked),
-  });
+  }).getElement();
 };
 
 export const WithValidation = () => {
   const container = document.createElement('div');
 
-  const checkbox = new Checkbox({
+  const checkbox = Checkbox({
     label: 'I agree to the terms and conditions',
     required: true,
     validationMessage: 'You must agree to the terms and conditions',
@@ -73,14 +73,14 @@ export const WithValidation = () => {
 export const Indeterminate = () => {
   const container = document.createElement('div');
 
-  const checkbox = new Checkbox({
+  const checkbox = Checkbox({
     label: 'Indeterminate state (click to toggle)',
     onChange: (event, checked) => console.log('Checkbox state:', checked),
   });
 
   // Set the checkbox to indeterminate state
   setTimeout(() => {
-    checkbox.input.indeterminate = true;
+    checkbox.setIndeterminate(true);
   }, 0);
 
   // Create a button to toggle indeterminate state
@@ -88,7 +88,8 @@ export const Indeterminate = () => {
   button.textContent = 'Toggle Indeterminate';
   button.style.marginTop = '10px';
   button.addEventListener('click', () => {
-    checkbox.input.indeterminate = !checkbox.input.indeterminate;
+    const input = checkbox.getElement().querySelector('input');
+    checkbox.setIndeterminate(!input.indeterminate);
   });
 
   container.appendChild(checkbox.getElement());
@@ -112,7 +113,7 @@ export const Multiple = () => {
   ];
 
   const checkboxes = options.map((option) => {
-    const checkbox = new Checkbox({
+    const checkbox = Checkbox({
       id: option.id,
       name: 'fruits',
       label: option.label,
@@ -125,7 +126,7 @@ export const Multiple = () => {
   });
 
   // Create a "Select All" checkbox
-  const selectAllCheckbox = new Checkbox({
+  const selectAllCheckbox = Checkbox({
     label: 'Select All',
     onChange: (event, checked) => {
       checkboxes.forEach((cb) => cb.setChecked(checked));
@@ -142,7 +143,7 @@ export const Multiple = () => {
 export const CustomStyling = () => {
   const container = document.createElement('div');
 
-  const checkbox = new Checkbox({
+  const checkbox = Checkbox({
     label: 'Custom styled checkbox',
     className: 'custom-checkbox',
   });

@@ -1,112 +1,282 @@
 // src/components/Tabs/Tabs.js
 import './Tabs.css';
-import { Component } from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { createElement } from '../../utils/componentFactory.js';
+import { validateRequiredProps } from '../../utils/validation.js';
 
-export default class Tabs extends Component {
-  constructor({
-    tabs = [], // Array of { id, label, content }
-    defaultActiveTab = 0,
-    onTabChange,
-    className = '',
-    variant = 'default',
-    align = 'left', // Add align prop with default value of 'left'
-  }) {
-    super();
+/**
+ * Creates a Tabs component
+ * @param {Object} props - Tabs properties
+ * @param {Array} props.tabs - Array of tab objects (id, label, content)
+ * @param {number} [props.defaultActiveTab=0] - Index of initially active tab
+ * @param {Function} [props.onTabChange] - Callback when active tab changes
+ * @param {string} [props.className] - Additional CSS class
+ * @param {string} [props.variant='default'] - Tab style variant ('default', 'simple', 'border')
+ * @param {string} [props.align='left'] - Tab alignment ('left', 'center', 'right')
+ * @returns {Object} Tabs component
+ */
+const createTabs = (props) => {
+  // Validate props
+  validateRequiredProps(
+    props,
+    {
+      tabs: {
+        required: true,
+        type: 'array',
+        minLength: 1,
+        validator: (tabs) => tabs.length > 0 || 'tabs array must not be empty',
+      },
+      defaultActiveTab: {
+        required: false,
+        type: 'number',
+      },
+      variant: {
+        required: false,
+        type: 'string',
+        allowedValues: ['default', 'simple', 'border'],
+      },
+      align: {
+        required: false,
+        type: 'string',
+        allowedValues: ['left', 'center', 'right'],
+      },
+    },
+    'Tabs'
+  );
 
-    // Fix the validation to explicitly check if tabs is missing or empty
-    if (!tabs || tabs.length === 0) {
-      throw new Error('Tabs: tabs is required');
+  // Create initial state by merging props with defaults
+  const state = {
+    tabs: props.tabs || [],
+    defaultActiveTab: props.defaultActiveTab || 0,
+    onTabChange: props.onTabChange || null,
+    className: props.className || '',
+    variant: props.variant || 'default',
+    align: props.align || 'left',
+    activeTab: props.defaultActiveTab || 0,
+  };
+
+  // References to DOM elements for easier access in switchTab
+  let buttonRefs = [];
+  let panelRefs = [];
+
+  /**
+   * Switches to a specific tab
+   * @param {number} index - Index of tab to switch to
+   * @returns {boolean} Whether the tab was switched
+   */
+  const switchTab = (index) => {
+    // Don't switch if index is out of bounds or already active
+    if (index === state.activeTab || index < 0 || index >= state.tabs.length) {
+      return false;
     }
 
-    // Validate variant
-    const validVariants = ['default', 'simple', 'border'];
-    if (!validVariants.includes(variant)) {
-      throw new Error(
-        `Tabs: Invalid variant "${variant}". Must be one of: ${validVariants.join(', ')}`
-      );
-    }
+    const previousTab = state.activeTab;
+    state.activeTab = index;
 
-    // Validate alignment
-    const validAlignments = ['left', 'center', 'right'];
-    if (!validAlignments.includes(align)) {
-      throw new Error(
-        `Tabs: Invalid alignment "${align}". Must be one of: ${validAlignments.join(', ')}`
-      );
-    }
-
-    this.props = {
-      tabs,
-      defaultActiveTab,
-      onTabChange,
-      className,
-      variant,
-      align,
-    };
-
-    this.state = {
-      activeTab: defaultActiveTab,
-    };
-
-    this.element = this.createTabs();
-  }
-
-  createTabs() {
-    const { variant, align } = this.props;
-
-    const container = this.createElement('div', {
-      className: this.createClassNames(
-        'tabs',
-        variant !== 'default' && `tabs--${variant}`,
-        align !== 'left' && `tabs--align-${align}`,
-        this.props.className
-      ),
+    // Update buttons
+    buttonRefs.forEach((button, i) => {
+      const isActive = i === index;
+      button.classList.toggle('tabs__button--active', isActive);
+      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
     });
 
-    // Create tab buttons
-    this.tabList = this.createElement('div', {
-      className: 'tabs__list',
+    // Update panels
+    panelRefs.forEach((panel, i) => {
+      const isActive = i === index;
+      panel.classList.toggle('tabs__panel--active', isActive);
+      panel.hidden = !isActive; // Hidden for inactive panels
+    });
+
+    // Call callback if provided
+    if (state.onTabChange) {
+      state.onTabChange(index, previousTab);
+    }
+
+    return true;
+  };
+
+  /**
+   * Adds content to a tab panel based on its type
+   * @param {HTMLElement} panel - The panel element to add content to
+   * @param {Object} tab - The tab object containing content
+   * @private
+   */
+  const addContentToPanel = (panel, tab) => {
+    const content = tab.content;
+
+    // Handle string content
+    if (typeof content === 'string') {
+      panel.innerHTML = content;
+      return;
+    }
+
+    // Handle HTMLElement content
+    if (content instanceof HTMLElement) {
+      panel.appendChild(content);
+      return;
+    }
+
+    // Handle component with getElement method
+    if (content && typeof content.getElement === 'function') {
+      try {
+        const element = content.getElement();
+        if (element instanceof HTMLElement) {
+          panel.appendChild(element);
+        } else {
+          console.warn(
+            `Tabs: content.getElement() did not return an HTMLElement for tab "${tab.id}"`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Tabs: Error calling getElement() for tab "${tab.id}":`,
+          error
+        );
+      }
+      return;
+    }
+
+    // Handle function that returns content
+    if (typeof content === 'function') {
+      try {
+        const contentElement = content();
+        if (contentElement instanceof HTMLElement) {
+          panel.appendChild(contentElement);
+        } else if (
+          contentElement &&
+          typeof contentElement.getElement === 'function'
+        ) {
+          const el = contentElement.getElement();
+          if (el instanceof HTMLElement) {
+            panel.appendChild(el);
+          } else {
+            console.warn(
+              `Tabs: content.getElement() did not return an HTMLElement for tab "${tab.id}"`
+            );
+          }
+        } else {
+          console.warn(
+            `Tabs: Function content did not return a valid element or component for tab "${tab.id}"`
+          );
+        }
+      } catch (error) {
+        console.error(
+          `Tabs: Error rendering content for tab "${tab.id}":`,
+          error
+        );
+      }
+      return;
+    }
+
+    // Handle null or undefined content
+    if (content === null || content === undefined) {
+      console.warn(`Tabs: No content provided for tab "${tab.id}"`);
+      return;
+    }
+
+    // Handle unknown content type
+    console.warn(
+      `Tabs: Unsupported content type for tab "${tab.id}": ${typeof content}`
+    );
+  };
+
+  /**
+   * Renders the tabs based on current state
+   * @param {Object} state - Current component state
+   * @returns {HTMLElement} Tabs element
+   */
+  const renderTabs = (state) => {
+    // Create container with proper class names
+    const containerClasses = ['tabs'];
+
+    if (state.variant !== 'default') {
+      containerClasses.push(`tabs--${state.variant}`);
+    }
+
+    if (state.align !== 'left') {
+      containerClasses.push(`tabs--align-${state.align}`);
+    }
+
+    if (state.className) {
+      containerClasses.push(state.className);
+    }
+
+    const container = createElement('div', {
+      classes: containerClasses,
+    });
+
+    // Create tab buttons list
+    const tabList = createElement('div', {
+      classes: 'tabs__list',
       attributes: { role: 'tablist' },
     });
 
     // Create tab panels container
-    this.tabPanels = this.createElement('div', {
-      className: 'tabs__panels',
+    const tabPanelsContainer = createElement('div', {
+      classes: 'tabs__panels',
     });
 
+    // Reset button and panel references
+    buttonRefs = [];
+    panelRefs = [];
+
     // Add tab buttons and panels
-    this.props.tabs.forEach((tab, index) => {
-      const isActive = index === this.state.activeTab;
+    state.tabs.forEach((tab, index) => {
+      const isActive = index === state.activeTab;
       const isFirst = index === 0;
 
-      // Tab button
-      const button = this.createElement('button', {
-        className: this.createClassNames(
-          'tabs__button',
-          isActive && 'tabs__button--active',
-          variant === 'border' && isFirst && 'tabs__button--first',
-          variant === 'border' && 'tabs__button--bordered'
-        ),
+      // Build class names for tab buttons
+      const buttonClasses = ['tabs__button'];
+
+      if (isActive) {
+        buttonClasses.push('tabs__button--active');
+      }
+
+      if (state.variant === 'border') {
+        buttonClasses.push('tabs__button--bordered');
+
+        if (isFirst) {
+          buttonClasses.push('tabs__button--first');
+        }
+      }
+
+      // Create tab button
+      const button = createElement('button', {
+        classes: buttonClasses,
         attributes: {
           role: 'tab',
           'aria-selected': isActive ? 'true' : 'false',
           'aria-controls': `panel-${tab.id}`,
           id: `tab-${tab.id}`,
         },
-        textContent: tab.label,
         events: {
-          click: () => this.switchTab(index),
+          click: (e) => {
+            e.preventDefault();
+            switchTab(index);
+          },
         },
       });
 
-      this.tabList.appendChild(button);
+      // Set button text directly
+      button.textContent = tab.label;
 
-      // Tab panel
-      const panel = this.createElement('div', {
-        className: this.createClassNames(
-          'tabs__panel',
-          isActive && 'tabs__panel--active',
-          variant === 'border' && 'tabs__panel--bordered'
-        ),
+      buttonRefs.push(button);
+      tabList.appendChild(button);
+
+      // Build class names for tab panels
+      const panelClasses = ['tabs__panel'];
+
+      if (isActive) {
+        panelClasses.push('tabs__panel--active');
+      }
+
+      if (state.variant === 'border') {
+        panelClasses.push('tabs__panel--bordered');
+      }
+
+      // Create tab panel
+      const panel = createElement('div', {
+        classes: panelClasses,
         attributes: {
           role: 'tabpanel',
           'aria-labelledby': `tab-${tab.id}`,
@@ -114,71 +284,130 @@ export default class Tabs extends Component {
         },
       });
 
-      // Set hidden attribute only for inactive panels
-      if (!isActive) {
-        panel.hidden = true;
-      }
+      // Set hidden attribute manually
+      panel.hidden = !isActive;
 
-      // Add content to panel
-      if (tab.content instanceof HTMLElement) {
-        panel.appendChild(tab.content);
-      } else if (typeof tab.content === 'function') {
-        const contentElement = tab.content();
-        if (contentElement instanceof HTMLElement) {
-          panel.appendChild(contentElement);
-        } else if (contentElement?.getElement) {
-          panel.appendChild(contentElement.getElement());
-        }
-      } else if (tab.content?.getElement) {
-        panel.appendChild(tab.content.getElement());
-      } else if (typeof tab.content === 'string') {
-        panel.innerHTML = tab.content;
-      }
+      // Add content to the panel with improved error handling
+      addContentToPanel(panel, tab);
 
-      this.tabPanels.appendChild(panel);
+      panelRefs.push(panel);
+      tabPanelsContainer.appendChild(panel);
     });
 
-    container.appendChild(this.tabList);
-    container.appendChild(this.tabPanels);
+    container.appendChild(tabList);
+    container.appendChild(tabPanelsContainer);
 
     return container;
-  }
+  };
 
-  switchTab(index) {
-    if (
-      index === this.state.activeTab ||
-      index < 0 ||
-      index >= this.props.tabs.length
-    ) {
-      return;
+  // Create component using baseComponent
+  const baseComponent = createBaseComponent(renderTabs)(state);
+
+  /**
+   * Determines if component needs to fully re-render based on prop changes
+   * @param {Object} newProps - New properties
+   * @returns {boolean} Whether a full re-render is required
+   */
+  const shouldRerender = (newProps) => {
+    // Critical props that require a full re-render
+    const criticalProps = ['tabs', 'variant', 'align'];
+    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+  };
+
+  /**
+   * Perform partial update without full re-render
+   * @param {HTMLElement} element - Current element
+   * @param {Object} newProps - New properties
+   */
+  const partialUpdate = (element, newProps) => {
+    // Update state with new props
+    Object.assign(state, newProps);
+
+    // Handle className update without re-rendering
+    if (newProps.className !== undefined) {
+      // Get the current class list
+      const classList = element.className.split(' ');
+
+      // Find and remove the old className if it exists
+      const oldClassIndex = classList.findIndex(
+        (cls) => cls !== 'tabs' && !cls.startsWith('tabs--')
+      );
+
+      if (oldClassIndex !== -1) {
+        classList.splice(oldClassIndex, 1);
+      }
+
+      // Add the new className if it exists
+      if (newProps.className) {
+        classList.push(newProps.className);
+      }
+
+      // Set the new class list
+      element.className = classList.join(' ');
     }
 
-    const previousTab = this.state.activeTab;
-    this.state.activeTab = index;
-
-    // Update tab buttons
-    const buttons = this.tabList.querySelectorAll('.tabs__button');
-    buttons.forEach((button, i) => {
-      const isActive = i === index;
-      button.classList.toggle('tabs__button--active', isActive);
-      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
-
-    // Update tab panels
-    const panels = this.tabPanels.querySelectorAll('.tabs__panel');
-    panels.forEach((panel, i) => {
-      const isActive = i === index;
-      panel.classList.toggle('tabs__panel--active', isActive);
-      panel.hidden = !isActive;
-    });
-
-    // Call callback if provided
-    if (this.props.onTabChange) {
-      this.props.onTabChange(index, previousTab);
+    // Handle activeTab change
+    if (newProps.activeTab !== undefined) {
+      switchTab(newProps.activeTab);
     }
-  }
+  };
 
-  getElement() {
-    return this.element;
-  }
-}
+  // Extended component with custom methods
+  const tabsComponent = {
+    ...baseComponent,
+
+    /**
+     * Determines if component should fully re-render
+     * @param {Object} newProps - New properties
+     * @returns {boolean} Whether a full re-render is required
+     */
+    shouldRerender,
+
+    /**
+     * Performs efficient partial updates
+     * @param {HTMLElement} element - Current element
+     * @param {Object} newProps - New properties
+     */
+    partialUpdate,
+
+    /**
+     * Switch to a specific tab
+     * @param {number} index - Tab index to switch to
+     * @returns {Object} Tabs component (for chaining)
+     */
+    switchTab(index) {
+      switchTab(index);
+      return this;
+    },
+
+    /**
+     * Get the index of the active tab
+     * @returns {number} Active tab index
+     */
+    getActiveTab() {
+      return state.activeTab;
+    },
+
+    /**
+     * Get the number of tabs
+     * @returns {number} Number of tabs
+     */
+    getTabCount() {
+      return state.tabs.length;
+    },
+  };
+
+  // Add theme change handler
+  tabsComponent.onThemeChange = (newTheme, previousTheme) => {
+    // This could apply theme-specific adjustments if needed
+    console.debug(`Tabs: theme changed from ${previousTheme} to ${newTheme}`);
+  };
+
+  return tabsComponent;
+};
+
+// Define required props for validation
+createTabs.requiredProps = ['tabs'];
+
+// Export as a factory function
+export default createTabs;

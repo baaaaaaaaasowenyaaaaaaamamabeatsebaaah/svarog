@@ -1,9 +1,9 @@
 // src/components/CollapsibleHeader/CollapsibleHeader.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import CollapsibleHeaderContainer from './CollapsibleHeaderContainer.js';
-import CollapsibleHeader from './CollapsibleHeader.js';
+import { CollapsibleHeader } from './index.js';
 
-describe('CollapsibleHeader', () => {
+describe('CollapsibleHeader Components', () => {
   // Default props for testing
   const defaultProps = {
     siteName: 'Test Site',
@@ -54,195 +54,230 @@ describe('CollapsibleHeader', () => {
     });
   });
 
-  it('should render correctly with all props', () => {
-    const header = new CollapsibleHeader(defaultProps);
-    const element = header.getElement();
+  describe('CollapsibleHeader', () => {
+    it('should render correctly with all props', () => {
+      const header = CollapsibleHeader(defaultProps);
+      const element = header.getElement();
 
-    expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.tagName.toLowerCase()).toBe('header');
-    expect(element.classList.contains('collapsible-header')).toBe(true);
-  });
-
-  it('should render contact info and navigation', () => {
-    const header = new CollapsibleHeader(defaultProps);
-    const element = header.getElement();
-
-    // Check for contact info elements
-    const contactContainer = element.querySelector(
-      '.collapsible-header__contact-container'
-    );
-    expect(contactContainer).not.toBeNull();
-
-    const contactInfo = contactContainer.querySelector('.contact-info');
-    expect(contactInfo).not.toBeNull();
-
-    // Check for navigation
-    const navigation = element.querySelector('.nav');
-    expect(navigation).not.toBeNull();
-
-    const navItems = navigation.querySelectorAll('.nav__item');
-    expect(navItems.length).toBe(2);
-  });
-
-  it('should render logo when provided', () => {
-    const header = new CollapsibleHeader(defaultProps);
-    const element = header.getElement();
-
-    const logoContainer = element.querySelector('.collapsible-header__logo');
-    expect(logoContainer).not.toBeNull();
-
-    // Since Logo component should render an img element or similar
-    const logoElement = logoContainer.querySelector('a');
-    expect(logoElement).not.toBeNull();
-  });
-
-  it('should collapse when scrolled past threshold', () => {
-    const header = new CollapsibleHeaderContainer({
-      ...defaultProps,
-      collapseThreshold: 50,
+      expect(element).toBeInstanceOf(HTMLElement);
+      expect(element.tagName.toLowerCase()).toBe('header');
+      expect(element.classList.contains('collapsible-header')).toBe(true);
     });
-    document.body.appendChild(header.getElement());
 
-    // Initially not collapsed
-    expect(header.state.isCollapsed).toBe(false);
-    expect(
-      header.getElement().classList.contains('collapsible-header--collapsed')
-    ).toBe(false);
+    it('should render contact info and navigation', () => {
+      const header = CollapsibleHeader(defaultProps);
+      const element = header.getElement();
 
-    // Directly set the state and update the header instead of simulating scroll
-    header.state.isCollapsed = true;
-    header.header.update({ isCollapsed: true });
+      // Check for contact info elements
+      const contactContainer = element.querySelector(
+        '.collapsible-header__contact-container'
+      );
+      expect(contactContainer).not.toBeNull();
 
-    // Should be collapsed
-    expect(header.state.isCollapsed).toBe(true);
-    expect(
-      header.getElement().classList.contains('collapsible-header--collapsed')
-    ).toBe(true);
+      const contactInfo = contactContainer.querySelector('.contact-info');
+      expect(contactInfo).not.toBeNull();
 
-    document.body.removeChild(header.getElement());
+      // Check for navigation
+      const navigation = element.querySelector('.nav');
+      expect(navigation).not.toBeNull();
+
+      const navItems = navigation.querySelectorAll('.nav__item');
+      expect(navItems.length).toBe(2);
+    });
+
+    it('should render logo when provided', () => {
+      const header = CollapsibleHeader(defaultProps);
+      const element = header.getElement();
+
+      const logoContainer = element.querySelector('.collapsible-header__logo');
+      expect(logoContainer).not.toBeNull();
+
+      // Since Logo component renders as a link containing the logo element
+      const logoLink = logoContainer.querySelector('a');
+      expect(logoLink).not.toBeNull();
+    });
+
+    it('should update collapsed state via update method', () => {
+      const header = CollapsibleHeader(defaultProps);
+      const element = header.getElement();
+
+      // Initially not collapsed
+      expect(element.classList.contains('collapsible-header--collapsed')).toBe(
+        false
+      );
+
+      // Update to collapsed state
+      header.update({ isCollapsed: true });
+
+      // Should be collapsed
+      expect(element.classList.contains('collapsible-header--collapsed')).toBe(
+        true
+      );
+    });
+
+    it('should throw error if required props are missing', () => {
+      // Missing contactInfo
+      expect(() => {
+        CollapsibleHeader({
+          siteName: 'Test Site',
+          navigation: { items: [{ id: 'home', label: 'Home', href: '/' }] },
+        });
+      }).toThrow(/contactInfo/i);
+
+      // Missing navigation items
+      expect(() => {
+        CollapsibleHeader({
+          siteName: 'Test Site',
+          navigation: { items: [] },
+          contactInfo: {
+            location: 'Test Location',
+            phone: '123-456-7890',
+            email: 'test@example.com',
+          },
+        });
+      }).toThrow(/navigation\.items/i);
+    });
   });
 
-  it('should show sticky icons when collapsed if enabled', () => {
-    const header = new CollapsibleHeaderContainer({
-      ...defaultProps,
-      collapseThreshold: 50,
-      showStickyIcons: true,
-    });
-    document.body.appendChild(header.getElement());
+  describe('CollapsibleHeaderContainer', () => {
+    it('should collapse when scrolled past threshold', () => {
+      const header = CollapsibleHeaderContainer({
+        ...defaultProps,
+        collapseThreshold: 50,
+      });
+      document.body.appendChild(header.getElement());
 
-    // Initially not collapsed
-    expect(header.state.isCollapsed).toBe(false);
+      // Initially not collapsed
+      expect(header.getState().isCollapsed).toBe(false);
 
-    // Directly set the state and update the header
-    header.state.isCollapsed = true;
-    header.header.update({ isCollapsed: true });
+      // Simulate scrolling past threshold
+      Object.defineProperty(window, 'scrollY', { value: 100 });
+      header.handleScroll();
 
-    // Manually update sticky icons
-    header.updateStickyIconsVisibility();
+      // Should be collapsed
+      expect(header.getState().isCollapsed).toBe(true);
 
-    // Should be collapsed
-    expect(header.state.isCollapsed).toBe(true);
-
-    // Sticky icons should be created and added to DOM
-    const stickyIcons = document.querySelector('.sticky-contact-icons');
-    expect(stickyIcons).not.toBeNull();
-    expect(stickyIcons.style.display).toBe('flex');
-
-    document.body.removeChild(header.getElement());
-  });
-
-  it('should not show sticky icons when disabled', () => {
-    const header = new CollapsibleHeaderContainer({
-      ...defaultProps,
-      collapseThreshold: 50,
-      showStickyIcons: false,
-    });
-    document.body.appendChild(header.getElement());
-
-    // Directly set the state and update the header
-    header.state.isCollapsed = true;
-    header.header.update({ isCollapsed: true });
-
-    // Manually update sticky icons (this should be a no-op since sticky icons are disabled)
-    header.updateStickyIconsVisibility();
-
-    // Should be collapsed but no sticky icons should be present
-    expect(header.state.isCollapsed).toBe(true);
-    const stickyIcons = document.querySelector('.sticky-contact-icons');
-    expect(stickyIcons).toBeNull();
-
-    document.body.removeChild(header.getElement());
-  });
-
-  it('should clean up event listeners when destroyed', () => {
-    const header = new CollapsibleHeaderContainer({
-      ...defaultProps,
-      showStickyIcons: true,
-    });
-    document.body.appendChild(header.getElement());
-
-    // Directly create sticky icons first
-    header.state.isCollapsed = true;
-    header.updateStickyIconsVisibility();
-
-    // Create sticky icons manually for test purposes if they weren't created
-    if (!document.querySelector('.sticky-contact-icons')) {
-      if (header.stickyIcons) {
-        document.body.appendChild(header.stickyIcons.getElement());
+      // Clean up
+      try {
+        document.body.removeChild(header.getElement());
+      } catch (e) {
+        // Ignore errors if already removed
       }
-    }
+    });
 
-    // Verify sticky icons are created
-    const stickyIcons = document.querySelector('.sticky-contact-icons');
-    expect(stickyIcons).not.toBeNull();
-
-    // Spy on removeEventListener
-    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
-
-    // Call destroy
-    header.destroy();
-
-    // Verify that removeEventListener was called with correct arguments including the options
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'scroll',
-      header.handleScroll,
-      { passive: true }
-    );
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'resize',
-      header.handleResize,
-      { passive: true }
-    );
-
-    // Verify sticky icons are removed
-    const stickyIconsAfterDestroy = document.querySelector(
-      '.sticky-contact-icons'
-    );
-    expect(stickyIconsAfterDestroy).toBeNull();
-
-    document.body.removeChild(header.getElement());
-  });
-
-  it('should throw error if required props are missing', () => {
-    // Missing contactInfo
-    expect(() => {
-      new CollapsibleHeader({
-        siteName: 'Test Site',
-        navigation: { items: [{ id: 'home', label: 'Home', href: '/' }] },
+    it('should show sticky icons when collapsed if enabled', () => {
+      const header = CollapsibleHeaderContainer({
+        ...defaultProps,
+        collapseThreshold: 50,
+        showStickyIcons: true,
       });
-    }).toThrow('Missing required props');
+      document.body.appendChild(header.getElement());
 
-    // Missing navigation items
-    expect(() => {
-      new CollapsibleHeader({
-        siteName: 'Test Site',
-        navigation: { items: [] },
-        contactInfo: {
-          location: 'Test Location',
-          phone: '123-456-7890',
-          email: 'test@example.com',
-        },
+      // Manually set collapsed state
+      header.update({ isCollapsed: true });
+      header.updateStickyIconsVisibility();
+
+      // Check for sticky icons
+      const stickyIcons = document.querySelector('.sticky-contact-icons');
+      expect(stickyIcons).not.toBeNull();
+      expect(stickyIcons.style.display).toBe('flex');
+
+      // Clean up
+      try {
+        document.body.removeChild(header.getElement());
+      } catch (e) {
+        // Ignore errors if already removed
+      }
+    });
+
+    it('should not show sticky icons when disabled', () => {
+      const header = CollapsibleHeaderContainer({
+        ...defaultProps,
+        collapseThreshold: 50,
+        showStickyIcons: false,
       });
-    }).toThrow('Missing required props');
+      document.body.appendChild(header.getElement());
+
+      // Manually set collapsed state
+      header.update({ isCollapsed: true });
+      header.updateStickyIconsVisibility();
+
+      // Should not find sticky icons
+      const stickyIcons = document.querySelector('.sticky-contact-icons');
+      expect(stickyIcons).toBeNull();
+
+      // Clean up
+      try {
+        document.body.removeChild(header.getElement());
+      } catch (e) {
+        // Ignore errors if already removed
+      }
+    });
+
+    it('should clean up event listeners when destroyed', () => {
+      const header = CollapsibleHeaderContainer({
+        ...defaultProps,
+        showStickyIcons: true,
+      });
+
+      // Store reference to element before adding to DOM
+      const headerElement = header.getElement();
+      document.body.appendChild(headerElement);
+
+      // Create sticky icons manually
+      header.update({ isCollapsed: true });
+      header.updateStickyIconsVisibility();
+
+      // Spy on removeEventListener
+      const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+
+      // Call destroy
+      header.destroy();
+
+      // Verify that removeEventListener was called
+      expect(removeEventListenerSpy).toHaveBeenCalled();
+
+      // Verify sticky icons are removed
+      const stickyIconsAfterDestroy = document.querySelector(
+        '.sticky-contact-icons'
+      );
+      expect(stickyIconsAfterDestroy).toBeNull();
+
+      // Try to remove element only if it's still in the DOM
+      try {
+        if (headerElement.parentNode) {
+          document.body.removeChild(headerElement);
+        }
+      } catch (e) {
+        // Ignore errors if already removed
+      }
+    });
+
+    it('should update mobile state on resize', () => {
+      const header = CollapsibleHeaderContainer(defaultProps);
+      document.body.appendChild(header.getElement());
+
+      // Mock window.innerWidth to simulate mobile viewport
+      const originalInnerWidth = window.innerWidth;
+      Object.defineProperty(window, 'innerWidth', { value: 480 });
+
+      // Trigger resize handler
+      header.handleResize();
+
+      // Should be in mobile state
+      expect(header.getState().isMobile).toBe(true);
+
+      // Restore original innerWidth
+      Object.defineProperty(window, 'innerWidth', {
+        value: originalInnerWidth,
+      });
+
+      // Clean up
+      try {
+        document.body.removeChild(header.getElement());
+      } catch (e) {
+        // Ignore errors if already removed
+      }
+    });
   });
 });

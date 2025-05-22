@@ -2,11 +2,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import Form from './Form.js';
 import Input from '../Input/Input.js';
-import Button from '../Button/Button.js';
 
 describe('Form component', () => {
   it('should create a form element', () => {
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
     });
 
@@ -19,13 +18,13 @@ describe('Form component', () => {
 
   it('should throw error when children are not provided', () => {
     expect(() => {
-      new Form({});
-    }).toThrow('Form: children are required');
+      Form({});
+    }).toThrow('Form: children is required');
   });
 
   it('should throw error for invalid layout', () => {
     expect(() => {
-      new Form({
+      Form({
         children: document.createElement('div'),
         layout: 'invalid',
       });
@@ -33,7 +32,7 @@ describe('Form component', () => {
   });
 
   it('should apply layout class', () => {
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
       layout: 'horizontal',
     });
@@ -44,7 +43,7 @@ describe('Form component', () => {
 
   it('should handle form submission', () => {
     const mockOnSubmit = vi.fn();
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
       onSubmit: mockOnSubmit,
     });
@@ -60,7 +59,7 @@ describe('Form component', () => {
 
   it('should handle form change', () => {
     const mockOnChange = vi.fn();
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
       onChange: mockOnChange,
     });
@@ -75,37 +74,37 @@ describe('Form component', () => {
   });
 
   it('should register form fields', () => {
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
     });
 
-    const input = new Input({
+    const input = Input({
       name: 'test',
     });
 
     form.registerField(input);
 
-    // We can't directly access the internal fields array,
-    // but we can check that the method returns the form instance for chaining
+    // Check that the method returns the form instance for chaining
     const result = form.registerField(input);
     expect(result).toBe(form);
   });
 
   it('should reset the form', () => {
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
     });
 
     // Mock the form reset method
-    form.form.reset = vi.fn();
+    const formElement = form.getElement();
+    formElement.reset = vi.fn();
 
     form.reset();
 
-    expect(form.form.reset).toHaveBeenCalledTimes(1);
+    expect(formElement.reset).toHaveBeenCalledTimes(1);
   });
 
   it('should validate the form', () => {
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
     });
 
@@ -124,7 +123,7 @@ describe('Form component', () => {
   it('should get form data', () => {
     // This would require a more complex setup with actual form elements
     // For a basic test, we just ensure the method exists and returns an object
-    const form = new Form({
+    const form = Form({
       children: document.createElement('div'),
     });
 

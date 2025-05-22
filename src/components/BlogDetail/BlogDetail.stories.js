@@ -42,7 +42,7 @@ const defaultContent = `
 `;
 
 export const Default = () => {
-  return new BlogDetail({
+  return BlogDetail({
     title: 'Getting Started with Web Components',
     content: defaultContent,
     featuredImage:
@@ -54,7 +54,7 @@ export const Default = () => {
 };
 
 export const WithoutImage = () => {
-  return new BlogDetail({
+  return BlogDetail({
     title: 'Understanding Shadow DOM',
     content: defaultContent,
     publishedDate: '2024-01-15T00:00:00Z',
@@ -64,7 +64,7 @@ export const WithoutImage = () => {
 };
 
 export const MinimalContent = () => {
-  return new BlogDetail({
+  return BlogDetail({
     title: 'Simple Blog Post',
     content: '<p>This is a simple blog post with minimal content.</p>',
   });
@@ -81,7 +81,7 @@ export const LongContent = () => {
     ${defaultContent}
   `;
 
-  return new BlogDetail({
+  return BlogDetail({
     title: 'Comprehensive Guide to Web Components',
     content: longContent,
     featuredImage:

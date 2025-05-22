@@ -43,27 +43,27 @@ const samplePosts = [
 ];
 
 export const Default = () => {
-  return new BlogList({
+  return BlogList({
     posts: samplePosts,
     title: 'Latest Posts',
   });
 };
 
 export const WithoutTitle = () => {
-  return new BlogList({
+  return BlogList({
     posts: samplePosts,
   });
 };
 
 export const EmptyState = () => {
-  return new BlogList({
+  return BlogList({
     posts: [],
     title: 'Blog Posts',
   });
 };
 
 export const TwoColumns = () => {
-  return new BlogList({
+  return BlogList({
     posts: samplePosts,
     title: 'Latest Posts',
     columns: 2,
@@ -71,7 +71,7 @@ export const TwoColumns = () => {
 };
 
 export const SingleColumn = () => {
-  return new BlogList({
+  return BlogList({
     posts: samplePosts,
     title: 'Latest Posts',
     columns: 1,

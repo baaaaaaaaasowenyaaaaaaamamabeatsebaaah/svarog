@@ -27,7 +27,7 @@ export const AllHeadings = () => {
   const headings = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
   headings.forEach((tag, index) => {
-    const typography = new Typography({
+    const typography = Typography({
       children: `Heading ${index + 1} - The quick brown fox`,
       as: tag,
       block: true,
@@ -43,7 +43,7 @@ export const TextElements = () => {
   const container = createContainer('Text Elements');
 
   // Paragraph
-  const paragraph = new Typography({
+  const paragraph = Typography({
     children:
       'This is a paragraph element. It contains regular body text that can wrap across multiple lines when needed. Paragraphs are block elements by default.',
     as: 'p',
@@ -52,30 +52,24 @@ export const TextElements = () => {
   });
   container.appendChild(paragraph.getElement());
 
-  // Span (inline)
-  const spanContainer = document.createElement('p');
-  spanContainer.appendChild(
-    document.createTextNode('This paragraph contains an ')
-  );
-
-  const inlineSpan = new Typography({
-    children: 'inline span element',
+  // Span
+  const span = Typography({
+    children: 'This is a span element, which is inline by default.',
     as: 'span',
-    color: 'var(--color-primary)',
-    weight: 'bold',
+    className: 'mb-3',
   });
-  spanContainer.appendChild(inlineSpan.getElement());
-  spanContainer.appendChild(document.createTextNode(' within the text.'));
-  container.appendChild(spanContainer);
+  container.appendChild(span.getElement());
+  container.appendChild(document.createElement('br'));
+  container.appendChild(document.createElement('br'));
 
   // Div
-  const divTypography = new Typography({
+  const div = Typography({
     children: 'This is a div element with typography styling.',
     as: 'div',
     block: true,
-    className: 'mt-3',
+    className: 'mb-3',
   });
-  container.appendChild(divTypography.getElement());
+  container.appendChild(div.getElement());
 
   return container;
 };
@@ -85,8 +79,8 @@ export const TextAlignments = () => {
   const alignments = ['left', 'center', 'right', 'justify'];
 
   alignments.forEach((align) => {
-    const typography = new Typography({
-      children: `This text is aligned to the ${align}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+    const typography = Typography({
+      children: `This text is aligned to the ${align}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut sollicitudin massa.`,
       as: 'p',
       textAlign: align,
       block: true,
@@ -101,26 +95,22 @@ export const TextAlignments = () => {
 export const FontWeights = () => {
   const container = createContainer('Font Weights');
   const weights = [
-    '100',
-    '200',
-    '300',
-    '400',
-    'normal',
-    '500',
-    '600',
-    '700',
-    'bold',
-    '800',
-    '900',
+    { value: 'light', display: 'Light (300)' },
+    { value: 'regular', display: 'Regular (400)' },
+    { value: 'medium', display: 'Medium (500)' },
+    { value: 'semibold', display: 'Semibold (600)' },
+    { value: 'bold', display: 'Bold (700)' },
+    { value: '100', display: 'Thin (100)' },
+    { value: '900', display: 'Black (900)' },
   ];
 
-  weights.forEach((weight) => {
-    const typography = new Typography({
-      children: `Font weight: ${weight}`,
-      as: 'div',
-      weight: weight,
+  weights.forEach(({ value, display }) => {
+    const typography = Typography({
+      children: `${display} - The quick brown fox jumps over the lazy dog`,
+      as: 'p',
+      weight: value,
       block: true,
-      className: 'mb-2',
+      className: 'mb-3',
     });
     container.appendChild(typography.getElement());
   });
@@ -132,121 +122,55 @@ export const FontStyles = () => {
   const container = createContainer('Font Styles');
 
   // Normal
-  const normal = new Typography({
-    children: 'This is normal text style',
+  const normal = Typography({
+    children: 'Normal text style',
     as: 'p',
-    italic: false,
     block: true,
     className: 'mb-3',
   });
   container.appendChild(normal.getElement());
 
   // Italic
-  const italic = new Typography({
-    children: 'This is italic text style',
+  const italic = Typography({
+    children: 'Italic text style',
     as: 'p',
     italic: true,
     block: true,
+    className: 'mb-3',
   });
   container.appendChild(italic.getElement());
+
+  // Italic with weight
+  const italicBold = Typography({
+    children: 'Italic and bold text style',
+    as: 'p',
+    italic: true,
+    weight: 'bold',
+    block: true,
+    className: 'mb-3',
+  });
+  container.appendChild(italicBold.getElement());
 
   return container;
 };
 
 export const Colors = () => {
-  const container = createContainer('Text Colors - Design System');
+  const container = createContainer('Text Colors');
   const colors = [
-    { color: 'var(--color-text)', name: 'Text' },
-    { color: 'var(--color-text-light)', name: 'Text Light' },
-    { color: 'var(--color-text-lighter)', name: 'Text Lighter' },
-    { color: 'var(--color-primary)', name: 'Primary' },
-    { color: 'var(--color-secondary)', name: 'Secondary' },
-    { color: 'var(--color-success)', name: 'Success' },
-    { color: 'var(--color-danger)', name: 'Danger' },
-    { color: 'var(--color-warning)', name: 'Warning' },
-    { color: 'var(--color-info)', name: 'Info' },
+    { value: '#333333', name: 'Default Gray' },
+    { value: '#0077cc', name: 'Primary Blue' },
+    { value: '#cc0000', name: 'Error Red' },
+    { value: '#00aa55', name: 'Success Green' },
+    { value: '#ffaa00', name: 'Warning Orange' },
   ];
 
-  // Add grayscale colors
-  colors.push(
-    { color: 'var(--color-gray-900)', name: 'Gray 900' },
-    { color: 'var(--color-gray-700)', name: 'Gray 700' },
-    { color: 'var(--color-gray-500)', name: 'Gray 500' },
-    { color: 'var(--color-gray-300)', name: 'Gray 300' },
-    { color: 'var(--color-gray-100)', name: 'Gray 100' }
-  );
-
-  // Create a note about CSS variables
-  const note = document.createElement('p');
-  note.style.marginBottom = '1rem';
-  note.style.fontSize = '14px';
-  note.innerHTML =
-    '<strong>Note:</strong> These colors are using CSS variables from the design system.';
-  container.appendChild(note);
-
-  // Create a wrapper for the color samples
-  const colorWrapper = document.createElement('div');
-  colorWrapper.style.display = 'grid';
-  colorWrapper.style.gridTemplateColumns =
-    'repeat(auto-fill, minmax(250px, 1fr))';
-  colorWrapper.style.gap = '0.75rem';
-  container.appendChild(colorWrapper);
-
-  colors.forEach(({ color, name }) => {
-    const colorCard = document.createElement('div');
-    colorCard.style.padding = '0.75rem';
-    colorCard.style.border = '1px solid #e0e0e0';
-    colorCard.style.borderRadius = '4px';
-    colorCard.style.display = 'flex';
-    colorCard.style.flexDirection = 'column';
-    colorCard.style.gap = '0.5rem';
-
-    // Color sample
-    const colorSample = document.createElement('div');
-    colorSample.style.height = '2rem';
-    colorSample.style.backgroundColor = color;
-    colorSample.style.borderRadius = '3px';
-    colorSample.style.border = '1px solid #e0e0e0';
-    colorCard.appendChild(colorSample);
-
-    // Color name
-    const typography = new Typography({
-      children: name,
-      as: 'div',
-      color: color,
+  colors.forEach(({ value, name }) => {
+    const typography = Typography({
+      children: `${name} - The quick brown fox jumps over the lazy dog`,
+      as: 'p',
+      color: value,
       block: true,
-      weight: 'bold',
-    });
-    colorCard.appendChild(typography.getElement());
-
-    // Color variable
-    const colorVariable = new Typography({
-      children: color,
-      as: 'span',
-      block: true,
-      color: 'var(--color-gray-700)',
-      className: 'color-variable',
-      style: 'font-family: monospace; font-size: 0.9em;',
-    });
-    colorCard.appendChild(colorVariable.getElement());
-
-    colorWrapper.appendChild(colorCard);
-  });
-
-  return container;
-};
-
-export const CustomSizes = () => {
-  const container = createContainer('Custom Sizes');
-  const sizes = ['12px', '14px', '16px', '18px', '24px', '32px', '48px'];
-
-  sizes.forEach((size) => {
-    const typography = new Typography({
-      children: `Custom size: ${size}`,
-      as: 'div',
-      block: true,
-      className: 'mb-2',
-      style: `font-size: ${size}`,
+      className: 'mb-3',
     });
     container.appendChild(typography.getElement());
   });
@@ -254,127 +178,163 @@ export const CustomSizes = () => {
   return container;
 };
 
+export const CustomSizes = () => {
+  const container = createContainer('Custom Sizes with Responsive Behavior');
+
+  const heading = Typography({
+    children: 'This heading has custom responsive sizing',
+    as: 'h2',
+    tabletSize: '24px',
+    mobileSize: '20px',
+    block: true,
+    className: 'mb-3',
+  });
+  container.appendChild(heading.getElement());
+
+  const paragraph = Typography({
+    children:
+      'This paragraph also has custom responsive sizing that changes at tablet and mobile breakpoints.',
+    as: 'p',
+    tabletSize: '16px',
+    mobileSize: '14px',
+    block: true,
+    className: 'mb-3',
+  });
+  container.appendChild(paragraph.getElement());
+
+  const instruction = document.createElement('div');
+  instruction.innerHTML =
+    '<small>Resize the window to see the text size change at tablet (768px) and mobile (480px) breakpoints.</small>';
+  container.appendChild(instruction);
+
+  return container;
+};
+
 export const InlineVsBlock = () => {
   const container = createContainer('Inline vs Block Display');
 
-  // Inline examples
-  const inlineContainer = document.createElement('div');
-  inlineContainer.style.marginBottom = '1rem';
+  // Default paragraph (block)
+  const paragraph = Typography({
+    children: 'This is a paragraph (block by default).',
+    as: 'p',
+    className: 'mb-3',
+  });
+  container.appendChild(paragraph.getElement());
 
-  const inline1 = new Typography({
-    children: 'Inline element 1',
-    as: 'span',
+  // Force inline paragraph
+  const inlineParagraph = Typography({
+    children: 'This is a paragraph forced to display inline.',
+    as: 'p',
     block: false,
-    color: 'var(--color-primary)',
-    className: 'mr-2',
+    className: 'mb-3',
   });
+  container.appendChild(inlineParagraph.getElement());
+  container.appendChild(document.createElement('br'));
+  container.appendChild(document.createElement('br'));
 
-  const inline2 = new Typography({
-    children: 'Inline element 2',
+  // Default span (inline)
+  const span = Typography({
+    children: 'This is a span (inline by default).',
     as: 'span',
-    block: false,
-    color: 'var(--color-success)',
-    className: 'mr-2',
+    className: 'mb-3',
   });
+  container.appendChild(span.getElement());
+  container.appendChild(document.createElement('br'));
+  container.appendChild(document.createElement('br'));
 
-  const inline3 = new Typography({
-    children: 'Inline element 3',
+  // Force block span
+  const blockSpan = Typography({
+    children: 'This is a span forced to display as block.',
     as: 'span',
-    block: false,
-    color: 'var(--color-danger)',
-  });
-
-  inlineContainer.appendChild(inline1.getElement());
-  inlineContainer.appendChild(inline2.getElement());
-  inlineContainer.appendChild(inline3.getElement());
-  container.appendChild(inlineContainer);
-
-  // Block examples
-  const block1 = new Typography({
-    children: 'Block element 1',
-    as: 'div',
     block: true,
-    color: 'var(--color-primary)',
-    className: 'mb-2',
+    className: 'mb-3',
   });
-
-  const block2 = new Typography({
-    children: 'Block element 2',
-    as: 'div',
-    block: true,
-    color: 'var(--color-success)',
-    className: 'mb-2',
-  });
-
-  const block3 = new Typography({
-    children: 'Block element 3',
-    as: 'div',
-    block: true,
-    color: 'var(--color-danger)',
-  });
-
-  container.appendChild(block1.getElement());
-  container.appendChild(block2.getElement());
-  container.appendChild(block3.getElement());
+  container.appendChild(blockSpan.getElement());
 
   return container;
 };
 
 export const WithCustomClasses = () => {
-  const container = createContainer('With Custom CSS Classes');
+  const container = createContainer('Custom CSS Classes');
 
-  const typography = new Typography({
-    children: 'This element has custom CSS classes applied',
-    as: 'p',
-    className: 'custom-class another-class',
-    block: true,
+  // Add some custom styles for demonstration
+  const style = document.createElement('style');
+  style.textContent = `
+    .custom-text {
+      border-bottom: 2px dotted #0077cc;
+      padding-bottom: 4px;
+    }
+    .highlight {
+      background-color: #ffffcc;
+      padding: 4px 8px;
+    }
+    .shadow-text {
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+  `;
+  container.appendChild(style);
+
+  // Custom class examples
+  const customClasses = [
+    'custom-text',
+    'highlight',
+    'shadow-text',
+    'custom-text highlight',
+  ];
+
+  customClasses.forEach((className) => {
+    const typography = Typography({
+      children: `This text has the custom class: ${className}`,
+      as: 'p',
+      className: `${className} mb-3`,
+      block: true,
+    });
+    container.appendChild(typography.getElement());
   });
-
-  container.appendChild(typography.getElement());
-
-  const note = document.createElement('small');
-  note.style.color = '#666';
-  note.textContent = 'Check the element inspector to see the applied classes';
-  container.appendChild(note);
 
   return container;
 };
 
 export const WithCustomId = () => {
-  const container = createContainer('With Custom ID');
+  const container = createContainer('Custom ID Attribute');
 
-  const typography = new Typography({
-    children: 'This element has a custom ID attribute',
-    as: 'p',
-    id: 'custom-typography-id',
+  const typography = Typography({
+    children: 'This typography element has a custom ID attribute',
+    as: 'h3',
+    id: 'custom-heading-id',
     block: true,
   });
-
   container.appendChild(typography.getElement());
 
-  const note = document.createElement('small');
-  note.style.color = '#666';
-  note.textContent = 'Check the element inspector to see the ID attribute';
-  container.appendChild(note);
+  const code = document.createElement('pre');
+  code.textContent = `<h3 id="custom-heading-id" class="typography typography--h3 typography--block">
+  This typography element has a custom ID attribute
+</h3>`;
+  code.style.backgroundColor = '#f5f5f5';
+  code.style.padding = '10px';
+  code.style.borderRadius = '4px';
+  code.style.marginTop = '10px';
+  container.appendChild(code);
 
   return container;
 };
 
 export const ComplexContent = () => {
-  const container = createContainer('Complex Content (HTML)');
+  const container = createContainer('Complex Content');
 
-  const typography = new Typography({
-    children: `
-      <strong>Bold text</strong>, <em>italic text</em>, and <u>underlined text</u>.
-      <br><br>
-      Lists can also be included:
-      <ul>
-        <li>First item</li>
-        <li>Second item</li>
-        <li>Third item</li>
-      </ul>
-      And even <a href="#">links</a> work!
-    `,
+  // Create an element to use as children
+  const complexContent = document.createElement('div');
+  complexContent.innerHTML = `
+    <strong>This is bold text</strong> inside a <em>complex</em> HTML structure.
+    <ul>
+      <li>List item 1</li>
+      <li>List item 2</li>
+      <li>List item 3</li>
+    </ul>
+  `;
+
+  const typography = Typography({
+    children: complexContent,
     as: 'div',
     block: true,
   });
@@ -385,116 +345,117 @@ export const ComplexContent = () => {
 };
 
 export const WithNestedElements = () => {
-  const container = createContainer('With Nested HTML Elements');
+  const container = createContainer('Nested Typography Components');
 
-  // Create a nested element
-  const nestedElement = document.createElement('div');
-  const nestedTypography = new Typography({
-    children: 'This is nested typography',
-    as: 'p',
-    color: 'var(--color-primary)',
+  // Create nested typography components
+  const inner = Typography({
+    children: 'This is a nested typography component',
+    as: 'span',
+    color: '#cc0000',
     italic: true,
   });
-  nestedElement.appendChild(nestedTypography.getElement());
 
-  const outerTypography = new Typography({
-    children: nestedElement,
-    as: 'div',
+  const outer = Typography({
+    children: inner,
+    as: 'p',
     block: true,
-    className: 'p-3',
-    style: 'border: 1px solid #ccc; border-radius: 4px;',
+    weight: 'bold',
   });
 
-  container.appendChild(outerTypography.getElement());
+  container.appendChild(outer.getElement());
+
+  const explanation = document.createElement('p');
+  explanation.textContent =
+    'The text above is a bold paragraph containing an italic, red span.';
+  explanation.style.marginTop = '10px';
+  explanation.style.fontSize = '14px';
+  explanation.style.color = '#666';
+  container.appendChild(explanation);
 
   return container;
 };
 
 export const CombinedFeatures = () => {
-  const container = createContainer('Combined Features Example');
+  const container = createContainer('Combined Typography Features');
 
-  const heading = new Typography({
-    children: 'Welcome to Our Application',
-    as: 'h1',
-    textAlign: 'center',
-    color: 'var(--color-gray-900)',
-    weight: '700',
-    block: true,
-    className: 'mb-4',
-  });
-
-  const subheading = new Typography({
-    children: 'Experience the power of typography',
+  const typography = Typography({
+    children: 'Typography with multiple styling features combined',
     as: 'h3',
     textAlign: 'center',
-    color: 'var(--color-gray-700)',
-    weight: '400',
+    color: '#0077cc',
+    weight: 'semibold',
     italic: true,
-    block: true,
-    className: 'mb-5',
-  });
-
-  const content = new Typography({
-    children: `
-      <p>Typography is the art and technique of arranging type to make written language legible, readable, and appealing when displayed. 
-      The arrangement of type involves selecting typefaces, point sizes, line lengths, line-spacing, and letter-spacing, 
-      and adjusting the space between pairs of letters.</p>
-      
-      <p>Good typography establishes a strong visual hierarchy, provides a graphic balance to the website, 
-      and sets the product's overall tone. It can enhance the reading experience, making content more accessible 
-      and engaging for users.</p>
-    `,
-    as: 'div',
-    block: true,
-    className: 'mb-4',
-  });
-
-  const footer = new Typography({
-    children: '© 2024 Typography Component Demo',
-    as: 'p',
-    textAlign: 'center',
-    color: 'var(--color-gray-500)',
-    weight: '300',
-    block: true,
-    className: 'mt-5',
-  });
-
-  container.appendChild(heading.getElement());
-  container.appendChild(subheading.getElement());
-  container.appendChild(content.getElement());
-  container.appendChild(footer.getElement());
-
-  return container;
-};
-
-// Responsive Typography (showing tablet and mobile size props)
-export const ResponsiveTypography = () => {
-  const container = createContainer(
-    'Responsive Typography (Note: These props are stored but not actively used in the component)'
-  );
-
-  const note = document.createElement('p');
-  note.style.color = 'var(--color-danger)';
-  note.style.marginBottom = '1rem';
-  note.textContent =
-    'Note: The tabletSize and mobileSize props are accepted but not actively applied in the current component implementation.';
-  container.appendChild(note);
-
-  const typography = new Typography({
-    children: 'This typography component accepts responsive size props',
-    as: 'h2',
-    tabletSize: '24px',
-    mobileSize: '18px',
+    className: 'highlight',
     block: true,
   });
 
   container.appendChild(typography.getElement());
 
-  const explanation = document.createElement('small');
-  explanation.style.color = 'var(--color-gray-600)';
-  explanation.textContent =
-    "Check the component props. The tabletSize and mobileSize values are stored but need implementation in the component's setStyle method.";
-  container.appendChild(explanation);
+  // Add custom style for the highlight class
+  const style = document.createElement('style');
+  style.textContent = `
+    .highlight {
+      background-color: #f0f8ff;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+  `;
+  container.appendChild(style);
+
+  return container;
+};
+
+export const ResponsiveTypography = () => {
+  const container = createContainer('Responsive Typography Demonstration');
+
+  // Instructions
+  const instructions = document.createElement('div');
+  instructions.innerHTML = `
+    <p style="margin-bottom: 20px;">
+      This story demonstrates responsive typography. Resize the browser window to see changes:
+      <ul>
+        <li>Desktop: Default sizes</li>
+        <li>Tablet: Sizes change at 768px width</li>
+        <li>Mobile: Sizes change at 480px width</li>
+      </ul>
+    </p>
+  `;
+  container.appendChild(instructions);
+
+  // Create responsive typography examples
+  const examples = [
+    {
+      content: 'Desktop: 32px / Tablet: 28px / Mobile: 24px',
+      as: 'h1',
+      tabletSize: '28px',
+      mobileSize: '24px',
+    },
+    {
+      content: 'Desktop: 24px / Tablet: 20px / Mobile: 18px',
+      as: 'h2',
+      tabletSize: '20px',
+      mobileSize: '18px',
+    },
+    {
+      content: 'Desktop: 16px / Tablet: 15px / Mobile: 14px',
+      as: 'p',
+      tabletSize: '15px',
+      mobileSize: '14px',
+    },
+  ];
+
+  examples.forEach((example) => {
+    const typography = Typography({
+      children: example.content,
+      as: example.as,
+      tabletSize: example.tabletSize,
+      mobileSize: example.mobileSize,
+      block: true,
+      className: 'mb-4',
+    });
+    container.appendChild(typography.getElement());
+  });
 
   return container;
 };

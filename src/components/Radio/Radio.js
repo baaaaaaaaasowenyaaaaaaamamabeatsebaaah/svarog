@@ -1,187 +1,361 @@
 // src/components/Radio/Radio.js
 import './Radio.css';
-import { Component } from '../../utils/componentFactory.js';
+import { createComponent } from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import {
+  validateInput,
+  validateRequiredProps,
+} from '../../utils/validation.js';
+import { debounce, PerformanceBenchmark } from '../../utils/performance.js';
+import { isTestEnvironment } from '../../utils/environment.js';
 
 /**
- * Radio component
- * @extends Component
+ * Create the DOM structure for the radio component
+ * @param {Object} props - Component properties
+ * @param {Object} state - Internal component state storage
+ * @returns {HTMLElement} The created DOM structure
  */
-export default class Radio extends Component {
-  /**
-   * Creates a new Radio instance
-   *
-   * @param {Object} props - Radio properties
-   * @param {string} props.label - Radio label
-   * @param {string} props.value - Radio value
-   * @param {string} [props.id] - Radio id
-   * @param {string} [props.name] - Radio name
-   * @param {boolean} [props.checked=false] - Whether the radio is checked
-   * @param {boolean} [props.required=false] - Whether the radio is required
-   * @param {boolean} [props.disabled=false] - Whether the radio is disabled
-   * @param {string} [props.className=''] - Additional CSS class names
-   * @param {Function} [props.onChange] - Change event handler
-   */
-  constructor({
-    label,
-    value,
-    id,
-    name,
-    checked = false,
-    required = false,
-    disabled = false,
-    className = '',
-    onChange,
-  }) {
-    super();
+const createRadioDOM = (props) => {
+  // Create container
+  const container = document.createElement('div');
+  container.className = `radio-container ${props.className || ''}`.trim();
 
-    // Validation
-    if (!label) {
-      throw new Error('Radio: label is required');
+  // Create label wrapper
+  const wrapper = document.createElement('label');
+  wrapper.className = 'radio-wrapper';
+
+  // Create input element
+  const id = props.id || `radio-${Math.random().toString(36).substr(2, 9)}`;
+  const input = createRadioInput(props, id);
+
+  // Create visual indicator
+  const indicator = document.createElement('span');
+  indicator.className = 'radio-indicator';
+  indicator.setAttribute('aria-hidden', 'true');
+
+  // Create label text
+  const labelText = document.createElement('span');
+  labelText.className = 'radio-label';
+  labelText.textContent = props.label;
+  labelText.setAttribute('for', id);
+
+  // Build component structure
+  wrapper.appendChild(input);
+  wrapper.appendChild(indicator);
+  wrapper.appendChild(labelText);
+  container.appendChild(wrapper);
+
+  // Add validation container if needed
+  if (props.validationMessage) {
+    const validationContainer = createValidationContainer();
+    container.appendChild(validationContainer);
+    container.validationContainer = validationContainer;
+  }
+
+  // Store references for updates
+  container._input = input;
+  container._label = labelText;
+
+  return container;
+};
+
+/**
+ * Create a radio input element with appropriate attributes
+ * @param {Object} props - Radio properties
+ * @param {string} id - Element ID
+ * @returns {HTMLInputElement} The created input element
+ */
+const createRadioInput = (props, id) => {
+  const input = document.createElement('input');
+  input.type = 'radio';
+  input.className = 'radio-input';
+  input.id = id;
+
+  // Set attributes based on props
+  if (props.name) input.name = props.name;
+  if (props.value !== undefined) input.value = props.value;
+  if (props.required) input.required = true;
+  input.checked = props.checked || false;
+  if (props.disabled) input.disabled = true;
+
+  // Set ARIA attributes
+  updateInputAccessibility(input, props);
+
+  return input;
+};
+
+/**
+ * Create a validation message container
+ * @returns {HTMLDivElement} Validation container element
+ */
+const createValidationContainer = () => {
+  const container = document.createElement('div');
+  container.className = 'radio-validation-message';
+  container.setAttribute('aria-live', 'polite');
+  return container;
+};
+
+/**
+ * Update input element accessibility attributes
+ * @param {HTMLInputElement} input - The input element
+ * @param {Object} props - Component properties
+ */
+const updateInputAccessibility = (input, props) => {
+  input.setAttribute('aria-checked', input.checked ? 'true' : 'false');
+  if (props.disabled) input.setAttribute('aria-disabled', 'true');
+  if (props.required) input.setAttribute('aria-required', 'true');
+};
+
+/**
+ * Create a change event handler for the radio input
+ * @param {HTMLInputElement} input - The input element
+ * @param {HTMLElement} container - The container element
+ * @param {Object} props - Component properties
+ * @returns {Function} The event handler
+ */
+const createChangeHandler = (input, container, props) => {
+  const handleChange = (event) => {
+    // Update accessibility state
+    input.setAttribute('aria-checked', event.target.checked ? 'true' : 'false');
+
+    // Validate if required
+    if (props.validationMessage && container.validationContainer) {
+      validateInput(input, {
+        container: container,
+        messageElement: container.validationContainer,
+        customMessage: props.validationMessage,
+      });
     }
-
-    if (value === undefined || value === null) {
-      throw new Error('Radio: value is required');
-    }
-
-    // Store props
-    this.props = {
-      label,
-      value,
-      id,
-      name,
-      checked,
-      required,
-      disabled,
-      className,
-      onChange,
-    };
-
-    // Create element
-    this.container = this.createRadioContainer();
-  }
-
-  /**
-   * Creates the radio container
-   * @private
-   * @returns {HTMLElement} The radio container element
-   */
-  createRadioContainer() {
-    // Create container div
-    const container = this.createElement('div', {
-      className: this.createClassNames('radio-container', this.props.className),
-    });
-
-    // Create the radio wrapper
-    const wrapper = this.createElement('label', {
-      className: 'radio-wrapper',
-    });
-
-    // Create the actual radio input
-    const input = this.createRadioInput();
-
-    // Create custom radio indicator
-    const indicator = this.createElement('span', {
-      className: 'radio-indicator',
-    });
-
-    // Create label text
-    const labelText = this.createElement('span', {
-      className: 'radio-label',
-      textContent: this.props.label,
-    });
-
-    // Assemble the component
-    wrapper.appendChild(input);
-    wrapper.appendChild(indicator);
-    wrapper.appendChild(labelText);
-    container.appendChild(wrapper);
-
-    // Store reference to the input element
-    this.input = input;
-
-    return container;
-  }
-
-  /**
-   * Creates the radio input element
-   * @private
-   * @returns {HTMLInputElement} The radio input element
-   */
-  createRadioInput() {
-    const { value, id, name, checked, required, disabled } = this.props;
-
-    // Create attributes object with only defined properties
-    const attributes = {};
-    if (id) attributes.id = id;
-    if (name) attributes.name = name;
-    if (value !== undefined) attributes.value = value;
-    if (required) attributes.required = required;
-
-    // Create input element
-    const input = this.createElement('input', {
-      className: 'radio-input',
-      attributes: {
-        type: 'radio',
-        ...attributes,
-      },
-      events: {
-        change: this.handleChange.bind(this),
-      },
-    });
-
-    // Set properties that can't be set via attributes
-    input.checked = checked;
-    if (disabled) input.disabled = true;
-
-    return input;
-  }
-
-  /**
-   * Handles change events
-   * @private
-   * @param {Event} event - The change event
-   */
-  handleChange(event) {
-    // Update internal state
-    this.props.checked = event.target.checked;
 
     // Call onChange callback if provided
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(event, this.getValue());
+    if (typeof props.onChange === 'function') {
+      props.onChange(event, props.value);
     }
-  }
+  };
 
-  /**
-   * Gets the radio value
-   * @returns {string} The radio value
-   */
-  getValue() {
-    return this.props.value;
-  }
+  // Use appropriate handler based on environment
+  return isTestEnvironment() ? handleChange : debounce(handleChange, 50);
+};
 
-  /**
-   * Checks if the radio is checked
-   * @returns {boolean} Whether the radio is checked
-   */
-  isChecked() {
-    return this.props.checked;
-  }
+/**
+ * Creates a radio button component
+ * @param {Object} props - Radio properties
+ * @param {string} props.label - Radio label
+ * @param {string} props.value - Radio value
+ * @param {string} [props.id] - Radio id
+ * @param {string} [props.name] - Radio name
+ * @param {boolean} [props.checked=false] - Whether the radio is checked
+ * @param {boolean} [props.required=false] - Whether the radio is required
+ * @param {boolean} [props.disabled=false] - Whether the radio is disabled
+ * @param {string} [props.className=''] - Additional CSS class names
+ * @param {Function} [props.onChange] - Change event handler
+ * @param {string} [props.validationMessage] - Custom validation message
+ * @returns {Object} Radio component API
+ */
+const createRadio = createBaseComponent((props) => {
+  // Validate required props
+  validateRequiredProps(
+    props,
+    {
+      label: { required: true, type: 'string' },
+      value: { required: true },
+      id: { required: false, type: 'string' },
+      name: { required: false, type: 'string' },
+      checked: { required: false, type: 'boolean' },
+      required: { required: false, type: 'boolean' },
+      disabled: { required: false, type: 'boolean' },
+      className: { required: false, type: 'string' },
+      onChange: { required: false, type: 'function' },
+      validationMessage: { required: false, type: 'string' },
+    },
+    'Radio'
+  );
 
-  /**
-   * Sets the checked state
-   * @param {boolean} checked - The new checked state
-   */
-  setChecked(checked) {
-    this.props.checked = checked;
-    this.input.checked = checked;
-    return this;
-  }
+  // Create component DOM structure
+  const container = createRadioDOM(props, {});
+  const inputElement = container._input;
 
-  /**
-   * Gets the radio element
-   * @returns {HTMLElement} The radio container element
-   */
-  getElement() {
-    return this.container;
-  }
-}
+  // Set up event handling
+  const handler = createChangeHandler(inputElement, container, props);
+  inputElement.addEventListener('change', handler);
+  inputElement._changeHandler = handler; // Store for cleanup
+
+  return container;
+});
+
+/**
+ * Radio component factory with extended API
+ * @param {Object} props - Radio properties
+ * @returns {Object} Radio component API
+ */
+const RadioFactory = (props) => {
+  // Initialize performance benchmarking
+  const benchmark = new PerformanceBenchmark('Radio');
+
+  // Create base component
+  const component = createRadio(props);
+  const element = component.getElement();
+  const inputElement = element._input;
+
+  // Determine when a full rerender is needed
+  component.shouldRerender = (newProps) => {
+    return (
+      newProps.label !== props.label ||
+      newProps.className !== props.className ||
+      (newProps.validationMessage !== props.validationMessage &&
+        (!newProps.validationMessage || !props.validationMessage))
+    );
+  };
+
+  // Partial update implementation
+  component.partialUpdate = (element, newProps) => {
+    const endBenchmark = benchmark.start('updates');
+
+    // Update checked state
+    if (
+      newProps.checked !== undefined &&
+      inputElement.checked !== newProps.checked
+    ) {
+      inputElement.checked = newProps.checked;
+      inputElement.setAttribute(
+        'aria-checked',
+        newProps.checked ? 'true' : 'false'
+      );
+    }
+
+    // Update disabled state
+    if (
+      newProps.disabled !== undefined &&
+      inputElement.disabled !== newProps.disabled
+    ) {
+      inputElement.disabled = newProps.disabled;
+      inputElement.setAttribute(
+        'aria-disabled',
+        newProps.disabled ? 'true' : 'false'
+      );
+    }
+
+    // Update required state
+    if (
+      newProps.required !== undefined &&
+      inputElement.required !== newProps.required
+    ) {
+      inputElement.required = newProps.required;
+      inputElement.setAttribute(
+        'aria-required',
+        newProps.required ? 'true' : 'false'
+      );
+    }
+
+    // Update name attribute
+    if (newProps.name !== undefined && inputElement.name !== newProps.name) {
+      inputElement.name = newProps.name;
+    }
+
+    // Update value
+    if (newProps.value !== undefined && inputElement.value !== newProps.value) {
+      inputElement.value = newProps.value;
+    }
+
+    // Update label text
+    if (
+      newProps.label !== undefined &&
+      element._label.textContent !== newProps.label
+    ) {
+      element._label.textContent = newProps.label;
+    }
+
+    // Update validation message
+    if (
+      newProps.validationMessage !== undefined &&
+      element.validationContainer &&
+      props.validationMessage !== newProps.validationMessage
+    ) {
+      validateInput(inputElement, {
+        container: element,
+        messageElement: element.validationContainer,
+        customMessage: newProps.validationMessage,
+      });
+    }
+
+    // Update props reference
+    Object.assign(props, newProps);
+
+    endBenchmark();
+  };
+
+  // Enhanced component API
+  return {
+    ...component,
+
+    /**
+     * Gets the radio value
+     * @returns {string} The radio value
+     */
+    getValue: () => props.value,
+
+    /**
+     * Checks if the radio is checked
+     * @returns {boolean} Whether the radio is checked
+     */
+    isChecked: () => inputElement.checked,
+
+    /**
+     * Sets the checked state
+     * @param {boolean} checked - The new checked state
+     * @returns {Object} Component instance for chaining
+     */
+    setChecked: function (checked) {
+      inputElement.checked = checked;
+      inputElement.setAttribute('aria-checked', checked ? 'true' : 'false');
+      return this;
+    },
+
+    /**
+     * Validates the radio input
+     * @returns {boolean} Whether the input is valid
+     */
+    validate: function () {
+      if (element.validationContainer) {
+        return validateInput(inputElement, {
+          container: element,
+          messageElement: element.validationContainer,
+          customMessage: props.validationMessage,
+        });
+      }
+      return inputElement.checkValidity();
+    },
+
+    /**
+     * Focuses the radio input
+     * @returns {Object} Component instance for chaining
+     */
+    focus: function () {
+      inputElement.focus();
+      return this;
+    },
+
+    /**
+     * Get performance metrics
+     * @returns {Object} Performance metrics
+     */
+    getPerformanceMetrics: function () {
+      return benchmark.getSummary();
+    },
+
+    /**
+     * Custom destroy method to ensure event listener cleanup
+     */
+    destroy: function () {
+      if (inputElement && inputElement._changeHandler) {
+        inputElement.removeEventListener('change', inputElement._changeHandler);
+      }
+      component.destroy();
+    },
+  };
+};
+
+/**
+ * Radio component factory
+ */
+export default createComponent('Radio', RadioFactory);
