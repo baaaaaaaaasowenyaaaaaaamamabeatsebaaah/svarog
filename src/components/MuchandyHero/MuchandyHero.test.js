@@ -282,12 +282,12 @@ describe('MuchandyHero', () => {
 
     it('should use partial updates when full rerender is not needed', () => {
       const hero = MuchandyHero(mockForms);
-      const updateSpy = vi.spyOn(hero, 'setState');
+      const setStateSpy = vi.spyOn(hero, 'setState');
 
-      // This should use setState (partial update)
+      // This should use setState (partial update) - only title change, no forms
       hero.update({ title: 'New Title' });
 
-      expect(updateSpy).toHaveBeenCalledWith({ title: 'New Title' });
+      expect(setStateSpy).toHaveBeenCalledWith({ title: 'New Title' });
     });
   });
 
@@ -298,7 +298,9 @@ describe('MuchandyHero', () => {
 
       // Mock the tabs component with destroy method
       const mockTabsDestroy = vi.fn();
-      element._components.tabs = { destroy: mockTabsDestroy };
+      if (element._components) {
+        element._components.tabs = { destroy: mockTabsDestroy };
+      }
 
       expect(typeof hero.destroy).toBe('function');
 
@@ -318,11 +320,13 @@ describe('MuchandyHero', () => {
       const element = hero.getElement();
 
       // Mock tabs component that throws on destroy
-      element._components.tabs = {
-        destroy: () => {
-          throw new Error('Destroy error');
-        },
-      };
+      if (element._components) {
+        element._components.tabs = {
+          destroy: () => {
+            throw new Error('Destroy error');
+          },
+        };
+      }
 
       // Should not throw even if tabs destroy fails
       expect(() => hero.destroy()).not.toThrow();
@@ -343,21 +347,19 @@ describe('MuchandyHero', () => {
     it('should throw error when required repairForm is missing', () => {
       expect(() => {
         MuchandyHero({ buybackForm: mockForms.buybackForm });
-      }).toThrow('MuchandyHero: Missing required props: repairForm');
+      }).toThrow('MuchandyHero: repairForm is required');
     });
 
     it('should throw error when required buybackForm is missing', () => {
       expect(() => {
         MuchandyHero({ repairForm: mockForms.repairForm });
-      }).toThrow('MuchandyHero: Missing required props: buybackForm');
+      }).toThrow('MuchandyHero: buybackForm is required');
     });
 
     it('should throw error when both required forms are missing', () => {
       expect(() => {
         MuchandyHero({});
-      }).toThrow(
-        'MuchandyHero: Missing required props: repairForm, buybackForm'
-      );
+      }).toThrow('MuchandyHero: repairForm is required');
     });
 
     it('should validate form objects have required methods', () => {

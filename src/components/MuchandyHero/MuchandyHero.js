@@ -60,9 +60,12 @@ const createTabConfiguration = (state) => {
  * @private
  */
 const applyContainerStyles = (container, backgroundImage) => {
+  // Handle both setting and clearing background images
   if (backgroundImage) {
-    // Single style operation instead of multiple property access
     container.style.backgroundImage = `url(${backgroundImage})`;
+  } else {
+    // Clear background image when empty string is passed
+    container.style.backgroundImage = '';
   }
 };
 
@@ -213,6 +216,9 @@ const createMuchandyHero = (props) => {
   // Create the base component
   const muchandyHero = createBaseComponent(renderMuchandyHero)(initialState);
 
+  // Store reference to the original base component update method
+  const originalUpdate = muchandyHero.update;
+
   // Maintain component state reference
   let currentState = { ...initialState };
 
@@ -234,16 +240,8 @@ const createMuchandyHero = (props) => {
 
   // Define when we need a full re-render with algorithmic efficiency
   muchandyHero.shouldRerender = (newProps) => {
-    // These props require full re-render - check efficiently
-    const rerenderProps = [
-      'backgroundImage',
-      'title',
-      'subtitle',
-      'repairForm',
-      'buybackForm',
-      'defaultTab',
-      'className',
-    ];
+    // Only these props require full re-render (structural changes)
+    const rerenderProps = ['repairForm', 'buybackForm', 'defaultTab'];
 
     // Use some() for efficient early termination
     return rerenderProps.some(
@@ -254,10 +252,18 @@ const createMuchandyHero = (props) => {
 
   // Efficient partial update method
   muchandyHero.partialUpdate = (element, newProps) => {
-    if (!element?._components) return;
+    if (!element?._components) {
+      console.warn(
+        'MuchandyHero partialUpdate: No element or components found'
+      );
+      return;
+    }
+
+    console.log('MuchandyHero partialUpdate called with:', newProps);
 
     // Update background image efficiently
     if (newProps.backgroundImage !== undefined) {
+      console.log('Updating background image to:', newProps.backgroundImage);
       applyContainerStyles(element, newProps.backgroundImage);
     }
 
@@ -266,6 +272,7 @@ const createMuchandyHero = (props) => {
       const titleElement = element.querySelector('.muchandy-hero__title');
       if (titleElement) {
         titleElement.innerHTML = newProps.title;
+        console.log('Updated title to:', newProps.title);
       }
     }
 
@@ -274,6 +281,7 @@ const createMuchandyHero = (props) => {
       const subtitleElement = element.querySelector('.muchandy-hero__subtitle');
       if (subtitleElement) {
         subtitleElement.textContent = newProps.subtitle;
+        console.log('Updated subtitle to:', newProps.subtitle);
       }
     }
 
@@ -283,6 +291,7 @@ const createMuchandyHero = (props) => {
       element.className = ['muchandy-hero', newProps.className]
         .filter(Boolean)
         .join(' ');
+      console.log('Updated className to:', element.className);
     }
   };
 
@@ -310,8 +319,14 @@ const createMuchandyHero = (props) => {
       element._currentState = null;
     }
 
-    // Call base component destroy
-    createBaseComponent.prototype.destroy?.call(this);
+    // Call original destroy method from base component if it exists
+    if (originalUpdate && typeof originalUpdate.destroy === 'function') {
+      try {
+        originalUpdate.destroy.call(this);
+      } catch (error) {
+        console.warn('MuchandyHero: Error calling base destroy:', error);
+      }
+    }
   };
 
   // Convenience methods for easier state management
@@ -334,9 +349,7 @@ const createMuchandyHero = (props) => {
   // Enhanced update method with validation
   muchandyHero.update = function (newProps) {
     try {
-      validateProps(newProps, createMuchandyHero.requiredProps);
-
-      // Validate form props if they're being updated
+      // Only validate form props if they're being updated
       if (newProps.repairForm || newProps.buybackForm) {
         validateMuchandyHeroProps({
           repairForm: newProps.repairForm || currentState.repairForm,
@@ -345,11 +358,38 @@ const createMuchandyHero = (props) => {
       }
 
       if (this.shouldRerender(newProps)) {
-        return createBaseComponent.prototype.update.call(this, {
-          ...currentState,
-          ...newProps,
-        });
+        console.log(
+          'MuchandyHero: Full rerender needed for props:',
+          Object.keys(newProps)
+        );
+
+        // Update current state
+        currentState = { ...currentState, ...newProps };
+
+        // Get current element and its parent
+        const oldElement = this.getElement();
+        const parent = oldElement?.parentNode;
+
+        if (parent) {
+          // Create new element with updated state
+          const newElement = renderMuchandyHero(currentState);
+
+          // Replace the old element with the new one
+          parent.replaceChild(newElement, oldElement);
+
+          // Update the component's element reference
+          muchandyHero.getElement = () => newElement;
+
+          console.log('MuchandyHero: Full rerender completed');
+        }
+
+        return this;
       } else {
+        console.log(
+          'MuchandyHero: Using partial update for props:',
+          Object.keys(newProps)
+        );
+        // Use partial updates for efficiency
         return this.setState(newProps);
       }
     } catch (error) {

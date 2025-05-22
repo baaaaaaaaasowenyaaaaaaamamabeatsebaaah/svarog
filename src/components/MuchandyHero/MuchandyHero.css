@@ -239,13 +239,6 @@
   }
 }
 
-/* Focus management for accessibility */
-.muchandy-hero:focus-within {
-  /* Improve focus visibility */
-  outline: 2px solid var(--color-brand-secondary, #ff6b00);
-  outline-offset: 4px;
-}
-
 /* Performance optimization: GPU acceleration for animations */
 .muchandy-hero__title,
 .muchandy-hero__subtitle,

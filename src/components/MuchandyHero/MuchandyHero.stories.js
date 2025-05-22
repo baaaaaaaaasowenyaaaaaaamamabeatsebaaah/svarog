@@ -330,14 +330,26 @@ export const WithDynamicUpdates = (args) => {
   `;
   controlsDiv.innerHTML = `
     <h3 style="margin-top: 0;">Dynamic Updates Demo</h3>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
       <button id="update-title" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Title</button>
       <button id="update-subtitle" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Subtitle</button>
       <button id="toggle-bg" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Toggle Background</button>
       <button id="switch-tab" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Switch Default Tab</button>
     </div>
+    <div id="status-display" style="padding: 10px; background: #e8f4f8; border: 1px solid #bee5eb; border-radius: 4px; font-size: 14px;">
+      Status: Ready for updates
+    </div>
   `;
   container.appendChild(controlsDiv);
+
+  // Create status update function
+  const updateStatus = (message) => {
+    const statusEl = controlsDiv.querySelector('#status-display');
+    if (statusEl) {
+      const timestamp = new Date().toLocaleTimeString();
+      statusEl.innerHTML = `Status [${timestamp}]: ${message}`;
+    }
+  };
 
   const hero = createHero({
     ...args,
@@ -347,49 +359,97 @@ export const WithDynamicUpdates = (args) => {
 
   container.appendChild(hero.getElement());
 
-  // Add event listeners for dynamic updates
-  setTimeout(() => {
-    let hasBg = true;
-    let currentTab = 'repair';
-    let titleIndex = 0;
-    let subtitleIndex = 0;
+  // Add event listeners with immediate setup (not in setTimeout)
+  let hasBg = true;
+  let currentTab = 'repair';
+  let titleIndex = 0;
+  let subtitleIndex = 0;
 
-    const titles = [
-      'Dynamic<br>Updates Demo',
-      'Updated<br>Title',
-      'Another<br>Title Change',
-      'Back to<br>Original',
-    ];
+  const titles = [
+    'Dynamic<br>Updates Demo',
+    'Updated<br>Title',
+    'Another<br>Title Change',
+    'Back to<br>Original',
+  ];
 
-    const subtitles = [
-      'Click buttons above to see updates.',
-      'Title has been updated!',
-      'Subtitle changed dynamically.',
-      'Everything is working perfectly.',
-    ];
+  const subtitles = [
+    'Click buttons above to see updates.',
+    'Title has been updated!',
+    'Subtitle changed dynamically.',
+    'Everything is working perfectly.',
+  ];
 
-    document.getElementById('update-title')?.addEventListener('click', () => {
+  // Update Title Button
+  const updateTitleBtn = controlsDiv.querySelector('#update-title');
+  if (updateTitleBtn) {
+    updateTitleBtn.addEventListener('click', () => {
+      console.log('Update title clicked');
       titleIndex = (titleIndex + 1) % titles.length;
       hero.setTitle(titles[titleIndex]);
+      updateStatus(
+        `Title updated to: "${titles[titleIndex].replace('<br>', ' ')}" (using setState/partialUpdate)`
+      );
     });
+  }
 
-    document
-      .getElementById('update-subtitle')
-      ?.addEventListener('click', () => {
-        subtitleIndex = (subtitleIndex + 1) % subtitles.length;
-        hero.setSubtitle(subtitles[subtitleIndex]);
-      });
+  // Update Subtitle Button
+  const updateSubtitleBtn = controlsDiv.querySelector('#update-subtitle');
+  if (updateSubtitleBtn) {
+    updateSubtitleBtn.addEventListener('click', () => {
+      console.log('Update subtitle clicked');
+      subtitleIndex = (subtitleIndex + 1) % subtitles.length;
+      hero.setSubtitle(subtitles[subtitleIndex]);
+      updateStatus(
+        `Subtitle updated to: "${subtitles[subtitleIndex]}" (using setState/partialUpdate)`
+      );
+    });
+  }
 
-    document.getElementById('toggle-bg')?.addEventListener('click', () => {
+  // Toggle Background Button
+  const toggleBgBtn = controlsDiv.querySelector('#toggle-bg');
+  if (toggleBgBtn) {
+    toggleBgBtn.addEventListener('click', () => {
+      console.log('Toggle background clicked, current hasBg:', hasBg);
       hasBg = !hasBg;
-      hero.setBackgroundImage(hasBg ? muchandyHeroBg : '');
-    });
+      const newBg = hasBg ? muchandyHeroBg : '';
+      hero.setBackgroundImage(newBg);
+      updateStatus(
+        `Background ${hasBg ? 'enabled' : 'disabled'} (using setState/partialUpdate)`
+      );
+      console.log('Background toggled to:', newBg);
 
-    document.getElementById('switch-tab')?.addEventListener('click', () => {
+      // Update button text to show current state
+      toggleBgBtn.textContent = hasBg ? 'Remove Background' : 'Add Background';
+    });
+  }
+
+  // Switch Tab Button
+  const switchTabBtn = controlsDiv.querySelector('#switch-tab');
+  if (switchTabBtn) {
+    switchTabBtn.addEventListener('click', () => {
+      console.log('Switch tab clicked, current tab:', currentTab);
       currentTab = currentTab === 'repair' ? 'sell' : 'repair';
       hero.update({ defaultTab: currentTab });
+      updateStatus(
+        `Default tab switched to: "${currentTab}" (using full rerender)`
+      );
+      console.log('Tab switched to:', currentTab);
+
+      // Update button text to show current state
+      switchTabBtn.textContent = `Switch to ${currentTab === 'repair' ? 'Sell' : 'Repair'}`;
     });
-  }, 100);
+  }
+
+  // Initial button text updates
+  if (toggleBgBtn) toggleBgBtn.textContent = 'Remove Background';
+  if (switchTabBtn) switchTabBtn.textContent = 'Switch to Sell';
+
+  // Log initial state for debugging
+  console.log('Dynamic story initialized with:', {
+    hasBg,
+    currentTab,
+    muchandyHeroBg: muchandyHeroBg ? 'loaded' : 'not loaded',
+  });
 
   return container;
 };
