@@ -31,6 +31,18 @@ import { debounce } from '../../utils/performance.js';
  * @returns {Object} Select component API
  */
 const createSelect = (props) => {
+  // Initialize component state with validated props and enhanced defaults
+  const initialState = {
+    loading: false,
+    loadingText: 'Loading options...',
+    emptyText: 'No options available',
+    onLoadOptions: null,
+    value: props.multiple ? [] : '', // Proper default for multiple
+    ...props,
+  };
+
+  validateSelectProps(initialState);
+
   // Use base component for standardized lifecycle
   const baseComponent = createBaseComponent((state) => {
     const { className = '' } = state;
@@ -69,19 +81,11 @@ const createSelect = (props) => {
     return container;
   });
 
-  // Initialize component with validated props and enhanced defaults
-  const initialState = {
-    loading: false,
-    loadingText: 'Loading options...',
-    emptyText: 'No options available',
-    onLoadOptions: null,
-    value: props.multiple ? [] : '', // Fix: Set proper default for multiple
-    ...props,
-  };
-
-  validateSelectProps(initialState);
   const component = baseComponent(initialState);
-  const element = component.getElement();
+  let element = component.getElement();
+
+  // Track component state for updates
+  let state = { ...initialState };
 
   // Cached DOM elements for better performance
   const elements = {
@@ -91,9 +95,6 @@ const createSelect = (props) => {
     selectedDisplay: null,
     messageElement: null,
   };
-
-  // Track component state for updates
-  let state = { ...initialState };
 
   // Cache DOM elements for better performance
   function cacheElements() {
@@ -723,6 +724,24 @@ const createSelect = (props) => {
     });
   }
 
+  /**
+   * Helper function to set up event listeners
+   * @private
+   */
+  function setupEventListeners() {
+    // Remove old listeners first
+    if (element) {
+      element.removeEventListener('change', handleNativeSelectChange);
+      element.removeEventListener('focus', handleNativeSelectFocus, true);
+      element.removeEventListener('blur', handleNativeSelectBlur, true);
+    }
+
+    // Add new listeners
+    element.addEventListener('change', handleNativeSelectChange);
+    element.addEventListener('focus', handleNativeSelectFocus, true);
+    element.addEventListener('blur', handleNativeSelectBlur, true);
+  }
+
   // Set up initial event listeners
   setupEventListeners();
 
@@ -921,18 +940,15 @@ const createSelect = (props) => {
         toggleDropdown(false);
       }
 
-      // Update the DOM directly
-      element.setAttribute('data-loading', loading ? 'true' : 'false');
-
-      // Force a full re-render to update loading state
+      // Manual re-render (working approach)
       const oldElement = element;
-      element = component.getElement();
+      element = component.getElement = () => {
+        return baseComponent({ ...state }).getElement();
+      };
+      element = element();
 
-      // Re-render the component with new state
-      const newElement = baseComponent(state).getElement();
       if (oldElement && oldElement.parentNode) {
-        oldElement.parentNode.replaceChild(newElement, oldElement);
-        element = newElement;
+        oldElement.parentNode.replaceChild(element, oldElement);
       }
 
       // Re-cache elements and set up event listeners
@@ -980,13 +996,9 @@ const createSelect = (props) => {
       // Update state
       state = { ...state, ...newProps };
 
-      // Force a full re-render
-      const oldElement = element;
-      const newElement = baseComponent(state).getElement();
-      if (oldElement && oldElement.parentNode) {
-        oldElement.parentNode.replaceChild(newElement, oldElement);
-        element = newElement;
-      }
+      // Update state and trigger re-render using baseComponent
+      component.update(state);
+      element = component.getElement();
 
       // Re-cache elements and set up event listeners
       cacheElements();
@@ -1031,13 +1043,9 @@ const createSelect = (props) => {
         state.value = state.multiple ? [] : '';
       }
 
-      // Force a full re-render to show new options
-      const oldElement = element;
-      const newElement = baseComponent(state).getElement();
-      if (oldElement && oldElement.parentNode) {
-        oldElement.parentNode.replaceChild(newElement, oldElement);
-        element = newElement;
-      }
+      // Update state and trigger re-render using baseComponent
+      component.update(state);
+      element = component.getElement();
 
       // Re-cache elements and set up event listeners
       cacheElements();
@@ -1087,28 +1095,14 @@ const createSelect = (props) => {
     },
   };
 
-  // Helper function to set up event listeners
-  function setupEventListeners() {
-    // Remove old listeners first
-    if (element) {
-      element.removeEventListener('change', handleNativeSelectChange);
-      element.removeEventListener('focus', handleNativeSelectFocus, true);
-      element.removeEventListener('blur', handleNativeSelectBlur, true);
-    }
-
-    // Add new listeners
-    element.addEventListener('change', handleNativeSelectChange);
-    element.addEventListener('focus', handleNativeSelectFocus, true);
-    element.addEventListener('blur', handleNativeSelectBlur, true);
-  }
-
   // Auto-load options if onLoadOptions is provided and no initial options
   if (
     state.onLoadOptions &&
     typeof state.onLoadOptions === 'function' &&
     (!state.options || state.options.length === 0)
   ) {
-    api.loadOptions().catch(console.error);
+    // Call loadOptions directly using the onLoadOptions function
+    api.loadOptions(state.onLoadOptions).catch(console.error);
   }
 
   return api;

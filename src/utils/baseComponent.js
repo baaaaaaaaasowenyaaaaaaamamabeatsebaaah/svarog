@@ -26,7 +26,7 @@ export const createBaseComponent = (renderFn) => {
     element = render();
 
     // Public API
-    return {
+    const component = {
       /**
        * Get the component element
        * @returns {HTMLElement} Component element
@@ -43,14 +43,23 @@ export const createBaseComponent = (renderFn) => {
       update(newProps) {
         if (isDestroyed) {
           console.warn('Attempted to update destroyed component');
-          return this;
+          return component;
         }
 
         // Update state
         Object.assign(state, newProps);
 
-        // Check if we need a full re-render or partial update
-        if (this.shouldRerender && this.shouldRerender(newProps)) {
+        // Check for custom update behavior first
+        if (component.shouldRerender && !component.shouldRerender(newProps)) {
+          // Custom shouldRerender says don't update
+          return component;
+        }
+
+        if (component.partialUpdate) {
+          // Use more efficient partial update if available
+          component.partialUpdate(element, newProps);
+        } else {
+          // DEFAULT: Always re-render when update is called
           // Keep track of old element for replacement
           const oldElement = element;
 
@@ -61,12 +70,9 @@ export const createBaseComponent = (renderFn) => {
           if (oldElement && oldElement.parentNode) {
             oldElement.parentNode.replaceChild(element, oldElement);
           }
-        } else if (this.partialUpdate) {
-          // Use more efficient partial update
-          this.partialUpdate(element, newProps);
         }
 
-        return this;
+        return component;
       },
 
       /**
@@ -85,12 +91,15 @@ export const createBaseComponent = (renderFn) => {
           element._listeners = {};
         }
 
-        // FIXED: Allow child components to clean up their resources
+        // Allow child components to clean up their resources
         if (element && element._components) {
-          Object.values(element._components).forEach((component) => {
-            if (component && typeof component.destroy === 'function') {
+          Object.values(element._components).forEach((childComponent) => {
+            if (
+              childComponent &&
+              typeof childComponent.destroy === 'function'
+            ) {
               try {
-                component.destroy();
+                childComponent.destroy();
               } catch (error) {
                 console.warn('Error destroying child component:', error);
               }
@@ -103,5 +112,7 @@ export const createBaseComponent = (renderFn) => {
         element = null;
       },
     };
+
+    return component;
   };
 };

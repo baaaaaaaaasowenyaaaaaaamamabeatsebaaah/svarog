@@ -163,14 +163,12 @@ describe('Select component', () => {
       expect(customSelect.getAttribute('aria-busy')).toBe('true');
     });
 
-    it('should set loading state with setLoading method', async () => {
+    it('should set loading state with setLoading method', () => {
       select = Select({ options });
 
       select.setLoading(true, 'Custom loading text');
 
-      // Add a small delay to ensure DOM updates
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
+      // Get fresh element reference after re-render
       const element = select.getElement();
       const selectedDisplay = element.querySelector('.select-custom__selected');
 
@@ -186,6 +184,7 @@ describe('Select component', () => {
 
       select.updateOptions(options);
 
+      // Get fresh element reference after re-render
       const element = select.getElement();
       expect(element.getAttribute('data-loading')).toBe('false');
     });
@@ -200,12 +199,8 @@ describe('Select component', () => {
 
       expect(mockLoadOptions).toHaveBeenCalledTimes(1);
 
-      // Check that options are now available in the component state
+      // Get fresh element reference after loadOptions completes
       const element = select.getElement();
-
-      // Wait a bit for DOM updates
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
       const customOptions = element.querySelectorAll('.select-custom__option');
       expect(customOptions.length).toBe(options.length);
     });
@@ -219,7 +214,10 @@ describe('Select component', () => {
       await expect(select.loadOptions(mockLoadOptions)).rejects.toThrow(
         'Network error'
       );
-      expect(select.getElement().getAttribute('data-loading')).toBe('false');
+
+      // FIXED: Get fresh element reference after error handling
+      const element = select.getElement();
+      expect(element.getAttribute('data-loading')).toBe('false');
     });
 
     it('should auto-load options on creation when onLoadOptions is provided', () => {
