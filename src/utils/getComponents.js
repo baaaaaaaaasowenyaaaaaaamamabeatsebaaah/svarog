@@ -1011,6 +1011,46 @@ export const getComponents = () => {
     // PAGE STRUCTURE COMPONENTS
     // =========================================
     {
+      name: 'Page',
+      stories: [
+        {
+          name: 'BasicPage',
+          module: () =>
+            import('../components/Page/Page.stories.js').then(
+              (m) => m.BasicPage
+            ),
+        },
+        {
+          name: 'LoadingState',
+          module: () =>
+            import('../components/Page/Page.stories.js').then(
+              (m) => m.LoadingState
+            ),
+        },
+        {
+          name: 'ErrorState',
+          module: () =>
+            import('../components/Page/Page.stories.js').then(
+              (m) => m.ErrorState
+            ),
+        },
+        {
+          name: 'CompletePageStructure',
+          module: () =>
+            import('../components/Page/Page.stories.js').then(
+              (m) => m.CompletePageStructure
+            ),
+        },
+        {
+          name: 'InteractivePage',
+          module: () =>
+            import('../components/Page/Page.stories.js').then(
+              (m) => m.InteractivePage
+            ),
+        },
+      ],
+    },
+    {
       name: 'Header',
       category: 'Page Structure',
       stories: [

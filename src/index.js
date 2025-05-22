@@ -15,6 +15,7 @@ import Footer from './components/Footer/index.js';
 import Hero from './components/Hero/index.js';
 import MuchandyHero from './components/MuchandyHero/index.js';
 import CollapsibleHeader from './components/CollapsibleHeader/index.js';
+import Page from './components/Page/Page.js';
 
 // ---- NAVIGATION COMPONENTS ----
 import Navigation from './components/Navigation/index.js';
@@ -83,6 +84,7 @@ const Layout = {
   Hero,
   MuchandyHero,
   CollapsibleHeader,
+  Page,
 };
 
 // Using the name "Nav" for the category to avoid conflict with the Navigation component
@@ -159,6 +161,7 @@ export {
   Hero,
   MuchandyHero,
   CollapsibleHeader,
+  Page,
 
   // Navigation
   Navigation,
