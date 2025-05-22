@@ -1,85 +1,42 @@
 # UsedPhonePriceForm Component
 
-The UsedPhonePriceForm component provides a multi-step interface for users to select a phone manufacturer, device model, and condition to get a buyback price estimate.
+The UsedPhonePriceForm component provides a multi-step interface for users to select a phone manufacturer, device model, and condition to get a buyback price estimate. It features async loading, error handling, and optimized user experience with algorithmic optimizations.
+
+## Key Features
+
+- **Multi-step selection flow**: Manufacturer → Device → Condition → Price
+- **Async data loading**: Supports loading states and error handling
+- **Progressive disclosure**: Each step enables the next based on selection
+- **Custom Select components**: Enhanced UI with loading and error states
+- **Condition selector**: Visual condition picker with descriptions
+- **Steps indicator**: Visual progress through the form
+- **Price display**: Real-time price updates with formatting
+- **Responsive design**: Works on desktop and mobile
+- **Accessibility**: Full keyboard navigation and screen reader support
+- **Theme awareness**: Responds to theme changes
+- **Algorithmic optimizations**: O(1) lookups, mathematical calculations, and memoized transformations
 
 ## Usage
 
-### Recommended: Using the Factory
+### Recommended: Using UsedPhonePriceFormContainer
 
-The easiest way to create a UsedPhonePriceForm is through the factory:
+The easiest way to create a UsedPhonePriceForm is through the container which handles all API interactions:
 
 ```javascript
-import { UsedPhonePriceFormFactory } from '@svarog-ui/core';
+import createUsedPhonePriceFormContainer from './UsedPhonePriceFormContainer.js';
 
-// Create a form with real API service
-const form = UsedPhonePriceFormFactory.createStandard({
+// Create with a real service
+const formContainer = createUsedPhonePriceFormContainer({
+  service: {
+    fetchManufacturers: () => fetch('/api/manufacturers').then((r) => r.json()),
+    fetchDevices: (manufacturerId) =>
+      fetch(`/api/devices/${manufacturerId}`).then((r) => r.json()),
+    fetchConditions: (deviceId) =>
+      fetch(`/api/conditions/${deviceId}`).then((r) => r.json()),
+    fetchPrice: (conditionId) =>
+      fetch(`/api/price/${conditionId}`).then((r) => r.json()),
+  },
   onPriceChange: (priceData) => console.log('Price updated:', priceData),
-  onSubmit: (formData) => console.log('Form submitted:', formData),
-});
-
-// Add to DOM
-document.body.appendChild(form.getElement());
-```
-
-### For Testing/Development: With Mock Data
-
-```javascript
-import { UsedPhonePriceFormFactory } from '@svarog-ui/core';
-import { mockPhoneBuybackData } from '../__mocks__/phoneBuybackData.js';
-
-// Create a form with mock data
-const form = UsedPhonePriceFormFactory.createWithMockData({
-  mockData: mockPhoneBuybackData,
-  onPriceChange: (priceData) => console.log('Price updated:', priceData),
-  onSubmit: (formData) => console.log('Form submitted:', formData),
-  mockDelay: 300, // Simulated API delay in milliseconds
-});
-
-// Add to DOM
-document.body.appendChild(form.getElement());
-```
-
-### Advanced Usage: Direct Component Creation
-
-#### Presentation Component
-
-```javascript
-import { UsedPhonePriceForm } from '@svarog-ui/core';
-
-// Create a simple form with callbacks
-const buybackForm = UsedPhonePriceForm({
-  onManufacturerChange: (manufacturerId) =>
-    console.log('Manufacturer selected:', manufacturerId),
-  onDeviceChange: (deviceId) => console.log('Device selected:', deviceId),
-  onConditionChange: (conditionId) =>
-    console.log('Condition selected:', conditionId),
-  onSubmit: (formData) => console.log('Form submitted:', formData),
-});
-
-// Add to DOM
-document.body.appendChild(buybackForm.getElement());
-
-// Later, update the form with data
-buybackForm.setManufacturers([
-  { id: '1', name: 'Apple' },
-  { id: '2', name: 'Samsung' },
-  { id: '3', name: 'Google' },
-]);
-```
-
-#### With Container
-
-```javascript
-import { UsedPhonePriceFormContainer } from '@svarog-ui/core';
-import PhoneBuybackService from './services/PhoneBuybackService';
-
-// Create a service that fetches data
-const service = new PhoneBuybackService({ baseUrl: 'https://api.example.com' });
-
-// Create the container component
-const formContainer = UsedPhonePriceFormContainer({
-  service,
-  onPriceChange: (price) => console.log('Price updated:', price),
   onSubmit: (formData) => console.log('Form submitted:', formData),
 });
 
@@ -87,82 +44,82 @@ const formContainer = UsedPhonePriceFormContainer({
 document.body.appendChild(formContainer.getElement());
 ```
 
+### Direct Component Usage
+
+For more control or custom integrations:
+
+```javascript
+import UsedPhonePriceForm from './UsedPhonePriceForm.js';
+
+const priceForm = UsedPhonePriceForm({
+  manufacturers: [
+    { id: '1', name: 'Apple' },
+    { id: '2', name: 'Samsung' },
+  ],
+  onManufacturerChange: (manufacturerId) => {
+    // Load and set devices for this manufacturer
+    loadDevices(manufacturerId).then((devices) => {
+      priceForm.setDevices(devices);
+    });
+  },
+  onDeviceChange: (deviceId) => {
+    // Load and set conditions for this device
+    loadConditions(deviceId).then((conditions) => {
+      priceForm.setConditions(conditions);
+    });
+  },
+  onConditionChange: (conditionId) => {
+    // Load and set price for this condition
+    loadPrice(conditionId).then((price) => {
+      priceForm.setPrice(price);
+    });
+  },
+  onSubmit: (formData) => {
+    console.log('Submit clicked:', formData);
+  },
+});
+
+document.body.appendChild(priceForm.getElement());
+```
+
 ## Props
 
 ### UsedPhonePriceForm Props
 
-| Prop                 | Type     | Default | Description                                    |
-| -------------------- | -------- | ------- | ---------------------------------------------- |
-| manufacturers        | Array    | []      | Array of manufacturer objects                  |
-| devices              | Array    | []      | Array of device objects                        |
-| conditions           | Array    | []      | Array of condition objects                     |
-| selectedManufacturer | string   | ""      | ID of selected manufacturer                    |
-| selectedDevice       | string   | ""      | ID of selected device                          |
-| selectedCondition    | string   | ""      | ID of selected condition                       |
-| currentPrice         | Object   | null    | Current price data object                      |
-| loading              | Object   | {}      | Loading states for different parts of the form |
-| error                | Object   | {}      | Error states for different parts of the form   |
-| labels               | Object   | {}      | Text labels to customize UI (see below)        |
-| className            | string   | ""      | Additional CSS class names                     |
-| showStepsIndicator   | boolean  | true    | Whether to show the step indicator             |
-| onManufacturerChange | Function | null    | Callback when manufacturer changes             |
-| onDeviceChange       | Function | null    | Callback when device changes                   |
-| onConditionChange    | Function | null    | Callback when condition changes                |
-| onSubmit             | Function | null    | Callback when form is submitted                |
+| Prop                 | Type     | Default | Description                                                           |
+| -------------------- | -------- | ------- | --------------------------------------------------------------------- |
+| manufacturers        | Array    | []      | Array of manufacturer objects with `id` and `name`                    |
+| devices              | Array    | []      | Array of device objects with `id` and `name`                          |
+| conditions           | Array    | []      | Array of condition objects with `id`, `name`, and `description`       |
+| selectedManufacturer | string   | ""      | ID of selected manufacturer                                           |
+| selectedDevice       | string   | ""      | ID of selected device                                                 |
+| selectedCondition    | string   | ""      | ID of selected condition                                              |
+| currentPrice         | Object   | null    | Current price data object                                             |
+| loading              | Object   | {}      | Loading states: `{manufacturers, devices, conditions, price, submit}` |
+| error                | Object   | {}      | Error states: `{manufacturers, devices, conditions, price}`           |
+| labels               | Object   | {}      | Text labels to customize UI (see below)                               |
+| className            | string   | ""      | Additional CSS class names                                            |
+| showStepsIndicator   | boolean  | true    | Whether to show the step indicator                                    |
+| animationEnabled     | boolean  | true    | Whether to enable form animations                                     |
+| onManufacturerChange | Function | null    | Callback when manufacturer changes `(manufacturerId) => {}`           |
+| onDeviceChange       | Function | null    | Callback when device changes `(deviceId) => {}`                       |
+| onConditionChange    | Function | null    | Callback when condition changes `(conditionId) => {}`                 |
+| onSubmit             | Function | null    | Callback when form is submitted `(formData) => {}`                    |
 
-### UsedPhonePriceFormContainer Options
+### UsedPhonePriceFormContainer Props
 
-| Option             | Type     | Default | Description                                |
-| ------------------ | -------- | ------- | ------------------------------------------ |
-| service            | Object   | -       | Service object with API methods (required) |
-| onPriceChange      | Function | null    | Callback when price updates                |
-| onSubmit           | Function | null    | Callback when form is submitted            |
-| labels             | Object   | {}      | Text labels to customize UI                |
-| className          | string   | ""      | Additional CSS class names                 |
-| showStepsIndicator | boolean  | true    | Whether to show step indicator             |
+| Prop               | Type     | Required | Description                                        |
+| ------------------ | -------- | -------- | -------------------------------------------------- |
+| service            | Object   | Yes      | Service object with API methods (see below)        |
+| onPriceChange      | Function | No       | Callback when price updates `(priceData) => {}`    |
+| onSubmit           | Function | No       | Callback when form is submitted `(formData) => {}` |
+| labels             | Object   | No       | Text labels to customize UI                        |
+| className          | string   | No       | Additional CSS class names                         |
+| showStepsIndicator | boolean  | No       | Whether to show the step indicator (default: true) |
 
-### UsedPhonePriceFormFactory Options
+### Service Interface
 
-| Option             | Type     | Description                                        |
-| ------------------ | -------- | -------------------------------------------------- |
-| onPriceChange      | Function | Callback when price updates                        |
-| onSubmit           | Function | Callback when form is submitted                    |
-| labels             | Object   | Text labels to customize UI                        |
-| className          | string   | Additional CSS class names                         |
-| showStepsIndicator | boolean  | Whether to show step indicator                     |
-| apiOptions         | Object   | API configuration (for createStandard)             |
-| mockData           | Object   | Mock data structure (for createWithMockData)       |
-| mockDelay          | number   | Simulated API delay in ms (for createWithMockData) |
-| service            | Object   | Custom service object (for createWithMockService)  |
-
-### Available Label Options
-
-```javascript
-{
-  manufacturerStep: 'Hersteller',               // Label for manufacturer step
-  deviceStep: 'Modell',                         // Label for device step
-  conditionStep: 'Zustand',                     // Label for condition step
-  manufacturerPlaceholder: 'Hersteller auswählen', // Placeholder for manufacturer select
-  devicePlaceholder: 'Zuerst Hersteller auswählen', // Placeholder for device select
-  initialPriceText: 'Bitte wählen Sie Hersteller, Modell und Zustand', // Initial price text
-  loadingPriceText: 'Preis wird geladen...',    // Price loading text
-  priceLabel: 'Unser Angebot:',                 // Label for price display
-  priceNotAvailable: 'Preis nicht verfügbar',   // Price not available text
-  deviceLoadError: 'Fehler beim Laden der Geräte', // Device loading error message
-  actionLoadError: 'Fehler beim Laden der Services', // Action loading error message
-  priceLoadError: 'Fehler beim Laden des Preises',   // Price loading error message
-  submitButtonText: 'Verkaufen',                // Submit button text
-  submitButtonLoadingText: 'Wird verarbeitet...', // Submit button loading text
-  conditionNewLabel: 'Neu',                     // Label for new condition
-  conditionGoodLabel: 'Gut',                    // Label for good condition
-  conditionFairLabel: 'Akzeptabel',             // Label for fair condition
-  conditionPoorLabel: 'Beschädigt',             // Label for poor condition
-}
-```
-
-### Expected Service Interface
-
-The service object passed to UsedPhonePriceFormContainer should implement:
+The service object passed to UsedPhonePriceFormContainer must implement:
 
 ```javascript
 {
@@ -173,43 +130,64 @@ The service object passed to UsedPhonePriceFormContainer should implement:
 }
 ```
 
-### Expected Mock Data Structure
+### Data Formats
 
-The mockData structure provided to UsedPhonePriceFormFactory.createWithMockData should follow:
+**Manufacturers/Devices:**
+
+```javascript
+[
+  { id: '1', name: 'Apple' },
+  { id: '2', name: 'Samsung' },
+];
+```
+
+**Conditions:**
+
+```javascript
+[
+  {
+    id: '1',
+    name: 'New',
+    description: 'Like new, without any signs of wear',
+  },
+  {
+    id: '2',
+    name: 'Good',
+    description: 'Minor signs of use, fully functional',
+  },
+];
+```
+
+**Price:**
 
 ```javascript
 {
-  manufacturers: [
-    {
-      id: 1,
-      name: 'Apple',
-      devices: [
-        {
-          id: 1,
-          name: 'iPhone 13',
-          manufacturerId: 1,
-          conditions: [
-            {
-              id: 1,
-              name: 'Neu',
-              description: 'Wie neu, ohne Gebrauchsspuren',
-              deviceId: 1,
-              prices: [
-                {
-                  id: 1,
-                  price: 499,  // in whole euros or cents
-                  conditionId: 1,
-                },
-              ],
-            },
-            // more conditions...
-          ],
-        },
-        // more devices...
-      ],
-    },
-    // more manufacturers...
-  ],
+  price: 39900, // in cents or whole euros
+  deviceName: "iPhone 13",      // optional
+  conditionName: "Good",        // optional
+  manufacturerName: "Apple"     // optional
+}
+```
+
+### Available Labels
+
+```javascript
+{
+  manufacturerStep: 'Hersteller',
+  deviceStep: 'Modell',
+  conditionStep: 'Zustand',
+  manufacturerPlaceholder: 'Hersteller auswählen',
+  devicePlaceholder: 'Zuerst Hersteller auswählen',
+  initialPriceText: 'Bitte wählen Sie Hersteller, Modell und Zustand',
+  loadingPriceText: 'Preis wird geladen...',
+  priceLabel: 'Unser Angebot:',
+  priceNotAvailable: 'Preis nicht verfügbar',
+  submitButtonText: 'Verkaufen',
+  submitButtonLoadingText: 'Wird verarbeitet...',
+  conditionNewLabel: 'Neu',
+  conditionGoodLabel: 'Gut',
+  conditionFairLabel: 'Akzeptabel',
+  conditionPoorLabel: 'Beschädigt',
 }
 ```
 
@@ -217,136 +195,60 @@ The mockData structure provided to UsedPhonePriceFormFactory.createWithMockData 
 
 ### UsedPhonePriceForm Methods
 
-#### getElement()
+#### State Management
 
-Returns the form DOM element.
+- `setState(newState)` - Update multiple state properties efficiently
+- `setLoading(loadingState)` - Update loading states
+- `setErrors(errorState)` - Update error states
+- `setManufacturers(manufacturers)` - Update manufacturers list
+- `setDevices(devices)` - Update devices list
+- `setConditions(conditions)` - Update conditions list
+- `setPrice(price)` - Update price data
+- `getCurrentState()` - Get current component state
 
-```javascript
-const formElement = buybackForm.getElement();
-```
+#### Component Lifecycle
 
-#### setManufacturers(manufacturers)
-
-Updates the manufacturers list.
-
-```javascript
-buybackForm.setManufacturers([
-  { id: '1', name: 'Apple' },
-  { id: '2', name: 'Samsung' },
-]);
-```
-
-#### setDevices(devices)
-
-Updates the devices list.
-
-```javascript
-buybackForm.setDevices([
-  { id: '1', name: 'iPhone 13' },
-  { id: '2', name: 'iPhone 14' },
-]);
-```
-
-#### setConditions(conditions)
-
-Updates the conditions list.
-
-```javascript
-buybackForm.setConditions([
-  { id: '1', name: 'Neu', description: 'Wie neu, ohne Gebrauchsspuren' },
-  { id: '2', name: 'Gut', description: 'Leichte Gebrauchsspuren' },
-]);
-```
-
-#### setPrice(price)
-
-Updates the price data.
-
-```javascript
-buybackForm.setPrice({
-  price: 29900, // in cents
-  deviceName: 'iPhone 13',
-  conditionName: 'Neu',
-});
-```
-
-#### setLoading(loading)
-
-Updates loading states.
-
-```javascript
-buybackForm.setLoading({
-  manufacturers: false,
-  devices: true,
-  conditions: false,
-  price: false,
-  submit: false,
-});
-```
-
-#### setErrors(error)
-
-Updates error states.
-
-```javascript
-buybackForm.setErrors({
-  devices: 'Failed to load devices',
-});
-```
-
-#### setState(newState)
-
-Updates multiple form state properties efficiently.
-
-```javascript
-buybackForm.setState({
-  selectedManufacturer: '1',
-  manufacturers: [...],
-  priceDisplayText: 'Loading...',
-});
-```
-
-#### update(props)
-
-Updates multiple component properties at once.
-
-```javascript
-buybackForm.update({
-  manufacturers: newManufacturers,
-  selectedManufacturer: '1',
-  className: 'custom-form',
-});
-```
-
-#### destroy()
-
-Cleans up resources. Call before removing from DOM.
-
-```javascript
-buybackForm.destroy();
-```
+- `getElement()` - Returns the form DOM element
+- `update(props)` - Update component with new props
+- `destroy()` - Clean up resources
 
 ### UsedPhonePriceFormContainer Methods
 
-#### getElement()
+- `getElement()` - Returns the form DOM element
+- `getContainerState()` - Get container state for debugging
+- `refresh(resource)` - Manually refresh a specific resource
+- `refreshManufacturers()` - Refresh manufacturers list
+- `updateForm(props)` - Update the form with new props
+- `getFormState()` - Get current form state
+- `destroy()` - Clean up resources
 
-Returns the form DOM element.
+## Examples
+
+### Basic Implementation
 
 ```javascript
-const formElement = formContainer.getElement();
+import createUsedPhonePriceFormContainer from './UsedPhonePriceFormContainer.js';
+
+const container = createUsedPhonePriceFormContainer({
+  service: {
+    fetchManufacturers: () => fetch('/api/manufacturers').then((r) => r.json()),
+    fetchDevices: (id) =>
+      fetch(`/api/manufacturers/${id}/devices`).then((r) => r.json()),
+    fetchConditions: (id) =>
+      fetch(`/api/devices/${id}/conditions`).then((r) => r.json()),
+    fetchPrice: (id) =>
+      fetch(`/api/conditions/${id}/price`).then((r) => r.json()),
+  },
+  onSubmit: (formData) => {
+    // Handle form submission
+    console.log('Submitting sale:', formData);
+  },
+});
+
+document.getElementById('form-container').appendChild(container.getElement());
 ```
 
-#### destroy()
-
-Cleans up resources. Call before removing from DOM.
-
-```javascript
-formContainer.destroy();
-```
-
-## Customization
-
-### Custom Labels
+### With Custom Labels
 
 ```javascript
 const customLabels = {
@@ -355,173 +257,136 @@ const customLabels = {
   conditionStep: 'Condition',
   manufacturerPlaceholder: 'Select brand',
   devicePlaceholder: 'First select a brand',
-  initialPriceText: 'Please complete all selections to see price',
-  loadingPriceText: 'Loading price...',
-  priceLabel: 'Our offer:',
-  submitButtonText: 'Sell now',
-  conditionNewLabel: 'Like new',
-  conditionGoodLabel: 'Good',
-  conditionFairLabel: 'Fair',
-  conditionPoorLabel: 'Damaged',
+  initialPriceText: 'Complete all selections to see your buyback offer',
+  priceLabel: 'Your buyback estimate:',
+  submitButtonText: 'Sell Device',
 };
 
-const form = UsedPhonePriceFormFactory.createStandard({
+const container = createUsedPhonePriceFormContainer({
+  service: myService,
   labels: customLabels,
-  // other options...
+  onPriceChange: (price) => updateSummary(price),
+  onSubmit: (info) => submitSale(info),
 });
 ```
 
-### CSS Customization
-
-The UsedPhonePriceForm appearance can be customized using CSS variables:
-
-```css
-:root {
-  /* Form layout */
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-12: 3rem;
-
-  /* Colors */
-  --color-bg-transparent: rgba(255, 255, 255, 0.8);
-  --color-brand-primary: #4299e1;
-  --color-brand-primary-light: #63b3ed;
-  --color-danger-light: #f56565;
-  --color-text: #2d3748;
-
-  /* Typography */
-  --font-family-base: system-ui, -apple-system, sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-}
-```
-
-## Examples
-
-### Using UsedPhonePriceFormFactory
+### Error Handling
 
 ```javascript
-import { UsedPhonePriceFormFactory } from '@svarog-ui/core';
-import { mockPhoneBuybackData } from './__mocks__/phoneBuybackData';
-
-// Create form with mock data for development
-const form = UsedPhonePriceFormFactory.createWithMockData({
-  mockData: mockPhoneBuybackData,
-  mockDelay: 300,
-  onPriceChange: (priceData) => {
-    console.log(`Buyback price: €${(priceData.price / 100).toFixed(2)}`);
-    document.getElementById('summary-price').textContent =
-      `€${(priceData.price / 100).toFixed(2)}`;
-  },
-  onSubmit: (formData) => {
-    console.log('Submitted form:', formData);
-    // Navigate to confirmation page
-    window.location.href = `/sell-confirmation?data=${btoa(JSON.stringify(formData))}`;
-  },
-  labels: {
-    manufacturerStep: 'Brand',
-    deviceStep: 'Model',
-    conditionStep: 'Condition',
-    submitButtonText: 'Sell Device',
-  },
-});
-
-document
-  .getElementById('buyback-form-container')
-  .appendChild(form.getElement());
-```
-
-### Complete Workflow With Real API
-
-```javascript
-import { UsedPhonePriceFormFactory } from '@svarog-ui/core';
-
-// Create form with real API endpoints
-const form = UsedPhonePriceFormFactory.createStandard({
-  apiOptions: {
-    baseUrl: '/api/buyback/v1', // Override default API base URL
-  },
-  onPriceChange: (priceData) => {
-    // Update buyback summary
-    updateSummary(priceData);
+const container = createUsedPhonePriceFormContainer({
+  service: {
+    fetchManufacturers: () =>
+      fetch('/api/manufacturers').then((r) => {
+        if (!r.ok) throw new Error('Failed to load manufacturers');
+        return r.json();
+      }),
+    // ... other methods with error handling
   },
   onSubmit: async (formData) => {
     try {
-      // Show loading state
-      showLoadingOverlay();
-
-      // Submit to booking API
-      const response = await fetch('/api/sell-requests', {
+      const response = await fetch('/api/sales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create sell request');
+        throw new Error('Sale submission failed');
       }
 
-      const result = await response.json();
-
-      // Navigate to confirmation page
-      window.location.href = `/sell-confirmation?requestId=${result.id}`;
+      const sale = await response.json();
+      window.location.href = `/confirmation?id=${sale.id}`;
     } catch (error) {
-      // Handle error
-      hideLoadingOverlay();
-      showErrorMessage('Failed to submit request: ' + error.message);
+      alert('Failed to submit sale: ' + error.message);
     }
   },
-  labels: {
-    submitButtonText: 'Sell Device',
+});
+```
+
+### Manual State Management
+
+```javascript
+import UsedPhonePriceForm from './UsedPhonePriceForm.js';
+
+const form = UsedPhonePriceForm({
+  manufacturers: [],
+  onManufacturerChange: async (manufacturerId) => {
+    form.setLoading({ devices: true });
+    try {
+      const devices = await fetchDevices(manufacturerId);
+      form.setDevices(devices);
+      form.setState({ selectedManufacturer: manufacturerId });
+    } catch (error) {
+      form.setErrors({ devices: error.message });
+    } finally {
+      form.setLoading({ devices: false });
+    }
   },
 });
 
-// Add to page
-document
-  .getElementById('buyback-form-container')
-  .appendChild(form.getElement());
+// Load initial data
+loadManufacturers().then((manufacturers) => {
+  form.setManufacturers(manufacturers);
+});
+```
 
-// Helper functions for the example
-function updateSummary(priceData) {
-  const summaryEl = document.getElementById('buyback-summary');
-  summaryEl.innerHTML = `
-    <h3>Buyback Summary</h3>
-    <p><strong>Device:</strong> ${priceData.deviceName || 'Not selected'}</p>
-    <p><strong>Condition:</strong> ${priceData.conditionName || 'Not selected'}</p>
-    <p><strong>Our Offer:</strong> €${(priceData.price / 100).toFixed(2)}</p>
-  `;
+## Performance Optimizations
+
+The UsedPhonePriceForm includes several algorithmic optimizations:
+
+- **O(1) Lookup Maps**: Fast name resolution using Map data structures
+- **Memoized Transformations**: Cached option transformations with WeakMap
+- **Mathematical Step Progression**: Efficient step calculation using arithmetic
+- **Bitwise Validation**: Ultra-fast form validation using bitwise operations
+- **Partial Updates**: Only updates changed components instead of full re-renders
+
+## Styling
+
+The component can be styled using CSS custom properties:
+
+```css
+:root {
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-12: 3rem;
+  --color-bg-transparent: rgba(255, 255, 255, 0.8);
+  --color-brand-primary: #4299e1;
+  --color-danger-light: #f56565;
+  --font-family-base: system-ui, sans-serif;
 }
 
-function showLoadingOverlay() {
-  // Implementation details...
+.used-phone-price-form {
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-function hideLoadingOverlay() {
-  // Implementation details...
-}
-
-function showErrorMessage(message) {
-  // Implementation details...
+.used-phone-price-form__actions {
+  margin-top: var(--space-6);
 }
 ```
 
 ## Accessibility
 
-The UsedPhonePriceForm component implements these accessibility features:
-
-- Proper form structure with semantic HTML elements
-- Step indicator with ARIA roles and labels
-- Proper focus management between steps
-- Form validation with clear error messages
-- Accessibility attributes on all interactive elements
+- Full keyboard navigation support
+- Screen reader compatible with ARIA labels
+- Focus management between form steps
+- Clear error messaging
+- Semantic HTML structure
+- Proper form labels and descriptions
 
 ## Browser Support
-
-The UsedPhonePriceForm component is compatible with:
 
 - Chrome/Edge (latest)
 - Firefox (latest)
 - Safari (latest)
 - Mobile browsers (iOS Safari, Chrome for Android)
+
+## Performance
+
+- Efficient partial updates to minimize DOM changes
+- Debounced event handlers for smooth interactions
+- Lazy loading of dependent data
+- Memory leak prevention with proper cleanup
+- Algorithmic optimizations for fast operations

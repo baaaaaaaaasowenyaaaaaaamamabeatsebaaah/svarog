@@ -1516,6 +1516,13 @@ export const getComponents = () => {
             ).then((m) => m.Default),
         },
         {
+          name: 'WithoutSteps',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithoutSteps),
+        },
+        {
           name: 'WithPreselectedData',
           module: () =>
             import(
@@ -1537,18 +1544,25 @@ export const getComponents = () => {
             ).then((m) => m.WithErrorHandling),
         },
         {
-          name: 'WithoutSteps',
-          module: () =>
-            import(
-              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
-            ).then((m) => m.WithoutSteps),
-        },
-        {
           name: 'WithCustomLabels',
           module: () =>
             import(
               '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
             ).then((m) => m.WithCustomLabels),
+        },
+        {
+          name: 'WithLoading',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithLoading),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.Interactive),
         },
       ],
     },

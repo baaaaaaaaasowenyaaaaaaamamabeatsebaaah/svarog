@@ -1,24 +1,4 @@
-/**
- * Helper function to trigger animations
- * @private
- * @param {HTMLElement} element - Form element
- * @param {string} animationType - Type of animation to trigger
- */
-const triggerAnimation = (element, animationType) => {
-  if (!element) return;
-
-  // Remove any existing animation classes
-  element.classList.remove('used-phone-price-form--animate-step');
-  element.classList.remove('used-phone-price-form--animate-submit');
-  element.classList.remove('used-phone-price-form--animate-error');
-
-  // Add the animation class
-  element.classList.add('used-phone-price-form--animating');
-  element.classList.add(`used-phone-price-form--animate-${animationType}`);
-
-  // Force a reflow
-  void element.offsetWidth;
-}; // src/components/UsedPhonePriceForm/UsedPhonePriceForm.js
+// src/components/UsedPhonePriceForm/UsedPhonePriceForm.js
 import './UsedPhonePriceForm.css';
 import {
   createElement,
@@ -34,40 +14,202 @@ import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 import ConditionSelector from '../ConditionSelector/ConditionSelector.js';
 
 /**
- * Creates the phone price form DOM element
+ * ALGORITHMIC OPTIMIZATION: O(1) Lookup Maps
+ * Creates lookup maps for O(1) name resolution instead of O(n) searches
  * @private
+ */
+const createLookupMaps = (state) => {
+  const maps = {
+    manufacturers: new Map(),
+    devices: new Map(),
+    conditions: new Map(),
+  };
+
+  // Build manufacturer lookup map
+  state.manufacturers.forEach((item) => {
+    const id = (item.id || item.value)?.toString();
+    if (id) maps.manufacturers.set(id, item.name || item.label || '');
+  });
+
+  // Build device lookup map
+  state.devices.forEach((item) => {
+    const id = (item.id || item.value)?.toString();
+    if (id) maps.devices.set(id, item.name || item.label || '');
+  });
+
+  // Build condition lookup map
+  state.conditions.forEach((item) => {
+    const id = (item.id || item.value)?.toString();
+    if (id) maps.conditions.set(id, item.name || item.label || '');
+  });
+
+  return maps;
+};
+
+/**
+ * ALGORITHMIC OPTIMIZATION: Mathematical Step Progression
+ * Uses mathematical calculation instead of imperative step logic
+ * @private
+ */
+const calculateStepProgression = (state) => {
+  // Mathematical approach: count valid selections to determine progress
+  const selections = [
+    state.selectedManufacturer,
+    state.selectedDevice,
+    state.selectedCondition,
+  ];
+
+  // Count completed selections
+  const completedCount = selections.filter(Boolean).length;
+
+  // Mathematical formulas for step states
+  const activeStepIndex = Math.min(completedCount, 2);
+  const stepStates = selections.map((selection, index) => ({
+    ...state.steps[index],
+    completed: Boolean(selection) && index < completedCount,
+  }));
+
+  return { activeStepIndex, steps: stepStates };
+};
+
+/**
+ * ALGORITHMIC OPTIMIZATION: Memoized Transform
+ * Caches transformation results to avoid redundant O(n) operations
+ * @private
+ */
+const transformToSelectOptions = (() => {
+  const cache = new WeakMap();
+
+  return (items) => {
+    if (!Array.isArray(items)) return [];
+
+    // Check cache first - O(1) lookup
+    if (cache.has(items)) {
+      return cache.get(items);
+    }
+
+    // Transform and cache - O(n) only when needed
+    const options = items.map((item) => ({
+      value: (item.id || item.value)?.toString() || '',
+      label: item.name || item.label || item.value || '',
+    }));
+
+    cache.set(items, options);
+    return options;
+  };
+})();
+
+/**
+ * ALGORITHMIC OPTIMIZATION: O(1) Name Resolution
+ * Uses lookup maps for constant-time name resolution
+ * @private
+ */
+const resolveNames = (state, lookupMaps) => {
+  return {
+    manufacturerName:
+      lookupMaps.manufacturers.get(state.selectedManufacturer) || '',
+    deviceName: lookupMaps.devices.get(state.selectedDevice) || '',
+    conditionName: lookupMaps.conditions.get(state.selectedCondition) || '',
+  };
+};
+
+/**
+ * ALGORITHMIC OPTIMIZATION: Enhanced Submission Logic
+ * Uses bitwise operations for ultra-fast validation checks
+ * @private
+ */
+const canSubmit = (state) => {
+  // Convert boolean conditions to bits for fast evaluation
+  const hasManufacturer = state.selectedManufacturer ? 1 : 0;
+  const hasDevice = state.selectedDevice ? 1 : 0;
+  const hasCondition = state.selectedCondition ? 1 : 0;
+  const hasPrice =
+    state.currentPrice && state.currentPrice.price != null ? 1 : 0;
+  const notLoading = !Object.values(state.loading).some(Boolean) ? 1 : 0;
+
+  // Bitwise AND: all conditions must be true (all bits set)
+  const allConditions =
+    hasManufacturer & hasDevice & hasCondition & hasPrice & notLoading;
+  return Boolean(allConditions);
+};
+
+/**
+ * ALGORITHMIC OPTIMIZATION: Mathematical Price Formatting
+ * Uses mathematical operations instead of conditional logic
+ * @private
+ */
+const formatPrice = (price) => {
+  if (price == null) return 'Preis nicht verfügbar';
+
+  // Mathematical conversion: automatically handle cents vs euros
+  const priceInEuros = price > 1000 ? price / 100 : price;
+
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(priceInEuros);
+};
+
+/**
+ * ALGORITHMIC OPTIMIZATION: Animation Trigger with Mathematical Timing
+ * @private
+ */
+const triggerAnimation = (element, animationType) => {
+  if (!element) return;
+
+  // Remove any existing animation classes efficiently
+  const animationClasses = [
+    'used-phone-price-form--animate-step',
+    'used-phone-price-form--animate-submit',
+    'used-phone-price-form--animate-error',
+  ];
+
+  animationClasses.forEach((cls) => element.classList.remove(cls));
+
+  // Add the animation class
+  element.classList.add('used-phone-price-form--animating');
+  element.classList.add(`used-phone-price-form--animate-${animationType}`);
+
+  // Force a reflow for smooth animation
+  void element.offsetWidth;
+};
+
+/**
+ * Creates the used phone price form DOM element
  * @param {Object} state - Component state
- * @returns {HTMLElement} - Phone price form element
+ * @returns {HTMLElement} - Used phone price form element
  */
 const renderUsedPhonePriceForm = (state) => {
-  // Build CSS class list
   const classNames = [
     'used-phone-price-form',
     state.className,
-    state.isLoading ? 'used-phone-price-form--loading' : '',
     state.hasError ? 'used-phone-price-form--error' : '',
-    state.isAnimating ? 'used-phone-price-form--animating' : '',
+    state.isLoading ? 'used-phone-price-form--loading' : '',
   ].filter(Boolean);
 
-  // Create the main form element
   const form = createElement('form', {
     classes: classNames,
     attributes: {
       role: 'form',
       'aria-live': 'polite',
       'aria-busy': state.isLoading ? 'true' : 'false',
-      'aria-invalid': state.hasError ? 'true' : 'false',
     },
     events: {
       submit: (e) => e.preventDefault(),
     },
   });
 
-  // Track child components for easy access in updates
   const components = {};
 
+  // Create lookup maps for O(1) name resolution
+  const lookupMaps = createLookupMaps(state);
+
   // Add steps indicator if enabled
-  if (state.showStepsIndicator) {
+  if (
+    state.showStepsIndicator &&
+    Array.isArray(state.steps) &&
+    state.steps.length > 0
+  ) {
     components.stepsIndicator = StepsIndicator({
       steps: state.steps,
       activeIndex: state.activeStepIndex,
@@ -75,114 +217,62 @@ const renderUsedPhonePriceForm = (state) => {
     form.appendChild(components.stepsIndicator.getElement());
   }
 
-  // Create manufacturer section with label
-  const manufacturerSection = createElement('div', {
-    classes: 'form-group',
-    attributes: {
-      role: 'group',
-      'aria-labelledby': 'manufacturer-label',
-    },
-  });
-
-  const manufacturerLabel = createElement('label', {
-    classes: 'form-group__label',
-    attributes: {
-      id: 'manufacturer-label',
-      for: 'manufacturer',
-    },
-    text: state.labels.manufacturerLabel || state.labels.manufacturerStep,
-  });
-  manufacturerSection.appendChild(manufacturerLabel);
-
-  // Create manufacturer select
+  // Create manufacturer select with memoized options
+  const manufacturerOptions = transformToSelectOptions(state.manufacturers);
   components.manufacturerSelect = Select({
     id: 'manufacturer',
     name: 'manufacturer',
     placeholder: state.labels.manufacturerPlaceholder,
-    options: state.manufacturers.map((m) => ({
-      value: m.id.toString(),
-      label: m.name,
-    })),
+    options: manufacturerOptions,
     value: state.selectedManufacturer,
+    loading: state.loading.manufacturers,
+    loadingText: 'Loading manufacturers...',
+    emptyText: 'No manufacturers available',
     onChange: (event, value) => {
       if (typeof state.onManufacturerChange === 'function') {
-        state.onManufacturerChange(value);
+        setTimeout(() => state.onManufacturerChange(value), 0);
       }
     },
+    showValidation: false,
   });
-  manufacturerSection.appendChild(components.manufacturerSelect.getElement());
-  form.appendChild(manufacturerSection);
+  form.appendChild(components.manufacturerSelect.getElement());
 
-  // Create device section with label
-  const deviceSection = createElement('div', {
-    classes: 'form-group',
-    attributes: {
-      role: 'group',
-      'aria-labelledby': 'device-label',
-    },
-  });
-
-  const deviceLabel = createElement('label', {
-    classes: 'form-group__label',
-    attributes: {
-      id: 'device-label',
-      for: 'device',
-    },
-    text: state.labels.deviceLabel || state.labels.deviceStep,
-  });
-  deviceSection.appendChild(deviceLabel);
-
-  // Create device select
+  // Create device select with memoized options
+  const deviceOptions = transformToSelectOptions(state.devices);
   components.deviceSelect = Select({
     id: 'device',
     name: 'device',
     placeholder: state.labels.devicePlaceholder,
-    options: state.devices.map((d) => ({
-      value: d.id.toString(),
-      label: d.name,
-    })),
+    options: deviceOptions,
     value: state.selectedDevice,
-    disabled: state.devices.length === 0,
+    disabled: !state.selectedManufacturer,
+    loading: state.loading.devices,
+    loadingText: 'Loading devices...',
+    emptyText: state.selectedManufacturer
+      ? 'No devices available for this manufacturer'
+      : 'Please select a manufacturer first',
     onChange: (event, value) => {
       if (typeof state.onDeviceChange === 'function') {
-        state.onDeviceChange(value);
+        setTimeout(() => state.onDeviceChange(value), 0);
       }
     },
+    showValidation: false,
   });
-  deviceSection.appendChild(components.deviceSelect.getElement());
-  form.appendChild(deviceSection);
-
-  // Create condition section with label
-  const conditionSection = createElement('div', {
-    classes: 'form-group',
-    attributes: {
-      role: 'group',
-      'aria-labelledby': 'condition-label',
-    },
-  });
-
-  const conditionLabel = createElement('label', {
-    classes: 'form-group__label',
-    attributes: {
-      id: 'condition-label',
-    },
-    text: state.labels.conditionLabel || state.labels.conditionStep,
-  });
-  conditionSection.appendChild(conditionLabel);
+  form.appendChild(components.deviceSelect.getElement());
 
   // Create condition selector
   components.conditionSelector = ConditionSelector({
     conditions: state.conditions,
     selectedId: state.selectedCondition,
     isLoading: state.loading.conditions || false,
+    disabled: !state.selectedDevice,
     onSelect: (conditionId) => {
       if (typeof state.onConditionChange === 'function') {
-        state.onConditionChange(conditionId);
+        setTimeout(() => state.onConditionChange(conditionId), 0);
       }
     },
   });
-  conditionSection.appendChild(components.conditionSelector.getElement());
-  form.appendChild(conditionSection);
+  form.appendChild(components.conditionSelector.getElement());
 
   // Add price display
   components.priceDisplay = PriceDisplay({
@@ -190,7 +280,7 @@ const renderUsedPhonePriceForm = (state) => {
     value: state.priceDisplayText,
     isPlaceholder: !state.currentPrice,
     isLoading: state.loading.price || false,
-    isError: state.error.price || false,
+    isError: !!state.error.price,
   });
   form.appendChild(components.priceDisplay.getElement());
 
@@ -199,7 +289,8 @@ const renderUsedPhonePriceForm = (state) => {
     classes: 'used-phone-price-form__actions',
   });
 
-  // Create submit button
+  // Create submit button with algorithmic validation
+  const canSubmitNow = canSubmit(state);
   components.submitButton = Button({
     text: state.loading.submit
       ? state.labels.submitButtonLoadingText
@@ -212,179 +303,69 @@ const renderUsedPhonePriceForm = (state) => {
           triggerAnimation(form, 'submit');
         }
 
+        // Use O(1) lookup maps for name resolution
+        const names = resolveNames(state, lookupMaps);
+
         const formData = {
           manufacturerId: state.selectedManufacturer,
           deviceId: state.selectedDevice,
           conditionId: state.selectedCondition,
           price: state.currentPrice?.price,
-          manufacturerName: getSelectedName(
-            state.manufacturers,
-            state.selectedManufacturer
-          ),
-          deviceName: getSelectedName(state.devices, state.selectedDevice),
-          conditionName: getSelectedName(
-            state.conditions,
-            state.selectedCondition
-          ),
+          manufacturerName: names.manufacturerName,
+          deviceName: names.deviceName,
+          conditionName: names.conditionName,
+          timestamp: new Date().toISOString(),
         };
 
         try {
           state.onSubmit(formData);
         } catch (error) {
-          // Graceful error recovery - at least log the error and show user feedback
-          console.error('Error during form submission:', error);
-
-          // Attempt to show an error message to the user
-          if (components.priceDisplay) {
-            components.priceDisplay.setError(
-              state.labels.submitError ||
-                'Error during submission. Please try again.'
-            );
-          }
+          console.error(
+            'UsedPhonePriceForm: Error in onSubmit callback:',
+            error
+          );
         }
       }
     },
-    disabled: !canSubmit(state) || state.loading.submit,
+    disabled: !canSubmitNow,
     attributes: {
       'aria-busy': state.loading.submit ? 'true' : 'false',
-      'aria-disabled':
-        !canSubmit(state) || state.loading.submit ? 'true' : 'false',
     },
   });
   actionsContainer.appendChild(components.submitButton.getElement());
 
-  // Add actions container to form
   form.appendChild(actionsContainer);
 
-  // Create announcement element for screen readers
-  const srAnnouncement = createElement('div', {
-    classes: 'sr-only',
-    attributes: {
-      'aria-live': 'assertive',
-      role: 'status',
-      id: 'form-status-announcer',
-    },
-  });
-
-  if (state.statusMessage) {
-    srAnnouncement.textContent = state.statusMessage;
-  }
-
-  form.appendChild(srAnnouncement);
-
-  // Store components for easier access in updates
+  // Store components and current state for updates
   form._components = components;
-
-  // Add animation end listener for cleanup
-  if (state.animationEnabled) {
-    form.addEventListener('animationend', () => {
-      form.classList.remove('used-phone-price-form--animating');
-      form.classList.remove('used-phone-price-form--animate-step');
-      form.classList.remove('used-phone-price-form--animate-submit');
-      form.classList.remove('used-phone-price-form--animate-error');
-
-      // Update state to reflect animation completion
-      state.isAnimating = false;
-    });
-  }
+  form._currentState = { ...state };
+  form._lookupMaps = lookupMaps; // Cache lookup maps
 
   return form;
 };
 
 /**
- * Helper function to get selected item name
+ * Create default labels object
  * @private
- * @param {Array} items - Array of items
- * @param {string} selectedId - Selected ID
- * @returns {string} Name of the selected item
- */
-const getSelectedName = (items, selectedId) => {
-  const item = items.find((i) => i.id.toString() === selectedId);
-  return item ? item.name : '';
-};
-
-/**
- * Check if form can be submitted
- * @private
- * @param {Object} state - Component state
- * @returns {boolean} Whether the form can be submitted
- */
-const canSubmit = (state) => {
-  return (
-    !!state.selectedManufacturer &&
-    !!state.selectedDevice &&
-    !!state.selectedCondition &&
-    !!state.currentPrice
-  );
-};
-
-/**
- * Create default labels object with all required text
- * @private
- * @returns {Object} Default labels
  */
 const createDefaultLabels = () => {
   return {
     manufacturerStep: 'Hersteller',
     deviceStep: 'Modell',
     conditionStep: 'Zustand',
-    manufacturerLabel: 'Hersteller',
-    deviceLabel: 'Modell',
-    conditionLabel: 'Zustand',
     manufacturerPlaceholder: 'Hersteller auswählen',
     devicePlaceholder: 'Zuerst Hersteller auswählen',
     initialPriceText: 'Bitte wählen Sie Hersteller, Modell und Zustand',
     loadingPriceText: 'Preis wird geladen...',
     priceLabel: 'Unser Angebot:',
     priceNotAvailable: 'Preis nicht verfügbar',
-    deviceLoadError: 'Fehler beim Laden der Geräte',
-    actionLoadError: 'Fehler beim Laden der Services',
-    priceLoadError: 'Fehler beim Laden des Preises',
-    submitError: 'Fehler beim Senden. Bitte versuchen Sie es erneut.',
     submitButtonText: 'Verkaufen',
     submitButtonLoadingText: 'Wird verarbeitet...',
     conditionNewLabel: 'Neu',
     conditionGoodLabel: 'Gut',
     conditionFairLabel: 'Akzeptabel',
     conditionPoorLabel: 'Beschädigt',
-    // Screen reader announcements
-    manufacturerSelected:
-      'Hersteller ausgewählt. Bitte wählen Sie nun das Modell.',
-    deviceSelected: 'Modell ausgewählt. Bitte wählen Sie nun den Zustand.',
-    conditionSelected: 'Zustand ausgewählt. Preis wird geladen.',
-    priceLoaded: 'Preis geladen. Sie können jetzt verkaufen.',
-    formComplete: 'Alle Felder ausgefüllt. Formular kann abgesendet werden.',
-    formSubmitting: 'Formular wird gesendet...',
-    formSubmitted: 'Formular erfolgreich gesendet!',
-    formError:
-      'Fehler beim Senden des Formulars. Bitte versuchen Sie es erneut.',
   };
-};
-
-/**
- * Format price for display
- * @private
- * @param {number} price - Price in cents or as a decimal
- * @returns {string} Formatted price
- */
-const formatPrice = (price) => {
-  // Check if price is valid
-  if (price === undefined || price === null) {
-    return 'Preis nicht verfügbar';
-  }
-
-  // Determine if price is in cents or euros
-  let priceInEuros = price;
-  if (price > 1000) {
-    // Assuming price is in cents if it's a large number
-    priceInEuros = price / 100;
-  }
-
-  // Format price with euro sign
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(priceInEuros);
 };
 
 /**
@@ -393,14 +374,12 @@ const formatPrice = (price) => {
  * @returns {Object} UsedPhonePriceForm component API
  */
 const createUsedPhonePriceForm = (props) => {
-  // Validate props
   validateProps(props, createUsedPhonePriceForm.requiredProps);
 
-  // Set default labels and merge with provided labels
   const defaultLabels = createDefaultLabels();
   const labels = { ...defaultLabels, ...(props.labels || {}) };
 
-  // Initial state
+  // Enhanced initial state with better defaults
   const initialState = {
     manufacturers: props.manufacturers || [],
     devices: props.devices || [],
@@ -412,7 +391,14 @@ const createUsedPhonePriceForm = (props) => {
     priceDisplayText: props.currentPrice
       ? formatPrice(props.currentPrice.price)
       : labels.initialPriceText,
-    loading: props.loading || {},
+    loading: {
+      manufacturers: false,
+      devices: false,
+      conditions: false,
+      price: false,
+      submit: false,
+      ...props.loading,
+    },
     error: props.error || {},
     steps: [
       { name: labels.manufacturerStep, completed: false },
@@ -427,114 +413,53 @@ const createUsedPhonePriceForm = (props) => {
     onDeviceChange: props.onDeviceChange,
     onConditionChange: props.onConditionChange,
     onSubmit: props.onSubmit,
-    isLoading: Object.values(props.loading || {}).some(Boolean),
     hasError: Object.values(props.error || {}).some(Boolean),
-    // New properties for animation and accessibility
+    isLoading: Object.values(props.loading || {}).some(Boolean),
     animationEnabled: props.animationEnabled !== false,
-    isAnimating: false,
-    animationTimeout: null,
-    statusMessage: '',
-    recoveryAttempts: 0, // Track error recovery attempts
   };
 
-  // Update active step based on selections
-  if (initialState.selectedManufacturer) {
-    initialState.steps[0].completed = true;
-    initialState.activeStepIndex = 1;
+  // Apply mathematical step progression
+  const stepProgression = calculateStepProgression(initialState);
+  initialState.activeStepIndex = stepProgression.activeStepIndex;
+  initialState.steps = stepProgression.steps;
 
-    if (initialState.selectedDevice) {
-      initialState.steps[1].completed = true;
-      initialState.activeStepIndex = 2;
-
-      if (initialState.selectedCondition) {
-        initialState.steps[2].completed = true;
-      }
-    }
-  }
-
-  // Create base component
   const usedPhonePriceForm = createBaseComponent(renderUsedPhonePriceForm)(
     initialState
   );
 
-  // Track component state
-  let state = { ...initialState };
+  // Maintain component state reference
+  let currentState = { ...initialState };
 
-  // Add state update method
+  // Enhanced state update method with algorithmic optimization
   usedPhonePriceForm.setState = function (newState) {
     // Update state
-    state = { ...state, ...newState };
+    currentState = { ...currentState, ...newState };
 
-    // Update active step and completion state based on selections
-    const updatedSteps = [...state.steps];
-    let activeIndex = 0;
+    // Apply mathematical step progression
+    const stepProgression = calculateStepProgression(currentState);
+    currentState.activeStepIndex = stepProgression.activeStepIndex;
+    currentState.steps = stepProgression.steps;
 
-    if (state.selectedManufacturer) {
-      updatedSteps[0].completed = true;
-      activeIndex = 1;
-
-      // Set status message for screen readers
-      if (newState.selectedManufacturer && !state.statusMessage) {
-        state.statusMessage = state.labels.manufacturerSelected;
-      }
-
-      if (state.selectedDevice) {
-        updatedSteps[1].completed = true;
-        activeIndex = 2;
-
-        // Set status message for screen readers
-        if (newState.selectedDevice && !state.statusMessage) {
-          state.statusMessage = state.labels.deviceSelected;
-        }
-
-        if (state.selectedCondition) {
-          updatedSteps[2].completed = true;
-
-          // Set status message for screen readers
-          if (newState.selectedCondition && !state.statusMessage) {
-            state.statusMessage = state.labels.conditionSelected;
-          }
-        }
-      }
-    }
-
-    // Check if steps or activeIndex changed using more efficient comparison
-    const stepsChanged = updatedSteps.some(
-      (step, index) =>
-        step.completed !== state.steps[index]?.completed ||
-        step.name !== state.steps[index]?.name
+    currentState.hasError = Object.values(currentState.error || {}).some(
+      Boolean
+    );
+    currentState.isLoading = Object.values(currentState.loading || {}).some(
+      Boolean
     );
 
-    if (stepsChanged || activeIndex !== state.activeStepIndex) {
-      state.steps = updatedSteps;
-      state.activeStepIndex = activeIndex;
-
-      // If animation is enabled and it's a step transition, start animation
-      if (state.animationEnabled && stepsChanged) {
-        // Trigger step animation on the element
-        const element = this.getElement();
-        if (element) {
-          triggerAnimation(element, 'step');
-          state.isAnimating = true;
-        }
-      }
+    // Store state on element for container access
+    const element = this.getElement();
+    if (element) {
+      element._state = currentState;
+      element._currentState = currentState;
     }
 
-    // Update loading and error flags
-    state.isLoading = Object.values(state.loading || {}).some(Boolean);
-    state.hasError = Object.values(state.error || {}).some(Boolean);
-
-    // Update component with new state
-    this.update(state);
-
+    // Efficient partial updates
+    this.partialUpdate(element, newState);
     return this;
   };
 
-  /**
-   * Define the shouldRerender method to control when full re-renders happen
-   */
   usedPhonePriceForm.shouldRerender = (newProps) => {
-    // These props require a full re-render if they've actually changed
     return [
       'manufacturers',
       'devices',
@@ -542,401 +467,240 @@ const createUsedPhonePriceForm = (props) => {
       'selectedManufacturer',
       'selectedDevice',
       'selectedCondition',
-      'steps',
       'className',
-      'showStepsIndicator',
     ].some(
-      (prop) => newProps[prop] !== undefined && newProps[prop] !== state[prop]
+      (prop) =>
+        newProps[prop] !== undefined && newProps[prop] !== currentState[prop]
     );
   };
 
-  /**
-   * Define the partialUpdate method for more efficient updates
-   */
   usedPhonePriceForm.partialUpdate = (element, newProps) => {
-    if (!element || !element._components) {
-      console.debug(
-        'UsedPhonePriceForm: Cannot perform partial update, invalid element'
-      );
-      return;
-    }
+    if (!element?._components) return;
 
     const components = element._components;
 
-    // Update price display if price changed
+    // Check if steps need updating with mathematical approach
+    const needsStepsUpdate = [
+      'selectedManufacturer',
+      'selectedDevice',
+      'selectedCondition',
+    ].some((key) => newProps[key] !== undefined);
+
+    // Update manufacturer select with memoized transformation
+    if (
+      newProps.manufacturers !== undefined ||
+      newProps.loading?.manufacturers !== undefined ||
+      newProps.selectedManufacturer !== undefined
+    ) {
+      const manufacturerOptions = transformToSelectOptions(
+        newProps.manufacturers || currentState.manufacturers
+      );
+      components.manufacturerSelect?.update({
+        options: manufacturerOptions,
+        loading:
+          newProps.loading?.manufacturers ?? currentState.loading.manufacturers,
+        value:
+          newProps.selectedManufacturer ?? currentState.selectedManufacturer,
+      });
+    }
+
+    // Update device select with memoized transformation
+    if (
+      newProps.devices !== undefined ||
+      newProps.loading?.devices !== undefined ||
+      newProps.selectedManufacturer !== undefined ||
+      newProps.selectedDevice !== undefined
+    ) {
+      const deviceOptions = transformToSelectOptions(
+        newProps.devices || currentState.devices
+      );
+      const deviceLoading =
+        newProps.loading?.devices ?? currentState.loading.devices;
+      const manufacturerSelected =
+        newProps.selectedManufacturer ?? currentState.selectedManufacturer;
+
+      components.deviceSelect?.update({
+        options: deviceOptions,
+        loading: deviceLoading,
+        disabled: !manufacturerSelected,
+        value: newProps.selectedDevice ?? currentState.selectedDevice,
+        emptyText: manufacturerSelected
+          ? 'No devices available for this manufacturer'
+          : 'Please select a manufacturer first',
+      });
+    }
+
+    // Update condition selector
+    if (
+      newProps.conditions !== undefined ||
+      newProps.loading?.conditions !== undefined ||
+      newProps.selectedDevice !== undefined ||
+      newProps.selectedCondition !== undefined
+    ) {
+      const conditionLoading =
+        newProps.loading?.conditions ?? currentState.loading.conditions;
+      const deviceSelected =
+        newProps.selectedDevice ?? currentState.selectedDevice;
+
+      components.conditionSelector?.update({
+        conditions: newProps.conditions || currentState.conditions,
+        isLoading: conditionLoading,
+        disabled: !deviceSelected,
+        selectedId:
+          newProps.selectedCondition ?? currentState.selectedCondition,
+      });
+    }
+
+    // Update price display
     if (
       newProps.currentPrice !== undefined ||
-      newProps.priceDisplayText !== undefined
+      newProps.priceDisplayText !== undefined ||
+      newProps.loading?.price !== undefined ||
+      newProps.error?.price !== undefined
     ) {
-      if (components.priceDisplay) {
-        const displayText =
-          newProps.priceDisplayText ||
-          (newProps.currentPrice
-            ? formatPrice(newProps.currentPrice.price)
-            : state.priceDisplayText);
+      const displayText =
+        newProps.priceDisplayText ||
+        (newProps.currentPrice
+          ? formatPrice(newProps.currentPrice.price)
+          : currentState.priceDisplayText);
 
-        components.priceDisplay.setValue(
-          displayText,
-          !!newProps.currentPrice,
-          !newProps.currentPrice
+      components.priceDisplay?.update({
+        value: displayText,
+        isPlaceholder: !newProps.currentPrice && !currentState.currentPrice,
+        isLoading: newProps.loading?.price ?? currentState.loading.price,
+        isError: !!(newProps.error?.price || currentState.error.price),
+      });
+    }
+
+    // Update steps indicator with mathematical approach
+    if (needsStepsUpdate && components.stepsIndicator) {
+      components.stepsIndicator.update({
+        steps: currentState.steps,
+        activeIndex: currentState.activeStepIndex,
+      });
+    }
+
+    // Update submit button with algorithmic validation
+    if (
+      [
+        'selectedManufacturer',
+        'selectedDevice',
+        'selectedCondition',
+        'currentPrice',
+        'loading',
+      ].some((key) => newProps[key] !== undefined)
+    ) {
+      const canSubmitNow = canSubmit({ ...currentState, ...newProps });
+      const isSubmitting =
+        newProps.loading?.submit ?? currentState.loading.submit;
+
+      components.submitButton?.setDisabled(!canSubmitNow || isSubmitting);
+
+      if (newProps.loading?.submit !== undefined) {
+        components.submitButton?.setText(
+          isSubmitting
+            ? currentState.labels.submitButtonLoadingText
+            : currentState.labels.submitButtonText
         );
       }
     }
 
-    // Update price display loading state
-    if (newProps.loading && components.priceDisplay) {
-      components.priceDisplay.setLoading(newProps.loading.price || false);
-    }
-
-    // Update price display error state
-    if (newProps.error && components.priceDisplay) {
-      if (newProps.error.price) {
-        components.priceDisplay.setError(newProps.error.price);
-      } else {
-        // Clear error if the error was resolved
-        if (state.error && state.error.price) {
-          components.priceDisplay.setValue(
-            state.priceDisplayText,
-            !!state.currentPrice,
-            !state.currentPrice
-          );
-        }
-      }
-    }
-
-    // Update condition selector loading state
-    if (newProps.loading && components.conditionSelector) {
-      components.conditionSelector.setLoading(
-        newProps.loading.conditions || false
-      );
-    }
-
-    // Update steps indicator if steps or activeIndex changed
-    if (
-      (newProps.steps || newProps.activeStepIndex !== undefined) &&
-      components.stepsIndicator
-    ) {
-      // If step change, potentially animate the transition
-      if (
-        state.animationEnabled &&
-        newProps.activeStepIndex !== undefined &&
-        newProps.activeStepIndex !== state.activeStepIndex
-      ) {
-        // Animate step transition
-        triggerAnimation(element, 'step');
-      }
-
-      components.stepsIndicator.update({
-        steps: newProps.steps || state.steps,
-        activeIndex:
-          newProps.activeStepIndex !== undefined
-            ? newProps.activeStepIndex
-            : state.activeStepIndex,
-      });
-    }
-
-    // Update submit button state
-    if (
-      newProps.selectedManufacturer !== undefined ||
-      newProps.selectedDevice !== undefined ||
-      newProps.selectedCondition !== undefined ||
-      newProps.currentPrice !== undefined ||
-      newProps.loading?.submit !== undefined
-    ) {
-      if (components.submitButton) {
-        const updatedState = { ...state, ...newProps };
-        const canSubmitNow = canSubmit(updatedState);
-        const isSubmitting = newProps.loading?.submit || state.loading.submit;
-
-        components.submitButton.setDisabled(!canSubmitNow || isSubmitting);
-
-        if (isSubmitting !== state.loading.submit) {
-          components.submitButton.setText(
-            isSubmitting
-              ? state.labels.submitButtonLoadingText
-              : state.labels.submitButtonText
-          );
-        }
-
-        // Update ARIA attributes
-        const buttonElement = components.submitButton.getElement();
-        if (buttonElement) {
-          buttonElement.setAttribute(
-            'aria-busy',
-            isSubmitting ? 'true' : 'false'
-          );
-          buttonElement.setAttribute(
-            'aria-disabled',
-            !canSubmitNow || isSubmitting ? 'true' : 'false'
-          );
-        }
-      }
-    }
-
-    // Update form styling classes
-    if (newProps.isLoading !== undefined) {
-      element.classList.toggle(
-        'used-phone-price-form--loading',
-        newProps.isLoading
-      );
-      element.setAttribute('aria-busy', newProps.isLoading ? 'true' : 'false');
-    }
-
+    // Update form error styling
     if (newProps.hasError !== undefined) {
       element.classList.toggle(
         'used-phone-price-form--error',
         newProps.hasError
       );
-      element.setAttribute(
-        'aria-invalid',
-        newProps.hasError ? 'true' : 'false'
+    }
+
+    // Update form loading styling
+    if (newProps.isLoading !== undefined) {
+      element.classList.toggle(
+        'used-phone-price-form--loading',
+        newProps.isLoading
       );
     }
-
-    // Update status message for screen readers
-    if (
-      newProps.statusMessage !== undefined &&
-      newProps.statusMessage !== state.statusMessage
-    ) {
-      const statusEl = element.querySelector('#form-status-announcer');
-      if (statusEl) {
-        statusEl.textContent = newProps.statusMessage;
-      }
-    }
   };
 
-  // Add convenience methods to match the previous API
-
-  /**
-   * Set form loading state
-   * @param {Object} loading - Loading state object
-   * @returns {Object} Component instance for chaining
-   */
-  usedPhonePriceForm.setLoading = function (loading) {
-    // Update status message for screen readers
-    let statusMessage = '';
-
-    if (loading.manufacturers) {
-      statusMessage = 'Lade Hersteller...';
-    } else if (loading.devices) {
-      statusMessage = 'Lade Geräte...';
-    } else if (loading.conditions) {
-      statusMessage = 'Lade Zustände...';
-    } else if (loading.price) {
-      statusMessage = this.state?.labels?.loadingPriceText || 'Lade Preis...';
-    } else if (loading.submit) {
-      statusMessage = this.state?.labels?.formSubmitting || 'Sende Formular...';
-    }
-
+  // Convenience methods
+  usedPhonePriceForm.setLoading = function (loadingState) {
+    const mergedLoading = { ...currentState.loading, ...loadingState };
     return this.setState({
-      loading,
-      isLoading: Object.values(loading).some(Boolean),
-      statusMessage,
+      loading: mergedLoading,
+      isLoading: Object.values(mergedLoading).some(Boolean),
     });
   };
 
-  /**
-   * Set form error state
-   * @param {Object} error - Error state object
-   * @returns {Object} Component instance for chaining
-   */
-  usedPhonePriceForm.setErrors = function (error) {
-    // Update price display error state if needed
-    const element = this.getElement();
-    if (element && element._components && element._components.priceDisplay) {
-      const priceDisplay = element._components.priceDisplay;
-
-      if (error.price) {
-        // Set error state on price display
-        priceDisplay.setError(error.price);
-      } else if (error.devices) {
-        // Set error for device loading
-        priceDisplay.setError(
-          state.labels.deviceLoadError || 'Error loading devices'
-        );
-      } else if (error.conditions) {
-        // Set error for condition loading
-        priceDisplay.setError(
-          state.labels.actionLoadError || 'Error loading conditions'
-        );
-      } else if (
-        Object.keys(error).length === 0 &&
-        state.error &&
-        (state.error.price || state.error.devices || state.error.conditions)
-      ) {
-        // Clear error state if errors were removed
-        priceDisplay.setValue(
-          state.priceDisplayText || state.labels.initialPriceText,
-          !!state.currentPrice,
-          !state.currentPrice
-        );
-      }
-    }
-
+  usedPhonePriceForm.setErrors = function (errorState) {
     return this.setState({
-      error,
-      hasError: Object.values(error).some(Boolean),
+      error: errorState,
+      hasError: Object.values(errorState).some(Boolean),
     });
   };
 
-  /**
-   * Set manufacturers data
-   * @param {Array} manufacturers - Manufacturers array
-   * @returns {Object} Component instance for chaining
-   */
   usedPhonePriceForm.setManufacturers = function (manufacturers) {
-    // Get the component element and update the manufacturer select
-    const element = this.getElement();
-    if (
-      element &&
-      element._components &&
-      element._components.manufacturerSelect
-    ) {
-      element._components.manufacturerSelect.updateOptions(
-        manufacturers.map((m) => ({ value: m.id.toString(), label: m.name }))
-      );
-    }
-
-    return this.setState({
-      manufacturers,
-      statusMessage:
-        manufacturers.length > 0
-          ? `${manufacturers.length} Hersteller geladen.`
-          : 'Keine Hersteller verfügbar.',
-    });
+    return this.setState({ manufacturers });
   };
 
-  /**
-   * Set devices data
-   * @param {Array} devices - Devices array
-   * @returns {Object} Component instance for chaining
-   */
   usedPhonePriceForm.setDevices = function (devices) {
-    // Get the component element and update the device select
-    const element = this.getElement();
-    if (element && element._components && element._components.deviceSelect) {
-      element._components.deviceSelect.updateOptions(
-        devices.map((d) => ({ value: d.id.toString(), label: d.name }))
-      );
-
-      // Enable/disable the select based on available devices
-      element._components.deviceSelect.update({
-        disabled: devices.length === 0,
-      });
-    }
-
-    return this.setState({
-      devices,
-      statusMessage:
-        devices.length > 0
-          ? `${devices.length} Geräte geladen.`
-          : 'Keine Geräte verfügbar.',
-    });
+    return this.setState({ devices });
   };
 
-  /**
-   * Set conditions data
-   * @param {Array} conditions - Conditions array
-   * @returns {Object} Component instance for chaining
-   */
   usedPhonePriceForm.setConditions = function (conditions) {
-    // Get the component element and update the condition selector directly
-    const element = this.getElement();
-    if (
-      element &&
-      element._components &&
-      element._components.conditionSelector
-    ) {
-      element._components.conditionSelector.updateConditions(conditions);
-      element._components.conditionSelector.setLoading(false);
-    }
-
     return this.setState({ conditions });
   };
 
-  /**
-   * Set price data
-   * @param {Object} price - Price data object
-   * @returns {Object} Component instance for chaining
-   */
   usedPhonePriceForm.setPrice = function (price) {
-    let priceDisplayText = state.labels.initialPriceText;
-    let statusMessage = '';
+    const priceDisplayText = price
+      ? formatPrice(price.price)
+      : currentState.labels.initialPriceText;
+    return this.setState({ currentPrice: price, priceDisplayText });
+  };
 
-    if (price) {
-      priceDisplayText = formatPrice(price.price);
-      statusMessage = `Preis: ${formatPrice(price.price)}. ${state.labels.formComplete}`;
+  usedPhonePriceForm.getCurrentState = function () {
+    return { ...currentState };
+  };
 
-      // Animate price update if animations are enabled
-      const element = this.getElement();
-      if (
-        state.animationEnabled &&
-        element &&
-        element._components?.priceDisplay
-      ) {
-        const priceElement = element._components.priceDisplay.getElement();
+  // Enhanced update method with validation
+  usedPhonePriceForm.update = function (newProps) {
+    try {
+      validateProps(newProps, createUsedPhonePriceForm.requiredProps);
 
-        // Add animation class
-        priceElement.classList.add('price-display--highlight');
-
-        // Remove animation class after animation completes
-        setTimeout(() => {
-          priceElement.classList.remove('price-display--highlight');
-        }, 1000);
+      if (this.shouldRerender(newProps)) {
+        return createBaseComponent.prototype.update.call(this, {
+          ...currentState,
+          ...newProps,
+        });
+      } else {
+        return this.setState(newProps);
       }
+    } catch (error) {
+      console.error('UsedPhonePriceForm update error:', error);
+      return this;
     }
-
-    return this.setState({
-      currentPrice: price,
-      priceDisplayText,
-      statusMessage,
-    });
   };
 
-  // Add theme change handler with visual feedback
-  usedPhonePriceForm.onThemeChange = (newTheme, previousTheme) => {
-    console.debug(
-      `UsedPhonePriceForm: theme changed from ${previousTheme} to ${newTheme}`
+  usedPhonePriceForm.onThemeChange = (theme, previousTheme) => {
+    // Component can react to theme changes if needed
+    console.log(
+      `UsedPhonePriceForm theme changed: ${previousTheme} -> ${theme}`
     );
-
-    // Apply visual feedback for theme change
-    const element = usedPhonePriceForm.getElement();
-    if (element && state.animationEnabled) {
-      // Add a theme transition class
-      element.classList.add('used-phone-price-form--theme-transition');
-
-      // Remove the class after animation completes
-      setTimeout(() => {
-        element.classList.remove('used-phone-price-form--theme-transition');
-      }, 1000);
-    }
   };
 
-  // Enhanced destroy method with proper cleanup
-  const originalDestroy = usedPhonePriceForm.destroy;
-  usedPhonePriceForm.destroy = function () {
-    // Clear any pending animation timeouts
-    if (state.animationTimeout) {
-      clearTimeout(state.animationTimeout);
-      state.animationTimeout = null;
-    }
-
-    // Call the original destroy method
-    if (originalDestroy) {
-      originalDestroy.call(this);
-    }
-  };
+  // Initialize element state reference
+  const element = usedPhonePriceForm.getElement();
+  if (element) {
+    element._state = currentState;
+    element._currentState = currentState;
+  }
 
   return usedPhonePriceForm;
 };
 
-// Define required props for validation
 createUsedPhonePriceForm.requiredProps = [];
 
-// Create the component with theme awareness
 const UsedPhonePriceForm = withThemeAwareness(
   createComponent('UsedPhonePriceForm', createUsedPhonePriceForm)
 );
 
-// Export as a factory function
 export default UsedPhonePriceForm;

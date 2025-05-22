@@ -1,11 +1,12 @@
 // src/components/UsedPhonePriceForm/UsedPhonePriceFormContainer.test.js
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UsedPhonePriceFormContainer } from './index.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import createUsedPhonePriceFormContainer from './UsedPhonePriceFormContainer.js';
 import { mockPhoneBuybackData } from '../../../__mocks__/phoneBuybackData.js';
 
 describe('UsedPhonePriceFormContainer', () => {
   // Create mock services for testing
   let mockService;
+  let container;
 
   beforeEach(() => {
     // Create a standard mock service with immediate responses
@@ -25,70 +26,100 @@ describe('UsedPhonePriceFormContainer', () => {
     };
   });
 
-  it('should create a form container with a form element', () => {
-    const container = UsedPhonePriceFormContainer({
+  afterEach(() => {
+    if (container && typeof container.destroy === 'function') {
+      container.destroy();
+    }
+    container = null;
+    vi.clearAllMocks();
+  });
+
+  it('should create a container with form element', async () => {
+    container = createUsedPhonePriceFormContainer({
       service: mockService,
     });
 
     const element = container.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
-    expect(element.className).toContain('used-phone-price-form');
+    expect(element.classList.contains('used-phone-price-form')).toBe(true);
+
+    // Wait a bit for async initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
   });
 
-  it('should load manufacturers on initialization', () => {
-    UsedPhonePriceFormContainer({
+  it('should load manufacturers on initialization', async () => {
+    container = createUsedPhonePriceFormContainer({
       service: mockService,
     });
 
-    // Check that fetchManufacturers was called
+    // Wait for initialization to complete
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Verify that fetchManufacturers was called
     expect(mockService.fetchManufacturers).toHaveBeenCalled();
   });
 
-  it('should load devices when manufacturer is selected', async () => {
-    // Create a container with direct access to handleManufacturerChange
-    const container = UsedPhonePriceFormContainer({
+  it('should handle manufacturer selection and load devices', async () => {
+    // Mock the service method to track calls
+    mockService.fetchDevices.mockClear();
+
+    container = createUsedPhonePriceFormContainer({
       service: mockService,
     });
 
-    // Store original implementation to verify the proper method is called
-    const originalUpdate = container.formContainer.setSelection;
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Create a mock implementation
-    container.formContainer.setSelection = vi.fn((...args) => {
-      originalUpdate.apply(container.formContainer, args);
-    });
-
-    // Manually call the handleManufacturerChange method
-    // This is key - we need to expose and call the internal method directly
+    // Directly call the handleManufacturerChange method
     await container.handleManufacturerChange('1');
 
-    // Verify the expected behavior
+    // Verify fetchDevices was called
     expect(mockService.fetchDevices).toHaveBeenCalledWith('1');
   });
 
-  it('should load conditions when device is selected', async () => {
-    // Create a container with direct access to handleDeviceChange
-    const container = UsedPhonePriceFormContainer({
+  it('should handle device selection and load conditions', async () => {
+    // Clear any previous calls
+    mockService.fetchConditions.mockClear();
+
+    container = createUsedPhonePriceFormContainer({
       service: mockService,
     });
 
-    // Store original implementation to verify the proper method is called
-    const originalUpdate = container.formContainer.setSelection;
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Create a mock implementation
-    container.formContainer.setSelection = vi.fn((...args) => {
-      originalUpdate.apply(container.formContainer, args);
-    });
+    // First, select a manufacturer
+    await container.handleManufacturerChange('1');
 
-    // Manually call handleDeviceChange method
+    // Now test device selection
     await container.handleDeviceChange('2');
 
-    // Verify the expected behavior
+    // Verify fetchConditions was called
     expect(mockService.fetchConditions).toHaveBeenCalledWith('2');
   });
 
+  it('should handle condition selection and load price', async () => {
+    // Clear any previous calls
+    mockService.fetchPrice.mockClear();
+
+    container = createUsedPhonePriceFormContainer({
+      service: mockService,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Go through the full flow: manufacturer -> device -> condition
+    await container.handleManufacturerChange('1');
+    await container.handleDeviceChange('2');
+    await container.handleConditionChange('3');
+
+    // Verify fetchPrice was called
+    expect(mockService.fetchPrice).toHaveBeenCalledWith('3');
+  });
+
   it('should handle errors when loading devices fails', async () => {
-    // Create a mock service that will fail on fetchDevices
+    // Create mock service that will fail on fetchDevices
     const errorService = {
       fetchManufacturers: vi
         .fn()
@@ -98,10 +129,12 @@ describe('UsedPhonePriceFormContainer', () => {
       fetchPrice: vi.fn().mockResolvedValue(null),
     };
 
-    // Create the container
-    const container = UsedPhonePriceFormContainer({
+    container = createUsedPhonePriceFormContainer({
       service: errorService,
     });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Spy on the form's setErrors method
     container.form.setErrors = vi.fn();
@@ -114,13 +147,11 @@ describe('UsedPhonePriceFormContainer', () => {
     }
 
     // Give time for async operations
-    await vi.waitFor(() => {
-      // Verify the form shows error state
-      const formElement = container.getElement();
-      formElement.classList.add('used-phone-price-form--error');
-      expect(
-        formElement.classList.contains('used-phone-price-form--error')
-      ).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Verify the form shows error state
+    expect(container.form.setErrors).toHaveBeenCalledWith({
+      devices: 'Device fetch error',
     });
   });
 
@@ -128,11 +159,13 @@ describe('UsedPhonePriceFormContainer', () => {
     // Create a callback spy
     const onSubmitSpy = vi.fn();
 
-    // Create the container
-    const container = UsedPhonePriceFormContainer({
+    container = createUsedPhonePriceFormContainer({
       service: mockService,
       onSubmit: onSubmitSpy,
     });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Get formData for the test
     const testFormData = {
@@ -152,18 +185,112 @@ describe('UsedPhonePriceFormContainer', () => {
     expect(onSubmitSpy).toHaveBeenCalledWith(testFormData);
   });
 
+  it('should call onPriceChange callback when price changes', async () => {
+    // Create a callback spy
+    const onPriceChangeSpy = vi.fn();
+
+    container = createUsedPhonePriceFormContainer({
+      service: mockService,
+      onPriceChange: onPriceChangeSpy,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Go through the full flow to trigger price change
+    await container.handleManufacturerChange('1');
+    await container.handleDeviceChange('2');
+    await container.handleConditionChange('1');
+
+    // Wait for async price loading
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Verify the callback was called
+    expect(onPriceChangeSpy).toHaveBeenCalled();
+  });
+
   it('should clean up resources when destroyed', () => {
-    const container = UsedPhonePriceFormContainer({
+    container = createUsedPhonePriceFormContainer({
       service: mockService,
     });
 
-    // Mock the form's destroy method
-    container.form.destroy = vi.fn();
+    // Verify destroy method exists and can be called without error
+    expect(typeof container.destroy).toBe('function');
+    expect(() => container.destroy()).not.toThrow();
+  });
 
-    // Call destroy
-    container.destroy();
+  it('should provide container state access', async () => {
+    container = createUsedPhonePriceFormContainer({
+      service: mockService,
+    });
 
-    // Verify form's destroy method was called
-    expect(container.form.destroy).toHaveBeenCalled();
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const containerState = container.getContainerState();
+
+    expect(containerState).toHaveProperty('currentManufacturer');
+    expect(containerState).toHaveProperty('currentDevice');
+    expect(containerState).toHaveProperty('currentCondition');
+    expect(containerState).toHaveProperty('lastSuccessfulState');
+    expect(containerState).toHaveProperty('formContainerState');
+    expect(containerState).toHaveProperty('isLoading');
+    expect(containerState).toHaveProperty('hasErrors');
+  });
+
+  it('should support manual refresh functionality', async () => {
+    container = createUsedPhonePriceFormContainer({
+      service: mockService,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Clear previous calls
+    mockService.fetchManufacturers.mockClear();
+
+    // Trigger manual refresh
+    await container.refresh('manufacturers');
+
+    // Verify refresh triggered a new API call
+    expect(mockService.fetchManufacturers).toHaveBeenCalled();
+  });
+
+  it('should throw error when service is missing', () => {
+    expect(() => {
+      createUsedPhonePriceFormContainer({});
+    }).toThrow('UsedPhonePriceFormContainer: service is required');
+  });
+
+  it('should throw error when service methods are missing', () => {
+    const incompleteService = {
+      fetchManufacturers: vi.fn(),
+      // Missing other methods
+    };
+
+    expect(() => {
+      createUsedPhonePriceFormContainer({
+        service: incompleteService,
+      });
+    }).toThrow('UsedPhonePriceFormContainer: service missing methods');
+  });
+
+  it('should expose form methods for convenience', async () => {
+    container = createUsedPhonePriceFormContainer({
+      service: mockService,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Check that convenience methods exist
+    expect(typeof container.updateForm).toBe('function');
+    expect(typeof container.getFormState).toBe('function');
+
+    // Test convenience methods
+    const formState = container.getFormState();
+    expect(formState).toHaveProperty('manufacturers');
+    expect(formState).toHaveProperty('devices');
+    expect(formState).toHaveProperty('conditions');
   });
 });

@@ -1,6 +1,6 @@
 // src/components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js
 import UsedPhonePriceForm from './UsedPhonePriceForm.js';
-import { createUsedPhonePriceFormContainer } from './index.js';
+import createUsedPhonePriceFormContainer from './UsedPhonePriceFormContainer.js';
 import {
   mockPhoneBuybackData,
   setupPhoneBuybackMocks,
@@ -13,7 +13,7 @@ export default {
     docs: {
       description: {
         component:
-          'Formular-Komponente zur Wertermittlung eines gebrauchten Handys für den Verkauf.',
+          'Enhanced form component for getting a price estimate for selling a used phone with async loading, error handling, and optimized user experience.',
       },
     },
   },
@@ -30,7 +30,7 @@ const setupMocks = () => {
   try {
     setupPhoneBuybackMocks();
   } catch (error) {
-    console.warn('Fehler beim Einrichten der Mocks:', error.message);
+    console.warn('Error setting up mocks:', error.message);
     // Provide fallback mock directly
     window.fetch = (url) => {
       if (url === '/api/manufacturers') {
@@ -39,18 +39,17 @@ const setupMocks = () => {
           json: () => Promise.resolve(mockPhoneBuybackData.manufacturers),
         });
       }
-      // Add other mocks as needed
       return Promise.resolve({
         ok: false,
         status: 404,
-        json: () => Promise.resolve({ error: 'Nicht gefunden' }),
+        json: () => Promise.resolve({ error: 'Not found' }),
       });
     };
   }
 };
 
 // Helper to create a mock service for our form
-const createMockService = (delay = 500) => {
+const createMockService = (delay = 300) => {
   return {
     fetchManufacturers: () => {
       return new Promise((resolve) => {
@@ -110,6 +109,9 @@ const createMockService = (delay = 500) => {
 // Helper to create a form with standardized props
 const createForm = (props = {}) => {
   return UsedPhonePriceForm({
+    manufacturers: [],
+    devices: [],
+    conditions: [],
     onManufacturerChange: props.onManufacturerChange || (() => {}),
     onDeviceChange: props.onDeviceChange || (() => {}),
     onConditionChange: props.onConditionChange || (() => {}),
@@ -120,14 +122,18 @@ const createForm = (props = {}) => {
 
 export const Default = (args) => {
   setupMocks();
-  return createForm(args).getElement();
+  return createForm({
+    manufacturers: mockPhoneBuybackData.manufacturers,
+    ...args,
+  }).getElement();
 };
 
 export const WithoutSteps = (args) => {
   setupMocks();
   return createForm({
-    ...args,
+    manufacturers: mockPhoneBuybackData.manufacturers,
     showStepsIndicator: false,
+    ...args,
   }).getElement();
 };
 
@@ -136,7 +142,12 @@ export const WithPreselectedData = (args) => {
 
   // Create container with instructions
   const container = document.createElement('div');
-  container.style.maxWidth = '600px';
+  container.style.maxWidth = '800px';
+
+  // Add description
+  const description = document.createElement('p');
+  description.textContent = 'Form with complete selection and price estimate';
+  container.appendChild(description);
 
   // Create form component
   const form = createForm({
@@ -148,48 +159,20 @@ export const WithPreselectedData = (args) => {
     conditions: mockPhoneBuybackData.manufacturers[0].devices[0].conditions,
     selectedCondition: '2', // Good condition
     currentPrice: {
-      price: 399,
+      price: 39900,
       deviceName: 'iPhone 13',
-      conditionName: 'Gut',
+      conditionName: 'Good',
       manufacturerName: 'Apple',
     },
-    onPriceChange: (priceData) => {
-      console.log('Preis ausgewählt:', priceData);
-    },
     onSubmit: (formData) => {
+      const priceFormatted = (formData.price / 100).toFixed(2);
       alert(
-        `Verkauf eingereicht: ${formData.deviceName} (${formData.conditionName}) für €${formData.price}`
+        `Sale submitted: ${formData.deviceName} (${formData.conditionName}) for €${priceFormatted}`
       );
     },
   });
 
   container.appendChild(form.getElement());
-
-  // Add summary display
-  const summaryDisplay = document.createElement('div');
-  summaryDisplay.innerHTML = `
-    <div style="margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 4px; background-color: #f8f9fa;">
-      <h3 style="margin-top: 0; font-size: 18px;">Verkaufszusammenfassung</h3>
-      <p><strong>Marke:</strong> Apple</p>
-      <p><strong>Modell:</strong> iPhone 13</p>
-      <p><strong>Zustand:</strong> Gut</p>
-      <p><strong>Angebotspreis:</strong> €399</p>
-      <button id="confirmSale" style="background-color: #48bb78; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Verkauf bestätigen</button>
-    </div>
-  `;
-  container.appendChild(summaryDisplay);
-
-  // Add event listener to confirm button
-  setTimeout(() => {
-    const confirmButton = document.getElementById('confirmSale');
-    if (confirmButton) {
-      confirmButton.addEventListener('click', () => {
-        alert(
-          'Vielen Dank für den Verkauf deines Handys! Wir werden dich in Kürze mit Versanddetails kontaktieren.'
-        );
-      });
-    }
-  }, 0);
 
   return container;
 };
@@ -208,11 +191,6 @@ export const WithCustomTheme = (args) => {
       border: 2px solid #3b82f6;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .custom-theme .form-group__label {
-      color: #3b82f6;
-      font-weight: bold;
     }
     
     .custom-theme .price-display {
@@ -239,11 +217,6 @@ export const WithCustomTheme = (args) => {
     .custom-theme .condition-option--selected .condition-option__label {
       border-color: #3b82f6;
       background-color: #dbeafe;
-    }
-    
-    .custom-theme .condition-option__description {
-      color: #4b5563;
-      font-style: italic;
     }
     
     .custom-theme .btn {
@@ -285,8 +258,8 @@ export const WithErrorHandling = (args) => {
   const instructions = document.createElement('div');
   instructions.innerHTML = `
     <div style="margin-bottom: 20px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;">
-      <p><strong>Testanleitung:</strong></p>
-      <p>Diese Story demonstriert die Fehlerbehandlung der Komponente.</p>
+      <p><strong>Error Handling Demo:</strong></p>
+      <p>This story demonstrates error handling capabilities of the component.</p>
     </div>
   `;
 
@@ -297,7 +270,10 @@ export const WithErrorHandling = (args) => {
     ...args,
     manufacturers: mockPhoneBuybackData.manufacturers,
     devices: [],
-    error: { devices: 'Fehler beim Laden der Geräte' },
+    error: {
+      devices: 'Failed to load devices for this manufacturer',
+      price: 'Unable to calculate price for this selection',
+    },
     hasError: true,
   });
 
@@ -312,72 +288,136 @@ export const WithCustomLabels = (args) => {
   // Create form with custom labels
   const form = createForm({
     ...args,
+    manufacturers: mockPhoneBuybackData.manufacturers,
     labels: {
-      title: 'Verkaufe dein Gerät',
-      manufacturerStep: 'Marke',
-      deviceStep: 'Gerät',
-      conditionStep: 'Zustand',
-      manufacturerPlaceholder: 'Marke auswählen',
-      devicePlaceholder: 'Gerät auswählen',
-      initialPriceText: 'Fülle alle Auswahlfelder aus, um ein Angebot zu sehen',
-      priceLabel: 'Unser Angebot:',
-      submitButtonText: 'Verkaufen',
-      conditionNewLabel: 'Wie neu',
-      conditionGoodLabel: 'Gut',
-      conditionFairLabel: 'Normal',
-      conditionPoorLabel: 'Mit Mängeln',
+      manufacturerStep: 'Brand',
+      deviceStep: 'Device',
+      conditionStep: 'Condition',
+      manufacturerPlaceholder: 'Select brand',
+      devicePlaceholder: 'Select device',
+      initialPriceText: 'Complete all selections to see your buyback offer',
+      priceLabel: 'Our Buyback Offer:',
+      submitButtonText: 'Sell Device',
+      conditionNewLabel: 'Like New',
+      conditionGoodLabel: 'Good',
+      conditionFairLabel: 'Fair',
+      conditionPoorLabel: 'Damaged',
     },
   });
 
   return form.getElement();
 };
 
+export const WithLoading = (args) => {
+  // Create container
+  const container = document.createElement('div');
+  container.style.maxWidth = '800px';
+
+  // Add description
+  const description = document.createElement('p');
+  description.textContent = 'Form in loading state';
+  container.appendChild(description);
+
+  // Create the form with loading state
+  const form = createForm({
+    ...args,
+    manufacturers: mockPhoneBuybackData.manufacturers,
+    selectedManufacturer: '1',
+    devices: mockPhoneBuybackData.manufacturers[0].devices,
+    selectedDevice: '2',
+    conditions: mockPhoneBuybackData.manufacturers[0].devices[1].conditions,
+    loading: {
+      price: true,
+      conditions: true,
+    },
+    priceDisplayText: 'Loading price...',
+  });
+
+  container.appendChild(form.getElement());
+  return container;
+};
+
 export const Interactive = () => {
   // Create container for demonstration
   const container = document.createElement('div');
-  container.style.maxWidth = '600px';
+  container.style.maxWidth = '800px';
 
   // Add description
   const description = document.createElement('p');
   description.textContent =
-    'Interaktives Formular - Auswahl lädt jeweils die nächste Ebene';
+    'Interactive form using UsedPhonePriceFormContainer - selections will automatically load options for the next step';
   container.appendChild(description);
 
-  // Create mock service
+  // Create status display
+  const statusDiv = document.createElement('div');
+  statusDiv.id = 'interactive-status';
+  statusDiv.style.cssText = `
+    background: #e8f4f8;
+    border: 1px solid #bee5eb;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  `;
+  statusDiv.innerHTML =
+    '<strong>Status:</strong> Ready - Select a manufacturer to begin';
+  container.appendChild(statusDiv);
+
+  const updateStatus = (message) => {
+    const timestamp = new Date().toLocaleTimeString();
+    statusDiv.innerHTML = `<strong>Status [${timestamp}]:</strong> ${message}`;
+  };
+
+  // Create mock service with enhanced logging
   const mockService = createMockService(300);
 
-  // Create the UsedPhonePriceFormContainer
-  const formContainer = createUsedPhonePriceFormContainer({
-    service: mockService,
-    onPriceChange: (priceData) => {
-      console.log('Preis aktualisiert:', priceData);
+  try {
+    // Create the container which will handle all the logic
+    const formContainer = createUsedPhonePriceFormContainer({
+      service: mockService,
+      onPriceChange: (priceData) => {
+        const priceFormatted = priceData
+          ? `€${(priceData.price / 100).toFixed(2)}`
+          : 'No price';
+        updateStatus(`Price updated: ${priceFormatted}`);
+      },
+      onSubmit: (formData) => {
+        updateStatus('Form submitted successfully!');
 
-      // Update summary if it exists
-      const summary = document.getElementById('price-summary');
-      if (summary) {
-        summary.innerHTML = `
-          <div style="margin-top: 20px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 4px; background-color: #f8f9fa;">
-            <h3 style="margin-top: 0; font-size: 18px;">Angebot</h3>
-            <p><strong>Gerät:</strong> ${priceData.deviceName}</p>
-            <p><strong>Zustand:</strong> ${priceData.conditionName}</p>
-            <p><strong>Preis:</strong> €${priceData.price}</p>
-          </div>
-        `;
-      }
-    },
-    onSubmit: (formData) => {
-      alert(
-        `Verkauf eingereicht: ${formData.deviceName} (${formData.conditionName}) für €${formData.price}`
-      );
-    },
-  });
+        // Show confirmation with null safety
+        if (formData.price) {
+          const priceFormatted = (formData.price / 100).toFixed(2);
+          alert(
+            `Sale submitted!\nDevice: ${formData.deviceName}\nCondition: ${formData.conditionName}\nPrice: €${priceFormatted}`
+          );
+        } else {
+          alert(
+            `Sale submitted!\nDevice: ${formData.deviceName}\nCondition: ${formData.conditionName}\nPrice: Not available`
+          );
+        }
+      },
+    });
 
-  container.appendChild(formContainer.getElement());
+    container.appendChild(formContainer.getElement());
 
-  // Add div for price summary
-  const summary = document.createElement('div');
-  summary.id = 'price-summary';
-  container.appendChild(summary);
+    updateStatus(
+      'Container ready - manufacturer list should load automatically'
+    );
+  } catch (error) {
+    updateStatus(`Error: Failed to create container - ${error.message}`);
+
+    // Show error in the container
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    `;
+    errorDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+    container.appendChild(errorDiv);
+  }
 
   return container;
 };

@@ -1,239 +1,230 @@
 // src/components/UsedPhonePriceForm/UsedPhonePriceFormContainer.js
-import FormContainer from '../../utils/FormContainer.js';
 import UsedPhonePriceForm from './UsedPhonePriceForm.js';
+import FormContainer from '../../utils/FormContainer.js';
 
 /**
- * Container component for UsedPhonePriceForm
- * Handles state management and API interactions
+ * Creates a container for UsedPhonePriceForm that manages API calls and form state
+ * @param {Object} props - Container properties
+ * @returns {Object} Container component API
  */
-const createUsedPhonePriceFormContainer = (options) => {
+const createUsedPhonePriceFormContainer = (props) => {
   const {
     service,
     onPriceChange,
     onSubmit,
-    labels = {},
-    showStepsIndicator = true,
-    className = '',
-  } = options;
-
-  // Create state container
-  const formContainer = new FormContainer(service, handleStateChange);
-
-  // Create presentational component
-  const form = UsedPhonePriceForm({
     labels,
     className,
     showStepsIndicator,
+    ...otherProps
+  } = props;
+
+  if (!service) {
+    throw new Error('UsedPhonePriceFormContainer: service is required');
+  }
+
+  // Validate service methods
+  const requiredMethods = [
+    'fetchManufacturers',
+    'fetchDevices',
+    'fetchConditions',
+    'fetchPrice',
+  ];
+  const missingMethods = requiredMethods.filter(
+    (method) => typeof service[method] !== 'function'
+  );
+
+  if (missingMethods.length > 0) {
+    throw new Error(
+      `UsedPhonePriceFormContainer: service missing methods: ${missingMethods.join(', ')}`
+    );
+  }
+
+  // Initialize container state using FormContainer utility
+  const container = new FormContainer(service);
+
+  // Container-specific state
+  let containerState = {
+    currentManufacturer: null,
+    currentDevice: null,
+    currentCondition: null,
+    lastSuccessfulState: null,
+    isInitialized: false,
+  };
+
+  // Create the form component
+  const form = UsedPhonePriceForm({
+    manufacturers: [],
+    devices: [],
+    conditions: [],
     onManufacturerChange: handleManufacturerChange,
     onDeviceChange: handleDeviceChange,
     onConditionChange: handleConditionChange,
     onSubmit: handleSubmit,
+    labels,
+    className,
+    showStepsIndicator,
+    ...otherProps,
   });
 
-  // Store callbacks
-  const callbacks = {
-    onPriceChange,
-    onSubmit,
-  };
-
-  // Load initial data
-  loadManufacturers();
-
-  /**
-   * Handle state changes and update form
-   * @param {Object} newState - New state
-   * @param {Object} prevState - Previous state
-   * @private
-   */
-  function handleStateChange(newState, prevState) {
-    // Update form loading state
-    form.setLoading(newState.loading);
-
-    // Update form error state
-    form.setErrors(newState.error);
-
-    // Update manufacturers if they changed
-    if (newState.data.manufacturers !== prevState.data.manufacturers) {
-      form.setManufacturers(newState.data.manufacturers || []);
-    }
-
-    // Update devices if they changed
-    if (newState.data.devices !== prevState.data.devices) {
-      form.setDevices(newState.data.devices || []);
-    }
-
-    // Update conditions if they changed
-    if (newState.data.conditions !== prevState.data.conditions) {
-      form.setConditions(newState.data.conditions || []);
-    }
-
-    // Update price if it changed
-    if (newState.data.price !== prevState.data.price) {
-      form.setPrice(newState.data.price);
-
-      // Call external callback if provided
-      if (callbacks.onPriceChange && newState.data.price) {
-        callbacks.onPriceChange(newState.data.price);
-      }
-    }
-
-    // Update selection state
-    if (newState.selection.manufacturer !== prevState.selection.manufacturer) {
-      form.update({ selectedManufacturer: newState.selection.manufacturer });
-    }
-
-    if (newState.selection.device !== prevState.selection.device) {
-      form.update({ selectedDevice: newState.selection.device });
-    }
-
-    if (newState.selection.condition !== prevState.selection.condition) {
-      form.update({ selectedCondition: newState.selection.condition });
-    }
-  }
-
-  /**
-   * Load manufacturers from API
-   * @private
-   */
-  async function loadManufacturers() {
-    try {
-      await formContainer.fetchResource('manufacturers', () =>
-        formContainer.service.fetchManufacturers()
-      );
-    } catch (error) {
-      console.error('Error loading manufacturers:', error);
-    }
-  }
-
-  /**
-   * Load devices for a manufacturer
-   * @param {string} manufacturerId - Manufacturer ID
-   * @private
-   */
-  async function loadDevices(manufacturerId) {
-    // Clear dependent selections
-    formContainer.setSelection('device', '');
-    formContainer.setSelection('condition', '');
-    formContainer.setData('devices', []);
-    formContainer.setData('conditions', []);
-    formContainer.setData('price', null);
-
-    try {
-      await formContainer.fetchResource('devices', () =>
-        formContainer.service.fetchDevices(manufacturerId)
-      );
-    } catch (error) {
-      console.error('Error loading devices:', error);
-    }
-  }
-
-  /**
-   * Load conditions for a device
-   * @param {string} deviceId - Device ID
-   * @private
-   */
-  async function loadConditions(deviceId) {
-    // Clear dependent selections
-    formContainer.setSelection('condition', '');
-    formContainer.setData('conditions', []);
-    formContainer.setData('price', null);
-
-    try {
-      await formContainer.fetchResource('conditions', () =>
-        formContainer.service.fetchConditions(deviceId)
-      );
-    } catch (error) {
-      console.error('Error loading conditions:', error);
-    }
-  }
-
-  /**
-   * Load price for a condition
-   * @param {string} conditionId - Condition ID
-   * @private
-   */
-  async function loadPrice(conditionId) {
-    formContainer.setData('price', null);
-
-    try {
-      await formContainer.fetchResource('price', () =>
-        formContainer.service.fetchPrice(conditionId)
-      );
-    } catch (error) {
-      console.error('Error loading price:', error);
-    }
-  }
-
-  /**
-   * Handle manufacturer selection change
-   * @param {string} manufacturerId - Selected manufacturer ID
-   */
+  // Event handlers
   async function handleManufacturerChange(manufacturerId) {
-    formContainer.setSelection('manufacturer', manufacturerId);
-    if (manufacturerId) {
-      await loadDevices(manufacturerId);
+    try {
+      // Reset dependent selections
+      containerState.currentDevice = null;
+      containerState.currentCondition = null;
+
+      form.setState({
+        selectedDevice: '',
+        selectedCondition: '',
+        devices: [],
+        conditions: [],
+        currentPrice: null,
+      });
+
+      if (!manufacturerId) {
+        containerState.currentManufacturer = null;
+        return;
+      }
+
+      containerState.currentManufacturer = manufacturerId;
+
+      // Fetch devices
+      const devices = await container.fetchResource('devices', () =>
+        service.fetchDevices(manufacturerId)
+      );
+
+      // Update form with new devices
+      form.setState({
+        devices,
+        selectedManufacturer: manufacturerId,
+      });
+
+      containerState.lastSuccessfulState = { ...containerState };
+    } catch (error) {
+      // Reset to last successful state
+      if (containerState.lastSuccessfulState) {
+        Object.assign(containerState, containerState.lastSuccessfulState);
+      }
+      form.setErrors({ devices: error.message });
     }
   }
 
-  /**
-   * Handle device selection change
-   * @param {string} deviceId - Selected device ID
-   */
   async function handleDeviceChange(deviceId) {
-    formContainer.setSelection('device', deviceId);
-    if (deviceId) {
-      await loadConditions(deviceId);
+    try {
+      // Reset dependent selections
+      containerState.currentCondition = null;
+
+      form.setState({
+        selectedCondition: '',
+        conditions: [],
+        currentPrice: null,
+      });
+
+      if (!deviceId) {
+        containerState.currentDevice = null;
+        return;
+      }
+
+      containerState.currentDevice = deviceId;
+
+      // Fetch conditions
+      const conditions = await container.fetchResource('conditions', () =>
+        service.fetchConditions(deviceId)
+      );
+
+      // Update form with new conditions
+      form.setState({
+        conditions,
+        selectedDevice: deviceId,
+      });
+
+      containerState.lastSuccessfulState = { ...containerState };
+    } catch (error) {
+      // Reset to last successful state
+      if (containerState.lastSuccessfulState) {
+        Object.assign(containerState, containerState.lastSuccessfulState);
+      }
+      form.setErrors({ conditions: error.message });
     }
   }
 
-  /**
-   * Handle condition selection change
-   * @param {string} conditionId - Selected condition ID
-   */
   async function handleConditionChange(conditionId) {
-    formContainer.setSelection('condition', conditionId);
-    if (conditionId) {
-      await loadPrice(conditionId);
+    try {
+      // Clear current price
+      form.setState({
+        currentPrice: null,
+      });
+
+      if (!conditionId) {
+        containerState.currentCondition = null;
+        return;
+      }
+
+      containerState.currentCondition = conditionId;
+
+      // Fetch price
+      const price = await container.fetchResource('price', () =>
+        service.fetchPrice(conditionId)
+      );
+
+      // Update form with new price
+      form.setState({
+        currentPrice: price,
+        selectedCondition: conditionId,
+      });
+
+      // Call onPriceChange callback if provided
+      if (typeof onPriceChange === 'function') {
+        try {
+          onPriceChange(price);
+        } catch (callbackError) {
+          console.error('Error in onPriceChange callback:', callbackError);
+        }
+      }
+
+      containerState.lastSuccessfulState = { ...containerState };
+    } catch (error) {
+      // Reset to last successful state
+      if (containerState.lastSuccessfulState) {
+        Object.assign(containerState, containerState.lastSuccessfulState);
+      }
+      form.setErrors({ price: error.message });
     }
   }
 
-  /**
-   * Handle form submission
-   * @param {Object} formData - Form data
-   */
   function handleSubmit(formData) {
-    formContainer.setState({
-      loading: { ...formContainer.state.loading, submit: true },
-    });
-
-    if (callbacks.onSubmit) {
+    if (typeof onSubmit === 'function') {
       try {
-        callbacks.onSubmit(formData);
+        onSubmit(formData);
       } catch (error) {
-        console.error('Error during form submission:', error);
-        formContainer.setError('submit', error);
+        console.error('Error in onSubmit callback:', error);
       }
     }
-
-    setTimeout(() => {
-      formContainer.setState({
-        loading: { ...formContainer.state.loading, submit: false },
-      });
-    }, 1000);
   }
 
-  // Return public API with exposed internal methods for testing
-  const container = {
-    // Expose internal properties for testing
-    form,
-    formContainer,
+  // Initialize the container
+  async function initialize() {
+    try {
+      // Load initial manufacturers
+      const manufacturers = await container.fetchResource('manufacturers', () =>
+        service.fetchManufacturers()
+      );
 
-    // Expose internal methods for testing
-    handleManufacturerChange,
-    handleDeviceChange,
-    handleConditionChange,
-    handleSubmit,
+      // Update form with manufacturers
+      form.setManufacturers(manufacturers);
 
+      containerState.isInitialized = true;
+      containerState.lastSuccessfulState = { ...containerState };
+    } catch (error) {
+      form.setErrors({ manufacturers: error.message });
+    }
+  }
+
+  // Start initialization
+  initialize();
+
+  // Container API
+  const containerAPI = {
     /**
      * Get the form element
      * @returns {HTMLElement} Form element
@@ -243,16 +234,67 @@ const createUsedPhonePriceFormContainer = (options) => {
     },
 
     /**
-     * Destroy the container and form
+     * Get container state for debugging
+     * @returns {Object} Container state
+     */
+    getContainerState() {
+      return {
+        ...containerState,
+        formContainerState: container.state,
+        isLoading: container.isLoading(),
+        hasErrors: container.hasErrors(),
+      };
+    },
+
+    /**
+     * Manually refresh a specific resource
+     * @param {string} resource - Resource to refresh
+     * @returns {Promise} Refresh promise
+     */
+    async refresh(resource) {
+      switch (resource) {
+        case 'manufacturers':
+          return this.refreshManufacturers();
+        default:
+          throw new Error(`Unknown resource: ${resource}`);
+      }
+    },
+
+    /**
+     * Refresh manufacturers
+     * @returns {Promise} Refresh promise
+     */
+    async refreshManufacturers() {
+      const manufacturers = await container.fetchResource('manufacturers', () =>
+        service.fetchManufacturers()
+      );
+      form.setManufacturers(manufacturers);
+      return manufacturers;
+    },
+
+    /**
+     * Clean up resources
      */
     destroy() {
       if (form && typeof form.destroy === 'function') {
         form.destroy();
       }
     },
+
+    // Expose form methods for convenience
+    updateForm: (props) => form.update(props),
+    getFormState: () => form.getCurrentState(),
+
+    // Expose internal methods for testing
+    handleManufacturerChange,
+    handleDeviceChange,
+    handleConditionChange,
+    handleSubmit,
+    form,
+    formContainer: container,
   };
 
-  return container;
+  return containerAPI;
 };
 
 export default createUsedPhonePriceFormContainer;
