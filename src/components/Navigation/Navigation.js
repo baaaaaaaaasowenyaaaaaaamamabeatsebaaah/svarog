@@ -496,16 +496,16 @@ const createNavigation = (props) => {
   };
 
   // Add partialUpdate method for more efficient DOM updates
-  component.partialUpdate = (element, newProps) => {
+  component.partialUpdate = (element, newProps, oldState) => {
     let needsActiveUpdate = false;
     let needsExpandedUpdate = false;
 
     // Update internal state based on new props
     Object.entries(newProps).forEach(([key, value]) => {
-      if (key === 'activeId' && value !== state.activeId) {
+      if (key === 'activeId' && value !== oldState.activeId) {
         state[key] = value;
         needsActiveUpdate = true;
-      } else if (key === 'expandedId' && value !== state.expandedId) {
+      } else if (key === 'expandedId' && value !== oldState.expandedId) {
         state[key] = value;
         needsExpandedUpdate = true;
       } else if (key === 'isOpen' && state.responsive) {
@@ -516,7 +516,9 @@ const createNavigation = (props) => {
         }
       } else if (key === 'className') {
         // Update className directly without rerendering
-        const oldClasses = state.className.split(' ').filter(Boolean);
+        const oldClasses = (oldState.className || '')
+          .split(' ')
+          .filter(Boolean);
         const newClasses = value.split(' ').filter(Boolean);
 
         oldClasses.forEach((cls) => {
@@ -536,7 +538,7 @@ const createNavigation = (props) => {
         element.classList.toggle('nav--submenu-shadow', value);
         state.submenuShadow = value;
       } else if (key === 'burgerPosition' && state.responsive) {
-        element.classList.remove(`nav--burger-${state.burgerPosition}`);
+        element.classList.remove(`nav--burger-${oldState.burgerPosition}`);
         element.classList.add(`nav--burger-${value}`);
         state.burgerPosition = value;
       } else {

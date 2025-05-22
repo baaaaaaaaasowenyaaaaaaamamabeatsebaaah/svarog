@@ -46,27 +46,27 @@ export const createBaseComponent = (renderFn) => {
           return component;
         }
 
+        // Store old state before updating
+        const oldState = { ...state };
+
         // Update state
         Object.assign(state, newProps);
 
         // Check for custom update behavior first
-        if (component.shouldRerender && !component.shouldRerender(newProps)) {
-          // Custom shouldRerender says don't update
-          return component;
-        }
-
-        if (component.partialUpdate) {
-          // Use more efficient partial update if available
-          component.partialUpdate(element, newProps);
-        } else {
-          // DEFAULT: Always re-render when update is called
-          // Keep track of old element for replacement
+        if (component.shouldRerender && component.shouldRerender(newProps)) {
+          // Full rerender requested
           const oldElement = element;
-
-          // Create new element
           element = render();
-
-          // Replace in DOM if old element was inserted
+          if (oldElement && oldElement.parentNode) {
+            oldElement.parentNode.replaceChild(element, oldElement);
+          }
+        } else if (component.partialUpdate) {
+          // Use partial update (either shouldRerender returned false or doesn't exist)
+          component.partialUpdate(element, newProps, oldState);
+        } else {
+          // No partial update available, do full rerender
+          const oldElement = element;
+          element = render();
           if (oldElement && oldElement.parentNode) {
             oldElement.parentNode.replaceChild(element, oldElement);
           }
