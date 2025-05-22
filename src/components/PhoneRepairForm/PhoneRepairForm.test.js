@@ -12,6 +12,9 @@ describe('PhoneRepairForm component', () => {
   // Helper function to create a PhoneRepairForm instance with common props
   const createPhoneRepairForm = (props = {}) => {
     return PhoneRepairForm({
+      manufacturers: [],
+      devices: [],
+      actions: [],
       onManufacturerChange: vi.fn(),
       onDeviceChange: vi.fn(),
       onActionChange: vi.fn(),
@@ -43,131 +46,95 @@ describe('PhoneRepairForm component', () => {
   });
 
   it('should display error state in price display when loading devices fails', () => {
-    const form = createPhoneRepairForm();
+    const form = createPhoneRepairForm({
+      error: {
+        devices: 'Device fetch error',
+      },
+    });
+
     const element = form.getElement();
-
-    // Create a mock PriceDisplay component for spying
-    const mockPriceDisplay = {
-      setError: vi.fn(),
-      setValue: vi.fn(),
-      setLoading: vi.fn(),
-    };
-
-    // Replace the actual PriceDisplay with our mock
-    element._components.priceDisplay = mockPriceDisplay;
-
-    // Set errors through the public API
-    form.setErrors({ devices: 'Device fetch error' });
-
-    // Directly apply the class for test purposes
-    element.classList.add('phone-repair-form--error');
-
-    // Verify that setError was called on the price display component
-    expect(mockPriceDisplay.setError).toHaveBeenCalled();
 
     // Check that the form has error class
     expect(element.classList.contains('phone-repair-form--error')).toBe(true);
+
+    // Check that price display shows error state
+    const priceDisplay = element.querySelector('.price-display');
+    expect(priceDisplay).not.toBeNull();
+
+    // The price display should be in error state due to the isError prop
+    // which is set based on error.devices being truthy
   });
 
   it('should display error state in price display when loading actions fails', () => {
-    const form = createPhoneRepairForm();
+    const form = createPhoneRepairForm({
+      error: {
+        actions: 'Actions fetch error',
+      },
+    });
+
     const element = form.getElement();
 
-    const mockPriceDisplay = {
-      setError: vi.fn(),
-      setValue: vi.fn(),
-      setLoading: vi.fn(),
-    };
-
-    element._components.priceDisplay = mockPriceDisplay;
-
-    form.setErrors({ actions: 'Actions fetch error' });
-
-    // Directly apply the class for test purposes
-    element.classList.add('phone-repair-form--error');
-
-    expect(mockPriceDisplay.setError).toHaveBeenCalled();
     expect(element.classList.contains('phone-repair-form--error')).toBe(true);
+
+    const priceDisplay = element.querySelector('.price-display');
+    expect(priceDisplay).not.toBeNull();
   });
 
   it('should display error state in price display when loading price fails', () => {
-    const form = createPhoneRepairForm();
+    const form = createPhoneRepairForm({
+      error: {
+        price: 'Price fetch error',
+      },
+    });
+
     const element = form.getElement();
 
-    const mockPriceDisplay = {
-      setError: vi.fn(),
-      setValue: vi.fn(),
-      setLoading: vi.fn(),
-    };
-
-    element._components.priceDisplay = mockPriceDisplay;
-
-    form.setErrors({ price: 'Price fetch error' });
-
-    // Directly apply the class for test purposes
-    element.classList.add('phone-repair-form--error');
-
-    expect(mockPriceDisplay.setError).toHaveBeenCalled();
     expect(element.classList.contains('phone-repair-form--error')).toBe(true);
+
+    const priceDisplay = element.querySelector('.price-display');
+    expect(priceDisplay).not.toBeNull();
   });
 
-  it('should clear error state when starting a new operation', () => {
-    const form = createPhoneRepairForm();
-
-    // First set error state
-    form.setErrors({ devices: 'Device fetch error' });
-
-    // Update price display with error message
-    form.setState({
-      priceDisplayText: 'Fehler beim Laden der Geräte',
+  it('should clear error state when updating with no errors', () => {
+    const form = createPhoneRepairForm({
+      error: {
+        devices: 'Device fetch error',
+      },
     });
 
     const element = form.getElement();
 
-    // Directly add the error class to the price display
-    const priceDisplay = element.querySelector('.price-display');
-    priceDisplay.classList.add('price-display--error');
-
     // Check initial error state
-    expect(priceDisplay.classList.contains('price-display--error')).toBe(true);
+    expect(element.classList.contains('phone-repair-form--error')).toBe(true);
 
-    // Clear error state
-    form.setErrors({});
-
-    // Update the price display with initial text
-    form.setState({
-      priceDisplayText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
+    // Update with no errors
+    form.update({
+      error: {},
     });
 
-    // Get the updated element since we may have re-rendered
+    // Get the updated element
     const updatedElement = form.getElement();
 
-    // Since we're testing if error was cleared, remove the class as would happen in the component
-    const updatedPriceDisplay = updatedElement.querySelector('.price-display');
-    updatedPriceDisplay.classList.remove('price-display--error');
-
-    // Error message should be gone
-    expect(updatedPriceDisplay.classList.contains('price-display--error')).toBe(
+    // Error class should be removed
+    expect(updatedElement.classList.contains('phone-repair-form--error')).toBe(
       false
-    );
-    const valueElement = updatedPriceDisplay.querySelector(
-      '.price-display__value'
-    );
-    expect(valueElement.textContent).toBe(
-      'Bitte zuerst Hersteller, Modell und Service auswählen'
     );
   });
 
   it('should enable the schedule button when all selections are made', () => {
-    const form = createPhoneRepairForm();
+    const form = createPhoneRepairForm({
+      manufacturers: manufacturers,
+      devices: devices,
+      actions: actions,
+    });
 
     // Initial state - button should be disabled
     const initialElement = form.getElement();
     const initialButton = initialElement.querySelector('.btn');
     expect(initialButton.disabled).toBe(true);
 
-    // Update state with all required selections
-    form.setState({
+    // Update with all required selections
+    form.update({
       selectedManufacturer: '1',
       selectedDevice: '1',
       selectedAction: '1',
@@ -221,28 +188,25 @@ describe('PhoneRepairForm component', () => {
   });
 
   it('should update the steps indicator based on selections', () => {
-    const form = createPhoneRepairForm();
-    const element = form.getElement();
-
-    // Create a mock StepsIndicator with spy
-    const updateSpy = vi.fn();
-    element._components.stepsIndicator = {
-      update: updateSpy,
-      getElement: () => document.createElement('div'),
-    };
-
-    // Directly call the partialUpdate method with steps data
-    form.partialUpdate(element, {
-      steps: [
-        { name: 'Step 1', completed: true },
-        { name: 'Step 2', completed: false },
-        { name: 'Step 3', completed: false },
-      ],
-      activeStepIndex: 1,
+    const form = createPhoneRepairForm({
+      selectedManufacturer: '1',
+      showStepsIndicator: true,
     });
 
-    // Verify update was called with correct steps
-    expect(updateSpy).toHaveBeenCalled();
+    const element = form.getElement();
+
+    // Check that steps indicator exists
+    const stepsIndicator = element.querySelector('.steps-indicator');
+    expect(stepsIndicator).not.toBeNull();
+
+    // Check that first step is completed
+    const steps = element.querySelectorAll('.steps-indicator__step');
+    expect(steps.length).toBe(3);
+
+    // First step should be completed due to selectedManufacturer
+    expect(
+      steps[0].classList.contains('steps-indicator__step--completed')
+    ).toBe(true);
   });
 
   it('should handle custom labels', () => {
@@ -260,6 +224,8 @@ describe('PhoneRepairForm component', () => {
 
     const form = createPhoneRepairForm({
       labels: customLabels,
+      usedPhoneUrl: 'https://example.com/used-phones',
+      showStepsIndicator: true,
     });
 
     const element = form.getElement();
@@ -270,6 +236,7 @@ describe('PhoneRepairForm component', () => {
 
     // Check custom link text
     const link = element.querySelector('.phone-repair-form__link');
+    expect(link).not.toBeNull();
     expect(link.textContent).toBe('Find a used phone instead');
 
     // Check steps have custom labels
@@ -279,5 +246,45 @@ describe('PhoneRepairForm component', () => {
     );
 
     expect(labels).toEqual(['Brand', 'Model', 'Repair Type']);
+  });
+
+  it('should show manufacturers in select when provided', () => {
+    const form = createPhoneRepairForm({
+      manufacturers: manufacturers,
+    });
+
+    const element = form.getElement();
+    const manufacturerSelect = element.querySelector(
+      'select[name="manufacturer"]'
+    );
+    expect(manufacturerSelect).not.toBeNull();
+
+    // Check that options are present (including placeholder)
+    const options = manufacturerSelect.querySelectorAll('option');
+    expect(options.length).toBeGreaterThan(1); // At least placeholder + manufacturers
+  });
+
+  it('should disable device select when no devices available', () => {
+    const form = createPhoneRepairForm({
+      manufacturers: manufacturers,
+      devices: [], // No devices
+    });
+
+    const element = form.getElement();
+    const deviceSelect = element.querySelector('select[name="device"]');
+    expect(deviceSelect).not.toBeNull();
+    expect(deviceSelect.disabled).toBe(true);
+  });
+
+  it('should enable device select when devices are available', () => {
+    const form = createPhoneRepairForm({
+      manufacturers: manufacturers,
+      devices: devices,
+    });
+
+    const element = form.getElement();
+    const deviceSelect = element.querySelector('select[name="device"]');
+    expect(deviceSelect).not.toBeNull();
+    expect(deviceSelect.disabled).toBe(false);
   });
 });

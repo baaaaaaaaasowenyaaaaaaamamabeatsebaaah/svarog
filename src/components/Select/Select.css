@@ -1,6 +1,6 @@
 /* src/components/Select/Select.css */
 /**
- * Select component styles - Custom UI with hidden native select
+ * Select component styles - Custom UI with hidden native select and loading states
  */
 
 .select-container {
@@ -13,6 +13,11 @@
 }
 .select-container.select-open {
   z-index: 2;
+}
+
+/* Loading states */
+.select-container[data-loading='true'] {
+  pointer-events: none;
 }
 
 /* Hide native select but keep it accessible for screen readers and form submission */
@@ -55,6 +60,15 @@
   border-color: var(--select-hover-border-color);
 }
 
+.select-custom--loading {
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.select-custom--loading .select-custom__arrow {
+  display: none;
+}
+
 .select-custom__selected {
   flex: 1;
   text-overflow: ellipsis;
@@ -66,6 +80,16 @@
 .select-custom__selected--placeholder {
   color: var(--select-placeholder-color);
   font-style: normal;
+}
+
+.select-custom__selected--loading {
+  color: var(--select-loading-color, var(--select-placeholder-color));
+  font-style: italic;
+}
+
+.select-custom__selected--empty {
+  color: var(--select-empty-color, var(--select-placeholder-color));
+  font-style: italic;
 }
 
 .select-custom__arrow {
@@ -85,6 +109,41 @@
 
 .select-custom--open .select-custom__arrow {
   transform: translateY(-25%) rotate(-135deg);
+}
+
+/* Loading indicator */
+.select-custom__loading-indicator {
+  position: absolute;
+  top: 50%;
+  right: var(--select-arrow-right, 12px);
+  width: var(--select-loading-size, 16px);
+  height: var(--select-loading-size, 16px);
+  margin-left: var(--select-arrow-margin, 8px);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.select-custom__loading-indicator::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--select-loading-border-color, #e0e0e0);
+  border-top-color: var(
+    --select-loading-active-color,
+    var(--select-focus-border-color, #0066ff)
+  );
+  border-radius: 50%;
+  animation: select-loading-spin 1s linear infinite;
+}
+
+@keyframes select-loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Dropdown */
@@ -120,6 +179,11 @@ body > .select-custom__dropdown {
   border-width: 1px;
   visibility: visible;
   z-index: var(--z-index-dropdown);
+}
+
+/* Loading dropdown should not open */
+.select-custom--loading .select-custom__dropdown {
+  display: none !important;
 }
 
 /* Options */
@@ -233,5 +297,10 @@ body > .select-custom__dropdown {
 
   .select-custom__dropdown {
     max-height: var(--select-dropdown-mobile-max-height);
+  }
+
+  .select-custom__loading-indicator {
+    width: var(--select-loading-size-mobile, 14px);
+    height: var(--select-loading-size-mobile, 14px);
   }
 }

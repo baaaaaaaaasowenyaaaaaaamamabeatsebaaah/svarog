@@ -682,6 +682,7 @@ export const getComponents = () => {
       name: 'Select',
       category: 'Form',
       stories: [
+        // Basic stories
         {
           name: 'Default',
           module: () =>
@@ -694,20 +695,6 @@ export const getComponents = () => {
           module: () =>
             import('../components/Select/Select.stories.js').then(
               (m) => m.WithValue
-            ),
-        },
-        {
-          name: 'ValidState',
-          module: () =>
-            import('../components/Select/Select.stories.js').then(
-              (m) => m.ValidState
-            ),
-        },
-        {
-          name: 'InvalidState',
-          module: () =>
-            import('../components/Select/Select.stories.js').then(
-              (m) => m.InvalidState
             ),
         },
         {
@@ -732,17 +719,82 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'GroupedOptions',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.GroupedOptions
+            ),
+        },
+        // Validation stories
+        {
+          name: 'ValidState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.ValidState
+            ),
+        },
+        {
+          name: 'InvalidState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.InvalidState
+            ),
+        },
+        {
           name: 'WithValidation',
           module: () =>
             import('../components/Select/Select.stories.js').then(
               (m) => m.WithValidation
             ),
         },
+        // NEW: Loading and async stories
         {
-          name: 'GroupedOptions',
+          name: 'LoadingState',
           module: () =>
             import('../components/Select/Select.stories.js').then(
-              (m) => m.GroupedOptions
+              (m) => m.LoadingState
+            ),
+        },
+        {
+          name: 'EmptyState',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.EmptyState
+            ),
+        },
+        {
+          name: 'AutoLoading',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.AutoLoading
+            ),
+        },
+        {
+          name: 'ManualLoading',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.ManualLoading
+            ),
+        },
+        {
+          name: 'DependentSelects',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.DependentSelects
+            ),
+        },
+        {
+          name: 'WithErrorHandling',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.WithErrorHandling
+            ),
+        },
+        {
+          name: 'MultipleWithLoading',
+          module: () =>
+            import('../components/Select/Select.stories.js').then(
+              (m) => m.MultipleWithLoading
             ),
         },
       ],

@@ -7,10 +7,14 @@ import { validateInput } from '../../utils/validation.js';
 import { debounce } from '../../utils/performance.js';
 
 /**
- * Creates a Select component with enhanced custom UI and accessibility features
+ * Creates a Select component with enhanced loading state and async data support
  *
  * @param {Object} props - Component configuration
  * @param {Array<Object>} [props.options=[]] - Option objects with value and label
+ * @param {boolean} [props.loading=false] - Whether select is in loading state
+ * @param {string} [props.loadingText='Loading options...'] - Text shown during loading
+ * @param {string} [props.emptyText='No options available'] - Text shown when no options
+ * @param {Function} [props.onLoadOptions] - Async function to load options
  * @param {string} [props.id] - ID attribute
  * @param {string} [props.name] - Name attribute
  * @param {string|Array<string>} [props.value=''] - Current value(s) (array for multiple)
@@ -29,7 +33,6 @@ import { debounce } from '../../utils/performance.js';
 const createSelect = (props) => {
   // Use base component for standardized lifecycle
   const baseComponent = createBaseComponent((state) => {
-    // Only destructure variables used directly in this function
     const { className = '' } = state;
 
     // Create container with data attributes
@@ -37,6 +40,7 @@ const createSelect = (props) => {
       classes: ['select-container', className],
       attributes: {
         'data-component': 'select',
+        'data-loading': state.loading ? 'true' : 'false',
         'data-valid':
           state.isValid === true
             ? 'true'
@@ -65,9 +69,18 @@ const createSelect = (props) => {
     return container;
   });
 
-  // Initialize component with validated props
-  validateSelectProps(props);
-  const component = baseComponent(props);
+  // Initialize component with validated props and enhanced defaults
+  const initialState = {
+    loading: false,
+    loadingText: 'Loading options...',
+    emptyText: 'No options available',
+    onLoadOptions: null,
+    value: props.multiple ? [] : '', // Fix: Set proper default for multiple
+    ...props,
+  };
+
+  validateSelectProps(initialState);
+  const component = baseComponent(initialState);
   const element = component.getElement();
 
   // Cached DOM elements for better performance
@@ -80,7 +93,7 @@ const createSelect = (props) => {
   };
 
   // Track component state for updates
-  let state = { ...props };
+  let state = { ...initialState };
 
   // Cache DOM elements for better performance
   function cacheElements() {
@@ -114,6 +127,7 @@ const createSelect = (props) => {
       required = false,
       multiple = false,
       disabled = false,
+      loading = false,
     } = state;
 
     const selectOptions = [];
@@ -123,14 +137,16 @@ const createSelect = (props) => {
       selectOptions.push(createPlaceholderOption(placeholder, value === ''));
     }
 
-    // Add regular options
-    options.forEach((option) => {
-      const isSelected = multiple
-        ? Array.isArray(value) && value.includes(option.value)
-        : value === option.value;
+    // Add regular options (only if not loading)
+    if (!loading) {
+      options.forEach((option) => {
+        const isSelected = multiple
+          ? Array.isArray(value) && value.includes(option.value)
+          : value === option.value;
 
-      selectOptions.push(createNativeOption(option, isSelected));
-    });
+        selectOptions.push(createNativeOption(option, isSelected));
+      });
+    }
 
     return createElement('select', {
       classes: ['select-native'],
@@ -139,9 +155,10 @@ const createSelect = (props) => {
         name,
         required: required ? 'required' : null,
         multiple: multiple ? 'multiple' : null,
-        disabled: disabled ? 'disabled' : null,
+        disabled: disabled || loading ? 'disabled' : null,
         'aria-required': required ? 'true' : null,
         'aria-invalid': state.isValid === false ? 'true' : null,
+        'aria-busy': loading ? 'true' : null,
         'data-element': 'native-select',
       },
       children: selectOptions,
@@ -179,7 +196,7 @@ const createSelect = (props) => {
   }
 
   /**
-   * Gets display text and state for selection display
+   * Enhanced display text logic that handles loading states
    * @private
    */
   function getDisplayTextAndState(state) {
@@ -187,13 +204,36 @@ const createSelect = (props) => {
       options = [],
       value = '',
       placeholder = 'Select an option',
+      loading = false,
+      loadingText = 'Loading options...',
+      emptyText = 'No options available',
       multiple = false,
     } = state;
 
-    let displayText = placeholder;
+    // Loading state takes priority
+    if (loading) {
+      return {
+        displayText: loadingText,
+        isPlaceholderVisible: true,
+        isLoading: true,
+      };
+    }
+
+    // Empty options but not loading
+    if (!options.length) {
+      return {
+        displayText: emptyText,
+        isPlaceholderVisible: true,
+        isEmpty: true,
+      };
+    }
+
+    // Normal logic for when we have options
     const isPlaceholderVisible = multiple
       ? !Array.isArray(value) || value.length === 0
       : !value;
+
+    let displayText = placeholder;
 
     if (multiple && Array.isArray(value) && value.length) {
       displayText = formatMultipleSelection(options, value);
@@ -231,69 +271,84 @@ const createSelect = (props) => {
   }
 
   /**
-   * Creates custom select UI
+   * Enhanced custom select with loading indicator
    * @private
    */
   function createCustomSelect(state, displayData) {
-    const { isValid, disabled, isOpen, multiple } = state;
-    const { displayText, isPlaceholderVisible } = displayData;
+    const { isValid, disabled, isOpen, multiple, loading } = state;
+    const { displayText, isPlaceholderVisible, isLoading, isEmpty } =
+      displayData;
 
-    // Custom select classes
     const customSelectClasses = ['select-custom'];
     if (disabled) customSelectClasses.push('select-custom--disabled');
+    if (loading) customSelectClasses.push('select-custom--loading');
     if (isValid === true) customSelectClasses.push('select-custom--valid');
     if (isValid === false) customSelectClasses.push('select-custom--invalid');
-    if (isOpen) customSelectClasses.push('select-custom--open');
+    if (isOpen && !loading) customSelectClasses.push('select-custom--open');
     if (multiple) customSelectClasses.push('select-custom--multiple');
 
     const customSelect = createElement('div', {
       classes: customSelectClasses,
       attributes: {
-        tabindex: disabled ? '-1' : '0',
+        tabindex: disabled || loading ? '-1' : '0',
         role: 'combobox',
         'aria-haspopup': 'listbox',
-        'aria-expanded': isOpen ? 'true' : 'false',
+        'aria-expanded': isOpen && !loading ? 'true' : 'false',
+        'aria-busy': loading ? 'true' : 'false',
         'data-element': 'custom-select',
       },
     });
 
-    // Direct DOM manipulation for the click handler that works in tests
+    // Click handler that respects loading state
     customSelect.addEventListener('click', function (e) {
-      if (disabled) return;
+      if (disabled || loading) return;
       e.stopPropagation();
-
-      // Use direct DOM inspection for reliable toggling
       toggleDropdown();
     });
 
-    // Selected value display
+    // Selected value display with loading state styling
+    const selectedDisplayClasses = ['select-custom__selected'];
+    if (isPlaceholderVisible || isLoading) {
+      selectedDisplayClasses.push('select-custom__selected--placeholder');
+    }
+    if (isLoading) {
+      selectedDisplayClasses.push('select-custom__selected--loading');
+    }
+    if (isEmpty) {
+      selectedDisplayClasses.push('select-custom__selected--empty');
+    }
+
     const selectedDisplay = createElement('div', {
-      classes: [
-        'select-custom__selected',
-        isPlaceholderVisible ? 'select-custom__selected--placeholder' : '',
-      ],
-      attributes: {
-        'data-element': 'selected-display',
-      },
+      classes: selectedDisplayClasses,
+      attributes: { 'data-element': 'selected-display' },
       text: displayText,
     });
 
-    // Arrow indicator
-    const arrow = createElement('div', {
-      classes: ['select-custom__arrow'],
-    });
+    // Arrow or loading indicator
+    const indicator = loading
+      ? createLoadingIndicator()
+      : createElement('div', { classes: ['select-custom__arrow'] });
 
-    // Options dropdown
+    // Options dropdown (not shown during loading)
     const dropdown = createDropdown(state);
 
-    // Assemble the component
-    appendChildren(customSelect, [selectedDisplay, arrow, dropdown]);
-
+    appendChildren(customSelect, [selectedDisplay, indicator, dropdown]);
     return customSelect;
   }
 
   /**
-   * Creates dropdown with options
+   * Creates a loading indicator
+   * @private
+   */
+  function createLoadingIndicator() {
+    return createElement('div', {
+      classes: ['select-custom__loading-indicator'],
+      attributes: { 'aria-hidden': 'true' },
+    });
+  }
+
+  /**
+   * Enhanced dropdown that handles loading/empty states
    * @private
    */
   function createDropdown(state) {
@@ -302,28 +357,33 @@ const createSelect = (props) => {
       value = '',
       multiple = false,
       isOpen = false,
+      loading = false,
     } = state;
 
     const dropdownClasses = ['select-custom__dropdown'];
-    if (isOpen) dropdownClasses.push('select-custom__dropdown--open');
+    if (isOpen && !loading)
+      dropdownClasses.push('select-custom__dropdown--open');
 
     const dropdownOptions = [];
 
-    options.forEach((option) => {
-      if (isGroupHeader(option)) {
-        dropdownOptions.push(createGroupHeader(option));
-        return;
-      }
+    // Don't show options during loading
+    if (!loading && options.length > 0) {
+      options.forEach((option) => {
+        if (isGroupHeader(option)) {
+          dropdownOptions.push(createGroupHeader(option));
+          return;
+        }
 
-      const isDisabled = !!option.disabled;
-      const isSelected = multiple
-        ? Array.isArray(value) && value.includes(option.value)
-        : value === option.value;
+        const isDisabled = !!option.disabled;
+        const isSelected = multiple
+          ? Array.isArray(value) && value.includes(option.value)
+          : value === option.value;
 
-      dropdownOptions.push(
-        createDropdownOption(option, isSelected, isDisabled, multiple)
-      );
-    });
+        dropdownOptions.push(
+          createDropdownOption(option, isSelected, isDisabled, multiple)
+        );
+      });
+    }
 
     return createElement('div', {
       classes: dropdownClasses,
@@ -445,7 +505,7 @@ const createSelect = (props) => {
    * @private
    */
   function toggleDropdown(force) {
-    if (state.disabled) return state.isOpen;
+    if (state.disabled || state.loading) return state.isOpen || false;
 
     // Determine new state
     const isCurrentlyOpen = elements.dropdown?.classList.contains(
@@ -488,6 +548,18 @@ const createSelect = (props) => {
       elements.selectedDisplay.classList.toggle(
         'select-custom__selected--placeholder',
         displayData.isPlaceholderVisible
+      );
+
+      // Update loading class
+      elements.selectedDisplay.classList.toggle(
+        'select-custom__selected--loading',
+        displayData.isLoading
+      );
+
+      // Update empty class
+      elements.selectedDisplay.classList.toggle(
+        'select-custom__selected--empty',
+        displayData.isEmpty
       );
     }
 
@@ -535,8 +607,8 @@ const createSelect = (props) => {
    * @private
    */
   function selectOption(value) {
-    if (state.disabled) {
-      console.warn('Cannot select option on disabled select');
+    if (state.disabled || state.loading) {
+      console.warn('Cannot select option on disabled or loading select');
       return;
     }
 
@@ -563,8 +635,8 @@ const createSelect = (props) => {
    * @private
    */
   function toggleOptionSelection(value) {
-    if (state.disabled) {
-      console.warn('Cannot toggle option on disabled select');
+    if (state.disabled || state.loading) {
+      console.warn('Cannot toggle option on disabled or loading select');
       return;
     }
 
@@ -640,9 +712,10 @@ const createSelect = (props) => {
     }
 
     // Check callbacks
-    ['onChange', 'onFocus', 'onBlur'].forEach((callback) => {
+    ['onChange', 'onFocus', 'onBlur', 'onLoadOptions'].forEach((callback) => {
       if (
         props[callback] !== undefined &&
+        props[callback] !== null &&
         typeof props[callback] !== 'function'
       ) {
         throw new TypeError(`Select: ${callback} must be a function`);
@@ -650,10 +723,8 @@ const createSelect = (props) => {
     });
   }
 
-  // Set up event listeners
-  element.addEventListener('change', handleNativeSelectChange);
-  element.addEventListener('focus', handleNativeSelectFocus, true);
-  element.addEventListener('blur', handleNativeSelectBlur, true);
+  // Set up initial event listeners
+  setupEventListeners();
 
   // Document click handler to close dropdown when clicking outside
   const documentClickHandler = debounce((event) => {
@@ -669,7 +740,7 @@ const createSelect = (props) => {
    * @private
    */
   function handleNativeSelectChange(event) {
-    if (state.disabled) return;
+    if (state.disabled || state.loading) return;
 
     const selectElement = event.target;
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
@@ -701,7 +772,7 @@ const createSelect = (props) => {
    * @private
    */
   function handleNativeSelectFocus(event) {
-    if (state.disabled) return;
+    if (state.disabled || state.loading) return;
 
     const selectElement = event.target;
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
@@ -719,7 +790,7 @@ const createSelect = (props) => {
    * @private
    */
   function handleNativeSelectBlur(event) {
-    if (state.disabled) return;
+    if (state.disabled || state.loading) return;
 
     const selectElement = event.target;
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
@@ -782,7 +853,6 @@ const createSelect = (props) => {
     return state.value;
   }
 
-  // PUBLIC API
   const api = {
     /**
      * Get the select element
@@ -804,8 +874,8 @@ const createSelect = (props) => {
      * @returns {Object} Select component (for chaining)
      */
     setValue(value) {
-      if (state.disabled) {
-        console.warn('Cannot set value on disabled select');
+      if (state.disabled || state.loading) {
+        console.warn('Cannot set value on disabled or loading select');
         return api;
       }
 
@@ -837,6 +907,68 @@ const createSelect = (props) => {
     },
 
     /**
+     * Set loading state
+     * @param {boolean} loading - Whether select is loading
+     * @param {string} [loadingText] - Optional loading text
+     * @returns {Object} Select component (for chaining)
+     */
+    setLoading(loading, loadingText) {
+      state.loading = !!loading;
+      if (loadingText) state.loadingText = loadingText;
+
+      // Close dropdown if loading
+      if (loading) {
+        toggleDropdown(false);
+      }
+
+      // Update the DOM directly
+      element.setAttribute('data-loading', loading ? 'true' : 'false');
+
+      // Force a full re-render to update loading state
+      const oldElement = element;
+      element = component.getElement();
+
+      // Re-render the component with new state
+      const newElement = baseComponent(state).getElement();
+      if (oldElement && oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(newElement, oldElement);
+        element = newElement;
+      }
+
+      // Re-cache elements and set up event listeners
+      cacheElements();
+      setupEventListeners();
+
+      return api;
+    },
+
+    /**
+     * Load options asynchronously
+     * @param {Function} [optionsFn] - Function to load options (defaults to onLoadOptions)
+     * @returns {Promise<Object>} Select component (for chaining)
+     */
+    async loadOptions(optionsFn = state.onLoadOptions) {
+      if (!optionsFn || typeof optionsFn !== 'function') {
+        console.warn('loadOptions requires a function');
+        return api;
+      }
+
+      this.setLoading(true);
+
+      try {
+        const newOptions = await optionsFn();
+        this.updateOptions(newOptions);
+        this.setLoading(false);
+      } catch (error) {
+        this.setLoading(false);
+        console.error('Failed to load options:', error);
+        throw error;
+      }
+
+      return api;
+    },
+
+    /**
      * Update multiple properties at once
      * @param {Object} newProps - New properties
      * @returns {Object} Select component (for chaining)
@@ -848,11 +980,17 @@ const createSelect = (props) => {
       // Update state
       state = { ...state, ...newProps };
 
-      // Update component
-      component.update(state);
+      // Force a full re-render
+      const oldElement = element;
+      const newElement = baseComponent(state).getElement();
+      if (oldElement && oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(newElement, oldElement);
+        element = newElement;
+      }
 
-      // Re-cache elements
+      // Re-cache elements and set up event listeners
       cacheElements();
+      setupEventListeners();
 
       return api;
     },
@@ -873,6 +1011,7 @@ const createSelect = (props) => {
 
       // Update options
       state.options = options;
+      state.loading = false; // Clear loading when options are set
 
       // Update value if needed
       if (keepValue) {
@@ -892,11 +1031,17 @@ const createSelect = (props) => {
         state.value = state.multiple ? [] : '';
       }
 
-      // Update component
-      component.update(state);
+      // Force a full re-render to show new options
+      const oldElement = element;
+      const newElement = baseComponent(state).getElement();
+      if (oldElement && oldElement.parentNode) {
+        oldElement.parentNode.replaceChild(newElement, oldElement);
+        element = newElement;
+      }
 
-      // Re-cache elements
+      // Re-cache elements and set up event listeners
       cacheElements();
+      setupEventListeners();
 
       return api;
     },
@@ -926,17 +1071,10 @@ const createSelect = (props) => {
       document.removeEventListener('click', documentClickHandler);
 
       // Remove element event listeners
-      element.removeEventListener('change', handleNativeSelectChange);
-      element.removeEventListener('focus', handleNativeSelectFocus, true);
-      element.removeEventListener('blur', handleNativeSelectBlur, true);
-
-      // More comprehensive cleanup
       if (element) {
-        // Use a more reliable approach to remove all listeners
-        const newElement = element.cloneNode(true);
-        if (element.parentNode) {
-          element.parentNode.replaceChild(newElement, element);
-        }
+        element.removeEventListener('change', handleNativeSelectChange);
+        element.removeEventListener('focus', handleNativeSelectFocus, true);
+        element.removeEventListener('blur', handleNativeSelectBlur, true);
       }
 
       // Clear cached elements
@@ -948,6 +1086,30 @@ const createSelect = (props) => {
       component.destroy();
     },
   };
+
+  // Helper function to set up event listeners
+  function setupEventListeners() {
+    // Remove old listeners first
+    if (element) {
+      element.removeEventListener('change', handleNativeSelectChange);
+      element.removeEventListener('focus', handleNativeSelectFocus, true);
+      element.removeEventListener('blur', handleNativeSelectBlur, true);
+    }
+
+    // Add new listeners
+    element.addEventListener('change', handleNativeSelectChange);
+    element.addEventListener('focus', handleNativeSelectFocus, true);
+    element.addEventListener('blur', handleNativeSelectBlur, true);
+  }
+
+  // Auto-load options if onLoadOptions is provided and no initial options
+  if (
+    state.onLoadOptions &&
+    typeof state.onLoadOptions === 'function' &&
+    (!state.options || state.options.length === 0)
+  ) {
+    api.loadOptions().catch(console.error);
+  }
 
   return api;
 };
