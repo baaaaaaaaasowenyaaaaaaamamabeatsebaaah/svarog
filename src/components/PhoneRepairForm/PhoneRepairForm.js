@@ -30,6 +30,16 @@ const transformToSelectOptions = (items) => {
  * @returns {HTMLElement} - Phone repair form element
  */
 const renderPhoneRepairForm = (state) => {
+  console.debug('PhoneRepairForm: renderPhoneRepairForm called with state:', {
+    manufacturers: state.manufacturers?.length,
+    devices: state.devices?.length,
+    actions: state.actions?.length,
+    selectedManufacturer: state.selectedManufacturer,
+    selectedDevice: state.selectedDevice,
+    selectedAction: state.selectedAction,
+    loading: state.loading,
+  });
+
   const classNames = [
     'phone-repair-form',
     state.className,
@@ -68,8 +78,21 @@ const renderPhoneRepairForm = (state) => {
     loadingText: 'Loading manufacturers...',
     emptyText: 'No manufacturers available',
     onChange: (event, value) => {
+      console.debug(
+        'PhoneRepairForm: Manufacturer onChange called with value:',
+        value
+      );
       if (typeof state.onManufacturerChange === 'function') {
-        state.onManufacturerChange(value);
+        // Use setTimeout to ensure event propagation completes first
+        setTimeout(() => {
+          console.debug(
+            'PhoneRepairForm: Calling onManufacturerChange with:',
+            value
+          );
+          state.onManufacturerChange(value);
+        }, 0);
+      } else {
+        console.warn('PhoneRepairForm: onManufacturerChange is not a function');
       }
     },
     showValidation: false,
@@ -93,8 +116,17 @@ const renderPhoneRepairForm = (state) => {
       ? 'No devices available for this manufacturer'
       : 'Please select a manufacturer first',
     onChange: (event, value) => {
+      console.debug(
+        'PhoneRepairForm: Device onChange called with value:',
+        value
+      );
       if (typeof state.onDeviceChange === 'function') {
-        state.onDeviceChange(value);
+        setTimeout(() => {
+          console.debug('PhoneRepairForm: Calling onDeviceChange with:', value);
+          state.onDeviceChange(value);
+        }, 0);
+      } else {
+        console.warn('PhoneRepairForm: onDeviceChange is not a function');
       }
     },
     showValidation: false,
@@ -118,8 +150,17 @@ const renderPhoneRepairForm = (state) => {
       ? 'No services available for this device'
       : 'Please select a device first',
     onChange: (event, value) => {
+      console.debug(
+        'PhoneRepairForm: Action onChange called with value:',
+        value
+      );
       if (typeof state.onActionChange === 'function') {
-        state.onActionChange(value);
+        setTimeout(() => {
+          console.debug('PhoneRepairForm: Calling onActionChange with:', value);
+          state.onActionChange(value);
+        }, 0);
+      } else {
+        console.warn('PhoneRepairForm: onActionChange is not a function');
       }
     },
     showValidation: false,
@@ -188,7 +229,15 @@ const renderPhoneRepairForm = (state) => {
   actionsContainer.appendChild(components.scheduleButton.getElement());
 
   form.appendChild(actionsContainer);
+
+  // Store components and current state for updates
   form._components = components;
+  form._currentState = { ...state };
+
+  console.debug(
+    'PhoneRepairForm: render complete, stored components:',
+    Object.keys(components)
+  );
 
   return form;
 };
@@ -328,26 +377,50 @@ const createPhoneRepairForm = (props) => {
   // Update step completion based on selections
   updateStepCompletion(initialState);
 
+  console.debug('PhoneRepairForm: Creating component with initial state:', {
+    manufacturers: initialState.manufacturers?.length,
+    devices: initialState.devices?.length,
+    actions: initialState.actions?.length,
+    hasHandlers: {
+      onManufacturerChange:
+        typeof initialState.onManufacturerChange === 'function',
+      onDeviceChange: typeof initialState.onDeviceChange === 'function',
+      onActionChange: typeof initialState.onActionChange === 'function',
+    },
+  });
+
   const phoneRepairForm = createBaseComponent(renderPhoneRepairForm)(
     initialState
   );
 
-  let state = { ...initialState };
+  // Maintain component state reference
+  let currentState = { ...initialState };
 
-  // Enhanced state update method
+  // Enhanced state update method with proper synchronization
   phoneRepairForm.setState = function (newState) {
-    state = { ...state, ...newState };
+    console.debug('PhoneRepairForm: setState called with:', newState);
 
-    updateStepCompletion(state);
-    state.hasError = Object.values(state.error || {}).some(Boolean);
+    // Update state
+    currentState = { ...currentState, ...newState };
+    updateStepCompletion(currentState);
+    currentState.hasError = Object.values(currentState.error || {}).some(
+      Boolean
+    );
+
+    // Store state on element for container access
+    const element = this.getElement();
+    if (element) {
+      element._state = currentState;
+      element._currentState = currentState;
+    }
 
     // Efficient partial updates
-    this.partialUpdate(this.getElement(), newState);
+    this.partialUpdate(element, newState);
     return this;
   };
 
   phoneRepairForm.shouldRerender = (newProps) => {
-    return [
+    const shouldRerender = [
       'manufacturers',
       'devices',
       'actions',
@@ -356,26 +429,46 @@ const createPhoneRepairForm = (props) => {
       'selectedAction',
       'className',
     ].some(
-      (prop) => newProps[prop] !== undefined && newProps[prop] !== state[prop]
+      (prop) =>
+        newProps[prop] !== undefined && newProps[prop] !== currentState[prop]
     );
+
+    console.debug('PhoneRepairForm: shouldRerender?', shouldRerender, newProps);
+    return shouldRerender;
   };
 
   phoneRepairForm.partialUpdate = (element, newProps) => {
-    if (!element?._components) return;
+    if (!element?._components) {
+      console.debug('PhoneRepairForm: partialUpdate - no components found');
+      return;
+    }
 
     const components = element._components;
+    console.debug('PhoneRepairForm: partialUpdate called with:', newProps);
 
     // Update manufacturer select
     if (
       newProps.manufacturers !== undefined ||
-      newProps.loading?.manufacturers !== undefined
+      newProps.loading?.manufacturers !== undefined ||
+      newProps.selectedManufacturer !== undefined
     ) {
       const manufacturerOptions = transformToSelectOptions(
-        newProps.manufacturers || state.manufacturers
+        newProps.manufacturers || currentState.manufacturers
       );
+      console.debug('PhoneRepairForm: Updating manufacturer select:', {
+        optionsCount: manufacturerOptions.length,
+        loading:
+          newProps.loading?.manufacturers ?? currentState.loading.manufacturers,
+        value:
+          newProps.selectedManufacturer ?? currentState.selectedManufacturer,
+      });
+
       components.manufacturerSelect?.update({
         options: manufacturerOptions,
-        loading: newProps.loading?.manufacturers ?? state.loading.manufacturers,
+        loading:
+          newProps.loading?.manufacturers ?? currentState.loading.manufacturers,
+        value:
+          newProps.selectedManufacturer ?? currentState.selectedManufacturer,
       });
     }
 
@@ -383,19 +476,29 @@ const createPhoneRepairForm = (props) => {
     if (
       newProps.devices !== undefined ||
       newProps.loading?.devices !== undefined ||
-      newProps.selectedManufacturer !== undefined
+      newProps.selectedManufacturer !== undefined ||
+      newProps.selectedDevice !== undefined
     ) {
       const deviceOptions = transformToSelectOptions(
-        newProps.devices || state.devices
+        newProps.devices || currentState.devices
       );
-      const deviceLoading = newProps.loading?.devices ?? state.loading.devices;
+      const deviceLoading =
+        newProps.loading?.devices ?? currentState.loading.devices;
       const manufacturerSelected =
-        newProps.selectedManufacturer ?? state.selectedManufacturer;
+        newProps.selectedManufacturer ?? currentState.selectedManufacturer;
+
+      console.debug('PhoneRepairForm: Updating device select:', {
+        optionsCount: deviceOptions.length,
+        loading: deviceLoading,
+        disabled: !manufacturerSelected,
+        value: newProps.selectedDevice ?? currentState.selectedDevice,
+      });
 
       components.deviceSelect?.update({
         options: deviceOptions,
         loading: deviceLoading,
         disabled: !manufacturerSelected,
+        value: newProps.selectedDevice ?? currentState.selectedDevice,
         emptyText: manufacturerSelected
           ? 'No devices available for this manufacturer'
           : 'Please select a manufacturer first',
@@ -406,18 +509,29 @@ const createPhoneRepairForm = (props) => {
     if (
       newProps.actions !== undefined ||
       newProps.loading?.actions !== undefined ||
-      newProps.selectedDevice !== undefined
+      newProps.selectedDevice !== undefined ||
+      newProps.selectedAction !== undefined
     ) {
       const actionOptions = transformToSelectOptions(
-        newProps.actions || state.actions
+        newProps.actions || currentState.actions
       );
-      const actionLoading = newProps.loading?.actions ?? state.loading.actions;
-      const deviceSelected = newProps.selectedDevice ?? state.selectedDevice;
+      const actionLoading =
+        newProps.loading?.actions ?? currentState.loading.actions;
+      const deviceSelected =
+        newProps.selectedDevice ?? currentState.selectedDevice;
+
+      console.debug('PhoneRepairForm: Updating action select:', {
+        optionsCount: actionOptions.length,
+        loading: actionLoading,
+        disabled: !deviceSelected,
+        value: newProps.selectedAction ?? currentState.selectedAction,
+      });
 
       components.actionSelect?.update({
         options: actionOptions,
         loading: actionLoading,
         disabled: !deviceSelected,
+        value: newProps.selectedAction ?? currentState.selectedAction,
         emptyText: deviceSelected
           ? 'No services available for this device'
           : 'Please select a device first',
@@ -435,21 +549,21 @@ const createPhoneRepairForm = (props) => {
         newProps.priceDisplayText ||
         (newProps.currentPrice
           ? formatPrice(newProps.currentPrice.price)
-          : state.priceDisplayText);
+          : currentState.priceDisplayText);
 
       components.priceDisplay?.update({
         value: displayText,
-        isPlaceholder: !newProps.currentPrice && !state.currentPrice,
-        isLoading: newProps.loading?.price ?? state.loading.price,
-        isError: !!(newProps.error?.price || state.error.price),
+        isPlaceholder: !newProps.currentPrice && !currentState.currentPrice,
+        isLoading: newProps.loading?.price ?? currentState.loading.price,
+        isError: !!(newProps.error?.price || currentState.error.price),
       });
     }
 
     // Update steps indicator
     if (newProps.steps || newProps.activeStepIndex !== undefined) {
       components.stepsIndicator?.update({
-        steps: newProps.steps || state.steps,
-        activeIndex: newProps.activeStepIndex ?? state.activeStepIndex,
+        steps: newProps.steps || currentState.steps,
+        activeIndex: newProps.activeStepIndex ?? currentState.activeStepIndex,
       });
     }
 
@@ -463,7 +577,7 @@ const createPhoneRepairForm = (props) => {
         'loading',
       ].some((key) => newProps[key] !== undefined)
     ) {
-      const canScheduleNow = canSchedule({ ...state, ...newProps });
+      const canScheduleNow = canSchedule({ ...currentState, ...newProps });
       components.scheduleButton?.setDisabled(!canScheduleNow);
     }
 
@@ -475,7 +589,7 @@ const createPhoneRepairForm = (props) => {
 
   // Convenience methods with improved error handling
   phoneRepairForm.setLoading = function (loadingState) {
-    const mergedLoading = { ...state.loading, ...loadingState };
+    const mergedLoading = { ...currentState.loading, ...loadingState };
     return this.setState({ loading: mergedLoading });
   };
 
@@ -501,8 +615,12 @@ const createPhoneRepairForm = (props) => {
   phoneRepairForm.setPrice = function (price) {
     const priceDisplayText = price
       ? formatPrice(price.price)
-      : state.labels.initialPriceText;
+      : currentState.labels.initialPriceText;
     return this.setState({ currentPrice: price, priceDisplayText });
+  };
+
+  phoneRepairForm.getCurrentState = function () {
+    return { ...currentState };
   };
 
   // Enhanced update method with validation
@@ -512,7 +630,7 @@ const createPhoneRepairForm = (props) => {
 
       if (this.shouldRerender(newProps)) {
         return createBaseComponent.prototype.update.call(this, {
-          ...state,
+          ...currentState,
           ...newProps,
         });
       } else {
@@ -529,6 +647,13 @@ const createPhoneRepairForm = (props) => {
       `PhoneRepairForm: theme changed from ${previousTheme} to ${newTheme}`
     );
   };
+
+  // Initialize element state reference
+  const element = phoneRepairForm.getElement();
+  if (element) {
+    element._state = currentState;
+    element._currentState = currentState;
+  }
 
   return phoneRepairForm;
 };

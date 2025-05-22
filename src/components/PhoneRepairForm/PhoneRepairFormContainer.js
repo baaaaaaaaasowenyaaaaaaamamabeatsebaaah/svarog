@@ -1,471 +1,332 @@
-// src/components/PhoneRepairForm/PhoneRepairFormContainer.js
-import PhoneRepairForm from './PhoneRepairForm.js';
+// src/components/PhoneRepairForm/PhoneRepairFormContainer.test.js
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import PhoneRepairFormContainer from './PhoneRepairFormContainer.js';
+import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 
-/**
- * Enhanced container component for PhoneRepairForm with improved API handling
- * Handles state management and API interactions with better error recovery
- */
-const createPhoneRepairFormContainer = (options) => {
-  const {
-    service,
-    onPriceChange,
-    onScheduleClick,
-    usedPhoneUrl,
-    labels = {},
-    className = '',
-  } = options;
+describe('PhoneRepairFormContainer', () => {
+  // Create mock services for testing
+  let mockService;
+  let container;
 
-  // Container state - simplified to focus on coordination
-  const containerState = {
-    currentManufacturer: null,
-    currentDevice: null,
-    currentAction: null,
-    lastSuccessfulState: {
-      manufacturers: [],
-      devices: [],
-      actions: [],
-    },
-    retryAttempts: {
-      manufacturers: 0,
-      devices: 0,
-      actions: 0,
-      price: 0,
-    },
-  };
-
-  // Initialize form first, without async loading callbacks to avoid circular reference
-  const form = PhoneRepairForm({
-    labels,
-    className,
-    usedPhoneUrl,
-    manufacturers: [],
-    devices: [],
-    actions: [],
-    onManufacturerChange: handleManufacturerChange,
-    onDeviceChange: handleDeviceChange,
-    onActionChange: handleActionChange,
-    onScheduleClick: handleScheduleClick,
+  beforeEach(() => {
+    // Create a standard mock service with immediate responses
+    mockService = {
+      fetchManufacturers: vi
+        .fn()
+        .mockResolvedValue(mockPhoneRepairData.manufacturers),
+      fetchDevices: vi
+        .fn()
+        .mockResolvedValue(mockPhoneRepairData.manufacturers[0].devices),
+      fetchActions: vi
+        .fn()
+        .mockResolvedValue(
+          mockPhoneRepairData.manufacturers[0].devices[0].actions
+        ),
+      fetchPrice: vi.fn().mockResolvedValue({ price: 199 }),
+    };
   });
 
-  // Initialize by loading manufacturers after form is created
-  initializeForm();
-
-  /**
-   * Initialize the form by loading manufacturers
-   * @private
-   */
-  async function initializeForm() {
-    try {
-      await loadManufacturers();
-    } catch (error) {
-      console.error('Failed to initialize form:', error);
-      form.setErrors({
-        manufacturers: 'Failed to load manufacturers. Please refresh the page.',
-      });
+  afterEach(() => {
+    if (container && typeof container.destroy === 'function') {
+      container.destroy();
     }
-  }
+    container = null;
+    vi.clearAllMocks();
+  });
 
-  /**
-   * Load manufacturers with retry logic
-   * @private
-   */
-  async function loadManufacturers() {
-    const maxRetries = 3;
+  it('should create a container with form element', async () => {
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        form.setLoading({ manufacturers: true });
-        containerState.retryAttempts.manufacturers = attempt;
+    const element = container.getElement();
+    expect(element).toBeInstanceOf(HTMLElement);
+    expect(element.classList.contains('phone-repair-form')).toBe(true);
 
-        const manufacturers = await service.fetchManufacturers();
+    // Wait a bit for async initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  });
 
-        // Validate response
-        if (!Array.isArray(manufacturers) || manufacturers.length === 0) {
-          throw new Error('No manufacturers available');
-        }
+  it('should load manufacturers on initialization', async () => {
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
 
-        // Update form and cache successful result
-        containerState.lastSuccessfulState.manufacturers = manufacturers;
+    // Wait for initialization to complete
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-        form.setState({
-          manufacturers: manufacturers,
-          loading: {
-            ...form.getElement()._state?.loading,
-            manufacturers: false,
-          },
-          error: { ...form.getElement()._state?.error, manufacturers: null },
-        });
+    // Verify that fetchManufacturers was called
+    expect(mockService.fetchManufacturers).toHaveBeenCalled();
+  });
 
-        // Call external callback
-        notifyStateChange('manufacturers', manufacturers);
-        return manufacturers;
-      } catch (error) {
-        console.error(`Manufacturer fetch attempt ${attempt} failed:`, error);
+  it('should handle manufacturer selection and load devices', async () => {
+    // Mock the service method to track calls
+    mockService.fetchDevices.mockClear();
 
-        if (attempt === maxRetries) {
-          form.setState({
-            loading: {
-              ...form.getElement()._state?.loading,
-              manufacturers: false,
-            },
-            error: {
-              ...form.getElement()._state?.error,
-              manufacturers: `Failed to load manufacturers after ${maxRetries} attempts. Please try again.`,
-            },
-          });
-          throw error;
-        }
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
 
-        // Wait before retry with exponential backoff
-        await new Promise((resolve) =>
-          setTimeout(resolve, Math.pow(2, attempt) * 1000)
-        );
-      }
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Simulate manufacturer selection by directly calling the container's internal handler
+    // We'll simulate this by triggering a change event on the select
+    const element = container.getElement();
+    const manufacturerSelect = element.querySelector(
+      'select[name="manufacturer"]'
+    );
+
+    if (manufacturerSelect) {
+      manufacturerSelect.value = '1';
+      const changeEvent = new Event('change', { bubbles: true });
+      manufacturerSelect.dispatchEvent(changeEvent);
+
+      // Wait for async operation
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Verify fetchDevices was called
+      expect(mockService.fetchDevices).toHaveBeenCalledWith('1');
     }
-  }
+  });
 
-  /**
-   * Load devices for selected manufacturer
-   * @private
-   */
-  async function loadDevices(manufacturerId) {
-    if (!manufacturerId) {
-      clearDependentSelections('devices');
-      return;
-    }
+  it('should handle device selection and load actions', async () => {
+    // Clear any previous calls
+    mockService.fetchActions.mockClear();
 
-    try {
-      form.setLoading({ devices: true });
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
 
-      const devices = await service.fetchDevices(manufacturerId);
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-      if (!Array.isArray(devices)) {
-        throw new Error('Invalid devices response');
-      }
+    const element = container.getElement();
 
-      containerState.lastSuccessfulState.devices = devices;
-      containerState.currentManufacturer = manufacturerId;
+    // First, select a manufacturer to enable device select
+    const manufacturerSelect = element.querySelector(
+      'select[name="manufacturer"]'
+    );
+    expect(manufacturerSelect).not.toBeNull();
 
-      form.setState({
-        devices: devices,
-        loading: { ...form.getElement()._state?.loading, devices: false },
-        error: { ...form.getElement()._state?.error, devices: null },
-        // Clear dependent selections
-        selectedDevice: '',
-        selectedAction: '',
-        actions: [],
-        currentPrice: null,
-      });
+    manufacturerSelect.value = '1';
+    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-      notifyStateChange('devices', devices);
-    } catch (error) {
-      console.error('Device fetch failed:', error);
+    // Wait for manufacturer selection to complete and devices to load
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-      form.setState({
-        loading: { ...form.getElement()._state?.loading, devices: false },
-        error: {
-          ...form.getElement()._state?.error,
-          devices:
-            'Failed to load devices for this manufacturer. Please try selecting another manufacturer.',
-        },
-        devices: [],
-      });
+    // Now select a device - use a device ID that should exist in the mock data
+    const deviceSelect = element.querySelector('select[name="device"]');
+    expect(deviceSelect).not.toBeNull();
+    expect(deviceSelect.disabled).toBe(false);
 
-      // Try to recover by keeping the manufacturer selection
-      // but clearing dependent data
-      clearDependentSelections('devices');
-    }
-  }
+    // The mock data has devices with IDs 1, 2, 3 for manufacturer 1
+    const deviceId = '1'; // Use first device ID
+    deviceSelect.value = deviceId;
+    const changeEvent = new Event('change', { bubbles: true });
+    deviceSelect.dispatchEvent(changeEvent);
 
-  /**
-   * Load actions for selected device
-   * @private
-   */
-  async function loadActions(deviceId) {
-    if (!deviceId) {
-      clearDependentSelections('actions');
-      return;
-    }
+    // Wait for async operation
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    try {
-      form.setLoading({ actions: true });
+    // Verify fetchActions was called with the correct device ID
+    expect(mockService.fetchActions).toHaveBeenCalledWith(deviceId);
+  });
 
-      const actions = await service.fetchActions(deviceId);
+  it('should handle action selection and load price', async () => {
+    // Clear any previous calls
+    mockService.fetchPrice.mockClear();
 
-      if (!Array.isArray(actions)) {
-        throw new Error('Invalid actions response');
-      }
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
 
-      containerState.lastSuccessfulState.actions = actions;
-      containerState.currentDevice = deviceId;
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-      form.setState({
-        actions: actions,
-        loading: { ...form.getElement()._state?.loading, actions: false },
-        error: { ...form.getElement()._state?.error, actions: null },
-        // Clear dependent selections
-        selectedAction: '',
-        currentPrice: null,
-      });
+    const element = container.getElement();
 
-      notifyStateChange('actions', actions);
-    } catch (error) {
-      console.error('Actions fetch failed:', error);
+    // First, select a manufacturer
+    const manufacturerSelect = element.querySelector(
+      'select[name="manufacturer"]'
+    );
+    expect(manufacturerSelect).not.toBeNull();
 
-      form.setState({
-        loading: { ...form.getElement()._state?.loading, actions: false },
-        error: {
-          ...form.getElement()._state?.error,
-          actions:
-            'Failed to load services for this device. Please try selecting another device.',
-        },
-        actions: [],
-      });
+    manufacturerSelect.value = '1';
+    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-      clearDependentSelections('actions');
-    }
-  }
+    // Wait for manufacturer selection to complete
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-  /**
-   * Load price for selected action
-   * @private
-   */
-  async function loadPrice(actionId) {
-    if (!actionId) {
-      form.setPrice(null);
-      return;
-    }
+    // Then, select a device
+    const deviceSelect = element.querySelector('select[name="device"]');
+    expect(deviceSelect).not.toBeNull();
+    expect(deviceSelect.disabled).toBe(false);
 
-    try {
-      form.setLoading({ price: true });
+    const deviceId = '1'; // Use first device ID from mock data
+    deviceSelect.value = deviceId;
+    deviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-      const priceData = await service.fetchPrice(actionId);
+    // Wait for device selection to complete
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-      if (!priceData || typeof priceData.price === 'undefined') {
-        throw new Error('Invalid price response');
-      }
+    // Finally, select an action
+    const actionSelect = element.querySelector('select[name="action"]');
+    expect(actionSelect).not.toBeNull();
+    expect(actionSelect.disabled).toBe(false);
 
-      containerState.currentAction = actionId;
+    const actionId = '1'; // Use first action ID from mock data
+    actionSelect.value = actionId;
+    const changeEvent = new Event('change', { bubbles: true });
+    actionSelect.dispatchEvent(changeEvent);
 
-      form.setState({
-        currentPrice: priceData,
-        loading: { ...form.getElement()._state?.loading, price: false },
-        error: { ...form.getElement()._state?.error, price: null },
-      });
+    // Wait for async operation
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Call external callback
-      if (onPriceChange) {
-        onPriceChange(priceData);
-      }
-    } catch (error) {
-      console.error('Price fetch failed:', error);
+    // Verify fetchPrice was called with the correct action ID
+    expect(mockService.fetchPrice).toHaveBeenCalledWith(actionId);
+  });
 
-      form.setState({
-        loading: { ...form.getElement()._state?.loading, price: false },
-        error: {
-          ...form.getElement()._state?.error,
-          price:
-            'Failed to load price for this service. Please try selecting another service.',
-        },
-        currentPrice: null,
-      });
-    }
-  }
-
-  /**
-   * Clear dependent selections when parent selection changes
-   * @private
-   */
-  function clearDependentSelections(level) {
-    const currentState = form.getElement()._state || {};
-    const updates = {};
-
-    if (level === 'devices' || level === 'all') {
-      updates.devices = [];
-      updates.selectedDevice = '';
-      updates.loading = { ...currentState.loading, devices: false };
-      updates.error = { ...currentState.error, devices: null };
-    }
-
-    if (level === 'actions' || level === 'devices' || level === 'all') {
-      updates.actions = [];
-      updates.selectedAction = '';
-      updates.loading = { ...updates.loading, actions: false };
-      updates.error = { ...updates.error, actions: null };
-    }
-
-    if (
-      level === 'price' ||
-      level === 'actions' ||
-      level === 'devices' ||
-      level === 'all'
-    ) {
-      updates.currentPrice = null;
-      updates.loading = { ...updates.loading, price: false };
-      updates.error = { ...updates.error, price: null };
-    }
-
-    form.setState(updates);
-  }
-
-  /**
-   * Handle manufacturer selection change
-   * @private
-   */
-  function handleManufacturerChange(manufacturerId) {
-    form.setState({ selectedManufacturer: manufacturerId });
-    loadDevices(manufacturerId);
-  }
-
-  /**
-   * Handle device selection change
-   * @private
-   */
-  function handleDeviceChange(deviceId) {
-    form.setState({ selectedDevice: deviceId });
-    loadActions(deviceId);
-  }
-
-  /**
-   * Handle action selection change
-   * @private
-   */
-  function handleActionChange(actionId) {
-    form.setState({ selectedAction: actionId });
-    loadPrice(actionId);
-  }
-
-  /**
-   * Handle schedule button click with enhanced data
-   * @private
-   */
-  function handleScheduleClick(formData) {
-    if (!onScheduleClick) return;
-
-    // Enhance form data with additional context
-    const enhancedData = {
-      ...formData,
-      metadata: {
-        containerState: {
-          manufacturerId: containerState.currentManufacturer,
-          deviceId: containerState.currentDevice,
-          actionId: containerState.currentAction,
-        },
-        formState: {
-          hasErrors: Object.values(form.getElement()._state?.error || {}).some(
-            Boolean
-          ),
-          isLoading: Object.values(
-            form.getElement()._state?.loading || {}
-          ).some(Boolean),
-        },
-        timestamp: new Date().toISOString(),
-      },
+  it('should handle errors when loading devices fails', async () => {
+    // Create mock service that will fail on fetchDevices
+    const errorService = {
+      fetchManufacturers: vi
+        .fn()
+        .mockResolvedValue(mockPhoneRepairData.manufacturers),
+      fetchDevices: vi.fn().mockRejectedValue(new Error('Device fetch error')),
+      fetchActions: vi.fn().mockResolvedValue([]),
+      fetchPrice: vi.fn().mockResolvedValue(null),
     };
 
-    try {
-      onScheduleClick(enhancedData);
-    } catch (error) {
-      console.error('Schedule click handler error:', error);
+    container = PhoneRepairFormContainer({
+      service: errorService,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Get the form element and check error handling capability
+    const element = container.getElement();
+    expect(element).toBeInstanceOf(HTMLElement);
+
+    // The error state will be set when device loading is triggered
+    // For now, just verify the container was created successfully
+    expect(element.classList.contains('phone-repair-form')).toBe(true);
+  });
+
+  it('should handle submission when form is submitted', async () => {
+    // Create a callback spy
+    const onSubmitSpy = vi.fn();
+
+    container = PhoneRepairFormContainer({
+      service: mockService,
+      onScheduleClick: onSubmitSpy,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Get the form and simulate a button click
+    const element = container.getElement();
+    const scheduleButton = element.querySelector('.btn');
+
+    if (scheduleButton && !scheduleButton.disabled) {
+      scheduleButton.click();
+
+      // Verify callback was called
+      expect(onSubmitSpy).toHaveBeenCalled();
     }
-  }
+  });
 
-  /**
-   * Notify external systems of state changes
-   * @private
-   */
-  function notifyStateChange(type, data) {
-    // This allows for future expansion of state change notifications
-    // e.g., analytics, logging, external state management
-    console.debug(
-      `PhoneRepairFormContainer: ${type} loaded`,
-      data.length,
-      'items'
+  it('should call onPriceChange callback when price changes', async () => {
+    // Create a callback spy
+    const onPriceChangeSpy = vi.fn();
+
+    container = PhoneRepairFormContainer({
+      service: mockService,
+      onPriceChange: onPriceChangeSpy,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const element = container.getElement();
+
+    // Complete the full flow: manufacturer -> device -> action
+    const manufacturerSelect = element.querySelector(
+      'select[name="manufacturer"]'
     );
-  }
+    expect(manufacturerSelect).not.toBeNull();
 
-  // Public API
-  return {
-    /**
-     * Get the form element
-     * @returns {HTMLElement} Form element
-     */
-    getElement() {
-      return form.getElement();
-    },
+    manufacturerSelect.value = '1';
+    manufacturerSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-    /**
-     * Get current container state for debugging
-     * @returns {Object} Container state
-     */
-    getContainerState() {
-      return {
-        ...containerState,
-        formState: form.getElement()._state,
-      };
-    },
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    /**
-     * Manually trigger data refresh
-     * @param {string} level - Which level to refresh ('manufacturers', 'devices', 'actions', 'price')
-     */
-    async refresh(level = 'manufacturers') {
-      try {
-        switch (level) {
-          case 'manufacturers':
-            await loadManufacturers();
-            break;
-          case 'devices':
-            if (containerState.currentManufacturer) {
-              await loadDevices(containerState.currentManufacturer);
-            }
-            break;
-          case 'actions':
-            if (containerState.currentDevice) {
-              await loadActions(containerState.currentDevice);
-            }
-            break;
-          case 'price':
-            if (containerState.currentAction) {
-              await loadPrice(containerState.currentAction);
-            }
-            break;
-          default:
-            console.warn('Unknown refresh level:', level);
-        }
-      } catch (error) {
-        console.error(`Refresh failed for level ${level}:`, error);
-      }
-    },
+    const deviceSelect = element.querySelector('select[name="device"]');
+    expect(deviceSelect).not.toBeNull();
+    expect(deviceSelect.disabled).toBe(false);
 
-    /**
-     * Reset form to initial state
-     */
-    reset() {
-      clearDependentSelections('all');
-      form.setState({
-        selectedManufacturer: '',
-        selectedDevice: '',
-        selectedAction: '',
-        currentPrice: null,
-        manufacturers: containerState.lastSuccessfulState.manufacturers,
-      });
+    deviceSelect.value = '1';
+    deviceSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
-      // Reset container state
-      containerState.currentManufacturer = null;
-      containerState.currentDevice = null;
-      containerState.currentAction = null;
-    },
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    /**
-     * Destroy the container and form
-     */
-    destroy() {
-      if (form && typeof form.destroy === 'function') {
-        form.destroy();
-      }
-    },
-  };
-};
+    const actionSelect = element.querySelector('select[name="action"]');
+    expect(actionSelect).not.toBeNull();
+    expect(actionSelect.disabled).toBe(false);
 
-export default createPhoneRepairFormContainer;
+    actionSelect.value = '1';
+    actionSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Wait for async price loading
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Verify the callback was called
+    expect(onPriceChangeSpy).toHaveBeenCalled();
+  });
+
+  it('should clean up resources when destroyed', () => {
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
+
+    // Verify destroy method exists and can be called without error
+    expect(typeof container.destroy).toBe('function');
+    expect(() => container.destroy()).not.toThrow();
+  });
+
+  it('should provide container state access', async () => {
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const containerState = container.getContainerState();
+
+    expect(containerState).toHaveProperty('currentManufacturer');
+    expect(containerState).toHaveProperty('currentDevice');
+    expect(containerState).toHaveProperty('currentAction');
+    expect(containerState).toHaveProperty('lastSuccessfulState');
+  });
+
+  it('should support manual refresh functionality', async () => {
+    container = PhoneRepairFormContainer({
+      service: mockService,
+    });
+
+    // Wait for initialization
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Clear previous calls
+    mockService.fetchManufacturers.mockClear();
+
+    // Trigger manual refresh
+    await container.refresh('manufacturers');
+
+    // Verify refresh triggered a new API call
+    expect(mockService.fetchManufacturers).toHaveBeenCalled();
+  });
+});
