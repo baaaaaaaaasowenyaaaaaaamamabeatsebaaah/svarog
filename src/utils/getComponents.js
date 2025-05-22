@@ -1851,6 +1851,13 @@ export const getComponents = () => {
               (m) => m.MinimalConfiguration
             ),
         },
+        {
+          name: 'WithDynamicUpdates',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithDynamicUpdates
+            ),
+        },
       ],
     },
 
