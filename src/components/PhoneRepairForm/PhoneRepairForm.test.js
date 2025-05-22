@@ -4,7 +4,7 @@ import PhoneRepairForm from './PhoneRepairForm.js';
 import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 
 describe('PhoneRepairForm component', () => {
-  // Sample test data - only declare what we actually use
+  // Sample test data - transformed to match expected format
   const manufacturers = mockPhoneRepairData.manufacturers;
   const devices = manufacturers[0].devices;
   const actions = devices[0].actions;
@@ -60,9 +60,6 @@ describe('PhoneRepairForm component', () => {
     // Check that price display shows error state
     const priceDisplay = element.querySelector('.price-display');
     expect(priceDisplay).not.toBeNull();
-
-    // The price display should be in error state due to the isError prop
-    // which is set based on error.devices being truthy
   });
 
   it('should display error state in price display when loading actions fails', () => {
@@ -107,9 +104,10 @@ describe('PhoneRepairForm component', () => {
     // Check initial error state
     expect(element.classList.contains('phone-repair-form--error')).toBe(true);
 
-    // Update with no errors
-    form.update({
+    // Update with no errors - use setState method instead of update
+    form.setState({
       error: {},
+      hasError: false,
     });
 
     // Get the updated element
@@ -133,8 +131,8 @@ describe('PhoneRepairForm component', () => {
     const initialButton = initialElement.querySelector('.btn');
     expect(initialButton.disabled).toBe(true);
 
-    // Update with all required selections
-    form.update({
+    // Update with all required selections using setState
+    form.setState({
       selectedManufacturer: '1',
       selectedDevice: '1',
       selectedAction: '1',
@@ -199,7 +197,7 @@ describe('PhoneRepairForm component', () => {
     const stepsIndicator = element.querySelector('.steps-indicator');
     expect(stepsIndicator).not.toBeNull();
 
-    // Check that first step is completed
+    // Check that we have the expected number of steps
     const steps = element.querySelectorAll('.steps-indicator__step');
     expect(steps.length).toBe(3);
 
@@ -280,11 +278,58 @@ describe('PhoneRepairForm component', () => {
     const form = createPhoneRepairForm({
       manufacturers: manufacturers,
       devices: devices,
+      selectedManufacturer: '1', // Required to enable device select
     });
 
     const element = form.getElement();
     const deviceSelect = element.querySelector('select[name="device"]');
     expect(deviceSelect).not.toBeNull();
     expect(deviceSelect.disabled).toBe(false);
+  });
+
+  it('should transform raw data to select options format', () => {
+    const form = createPhoneRepairForm({
+      manufacturers: manufacturers,
+    });
+
+    const element = form.getElement();
+    const manufacturerSelect = element.querySelector(
+      'select[name="manufacturer"]'
+    );
+
+    // Check that the first manufacturer option has the expected value and text
+    const firstOption = manufacturerSelect.options[1]; // Skip placeholder
+    expect(firstOption.value).toBe('1'); // Should be string ID
+    expect(firstOption.textContent).toBe('Apple'); // Should be name
+  });
+
+  it('should handle loading states', () => {
+    const form = createPhoneRepairForm({
+      loading: {
+        manufacturers: true,
+        devices: false,
+        actions: false,
+        price: false,
+      },
+    });
+
+    const element = form.getElement();
+
+    // Check that manufacturer select shows loading state
+    const manufacturerContainer = element.querySelector('.select-container');
+    expect(manufacturerContainer.getAttribute('data-loading')).toBe('true');
+  });
+
+  it('should handle price formatting', () => {
+    const form = createPhoneRepairForm({
+      currentPrice: { price: 12900 }, // Price in cents
+    });
+
+    const element = form.getElement();
+    const priceDisplay = element.querySelector('.price-display__value');
+
+    // Should format as euros
+    expect(priceDisplay.textContent).toContain('129,00');
+    expect(priceDisplay.textContent).toContain('€');
   });
 });

@@ -4,20 +4,13 @@ import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 
 export default {
   title: 'Components/PhoneRepairForm',
-  component: PhoneRepairForm,
   parameters: {
     docs: {
       description: {
         component:
-          'Form component for selecting a phone repair service and viewing the price.',
+          'Enhanced form component for selecting a phone repair service with async loading, error handling, and optimized user experience.',
       },
     },
-  },
-  argTypes: {
-    onManufacturerChange: { action: 'manufacturerChanged' },
-    onDeviceChange: { action: 'deviceChanged' },
-    onActionChange: { action: 'actionChanged' },
-    onScheduleClick: { action: 'scheduleClicked' },
   },
 };
 
@@ -135,13 +128,13 @@ export const WithFullSelection = (args) => {
     ...args,
     selectedManufacturer: '1', // Apple
     devices: mockPhoneRepairData.manufacturers[0].devices,
-    selectedDevice: '2', // iPhone 13
-    actions: mockPhoneRepairData.manufacturers[0].devices[0].actions,
-    selectedAction: '5', // Display Repair
+    selectedDevice: '3', // iPhone 13
+    actions: mockPhoneRepairData.manufacturers[0].devices[2].actions, // iPhone 13 actions
+    selectedAction: '7', // Display Repair
     currentPrice: {
-      price: 14900,
+      price: 26900,
       deviceName: 'iPhone 13',
-      actionName: 'Display Repair',
+      actionName: 'Display Reparatur',
       manufacturerName: 'Apple',
     },
   });
@@ -202,7 +195,7 @@ export const WithLoading = (args) => {
     selectedManufacturer: '1',
     devices: mockPhoneRepairData.manufacturers[0].devices,
     selectedDevice: '2',
-    actions: mockPhoneRepairData.manufacturers[0].devices[0].actions,
+    actions: mockPhoneRepairData.manufacturers[0].devices[1].actions,
     loading: {
       price: true,
     },
@@ -230,7 +223,7 @@ export const WithError = (args) => {
     selectedManufacturer: '1',
     devices: mockPhoneRepairData.manufacturers[0].devices,
     selectedDevice: '2',
-    actions: mockPhoneRepairData.manufacturers[0].devices[0].actions,
+    actions: mockPhoneRepairData.manufacturers[0].devices[1].actions,
     error: {
       price: 'Failed to load price. Please try again.',
     },
@@ -265,7 +258,14 @@ export const Interactive = (args) => {
       try {
         // Fetch devices for this manufacturer
         const devices = await mockService.fetchDevices(manufacturerId);
-        form.setDevices(devices);
+        form.setState({
+          devices: devices,
+          loading: { devices: false },
+          selectedDevice: '',
+          selectedAction: '',
+          actions: [],
+          currentPrice: null,
+        });
       } catch (error) {
         form.setErrors({ devices: error.message });
       }
@@ -277,7 +277,12 @@ export const Interactive = (args) => {
       try {
         // Fetch actions for this device
         const actions = await mockService.fetchActions(deviceId);
-        form.setActions(actions);
+        form.setState({
+          actions: actions,
+          loading: { actions: false },
+          selectedAction: '',
+          currentPrice: null,
+        });
       } catch (error) {
         form.setErrors({ actions: error.message });
       }
@@ -285,15 +290,16 @@ export const Interactive = (args) => {
     onActionChange: async (actionId) => {
       // Show loading state
       form.setLoading({ price: true });
-      form.setState({ priceDisplayText: 'Loading price...' });
 
       try {
         // Fetch price for this action
         const price = await mockService.fetchPrice(actionId);
-        form.setPrice(price);
+        form.setState({
+          currentPrice: price,
+          loading: { price: false },
+        });
       } catch (error) {
         form.setErrors({ price: error.message });
-        form.setState({ priceDisplayText: 'Error loading price.' });
       }
     },
     onScheduleClick: (repairInfo) => {

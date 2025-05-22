@@ -1,10 +1,9 @@
 // src/components/PhoneRepairForm/PhoneRepairFormContainer.js
-import FormContainer from '../../utils/FormContainer.js';
 import PhoneRepairForm from './PhoneRepairForm.js';
 
 /**
- * Container component for PhoneRepairForm
- * Handles state management and API interactions
+ * Enhanced container component for PhoneRepairForm with improved API handling
+ * Handles state management and API interactions with better error recovery
  */
 const createPhoneRepairFormContainer = (options) => {
   const {
@@ -16,195 +15,373 @@ const createPhoneRepairFormContainer = (options) => {
     className = '',
   } = options;
 
-  // Create state container
-  const formContainer = new FormContainer(service, handleStateChange);
+  // Container state - simplified to focus on coordination
+  const containerState = {
+    currentManufacturer: null,
+    currentDevice: null,
+    currentAction: null,
+    lastSuccessfulState: {
+      manufacturers: [],
+      devices: [],
+      actions: [],
+    },
+    retryAttempts: {
+      manufacturers: 0,
+      devices: 0,
+      actions: 0,
+      price: 0,
+    },
+  };
 
-  // Create presentational component
+  // Initialize form first, without async loading callbacks to avoid circular reference
   const form = PhoneRepairForm({
     labels,
     className,
     usedPhoneUrl,
+    manufacturers: [],
+    devices: [],
+    actions: [],
     onManufacturerChange: handleManufacturerChange,
     onDeviceChange: handleDeviceChange,
     onActionChange: handleActionChange,
     onScheduleClick: handleScheduleClick,
   });
 
-  // Store callbacks
-  const callbacks = {
-    onPriceChange,
-    onScheduleClick,
-  };
-
-  // Load initial data
-  loadManufacturers();
+  // Initialize by loading manufacturers after form is created
+  initializeForm();
 
   /**
-   * Handle state changes and update form
-   * @param {Object} newState - New state
-   * @param {Object} prevState - Previous state
+   * Initialize the form by loading manufacturers
    * @private
    */
-  function handleStateChange(newState, prevState) {
-    // Update form loading state
-    form.setLoading(newState.loading);
-
-    // Update form error state
-    form.setErrors(newState.error);
-
-    // Update manufacturers if they changed
-    if (newState.data.manufacturers !== prevState.data.manufacturers) {
-      form.setManufacturers(newState.data.manufacturers || []);
-    }
-
-    // Update devices if they changed
-    if (newState.data.devices !== prevState.data.devices) {
-      form.setDevices(newState.data.devices || []);
-    }
-
-    // Update actions if they changed
-    if (newState.data.actions !== prevState.data.actions) {
-      form.setActions(newState.data.actions || []);
-    }
-
-    // Update price if it changed
-    if (newState.data.price !== prevState.data.price) {
-      form.setPrice(newState.data.price);
-
-      // Call external callback if provided
-      if (callbacks.onPriceChange && newState.data.price) {
-        callbacks.onPriceChange(newState.data.price);
-      }
-    }
-
-    // Update selection state
-    if (newState.selection.manufacturer !== prevState.selection.manufacturer) {
-      form.update({ selectedManufacturer: newState.selection.manufacturer });
-    }
-
-    if (newState.selection.device !== prevState.selection.device) {
-      form.update({ selectedDevice: newState.selection.device });
-    }
-
-    if (newState.selection.action !== prevState.selection.action) {
-      form.update({ selectedAction: newState.selection.action });
+  async function initializeForm() {
+    try {
+      await loadManufacturers();
+    } catch (error) {
+      console.error('Failed to initialize form:', error);
+      form.setErrors({
+        manufacturers: 'Failed to load manufacturers. Please refresh the page.',
+      });
     }
   }
 
   /**
-   * Load manufacturers from API
+   * Load manufacturers with retry logic
    * @private
    */
   async function loadManufacturers() {
-    try {
-      await formContainer.fetchResource('manufacturers', () =>
-        formContainer.service.fetchManufacturers()
-      );
-    } catch (error) {
-      console.error('Error loading manufacturers:', error);
+    const maxRetries = 3;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        form.setLoading({ manufacturers: true });
+        containerState.retryAttempts.manufacturers = attempt;
+
+        const manufacturers = await service.fetchManufacturers();
+
+        // Validate response
+        if (!Array.isArray(manufacturers) || manufacturers.length === 0) {
+          throw new Error('No manufacturers available');
+        }
+
+        // Update form and cache successful result
+        containerState.lastSuccessfulState.manufacturers = manufacturers;
+
+        form.setState({
+          manufacturers: manufacturers,
+          loading: {
+            ...form.getElement()._state?.loading,
+            manufacturers: false,
+          },
+          error: { ...form.getElement()._state?.error, manufacturers: null },
+        });
+
+        // Call external callback
+        notifyStateChange('manufacturers', manufacturers);
+        return manufacturers;
+      } catch (error) {
+        console.error(`Manufacturer fetch attempt ${attempt} failed:`, error);
+
+        if (attempt === maxRetries) {
+          form.setState({
+            loading: {
+              ...form.getElement()._state?.loading,
+              manufacturers: false,
+            },
+            error: {
+              ...form.getElement()._state?.error,
+              manufacturers: `Failed to load manufacturers after ${maxRetries} attempts. Please try again.`,
+            },
+          });
+          throw error;
+        }
+
+        // Wait before retry with exponential backoff
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.pow(2, attempt) * 1000)
+        );
+      }
     }
   }
 
   /**
-   * Load devices for a manufacturer
-   * @param {string} manufacturerId - Manufacturer ID
+   * Load devices for selected manufacturer
    * @private
    */
   async function loadDevices(manufacturerId) {
-    // Clear dependent selections
-    formContainer.setSelection('device', '');
-    formContainer.setSelection('action', '');
-    formContainer.setData('devices', []);
-    formContainer.setData('actions', []);
-    formContainer.setData('price', null);
+    if (!manufacturerId) {
+      clearDependentSelections('devices');
+      return;
+    }
 
     try {
-      await formContainer.fetchResource('devices', () =>
-        formContainer.service.fetchDevices(manufacturerId)
-      );
+      form.setLoading({ devices: true });
+
+      const devices = await service.fetchDevices(manufacturerId);
+
+      if (!Array.isArray(devices)) {
+        throw new Error('Invalid devices response');
+      }
+
+      containerState.lastSuccessfulState.devices = devices;
+      containerState.currentManufacturer = manufacturerId;
+
+      form.setState({
+        devices: devices,
+        loading: { ...form.getElement()._state?.loading, devices: false },
+        error: { ...form.getElement()._state?.error, devices: null },
+        // Clear dependent selections
+        selectedDevice: '',
+        selectedAction: '',
+        actions: [],
+        currentPrice: null,
+      });
+
+      notifyStateChange('devices', devices);
     } catch (error) {
-      console.error('Error loading devices:', error);
+      console.error('Device fetch failed:', error);
+
+      form.setState({
+        loading: { ...form.getElement()._state?.loading, devices: false },
+        error: {
+          ...form.getElement()._state?.error,
+          devices:
+            'Failed to load devices for this manufacturer. Please try selecting another manufacturer.',
+        },
+        devices: [],
+      });
+
+      // Try to recover by keeping the manufacturer selection
+      // but clearing dependent data
+      clearDependentSelections('devices');
     }
   }
 
   /**
-   * Load actions for a device
-   * @param {string} deviceId - Device ID
+   * Load actions for selected device
    * @private
    */
   async function loadActions(deviceId) {
-    // Clear dependent selections
-    formContainer.setSelection('action', '');
-    formContainer.setData('actions', []);
-    formContainer.setData('price', null);
+    if (!deviceId) {
+      clearDependentSelections('actions');
+      return;
+    }
 
     try {
-      await formContainer.fetchResource('actions', () =>
-        formContainer.service.fetchActions(deviceId)
-      );
+      form.setLoading({ actions: true });
+
+      const actions = await service.fetchActions(deviceId);
+
+      if (!Array.isArray(actions)) {
+        throw new Error('Invalid actions response');
+      }
+
+      containerState.lastSuccessfulState.actions = actions;
+      containerState.currentDevice = deviceId;
+
+      form.setState({
+        actions: actions,
+        loading: { ...form.getElement()._state?.loading, actions: false },
+        error: { ...form.getElement()._state?.error, actions: null },
+        // Clear dependent selections
+        selectedAction: '',
+        currentPrice: null,
+      });
+
+      notifyStateChange('actions', actions);
     } catch (error) {
-      console.error('Error loading actions:', error);
+      console.error('Actions fetch failed:', error);
+
+      form.setState({
+        loading: { ...form.getElement()._state?.loading, actions: false },
+        error: {
+          ...form.getElement()._state?.error,
+          actions:
+            'Failed to load services for this device. Please try selecting another device.',
+        },
+        actions: [],
+      });
+
+      clearDependentSelections('actions');
     }
   }
 
   /**
-   * Load price for an action
-   * @param {string} actionId - Action ID
+   * Load price for selected action
    * @private
    */
   async function loadPrice(actionId) {
-    formContainer.setData('price', null);
+    if (!actionId) {
+      form.setPrice(null);
+      return;
+    }
 
     try {
-      await formContainer.fetchResource('price', () =>
-        formContainer.service.fetchPrice(actionId)
-      );
+      form.setLoading({ price: true });
+
+      const priceData = await service.fetchPrice(actionId);
+
+      if (!priceData || typeof priceData.price === 'undefined') {
+        throw new Error('Invalid price response');
+      }
+
+      containerState.currentAction = actionId;
+
+      form.setState({
+        currentPrice: priceData,
+        loading: { ...form.getElement()._state?.loading, price: false },
+        error: { ...form.getElement()._state?.error, price: null },
+      });
+
+      // Call external callback
+      if (onPriceChange) {
+        onPriceChange(priceData);
+      }
     } catch (error) {
-      console.error('Error loading price:', error);
+      console.error('Price fetch failed:', error);
+
+      form.setState({
+        loading: { ...form.getElement()._state?.loading, price: false },
+        error: {
+          ...form.getElement()._state?.error,
+          price:
+            'Failed to load price for this service. Please try selecting another service.',
+        },
+        currentPrice: null,
+      });
     }
+  }
+
+  /**
+   * Clear dependent selections when parent selection changes
+   * @private
+   */
+  function clearDependentSelections(level) {
+    const currentState = form.getElement()._state || {};
+    const updates = {};
+
+    if (level === 'devices' || level === 'all') {
+      updates.devices = [];
+      updates.selectedDevice = '';
+      updates.loading = { ...currentState.loading, devices: false };
+      updates.error = { ...currentState.error, devices: null };
+    }
+
+    if (level === 'actions' || level === 'devices' || level === 'all') {
+      updates.actions = [];
+      updates.selectedAction = '';
+      updates.loading = { ...updates.loading, actions: false };
+      updates.error = { ...updates.error, actions: null };
+    }
+
+    if (
+      level === 'price' ||
+      level === 'actions' ||
+      level === 'devices' ||
+      level === 'all'
+    ) {
+      updates.currentPrice = null;
+      updates.loading = { ...updates.loading, price: false };
+      updates.error = { ...updates.error, price: null };
+    }
+
+    form.setState(updates);
   }
 
   /**
    * Handle manufacturer selection change
-   * @param {string} manufacturerId - Selected manufacturer ID
+   * @private
    */
   function handleManufacturerChange(manufacturerId) {
-    formContainer.setSelection('manufacturer', manufacturerId);
-    if (manufacturerId) {
-      loadDevices(manufacturerId);
-    }
+    form.setState({ selectedManufacturer: manufacturerId });
+    loadDevices(manufacturerId);
   }
 
   /**
    * Handle device selection change
-   * @param {string} deviceId - Selected device ID
+   * @private
    */
   function handleDeviceChange(deviceId) {
-    formContainer.setSelection('device', deviceId);
-    if (deviceId) {
-      loadActions(deviceId);
-    }
+    form.setState({ selectedDevice: deviceId });
+    loadActions(deviceId);
   }
 
   /**
    * Handle action selection change
-   * @param {string} actionId - Selected action ID
+   * @private
    */
   function handleActionChange(actionId) {
-    formContainer.setSelection('action', actionId);
-    if (actionId) {
-      loadPrice(actionId);
+    form.setState({ selectedAction: actionId });
+    loadPrice(actionId);
+  }
+
+  /**
+   * Handle schedule button click with enhanced data
+   * @private
+   */
+  function handleScheduleClick(formData) {
+    if (!onScheduleClick) return;
+
+    // Enhance form data with additional context
+    const enhancedData = {
+      ...formData,
+      metadata: {
+        containerState: {
+          manufacturerId: containerState.currentManufacturer,
+          deviceId: containerState.currentDevice,
+          actionId: containerState.currentAction,
+        },
+        formState: {
+          hasErrors: Object.values(form.getElement()._state?.error || {}).some(
+            Boolean
+          ),
+          isLoading: Object.values(
+            form.getElement()._state?.loading || {}
+          ).some(Boolean),
+        },
+        timestamp: new Date().toISOString(),
+      },
+    };
+
+    try {
+      onScheduleClick(enhancedData);
+    } catch (error) {
+      console.error('Schedule click handler error:', error);
     }
   }
 
   /**
-   * Handle schedule button click
-   * @param {Object} formData - Form data
+   * Notify external systems of state changes
+   * @private
    */
-  function handleScheduleClick(formData) {
-    if (callbacks.onScheduleClick) {
-      callbacks.onScheduleClick(formData);
-    }
+  function notifyStateChange(type, data) {
+    // This allows for future expansion of state change notifications
+    // e.g., analytics, logging, external state management
+    console.debug(
+      `PhoneRepairFormContainer: ${type} loaded`,
+      data.length,
+      'items'
+    );
   }
 
   // Public API
@@ -215,6 +392,69 @@ const createPhoneRepairFormContainer = (options) => {
      */
     getElement() {
       return form.getElement();
+    },
+
+    /**
+     * Get current container state for debugging
+     * @returns {Object} Container state
+     */
+    getContainerState() {
+      return {
+        ...containerState,
+        formState: form.getElement()._state,
+      };
+    },
+
+    /**
+     * Manually trigger data refresh
+     * @param {string} level - Which level to refresh ('manufacturers', 'devices', 'actions', 'price')
+     */
+    async refresh(level = 'manufacturers') {
+      try {
+        switch (level) {
+          case 'manufacturers':
+            await loadManufacturers();
+            break;
+          case 'devices':
+            if (containerState.currentManufacturer) {
+              await loadDevices(containerState.currentManufacturer);
+            }
+            break;
+          case 'actions':
+            if (containerState.currentDevice) {
+              await loadActions(containerState.currentDevice);
+            }
+            break;
+          case 'price':
+            if (containerState.currentAction) {
+              await loadPrice(containerState.currentAction);
+            }
+            break;
+          default:
+            console.warn('Unknown refresh level:', level);
+        }
+      } catch (error) {
+        console.error(`Refresh failed for level ${level}:`, error);
+      }
+    },
+
+    /**
+     * Reset form to initial state
+     */
+    reset() {
+      clearDependentSelections('all');
+      form.setState({
+        selectedManufacturer: '',
+        selectedDevice: '',
+        selectedAction: '',
+        currentPrice: null,
+        manufacturers: containerState.lastSuccessfulState.manufacturers,
+      });
+
+      // Reset container state
+      containerState.currentManufacturer = null;
+      containerState.currentDevice = null;
+      containerState.currentAction = null;
     },
 
     /**

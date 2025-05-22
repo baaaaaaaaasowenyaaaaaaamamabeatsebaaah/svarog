@@ -1461,32 +1461,18 @@ export const getComponents = () => {
             ).then((m) => m.Default),
         },
         {
-          name: 'WithPreselectedData',
+          name: 'WithPreselectedManufacturer',
           module: () =>
             import(
               '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithPreselectedData),
+            ).then((m) => m.WithPreselectedManufacturer),
         },
         {
-          name: 'WithCustomTheme',
+          name: 'WithFullSelection',
           module: () =>
             import(
               '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithCustomTheme),
-        },
-        {
-          name: 'WithErrorHandling',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithErrorHandling),
-        },
-        {
-          name: 'WithoutSteps',
-          module: () =>
-            import(
-              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
-            ).then((m) => m.WithoutSteps),
+            ).then((m) => m.WithFullSelection),
         },
         {
           name: 'WithCustomLabels',
@@ -1494,6 +1480,27 @@ export const getComponents = () => {
             import(
               '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
             ).then((m) => m.WithCustomLabels),
+        },
+        {
+          name: 'WithLoading',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithLoading),
+        },
+        {
+          name: 'WithError',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithError),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.Interactive),
         },
       ],
     },
