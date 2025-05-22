@@ -8,12 +8,33 @@ import {
 } from '../../utils/validation.js';
 import { debounce } from '../../utils/performance.js';
 
+// Debug helper
+const debugLog = (message, data = null) => {
+  if (
+    typeof window !== 'undefined' &&
+    window.localStorage?.getItem('svarog-debug') === 'true'
+  ) {
+    if (data) {
+      console.log(`[Select] ${message}`, data);
+    } else {
+      console.log(`[Select] ${message}`);
+    }
+  }
+};
+
 /**
  * Creates a Select component with enhanced loading state and async data support
  * @param {Object} props - Component configuration
  * @returns {Object} Select component API
  */
 const createSelect = (props = {}) => {
+  debugLog('createSelect called', {
+    propsKeys: Object.keys(props),
+    disabled: props.disabled,
+    loading: props.loading,
+    optionsCount: props.options?.length,
+  });
+
   // Initialize state
   const state = {
     options: [],
@@ -37,6 +58,12 @@ const createSelect = (props = {}) => {
     isValid: null,
     ...props,
   };
+
+  debugLog('Initial state', {
+    disabled: state.disabled,
+    loading: state.loading,
+    optionsCount: state.options.length,
+  });
 
   validateSelectProps(state);
 
@@ -62,6 +89,7 @@ const createSelect = (props = {}) => {
   updateDropdownOptions();
   updateDisplayText();
   updateValidationState();
+  updateDisabledState();
 
   // Event handlers
   setupEventListeners();
@@ -77,11 +105,14 @@ const createSelect = (props = {}) => {
 
   // DOM CREATION (called once)
   function createContainer() {
+    debugLog('Creating container DOM structure');
+
     const containerEl = createElement('div', {
       classes: ['select-container', state.className],
       attributes: {
         'data-component': 'select',
         'data-loading': state.loading ? 'true' : 'false',
+        'data-disabled': state.disabled ? 'true' : 'false',
       },
     });
 
@@ -108,6 +139,7 @@ const createSelect = (props = {}) => {
         'aria-haspopup': 'listbox',
         'aria-expanded': 'false',
         'aria-busy': state.loading ? 'true' : 'false',
+        'aria-disabled': state.disabled ? 'true' : 'false',
         'data-element': 'custom-select',
       },
     });
@@ -154,6 +186,12 @@ const createSelect = (props = {}) => {
 
   // STATE UPDATE METHODS (efficient, targeted updates)
   function updateNativeOptions() {
+    debugLog('updateNativeOptions called', {
+      optionsCount: state.options.length,
+      loading: state.loading,
+      disabled: state.disabled,
+    });
+
     nativeSelect.innerHTML = '';
 
     // Add placeholder for single select
@@ -191,6 +229,11 @@ const createSelect = (props = {}) => {
   }
 
   function updateDropdownOptions() {
+    debugLog('updateDropdownOptions called', {
+      optionsCount: state.options.length,
+      loading: state.loading,
+    });
+
     dropdown.innerHTML = '';
 
     if (state.loading || state.options.length === 0) return;
@@ -238,7 +281,7 @@ const createSelect = (props = {}) => {
 
       // Click handler
       optionEl.addEventListener('click', (e) => {
-        if (option.disabled) return;
+        if (option.disabled || state.disabled) return;
         e.preventDefault();
         e.stopPropagation();
 
@@ -261,6 +304,8 @@ const createSelect = (props = {}) => {
   }
 
   function updateLoadingState() {
+    debugLog('updateLoadingState called', { loading: state.loading });
+
     container.setAttribute('data-loading', state.loading ? 'true' : 'false');
 
     // Toggle loading indicator
@@ -303,6 +348,21 @@ const createSelect = (props = {}) => {
     messageElement.textContent =
       isValid === false ? state.validationMessage : '';
     messageElement.style.display = state.showValidation ? 'block' : 'none';
+  }
+
+  function updateDisabledState() {
+    debugLog('updateDisabledState called', { disabled: state.disabled });
+
+    // Update container data attribute
+    container.setAttribute('data-disabled', state.disabled ? 'true' : 'false');
+
+    // Update custom select classes and attributes
+    customSelect.classList.toggle('select-custom--disabled', state.disabled);
+    customSelect.setAttribute(
+      'aria-disabled',
+      state.disabled ? 'true' : 'false'
+    );
+    customSelect.tabIndex = state.disabled || state.loading ? -1 : 0;
   }
 
   // HELPER FUNCTIONS
@@ -618,6 +678,12 @@ const createSelect = (props = {}) => {
     update(newProps) {
       if (state.destroyed) return api;
 
+      debugLog('update called', {
+        propsKeys: Object.keys(newProps),
+        disabled: newProps.disabled,
+        loading: newProps.loading,
+      });
+
       validateSelectProps(newProps);
 
       // Handle multiple select value conversion
@@ -637,6 +703,7 @@ const createSelect = (props = {}) => {
       updateDisplayText();
       updateLoadingState();
       updateValidationState();
+      updateDisabledState();
 
       return api;
     },
@@ -703,6 +770,7 @@ const createSelect = (props = {}) => {
     api.loadOptions(state.onLoadOptions).catch(console.error);
   }
 
+  debugLog('Select component created successfully');
   return api;
 };
 
