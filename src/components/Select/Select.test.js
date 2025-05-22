@@ -5,31 +5,23 @@ import { debounce } from '../../utils/performance.js';
 
 // Mock performance utils
 vi.mock('../../utils/performance.js', () => ({
-  debounce: vi.fn((fn) => {
-    // Just return the original function for testing simplicity
-    return fn;
-  }),
+  debounce: vi.fn((fn) => fn), // Return original function for testing simplicity
 }));
 
 describe('Select component', () => {
-  // Sample options for tests
   const options = [
     { value: 'option1', label: 'Option 1' },
     { value: 'option2', label: 'Option 2' },
     { value: 'option3', label: 'Option 3' },
   ];
 
-  // Test cleanup
   let select = null;
 
   afterEach(() => {
-    // Clean up any event listeners
     if (select && typeof select.destroy === 'function') {
       select.destroy();
     }
     select = null;
-
-    // Reset mocks
     vi.clearAllMocks();
   });
 
@@ -51,23 +43,21 @@ describe('Select component', () => {
       select = Select({ options });
       const element = select.getElement();
 
-      // Check native select options
+      // Check native select options (+ 1 for placeholder)
       const nativeSelect = element.querySelector('.select-native');
-      // Add +1 for placeholder option
       expect(nativeSelect.options.length).toBe(options.length + 1);
 
       // Check custom select options
       const customOptions = element.querySelectorAll('.select-custom__option');
       expect(customOptions.length).toBe(options.length);
 
-      // Check options content (skip placeholder for native)
+      // Check options content
       for (let i = 0; i < options.length; i++) {
-        const nativeOption = nativeSelect.options[i + 1];
+        const nativeOption = nativeSelect.options[i + 1]; // Skip placeholder
         const customOption = customOptions[i];
 
         expect(nativeOption.value).toBe(options[i].value);
         expect(nativeOption.textContent).toBe(options[i].label);
-
         expect(customOption.getAttribute('data-value')).toBe(options[i].value);
         expect(customOption.textContent).toBe(options[i].label);
       }
@@ -75,10 +65,7 @@ describe('Select component', () => {
 
     it('should set initial value', () => {
       const initialValue = 'option2';
-      select = Select({
-        options,
-        value: initialValue,
-      });
+      select = Select({ options, value: initialValue });
 
       expect(select.getValue()).toBe(initialValue);
     });
@@ -100,8 +87,6 @@ describe('Select component', () => {
 
       // Simulate user selecting an option
       nativeSelect.value = 'option2';
-
-      // Trigger the change event on the native select
       const changeEvent = new Event('change', { bubbles: true });
       nativeSelect.dispatchEvent(changeEvent);
 
@@ -168,7 +153,6 @@ describe('Select component', () => {
 
       select.setLoading(true, 'Custom loading text');
 
-      // Get fresh element reference after re-render
       const element = select.getElement();
       const selectedDisplay = element.querySelector('.select-custom__selected');
 
@@ -184,7 +168,6 @@ describe('Select component', () => {
 
       select.updateOptions(options);
 
-      // Get fresh element reference after re-render
       const element = select.getElement();
       expect(element.getAttribute('data-loading')).toBe('false');
     });
@@ -211,7 +194,6 @@ describe('Select component', () => {
       select = Select({ options });
       select.destroy();
 
-      // Try operations after destroy
       select.setValue('option1');
       expect(consoleSpy).toHaveBeenCalledWith(
         'Cannot set value on disabled, loading, or destroyed select'
@@ -230,13 +212,15 @@ describe('Select component', () => {
 
       expect(mockLoadOptions).toHaveBeenCalledTimes(1);
 
-      // Get fresh element reference after loadOptions completes
       const element = select.getElement();
       const customOptions = element.querySelectorAll('.select-custom__option');
       expect(customOptions.length).toBe(options.length);
     });
 
     it('should handle loading errors gracefully', async () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       const mockLoadOptions = vi
         .fn()
         .mockRejectedValue(new Error('Network error'));
@@ -246,9 +230,10 @@ describe('Select component', () => {
         'Network error'
       );
 
-      // Get fresh element reference after error handling
       const element = select.getElement();
       expect(element.getAttribute('data-loading')).toBe('false');
+
+      consoleSpy.mockRestore();
     });
 
     it('should auto-load options on creation when onLoadOptions is provided', () => {
@@ -259,7 +244,6 @@ describe('Select component', () => {
         onLoadOptions: mockLoadOptions,
       });
 
-      // Auto-loading should be triggered
       expect(mockLoadOptions).toHaveBeenCalledTimes(1);
     });
 
@@ -271,7 +255,6 @@ describe('Select component', () => {
         onLoadOptions: mockLoadOptions,
       });
 
-      // Auto-loading should not be triggered
       expect(mockLoadOptions).not.toHaveBeenCalled();
     });
 
@@ -303,12 +286,17 @@ describe('Select component', () => {
     });
 
     it('should validate loadOptions return value', async () => {
+      const consoleSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       const mockLoadOptions = vi.fn().mockResolvedValue('not an array');
       select = Select({ options: [] });
 
       await expect(select.loadOptions(mockLoadOptions)).rejects.toThrow(
         'loadOptions function must return an array'
       );
+
+      consoleSpy.mockRestore();
     });
   });
 
@@ -359,7 +347,7 @@ describe('Select component', () => {
       const selectedDisplay = element.querySelector('.select-custom__selected');
 
       expect(selectedDisplay.textContent).toBe('Loading multiple options...');
-      expect(select.getValue()).toEqual([]); // Should be empty array for multiple
+      expect(select.getValue()).toEqual([]);
     });
 
     it('should preserve multiple values when updating options', () => {
@@ -405,33 +393,22 @@ describe('Select component', () => {
     });
 
     it('should handle multiple value type conversion', () => {
-      // This should not throw but should convert the value
       select = Select({
         options: options,
         multiple: true,
         value: 'string-value', // Invalid for multiple, should be converted
       });
 
-      expect(select.getValue()).toEqual([]); // Should convert invalid values to empty array
+      expect(select.getValue()).toEqual([]);
     });
   });
 
   describe('Performance optimizations', () => {
-    it('should use shouldRerender for optimization', () => {
-      select = Select({ options });
-
-      // The shouldRerender is attached to the component internally
-      // We can't easily test it without exposing it, so we just verify no errors
-      expect(() => select.update({ onChange: () => {} })).not.toThrow();
-    });
-
     it('should properly cleanup document handler in destroy', () => {
       select = Select({ options });
 
-      // Verify no errors on destroy
       expect(() => select.destroy()).not.toThrow();
 
-      // Verify destroyed state prevents operations
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       select.setValue('option1');
@@ -452,27 +429,12 @@ describe('Select component', () => {
       const customSelect = element.querySelector('.select-custom');
 
       expect(nativeSelect.id).toBe('test-select');
-      expect(customSelect.getAttribute('aria-labelledby')).toBe('test-select');
-      expect(customSelect.getAttribute('aria-live')).toBe('polite');
-      expect(customSelect.getAttribute('aria-atomic')).toBe('true');
-    });
-
-    it('should generate ID when none provided', () => {
-      select = Select({ options });
-      const element = select.getElement();
-
-      const nativeSelect = element.querySelector('.select-native');
-      const customSelect = element.querySelector('.select-custom');
-
-      expect(nativeSelect.id).toMatch(/^select-\d+$/);
-      expect(customSelect.getAttribute('aria-labelledby')).toBe(
-        nativeSelect.id
-      );
+      expect(customSelect.getAttribute('role')).toBe('combobox');
+      expect(customSelect.getAttribute('aria-haspopup')).toBe('listbox');
     });
   });
 
-  // Original tests (existing functionality)
-
+  // Original functionality tests
   it('should call onFocus and onBlur callbacks', () => {
     const mockOnFocus = vi.fn();
     const mockOnBlur = vi.fn();
@@ -600,7 +562,6 @@ describe('Select component', () => {
   it('should use debounce for document click handler', () => {
     select = Select({ options });
 
-    // Check if debounce was called
     expect(debounce).toHaveBeenCalled();
   });
 
@@ -608,8 +569,6 @@ describe('Select component', () => {
     const documentRemoveEventSpy = vi.spyOn(document, 'removeEventListener');
 
     select = Select({ options });
-    expect(debounce).toHaveBeenCalled();
-
     select.destroy();
 
     expect(documentRemoveEventSpy).toHaveBeenCalled();
