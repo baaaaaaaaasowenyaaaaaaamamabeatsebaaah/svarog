@@ -332,4 +332,38 @@ describe('PhoneRepairForm component', () => {
     expect(priceDisplay.textContent).toContain('129,00');
     expect(priceDisplay.textContent).toContain('€');
   });
+
+  it('should provide convenient state management methods', () => {
+    const form = createPhoneRepairForm();
+
+    // Test all convenience methods exist
+    expect(typeof form.setLoading).toBe('function');
+    expect(typeof form.setErrors).toBe('function');
+    expect(typeof form.setManufacturers).toBe('function');
+    expect(typeof form.setDevices).toBe('function');
+    expect(typeof form.setActions).toBe('function');
+    expect(typeof form.setPrice).toBe('function');
+    expect(typeof form.getCurrentState).toBe('function');
+
+    // Test setLoading method
+    form.setLoading({ manufacturers: true });
+    const state = form.getCurrentState();
+    expect(state.loading.manufacturers).toBe(true);
+
+    // Test setErrors method
+    form.setErrors({ price: 'Error message' });
+    const updatedState = form.getCurrentState();
+    expect(updatedState.error.price).toBe('Error message');
+    expect(updatedState.hasError).toBe(true);
+  });
+
+  it('should properly clean up resources when destroyed', () => {
+    const form = createPhoneRepairForm();
+
+    // Verify destroy method exists
+    expect(typeof form.destroy).toBe('function');
+
+    // Should not throw when called
+    expect(() => form.destroy()).not.toThrow();
+  });
 });
