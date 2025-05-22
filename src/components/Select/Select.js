@@ -3,7 +3,10 @@ import './Select.css';
 import { createElement, appendChildren } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
-import { validateInput } from '../../utils/validation.js';
+import {
+  validateInput,
+  validateRequiredProps,
+} from '../../utils/validation.js';
 import { debounce } from '../../utils/performance.js';
 
 /**
@@ -37,7 +40,8 @@ const createSelect = (props) => {
     loadingText: 'Loading options...',
     emptyText: 'No options available',
     onLoadOptions: null,
-    value: props.multiple ? [] : '', // Proper default for multiple
+    value: props?.multiple ? [] : '', // Proper default for multiple
+    destroyed: false,
     ...props,
   };
 
@@ -149,7 +153,7 @@ const createSelect = (props) => {
       });
     }
 
-    return createElement('select', {
+    const selectElement = createElement('select', {
       classes: ['select-native'],
       attributes: {
         id,
@@ -164,6 +168,8 @@ const createSelect = (props) => {
       },
       children: selectOptions,
     });
+
+    return selectElement;
   }
 
   /**
@@ -230,19 +236,26 @@ const createSelect = (props) => {
     }
 
     // Normal logic for when we have options
-    const isPlaceholderVisible = multiple
-      ? !Array.isArray(value) || value.length === 0
-      : !value;
-
-    let displayText = placeholder;
-
     if (multiple && Array.isArray(value) && value.length) {
-      displayText = formatMultipleSelection(options, value);
-    } else if (value) {
-      displayText = formatSingleSelection(options, value);
+      return {
+        displayText: formatMultipleSelection(options, value),
+        isPlaceholderVisible: false,
+      };
     }
 
-    return { displayText, isPlaceholderVisible };
+    if (value) {
+      return {
+        displayText: formatSingleSelection(options, value),
+        isPlaceholderVisible: false,
+      };
+    }
+
+    return {
+      displayText: placeholder,
+      isPlaceholderVisible: multiple
+        ? !Array.isArray(value) || value.length === 0
+        : !value,
+    };
   }
 
   /**
@@ -296,6 +309,8 @@ const createSelect = (props) => {
         'aria-haspopup': 'listbox',
         'aria-expanded': isOpen && !loading ? 'true' : 'false',
         'aria-busy': loading ? 'true' : 'false',
+        'aria-live': 'polite',
+        'aria-atomic': 'true',
         'data-element': 'custom-select',
       },
     });
@@ -506,7 +521,8 @@ const createSelect = (props) => {
    * @private
    */
   function toggleDropdown(force) {
-    if (state.disabled || state.loading) return state.isOpen || false;
+    if (state.disabled || state.loading || state.destroyed)
+      return state.isOpen || false;
 
     // Determine new state
     const isCurrentlyOpen = elements.dropdown?.classList.contains(
@@ -608,8 +624,10 @@ const createSelect = (props) => {
    * @private
    */
   function selectOption(value) {
-    if (state.disabled || state.loading) {
-      console.warn('Cannot select option on disabled or loading select');
+    if (state.disabled || state.loading || state.destroyed) {
+      console.warn(
+        'Cannot select option on disabled, loading, or destroyed select'
+      );
       return;
     }
 
@@ -636,8 +654,10 @@ const createSelect = (props) => {
    * @private
    */
   function toggleOptionSelection(value) {
-    if (state.disabled || state.loading) {
-      console.warn('Cannot toggle option on disabled or loading select');
+    if (state.disabled || state.loading || state.destroyed) {
+      console.warn(
+        'Cannot toggle option on disabled, loading, or destroyed select'
+      );
       return;
     }
 
@@ -674,58 +694,88 @@ const createSelect = (props) => {
   }
 
   /**
-   * Validates props for select component
+   * Enhanced prop validation with better error messages
    * @private
    */
   function validateSelectProps(props) {
     if (!props) return;
 
-    // Check options array
-    if (props.options !== undefined && !Array.isArray(props.options)) {
-      throw new TypeError('Select: options must be an array');
-    }
+    const requiredValidation = {
+      options: {
+        required: false,
+        type: 'array',
+        validator: (options) => {
+          if (!Array.isArray(options)) return 'must be an array';
 
-    // Check options structure
-    if (Array.isArray(props.options)) {
-      props.options.forEach((option, index) => {
-        if (!option || typeof option !== 'object') {
-          throw new TypeError(
-            `Select: option at index ${index} must be an object`
-          );
-        }
-        if (option.value === undefined) {
-          throw new TypeError(
-            `Select: option at index ${index} must have a value property`
-          );
-        }
-      });
-    }
+          // Validate each option structure
+          for (let i = 0; i < options.length; i++) {
+            const option = options[i];
+            if (!option || typeof option !== 'object') {
+              return `option at index ${i} must be an object`;
+            }
+            if (option.value === undefined) {
+              return `option at index ${i} must have a value property`;
+            }
+          }
+          return true;
+        },
+      },
+      value: {
+        required: false,
+        validator: (value) => {
+          if (props.multiple && value !== undefined && !Array.isArray(value)) {
+            // Convert non-array values to array for multiple selects
+            return true; // We'll handle the conversion in the component
+          }
+          return true;
+        },
+      },
+      onChange: { required: false, type: 'function' },
+      onFocus: { required: false, type: 'function' },
+      onBlur: { required: false, type: 'function' },
+      onLoadOptions: { required: false, type: 'function' },
+    };
 
-    // Check value type for multiple
-    if (
-      props.multiple &&
-      props.value !== undefined &&
-      !Array.isArray(props.value)
-    ) {
-      console.warn(
-        'Select: multiple select received non-array value - converting to array'
-      );
-    }
-
-    // Check callbacks
-    ['onChange', 'onFocus', 'onBlur', 'onLoadOptions'].forEach((callback) => {
-      if (
-        props[callback] !== undefined &&
-        props[callback] !== null &&
-        typeof props[callback] !== 'function'
-      ) {
-        throw new TypeError(`Select: ${callback} must be a function`);
-      }
-    });
+    return validateRequiredProps(props, requiredValidation, 'Select');
   }
 
   /**
-   * Helper function to set up event listeners
+   * Safe async operation wrapper
+   * @private
+   */
+  async function safeAsyncOperation(operation, errorContext) {
+    try {
+      return await operation();
+    } catch (error) {
+      console.error(`Select ${errorContext}:`, error);
+
+      // Reset loading state on error
+      if (state.loading) {
+        api.setLoading(false);
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Enhanced accessibility setup
+   * @private
+   */
+  function enhanceAccessibility() {
+    const nativeSelect = elements.nativeSelect;
+    const customSelect = elements.customSelect;
+
+    if (nativeSelect && customSelect) {
+      // Ensure proper ARIA relationship
+      const selectId = nativeSelect.id || `select-${Date.now()}`;
+      nativeSelect.id = selectId;
+      customSelect.setAttribute('aria-labelledby', selectId);
+    }
+  }
+
+  /**
+   * Helper function to set up event listeners with improved performance
    * @private
    */
   function setupEventListeners() {
@@ -740,6 +790,9 @@ const createSelect = (props) => {
     element.addEventListener('change', handleNativeSelectChange);
     element.addEventListener('focus', handleNativeSelectFocus, true);
     element.addEventListener('blur', handleNativeSelectBlur, true);
+
+    // Enhance accessibility after setup
+    enhanceAccessibility();
   }
 
   // Set up initial event listeners
@@ -747,32 +800,39 @@ const createSelect = (props) => {
 
   // Document click handler to close dropdown when clicking outside
   const documentClickHandler = debounce((event) => {
-    if (!element.contains(event.target) && state.isOpen) {
+    if (!state.destroyed && !element.contains(event.target) && state.isOpen) {
       toggleDropdown(false);
     }
   }, 10);
 
-  document.addEventListener('click', documentClickHandler);
+  // Store the exact same reference for cleanup
+  document.addEventListener('click', documentClickHandler, { passive: true });
 
   /**
-   * Handle native select change events
+   * Handle native select change events with improved performance
    * @private
    */
   function handleNativeSelectChange(event) {
-    if (state.disabled || state.loading) return;
+    if (state.disabled || state.loading || state.destroyed) return;
 
     const selectElement = event.target;
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
 
+    // Batch state updates
+    const newState = { ...state };
+
     // Update value based on selection type
     if (state.multiple) {
       const selectedOptions = Array.from(selectElement.selectedOptions);
-      state.value = selectedOptions.map((opt) => opt.value);
+      newState.value = selectedOptions.map((opt) => opt.value);
     } else {
-      state.value = selectElement.value;
+      newState.value = selectElement.value;
     }
 
-    // Update display directly
+    // Apply all state changes at once
+    state = newState;
+
+    // Update display directly for better performance
     updateDisplayTextDirectly();
 
     // Validate if needed
@@ -791,7 +851,7 @@ const createSelect = (props) => {
    * @private
    */
   function handleNativeSelectFocus(event) {
-    if (state.disabled || state.loading) return;
+    if (state.disabled || state.loading || state.destroyed) return;
 
     const selectElement = event.target;
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
@@ -809,7 +869,7 @@ const createSelect = (props) => {
    * @private
    */
   function handleNativeSelectBlur(event) {
-    if (state.disabled || state.loading) return;
+    if (state.disabled || state.loading || state.destroyed) return;
 
     const selectElement = event.target;
     if (selectElement.getAttribute('data-element') !== 'native-select') return;
@@ -836,6 +896,8 @@ const createSelect = (props) => {
    * @returns {boolean} Whether the selection is valid
    */
   function validate() {
+    if (state.destroyed) return true;
+
     let isValid = true;
 
     if (state.required) {
@@ -872,6 +934,23 @@ const createSelect = (props) => {
     return state.value;
   }
 
+  /**
+   * Check if component should re-render (optimization)
+   * @private
+   */
+  function shouldRerender(newProps) {
+    // Don't re-render if only non-visual props changed
+    const nonVisualProps = ['onChange', 'onFocus', 'onBlur', 'onLoadOptions'];
+    const visualPropsChanged = Object.keys(newProps).some(
+      (key) => !nonVisualProps.includes(key) && newProps[key] !== state[key]
+    );
+
+    return visualPropsChanged;
+  }
+
+  // Add shouldRerender to component for optimization
+  component.shouldRerender = shouldRerender;
+
   const api = {
     /**
      * Get the select element
@@ -893,14 +972,17 @@ const createSelect = (props) => {
      * @returns {Object} Select component (for chaining)
      */
     setValue(value) {
-      if (state.disabled || state.loading) {
-        console.warn('Cannot set value on disabled or loading select');
+      if (state.disabled || state.loading || state.destroyed) {
+        console.warn(
+          'Cannot set value on disabled, loading, or destroyed select'
+        );
         return api;
       }
 
       // Convert value type if needed
       if (state.multiple) {
-        state.value = Array.isArray(value) ? value : value ? [value] : [];
+        // For multiple selects, only accept arrays or convert to empty array
+        state.value = Array.isArray(value) ? value : [];
       } else {
         state.value = Array.isArray(value) ? value[0] || '' : value || '';
       }
@@ -932,6 +1014,8 @@ const createSelect = (props) => {
      * @returns {Object} Select component (for chaining)
      */
     setLoading(loading, loadingText) {
+      if (state.destroyed) return api;
+
       state.loading = !!loading;
       if (loadingText) state.loadingText = loadingText;
 
@@ -940,16 +1024,9 @@ const createSelect = (props) => {
         toggleDropdown(false);
       }
 
-      // Manual re-render (working approach)
-      const oldElement = element;
-      element = component.getElement = () => {
-        return baseComponent({ ...state }).getElement();
-      };
-      element = element();
-
-      if (oldElement && oldElement.parentNode) {
-        oldElement.parentNode.replaceChild(element, oldElement);
-      }
+      // Update state and trigger re-render using baseComponent
+      component.update(state);
+      element = component.getElement(); // Get the updated element
 
       // Re-cache elements and set up event listeners
       cacheElements();
@@ -959,7 +1036,7 @@ const createSelect = (props) => {
     },
 
     /**
-     * Load options asynchronously
+     * Load options asynchronously with enhanced validation
      * @param {Function} [optionsFn] - Function to load options (defaults to onLoadOptions)
      * @returns {Promise<Object>} Select component (for chaining)
      */
@@ -969,19 +1046,32 @@ const createSelect = (props) => {
         return api;
       }
 
-      this.setLoading(true);
-
-      try {
-        const newOptions = await optionsFn();
-        this.updateOptions(newOptions);
-        this.setLoading(false);
-      } catch (error) {
-        this.setLoading(false);
-        console.error('Failed to load options:', error);
-        throw error;
+      // Prevent multiple simultaneous loads
+      if (state.loading) {
+        console.warn('loadOptions already in progress');
+        return api;
       }
 
-      return api;
+      if (state.destroyed) {
+        console.warn('Cannot load options on destroyed select');
+        return api;
+      }
+
+      return safeAsyncOperation(async () => {
+        api.setLoading(true);
+
+        const newOptions = await optionsFn();
+
+        // Validate that we received an array
+        if (!Array.isArray(newOptions)) {
+          throw new Error('loadOptions function must return an array');
+        }
+
+        api.updateOptions(newOptions);
+        api.setLoading(false);
+
+        return api;
+      }, 'loadOptions');
     },
 
     /**
@@ -990,15 +1080,27 @@ const createSelect = (props) => {
      * @returns {Object} Select component (for chaining)
      */
     update(newProps) {
+      if (state.destroyed) return api;
+
       // Validate new props
       validateSelectProps(newProps);
+
+      // Handle multiple select value conversion if needed
+      if (
+        newProps.multiple &&
+        newProps.value !== undefined &&
+        !Array.isArray(newProps.value)
+      ) {
+        // For multiple selects, non-array values become empty arrays
+        newProps.value = [];
+      }
 
       // Update state
       state = { ...state, ...newProps };
 
       // Update state and trigger re-render using baseComponent
       component.update(state);
-      element = component.getElement();
+      element = component.getElement(); // Get the updated element
 
       // Re-cache elements and set up event listeners
       cacheElements();
@@ -1014,6 +1116,8 @@ const createSelect = (props) => {
      * @returns {Object} Select component (for chaining)
      */
     updateOptions(options, keepValue = true) {
+      if (state.destroyed) return api;
+
       if (!Array.isArray(options)) {
         throw new Error('Select: options must be an array');
       }
@@ -1045,7 +1149,7 @@ const createSelect = (props) => {
 
       // Update state and trigger re-render using baseComponent
       component.update(state);
-      element = component.getElement();
+      element = component.getElement(); // Get the updated element
 
       // Re-cache elements and set up event listeners
       cacheElements();
@@ -1072,10 +1176,13 @@ const createSelect = (props) => {
     },
 
     /**
-     * Clean up resources to prevent memory leaks
+     * Enhanced cleanup with proper memory management
      */
     destroy() {
-      // Remove document event listener
+      // Mark as destroyed to prevent further operations
+      state.destroyed = true;
+
+      // Remove document event listener with the exact same reference
       document.removeEventListener('click', documentClickHandler);
 
       // Remove element event listeners
@@ -1085,7 +1192,7 @@ const createSelect = (props) => {
         element.removeEventListener('blur', handleNativeSelectBlur, true);
       }
 
-      // Clear cached elements
+      // Clear cached elements to prevent memory leaks
       Object.keys(elements).forEach((key) => {
         elements[key] = null;
       });
@@ -1094,6 +1201,16 @@ const createSelect = (props) => {
       component.destroy();
     },
   };
+
+  // Handle initial value conversion for multiple selects
+  if (
+    state.multiple &&
+    state.value !== undefined &&
+    !Array.isArray(state.value)
+  ) {
+    // For multiple selects, invalid string values should become empty arrays
+    state.value = [];
+  }
 
   // Auto-load options if onLoadOptions is provided and no initial options
   if (

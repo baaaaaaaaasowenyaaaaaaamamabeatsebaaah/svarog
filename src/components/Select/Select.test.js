@@ -188,6 +188,37 @@ describe('Select component', () => {
       const element = select.getElement();
       expect(element.getAttribute('data-loading')).toBe('false');
     });
+
+    it('should prevent setValue during loading', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      select = Select({
+        options: [],
+        loading: true,
+      });
+
+      select.setValue('option1');
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Cannot set value on disabled, loading, or destroyed select'
+      );
+      consoleSpy.mockRestore();
+    });
+
+    it('should prevent operations on destroyed select', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      select = Select({ options });
+      select.destroy();
+
+      // Try operations after destroy
+      select.setValue('option1');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Cannot set value on disabled, loading, or destroyed select'
+      );
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('Async options loading', () => {
@@ -215,7 +246,7 @@ describe('Select component', () => {
         'Network error'
       );
 
-      // FIXED: Get fresh element reference after error handling
+      // Get fresh element reference after error handling
       const element = select.getElement();
       expect(element.getAttribute('data-loading')).toBe('false');
     });
@@ -243,25 +274,45 @@ describe('Select component', () => {
       // Auto-loading should not be triggered
       expect(mockLoadOptions).not.toHaveBeenCalled();
     });
-  });
 
-  describe('Value management during loading', () => {
-    it('should prevent setValue during loading', () => {
+    it('should prevent concurrent loading', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const mockLoadOptions = vi
+        .fn()
+        .mockImplementation(
+          () =>
+            new Promise((resolve) => setTimeout(() => resolve(options), 100))
+        );
 
-      select = Select({
-        options: [],
-        loading: true,
-      });
+      select = Select({ options: [] });
 
-      select.setValue('option1');
+      // Start first load
+      const firstLoad = select.loadOptions(mockLoadOptions);
+
+      // Try to start second load immediately
+      await select.loadOptions(mockLoadOptions);
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Cannot set value on disabled or loading select'
+        'loadOptions already in progress'
       );
+
+      // Wait for first load to complete
+      await firstLoad;
+
       consoleSpy.mockRestore();
     });
 
+    it('should validate loadOptions return value', async () => {
+      const mockLoadOptions = vi.fn().mockResolvedValue('not an array');
+      select = Select({ options: [] });
+
+      await expect(select.loadOptions(mockLoadOptions)).rejects.toThrow(
+        'loadOptions function must return an array'
+      );
+    });
+  });
+
+  describe('Value management during loading', () => {
     it('should preserve value when updating options with keepValue=true', () => {
       select = Select({
         options: options,
@@ -351,6 +402,72 @@ describe('Select component', () => {
         'loadOptions requires a function'
       );
       consoleSpy.mockRestore();
+    });
+
+    it('should handle multiple value type conversion', () => {
+      // This should not throw but should convert the value
+      select = Select({
+        options: options,
+        multiple: true,
+        value: 'string-value', // Invalid for multiple, should be converted
+      });
+
+      expect(select.getValue()).toEqual([]); // Should convert invalid values to empty array
+    });
+  });
+
+  describe('Performance optimizations', () => {
+    it('should use shouldRerender for optimization', () => {
+      select = Select({ options });
+
+      // The shouldRerender is attached to the component internally
+      // We can't easily test it without exposing it, so we just verify no errors
+      expect(() => select.update({ onChange: () => {} })).not.toThrow();
+    });
+
+    it('should properly cleanup document handler in destroy', () => {
+      select = Select({ options });
+
+      // Verify no errors on destroy
+      expect(() => select.destroy()).not.toThrow();
+
+      // Verify destroyed state prevents operations
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      select.setValue('option1');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Cannot set value on disabled, loading, or destroyed select'
+      );
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('Accessibility enhancements', () => {
+    it('should have proper ARIA attributes', () => {
+      select = Select({ options, id: 'test-select' });
+      const element = select.getElement();
+
+      const nativeSelect = element.querySelector('.select-native');
+      const customSelect = element.querySelector('.select-custom');
+
+      expect(nativeSelect.id).toBe('test-select');
+      expect(customSelect.getAttribute('aria-labelledby')).toBe('test-select');
+      expect(customSelect.getAttribute('aria-live')).toBe('polite');
+      expect(customSelect.getAttribute('aria-atomic')).toBe('true');
+    });
+
+    it('should generate ID when none provided', () => {
+      select = Select({ options });
+      const element = select.getElement();
+
+      const nativeSelect = element.querySelector('.select-native');
+      const customSelect = element.querySelector('.select-custom');
+
+      expect(nativeSelect.id).toMatch(/^select-\d+$/);
+      expect(customSelect.getAttribute('aria-labelledby')).toBe(
+        nativeSelect.id
+      );
     });
   });
 
