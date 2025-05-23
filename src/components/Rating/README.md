@@ -29,7 +29,7 @@ document.body.appendChild(googleRating.getElement());
 | options                    | object   | {}         | Additional configuration options                     |
 | options.showReviewerImages | boolean  | true       | Whether to show reviewer images                      |
 | options.maxReviewerImages  | number   | 5          | Maximum number of reviewer images to display         |
-| options.fallbackImageSrc   | string   | ''         | Fallback image to use if profile images fail to load |
+| options.fallbackImageUrl   | string   | ''         | Fallback image to use if profile images fail to load |
 
 ## Methods
 
@@ -136,7 +136,7 @@ const trustpilotRating = Rating({
     '/images/reviewer3.jpg',
   ],
   options: {
-    fallbackImageSrc: '/images/default-profile.jpg',
+    fallbackImageUrl: '/images/default-profile.jpg',
   },
 });
 ```

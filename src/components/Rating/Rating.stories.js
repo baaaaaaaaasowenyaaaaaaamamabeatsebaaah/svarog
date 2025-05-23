@@ -89,7 +89,7 @@ export const WithFallbackImage = () => {
       '/invalid-image-3.jpg',
     ],
     options: {
-      fallbackImageSrc: '/api/placeholder/40/40',
+      fallbackImageUrl: '/api/placeholder/40/40',
     },
   });
   return rating.getElement();
@@ -104,7 +104,7 @@ export const Interactive = () => {
     totalRatings: 2500,
     reviewerImages: ['/api/placeholder/40/40', '/api/placeholder/40/40'],
     options: {
-      fallbackImageSrc: '/api/placeholder/40/40',
+      fallbackImageUrl: '/api/placeholder/40/40',
     },
   });
 

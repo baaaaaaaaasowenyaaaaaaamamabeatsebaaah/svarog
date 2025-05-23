@@ -46,14 +46,42 @@ const formatNumber = (num) => {
 };
 
 /**
+ * Migrates legacy props to standardized props
+ * @param {Object} props - Component props
+ * @returns {Object} Normalized props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  if (
+    props.options?.fallbackImageSrc !== undefined &&
+    !props.options?.fallbackImageUrl
+  ) {
+    console.warn(
+      '[Rating] options.fallbackImageSrc is deprecated, use options.fallbackImageUrl instead'
+    );
+    migrated.options = {
+      ...migrated.options,
+      fallbackImageUrl: props.options.fallbackImageSrc,
+    };
+    // Keep fallbackImageSrc for backward compatibility
+  }
+
+  return migrated;
+};
+
+/**
  * Creates a Rating component for displaying ratings from various sources
  * @param {Object} props - Rating properties
  * @returns {Object} Rating component
  */
 const createRating = (props) => {
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props
   validateRequiredProps(
-    props,
+    normalizedProps,
     {
       source: { type: 'string', required: true },
       score: { required: true },
@@ -63,7 +91,7 @@ const createRating = (props) => {
   );
 
   // Validate source
-  const normalizedSource = props.source.toLowerCase();
+  const normalizedSource = normalizedProps.source.toLowerCase();
   if (!VALID_SOURCES.includes(normalizedSource)) {
     throw new Error(
       `Rating: source must be one of: ${VALID_SOURCES.join(', ')}`
@@ -71,7 +99,7 @@ const createRating = (props) => {
   }
 
   // Validate score range
-  const score = parseFloat(props.score);
+  const score = parseFloat(normalizedProps.score);
   if (isNaN(score) || score < 0 || score > 5) {
     throw new Error('Rating: score must be a number between 0 and 5');
   }
@@ -186,6 +214,10 @@ const createRating = (props) => {
     const options = {
       showReviewerImages: state.options?.showReviewerImages !== false,
       maxReviewerImages: state.options?.maxReviewerImages || 5,
+      fallbackImageUrl:
+        state.options?.fallbackImageUrl ||
+        state.options?.fallbackImageSrc ||
+        '',
     };
 
     // Create the main container
@@ -242,11 +274,18 @@ const createRating = (props) => {
   };
 
   // Create component using baseComponent
-  const baseComponent = createBaseComponent(renderRating)(props);
+  const baseComponent = createBaseComponent(renderRating)(normalizedProps);
 
   // Extended component with custom methods
   const ratingComponent = {
     ...baseComponent,
+
+    update(props) {
+      // Ensure legacy props are migrated
+      const normalizedUpdateProps = migrateLegacyProps(props);
+      // Call base update with normalized props
+      return baseComponent.update(normalizedUpdateProps);
+    },
 
     /**
      * Determines if component should fully re-render
@@ -254,6 +293,9 @@ const createRating = (props) => {
      * @returns {boolean} Whether a full re-render is required
      */
     shouldRerender(newProps) {
+      // Migrate legacy props before checking
+      const normalizedNewProps = migrateLegacyProps(newProps);
+
       // Re-render if these critical props change
       const criticalProps = [
         'source',
@@ -262,7 +304,9 @@ const createRating = (props) => {
         'reviewerImages',
         'options',
       ];
-      return Object.keys(newProps).some((key) => criticalProps.includes(key));
+      return Object.keys(normalizedNewProps).some((key) =>
+        criticalProps.includes(key)
+      );
     },
 
     /**
