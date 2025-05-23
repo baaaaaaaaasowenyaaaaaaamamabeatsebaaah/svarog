@@ -25,8 +25,12 @@ document.body.appendChild(myCheckbox.getElement());
 | id                | string   | null       | HTML ID attribute                          |
 | name              | string   | null       | Input name attribute                       |
 | checked           | boolean  | false      | Whether checkbox is checked                |
+| value             | boolean  | false      | Alias for checked (standardized naming)    |
+| defaultValue      | boolean  | false      | Alias for initial checked state            |
 | required          | boolean  | false      | Whether checkbox is required               |
 | disabled          | boolean  | false      | Whether checkbox is disabled               |
+| loading           | boolean  | false      | Whether checkbox is in loading state       |
+| isLoading         | boolean  | false      | Alias for loading (deprecated)             |
 | className         | string   | ''         | Additional CSS classes                     |
 | onChange          | function | null       | Change event handler                       |
 | validationMessage | string   | null       | Custom validation message                  |
@@ -52,6 +56,15 @@ myCheckbox.setChecked(true); // Check
 myCheckbox.setChecked(false); // Uncheck
 ```
 
+### setValue(value)
+
+Alias for setChecked - sets the checkbox checked state (standardized naming).
+
+```javascript
+myCheckbox.setValue(true); // Check
+myCheckbox.setValue(false); // Uncheck
+```
+
 ### setIndeterminate(isIndeterminate)
 
 Sets the checkbox indeterminate state.
@@ -67,6 +80,14 @@ Returns whether the checkbox is checked.
 
 ```javascript
 const isChecked = myCheckbox.isChecked();
+```
+
+### getValue()
+
+Alias for isChecked - returns whether the checkbox is checked (standardized naming).
+
+```javascript
+const value = myCheckbox.getValue();
 ```
 
 ### validate()
@@ -131,6 +152,12 @@ Checkbox styles can be customized using CSS variables:
   /* Focus state */
   --checkbox-focus-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25);
 
+  /* Loading state */
+  --checkbox-loading-bg: #edf2f7;
+  --checkbox-loading-border-color: #e2e8f0;
+  --checkbox-loading-color: #a0aec0;
+  --checkbox-loading-spinner-color: #3182ce;
+
   /* Disabled state */
   --checkbox-disabled-bg: #edf2f7;
   --checkbox-disabled-border-color: #e2e8f0;
@@ -167,6 +194,23 @@ const checkbox = Checkbox({
 });
 ```
 
+### Using Standardized Props
+
+```javascript
+// Using value instead of checked
+const checkbox = Checkbox({
+  label: 'Accept terms',
+  value: true, // Same as checked: true
+  onChange: (event, checked) => console.log('Accepted:', checked),
+});
+
+// Reading value
+const isAccepted = checkbox.getValue(); // Same as isChecked()
+
+// Setting value
+checkbox.setValue(false); // Same as setChecked(false)
+```
+
 ### Checked Checkbox
 
 ```javascript
@@ -187,6 +231,19 @@ const checkbox = Checkbox({
 
 // Validate before form submission
 const isValid = checkbox.validate();
+```
+
+### Loading State
+
+```javascript
+const checkbox = Checkbox({
+  label: 'Processing action',
+  loading: true,
+  onChange: (event, checked) => console.log('Checked:', checked),
+});
+
+// Update loading state
+checkbox.update({ loading: false });
 ```
 
 ### Indeterminate Checkbox (Parent of other checkboxes)
@@ -231,3 +288,4 @@ The Checkbox component follows best practices for accessibility:
 - Supports keyboard navigation
 - Includes aria attributes for validation messages
 - Maintains proper color contrast ratios when using theme variables
+- Loading state is properly conveyed to assistive technologies

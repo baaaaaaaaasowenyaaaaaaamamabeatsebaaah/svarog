@@ -45,6 +45,92 @@ describe('Checkbox component', () => {
     expect(checkbox.isChecked()).toBe(true);
   });
 
+  // Test new standardized props
+  it('should handle value prop as alias for checked', () => {
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {});
+
+    const checkbox = Checkbox({
+      label: 'Test checkbox',
+      value: true,
+    });
+
+    const element = checkbox.getElement();
+    const inputElement = element.querySelector('input[type="checkbox"]');
+
+    expect(inputElement.checked).toBe(true);
+    expect(checkbox.isChecked()).toBe(true);
+    expect(checkbox.getValue()).toBe(true);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('value is an alias for checked')
+    );
+
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('should handle defaultValue prop as alias for initial checked state', () => {
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {});
+
+    const checkbox = Checkbox({
+      label: 'Test checkbox',
+      defaultValue: true,
+    });
+
+    const element = checkbox.getElement();
+    const inputElement = element.querySelector('input[type="checkbox"]');
+
+    expect(inputElement.checked).toBe(true);
+    expect(checkbox.isChecked()).toBe(true);
+    expect(checkbox.getValue()).toBe(true);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('defaultValue is an alias for checked')
+    );
+
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('should handle loading state', () => {
+    const checkbox = Checkbox({
+      label: 'Test checkbox',
+      loading: true,
+    });
+
+    const element = checkbox.getElement();
+    const inputElement = element.querySelector('input[type="checkbox"]');
+    const spinnerElement = element.querySelector('.checkbox-loading-spinner');
+
+    expect(element.classList.contains('checkbox-container--loading')).toBe(
+      true
+    );
+    expect(inputElement.disabled).toBe(true);
+    expect(spinnerElement).not.toBeNull();
+  });
+
+  it('should handle isLoading as alias for loading', () => {
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {});
+
+    const checkbox = Checkbox({
+      label: 'Test checkbox',
+      isLoading: true,
+    });
+
+    const element = checkbox.getElement();
+
+    expect(element.classList.contains('checkbox-container--loading')).toBe(
+      true
+    );
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('isLoading is deprecated')
+    );
+
+    consoleWarnSpy.mockRestore();
+  });
+
   it('should update checked state with setChecked method', () => {
     const checkbox = Checkbox({ label: 'Test checkbox' });
 
@@ -74,6 +160,24 @@ describe('Checkbox component', () => {
     expect(updatedInputElement.checked).toBe(false);
   });
 
+  it('should update checked state with setValue method', () => {
+    const checkbox = Checkbox({ label: 'Test checkbox' });
+
+    // Initially unchecked
+    expect(checkbox.getValue()).toBe(false);
+
+    // Set to checked using setValue
+    checkbox.setValue(true);
+
+    // Get the UPDATED element after setValue
+    const updatedElement = checkbox.getElement();
+    const inputElement = updatedElement.querySelector('input[type="checkbox"]');
+
+    expect(checkbox.isChecked()).toBe(true);
+    expect(checkbox.getValue()).toBe(true);
+    expect(inputElement.checked).toBe(true);
+  });
+
   it('should call onChange when checkbox changes', () => {
     const mockOnChange = vi.fn();
     const checkbox = Checkbox({
@@ -96,6 +200,7 @@ describe('Checkbox component', () => {
 
     // Get updated state after the change event
     expect(checkbox.isChecked()).toBe(true);
+    expect(checkbox.getValue()).toBe(true);
   });
 
   it('should validate required checkbox', () => {

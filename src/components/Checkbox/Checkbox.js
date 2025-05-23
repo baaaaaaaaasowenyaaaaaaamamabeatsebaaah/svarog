@@ -17,8 +17,48 @@ const createChangeHandler = (state, updateCallback) => {
     }
 
     // Update component state
-    updateCallback({ checked: event.target.checked });
+    updateCallback({
+      checked: event.target.checked,
+      value: event.target.checked,
+    });
   };
+};
+
+/**
+ * Migrates legacy props to standardized ones
+ * @param {Object} props - Input props
+ * @returns {Object} Normalized props
+ * @private
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Handle value/checked alias
+  if ('value' in props && !('checked' in props)) {
+    console.warn(
+      '[Checkbox] value is an alias for checked, prefer using checked directly'
+    );
+    migrated.checked = Boolean(props.value);
+    // Keep both properties in sync
+    migrated.value = migrated.checked;
+  }
+
+  // Handle defaultValue alias for initial checked state
+  if ('defaultValue' in props && !('checked' in props) && !('value' in props)) {
+    console.warn(
+      '[Checkbox] defaultValue is an alias for checked, prefer using checked directly'
+    );
+    migrated.checked = Boolean(props.defaultValue);
+    migrated.value = migrated.checked;
+  }
+
+  // Handle isLoading alias for loading
+  if ('isLoading' in props && !('loading' in props)) {
+    console.warn('[Checkbox] isLoading is deprecated, use loading instead');
+    migrated.loading = props.isLoading;
+  }
+
+  return migrated;
 };
 
 /**
@@ -27,6 +67,9 @@ const createChangeHandler = (state, updateCallback) => {
  * @returns {Object} Checkbox component
  */
 const createCheckbox = (props) => {
+  // Standardize props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Destructure props with defaults
   const {
     label,
@@ -35,12 +78,13 @@ const createCheckbox = (props) => {
     checked = false,
     required = false,
     disabled = false,
+    loading = false,
     className = '',
     onChange,
     validationMessage = '',
     showValidation = true,
     indeterminate = false,
-  } = props;
+  } = normalizedProps;
 
   // Component state
   const state = {
@@ -50,6 +94,7 @@ const createCheckbox = (props) => {
     checked,
     required,
     disabled,
+    loading,
     className,
     onChange,
     validationMessage,
@@ -80,14 +125,22 @@ const createCheckbox = (props) => {
     const input = element.querySelector('.checkbox-input');
     if (!input) return; // Safety check
 
-    // Update checked state
-    if ('checked' in newProps) {
-      input.checked = newProps.checked;
+    // Update checked/value state
+    if ('checked' in newProps || 'value' in newProps) {
+      const newChecked =
+        'checked' in newProps ? newProps.checked : newProps.value;
+      input.checked = newChecked;
     }
 
     // Update disabled state
     if ('disabled' in newProps) {
       input.disabled = newProps.disabled;
+    }
+
+    // Update loading state
+    if ('loading' in newProps) {
+      element.classList.toggle('checkbox-container--loading', newProps.loading);
+      input.disabled = newProps.loading || state.disabled;
     }
 
     // Update indeterminate state
@@ -159,6 +212,7 @@ const createCheckbox = (props) => {
     if (state.required && isValid)
       containerClasses.push('checkbox-container--valid');
     if (!isValid) containerClasses.push('checkbox-container--invalid');
+    if (state.loading) containerClasses.push('checkbox-container--loading');
 
     // Create container element
     const container = document.createElement('div');
@@ -180,7 +234,7 @@ const createCheckbox = (props) => {
 
     // Set properties
     input.checked = state.checked;
-    input.disabled = state.disabled;
+    input.disabled = state.disabled || state.loading;
 
     // Create or get the change handler once per component instance
     if (!handleChangeRef) {
@@ -198,6 +252,13 @@ const createCheckbox = (props) => {
     // Create custom indicator
     const indicator = document.createElement('span');
     indicator.className = 'checkbox-indicator';
+
+    // Create loading indicator if needed
+    if (state.loading) {
+      const spinner = document.createElement('span');
+      spinner.className = 'checkbox-loading-spinner';
+      indicator.appendChild(spinner);
+    }
 
     // Create label text element - CRITICAL: Must have className set to 'checkbox-label'
     const labelText = document.createElement('span');
@@ -252,12 +313,27 @@ const createCheckbox = (props) => {
      * @returns {Object} Checkbox component (for chaining)
      */
     update(newProps) {
+      // Handle prop aliasing
+      const normalizedProps = migrateLegacyProps(newProps);
+
+      // Keep checked and value in sync
+      if ('checked' in normalizedProps && !('value' in normalizedProps)) {
+        normalizedProps.value = normalizedProps.checked;
+      } else if (
+        'value' in normalizedProps &&
+        !('checked' in normalizedProps)
+      ) {
+        normalizedProps.checked = normalizedProps.value;
+      }
+
       // Determine if we need a full rebuild
       const needsFullRebuild =
-        'id' in newProps || 'name' in newProps || 'showValidation' in newProps;
+        'id' in normalizedProps ||
+        'name' in normalizedProps ||
+        'showValidation' in normalizedProps;
 
       // Update state first
-      Object.assign(state, newProps);
+      Object.assign(state, normalizedProps);
 
       if (needsFullRebuild) {
         // Full rebuild for structural changes
@@ -270,7 +346,7 @@ const createCheckbox = (props) => {
         }
       } else {
         // Partial update for better performance
-        partialUpdate(element, newProps);
+        partialUpdate(element, normalizedProps);
       }
 
       return this;
@@ -282,7 +358,16 @@ const createCheckbox = (props) => {
      * @returns {Object} Checkbox component (for chaining)
      */
     setChecked(isChecked) {
-      return this.update({ checked: isChecked });
+      return this.update({ checked: isChecked, value: isChecked });
+    },
+
+    /**
+     * Set value (alias for setChecked)
+     * @param {boolean} isChecked - Whether the checkbox should be checked
+     * @returns {Object} Checkbox component (for chaining)
+     */
+    setValue(isChecked) {
+      return this.setChecked(isChecked);
     },
 
     /**
@@ -299,6 +384,14 @@ const createCheckbox = (props) => {
      * @returns {boolean} Whether the checkbox is checked
      */
     isChecked() {
+      return state.checked;
+    },
+
+    /**
+     * Get value (alias for isChecked)
+     * @returns {boolean} Whether the checkbox is checked
+     */
+    getValue() {
       return state.checked;
     },
 

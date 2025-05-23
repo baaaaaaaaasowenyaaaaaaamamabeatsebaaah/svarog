@@ -21,6 +21,22 @@ export const Checked = () => {
   }).getElement();
 };
 
+export const UsingValue = () => {
+  return Checkbox({
+    label: 'Using value prop instead of checked',
+    value: true, // Using standardized value prop
+    onChange: (event, checked) => console.log('Checkbox state:', checked),
+  }).getElement();
+};
+
+export const UsingDefaultValue = () => {
+  return Checkbox({
+    label: 'Using defaultValue prop',
+    defaultValue: true, // Using standardized defaultValue prop
+    onChange: (event, checked) => console.log('Checkbox state:', checked),
+  }).getElement();
+};
+
 export const Required = () => {
   return Checkbox({
     label: 'Required checkbox',
@@ -33,6 +49,23 @@ export const Disabled = () => {
   return Checkbox({
     label: 'Disabled checkbox',
     disabled: true,
+    onChange: (event, checked) => console.log('Checkbox state:', checked),
+  }).getElement();
+};
+
+export const Loading = () => {
+  return Checkbox({
+    label: 'Loading checkbox',
+    loading: true, // Using standardized loading prop
+    onChange: (event, checked) => console.log('Checkbox state:', checked),
+  }).getElement();
+};
+
+export const LoadingAndChecked = () => {
+  return Checkbox({
+    label: 'Loading and checked checkbox',
+    checked: true,
+    loading: true,
     onChange: (event, checked) => console.log('Checkbox state:', checked),
   }).getElement();
 };
@@ -169,6 +202,82 @@ export const CustomStyling = () => {
 
   container.appendChild(style);
   container.appendChild(checkbox.getElement());
+
+  return container;
+};
+
+export const StandardizedAPI = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '16px';
+
+  // Create a section for each API demo
+  const createSection = (title, component) => {
+    const section = document.createElement('div');
+
+    const titleEl = document.createElement('h3');
+    titleEl.textContent = title;
+    titleEl.style.marginBottom = '8px';
+
+    section.appendChild(titleEl);
+    section.appendChild(component.getElement());
+
+    return section;
+  };
+
+  // Traditional API
+  const traditionalCheckbox = Checkbox({
+    label: 'Traditional: Using checked prop',
+    checked: true,
+  });
+
+  // Value API (standardized)
+  const valueCheckbox = Checkbox({
+    label: 'Standardized: Using value prop',
+    value: true,
+  });
+
+  // getValue/setValue demo
+  const valueMethodsCheckbox = Checkbox({
+    label: 'Using getValue()/setValue() methods',
+  });
+
+  const valueMethodsButtons = document.createElement('div');
+  valueMethodsButtons.style.display = 'flex';
+  valueMethodsButtons.style.gap = '8px';
+  valueMethodsButtons.style.marginTop = '8px';
+
+  const getValueBtn = document.createElement('button');
+  getValueBtn.textContent = 'Get Value';
+  getValueBtn.addEventListener('click', () => {
+    alert(`Current value: ${valueMethodsCheckbox.getValue()}`);
+  });
+
+  const setValueBtn = document.createElement('button');
+  setValueBtn.textContent = 'Toggle Value';
+  setValueBtn.addEventListener('click', () => {
+    valueMethodsCheckbox.setValue(!valueMethodsCheckbox.getValue());
+  });
+
+  valueMethodsButtons.appendChild(getValueBtn);
+  valueMethodsButtons.appendChild(setValueBtn);
+
+  // Loading state (standardized)
+  const loadingStateCheckbox = Checkbox({
+    label: 'Standardized: Using loading prop',
+    loading: true,
+  });
+
+  // Add all sections to container
+  container.appendChild(createSection('Traditional API', traditionalCheckbox));
+  container.appendChild(createSection('Standardized API', valueCheckbox));
+
+  const methodsSection = createSection('Value Methods', valueMethodsCheckbox);
+  methodsSection.appendChild(valueMethodsButtons);
+  container.appendChild(methodsSection);
+
+  container.appendChild(createSection('Loading State', loadingStateCheckbox));
 
   return container;
 };
