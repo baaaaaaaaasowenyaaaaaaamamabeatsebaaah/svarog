@@ -14,7 +14,6 @@ import { withThemeAwareness } from '../../utils/composition.js';
  */
 const createColumn = (props) => {
   const {
-    children,
     width = 12,
     mobileWidth,
     tabletWidth,
@@ -24,30 +23,22 @@ const createColumn = (props) => {
   } = props;
 
   // State
-  let columnState = {
-    children,
-    width,
-    mobileWidth,
-    tabletWidth,
-    desktopWidth,
-    desktopOffset,
-    offset,
-  };
+  let columnState = { ...props };
 
   // Validate column width
-  const validateColumnWidth = (prop, value) => {
+  const validateWidth = (prop, value) => {
     if (!Number.isInteger(value) || value < 1 || value > 12) {
       throw new Error(`${prop} must be an integer between 1 and 12`);
     }
   };
 
   // Validate all widths
-  validateColumnWidth('width', width);
-  if (mobileWidth) validateColumnWidth('mobileWidth', mobileWidth);
-  if (tabletWidth) validateColumnWidth('tabletWidth', tabletWidth);
-  if (desktopWidth) validateColumnWidth('desktopWidth', desktopWidth);
-  if (desktopOffset) validateColumnWidth('desktopOffset', desktopOffset);
-  if (offset) validateColumnWidth('offset', offset);
+  validateWidth('width', width);
+  if (mobileWidth) validateWidth('mobileWidth', mobileWidth);
+  if (tabletWidth) validateWidth('tabletWidth', tabletWidth);
+  if (desktopWidth) validateWidth('desktopWidth', desktopWidth);
+  if (desktopOffset) validateWidth('desktopOffset', desktopOffset);
+  if (offset) validateWidth('offset', offset);
 
   // Create the column element
   const buildColumnElement = () => {
@@ -95,7 +86,7 @@ const createColumn = (props) => {
   let columnElement = buildColumnElement();
 
   // Public API
-  const column = {
+  return {
     /**
      * Get the column element
      * @returns {HTMLElement} Column element
@@ -113,7 +104,7 @@ const createColumn = (props) => {
       // Update state
       Object.assign(columnState, newProps);
 
-      // Rebuild element (for simplicity)
+      // Rebuild element
       const oldElement = columnElement;
       columnElement = buildColumnElement();
 
@@ -123,91 +114,6 @@ const createColumn = (props) => {
       }
 
       return this;
-    },
-
-    /**
-     * Efficient partial update for the column
-     * @param {HTMLElement} element - Element to update
-     * @param {Object} newProps - New properties
-     */
-    partialUpdate(element, newProps) {
-      // Update state first
-      Object.assign(columnState, newProps);
-
-      // Update specific properties only if they changed
-      if (newProps.width !== undefined) {
-        element.style.gridColumnEnd = `span ${newProps.width}`;
-      }
-
-      if (newProps.offset !== undefined) {
-        if (newProps.offset) {
-          element.style.gridColumnStart = newProps.offset + 1;
-        } else {
-          element.style.removeProperty('grid-column-start');
-        }
-      }
-
-      // Handle responsive classes
-      if (newProps.mobileWidth !== undefined) {
-        const mobileClasses = [...element.classList].filter((c) =>
-          c.startsWith('column--mobile-')
-        );
-        mobileClasses.forEach((c) => element.classList.remove(c));
-        if (newProps.mobileWidth) {
-          element.classList.add(`column--mobile-${newProps.mobileWidth}`);
-        }
-      }
-
-      if (newProps.tabletWidth !== undefined) {
-        const tabletClasses = [...element.classList].filter((c) =>
-          c.startsWith('column--tablet-')
-        );
-        tabletClasses.forEach((c) => element.classList.remove(c));
-        if (newProps.tabletWidth) {
-          element.classList.add(`column--tablet-${newProps.tabletWidth}`);
-        }
-      }
-
-      if (newProps.desktopWidth !== undefined) {
-        const desktopClasses = [...element.classList].filter(
-          (c) =>
-            c.startsWith('column--desktop-') &&
-            !c.startsWith('column--desktop-offset-')
-        );
-        desktopClasses.forEach((c) => element.classList.remove(c));
-        if (newProps.desktopWidth) {
-          element.classList.add(`column--desktop-${newProps.desktopWidth}`);
-        }
-      }
-
-      if (newProps.desktopOffset !== undefined) {
-        const offsetClasses = [...element.classList].filter((c) =>
-          c.startsWith('column--desktop-offset-')
-        );
-        offsetClasses.forEach((c) => element.classList.remove(c));
-        if (newProps.desktopOffset) {
-          element.classList.add(
-            `column--desktop-offset-${newProps.desktopOffset}`
-          );
-        }
-      }
-
-      // Update children if needed
-      if (newProps.children !== undefined) {
-        // Clear existing children
-        while (element.firstChild) {
-          element.removeChild(element.firstChild);
-        }
-
-        // Add new children properly handling both array and single child
-        if (Array.isArray(newProps.children)) {
-          appendChildren(element, newProps.children);
-        } else if (newProps.children instanceof HTMLElement) {
-          element.appendChild(newProps.children);
-        } else if (newProps.children) {
-          element.textContent = String(newProps.children);
-        }
-      }
     },
 
     /**
@@ -229,8 +135,6 @@ const createColumn = (props) => {
       );
     },
   };
-
-  return column;
 };
 
 /**
@@ -239,26 +143,10 @@ const createColumn = (props) => {
  * @returns {Object} Grid component
  */
 const createGrid = (props = {}) => {
-  const {
-    rowGap,
-    columnGap,
-    gap,
-    alignItems,
-    justifyItems,
-    mobileReverse = false,
-    reverse = false,
-  } = props;
+  const { rowGap, columnGap, gap, alignItems, justifyItems } = props;
 
   // State
-  let gridState = {
-    rowGap,
-    columnGap,
-    gap,
-    alignItems,
-    justifyItems,
-    mobileReverse,
-    reverse,
-  };
+  let gridState = { ...props };
 
   // Validation
   const isValidCSSValue = (value) => {
@@ -315,12 +203,9 @@ const createGrid = (props = {}) => {
     }
 
     // Alignment
-    if (gridState.alignItems) {
-      grid.style.alignItems = gridState.alignItems;
-    }
-    if (gridState.justifyItems) {
+    if (gridState.alignItems) grid.style.alignItems = gridState.alignItems;
+    if (gridState.justifyItems)
       grid.style.justifyItems = gridState.justifyItems;
-    }
 
     return grid;
   };
@@ -329,7 +214,7 @@ const createGrid = (props = {}) => {
   let gridElement = buildGridElement();
 
   // Public API
-  const grid = {
+  return {
     /**
      * Get the grid element
      * @returns {HTMLElement} Grid element
@@ -360,7 +245,7 @@ const createGrid = (props = {}) => {
       // Update state
       Object.assign(gridState, newProps);
 
-      // Rebuild element (for simplicity)
+      // Rebuild element
       const oldElement = gridElement;
       gridElement = buildGridElement();
 
@@ -375,55 +260,6 @@ const createGrid = (props = {}) => {
       }
 
       return this;
-    },
-
-    /**
-     * Efficient partial update for the grid
-     * @param {HTMLElement} element - Element to update
-     * @param {Object} newProps - New properties
-     */
-    partialUpdate(element, newProps) {
-      // Update state first
-      Object.assign(gridState, newProps);
-
-      // Update direction classes
-      if (newProps.reverse !== undefined) {
-        element.classList.toggle('grid--reverse', newProps.reverse);
-      }
-
-      if (newProps.mobileReverse !== undefined) {
-        element.classList.toggle(
-          'grid--mobile-reverse',
-          newProps.mobileReverse
-        );
-      }
-
-      // Handle gap styling
-      if (newProps.gap !== undefined) {
-        element.style.gap = newProps.gap;
-        // When setting gap, remove individual gaps
-        element.style.removeProperty('row-gap');
-        element.style.removeProperty('column-gap');
-      }
-
-      // Update row gap if no unified gap is set
-      if (newProps.rowGap !== undefined && !element.style.gap) {
-        element.style.rowGap = newProps.rowGap;
-      }
-
-      // Update column gap if no unified gap is set
-      if (newProps.columnGap !== undefined && !element.style.gap) {
-        element.style.columnGap = newProps.columnGap;
-      }
-
-      // Update alignment properties
-      if (newProps.alignItems !== undefined) {
-        element.style.alignItems = newProps.alignItems;
-      }
-
-      if (newProps.justifyItems !== undefined) {
-        element.style.justifyItems = newProps.justifyItems;
-      }
     },
 
     /**
@@ -443,8 +279,6 @@ const createGrid = (props = {}) => {
       console.debug(`Grid: Theme changed from ${previousTheme} to ${newTheme}`);
     },
   };
-
-  return grid;
 };
 
 // Define required props for validation
