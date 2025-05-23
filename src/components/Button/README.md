@@ -34,7 +34,6 @@ document.body.appendChild(myButton.getElement());
 | variant      | string   | ""       | Button variant ("primary", "secondary", "text", "outlined", "success", "danger", "icon") |
 | icon         | string   | ""       | Icon content (can be emoji, SVG, or text)                                                |
 | iconPosition | string   | "left"   | Icon position ("left" or "right")                                                        |
-| iconOnly     | boolean  | false    | Whether this is an icon-only button (auto-set if variant="icon")                         |
 | ariaLabel    | string   | ""       | Accessible label (required for icon-only buttons)                                        |
 | debounce     | boolean  | false    | Whether to debounce the click handler                                                    |
 | debounceWait | number   | 250      | Milliseconds to wait for debouncing                                                      |
