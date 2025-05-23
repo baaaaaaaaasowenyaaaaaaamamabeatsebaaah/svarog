@@ -90,6 +90,38 @@ export const WithSelectedValue = () => {
   });
 };
 
+export const WithDefaultValue = () => {
+  const options = [
+    { label: 'Option 1', value: 'option1' },
+    { label: 'Option 2', value: 'option2' },
+    { label: 'Option 3', value: 'option3' },
+  ];
+
+  return RadioGroup({
+    options,
+    name: 'defaultValueGroup',
+    legend: 'Default Value Radio Group',
+    defaultValue: 'option3',
+    onChange: (event, value) => console.log('Selected:', value),
+  });
+};
+
+export const WithLegacyDefaultActiveTab = () => {
+  const options = [
+    { label: 'Option 1', value: 'option1' },
+    { label: 'Option 2', value: 'option2' },
+    { label: 'Option 3', value: 'option3' },
+  ];
+
+  return RadioGroup({
+    options,
+    name: 'legacyDefaultGroup',
+    legend: 'Legacy Default Active Tab (Now Uses defaultValue)',
+    defaultActiveTab: 'option1', // Legacy prop
+    onChange: (event, value) => console.log('Selected:', value),
+  });
+};
+
 export const HorizontalLayout = () => {
   const options = [
     { label: 'Option 1', value: 'option1' },

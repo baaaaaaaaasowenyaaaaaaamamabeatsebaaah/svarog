@@ -98,6 +98,8 @@ document.querySelector('#container').appendChild(myRadioGroup.getElement());
 | `options`           | `Array<Object>` | _Required_   | Array of radio options                            |
 | `name`              | `string`        | _Required_   | Name attribute for form submission                |
 | `value`             | `string`        | `undefined`  | Currently selected value                          |
+| `defaultValue`      | `string`        | `undefined`  | Initially selected value (if value not provided)  |
+| `defaultActiveTab`  | `string`        | `undefined`  | **Deprecated:** Use `defaultValue` instead        |
 | `legend`            | `string`        | `undefined`  | Group label/title                                 |
 | `required`          | `boolean`       | `false`      | Whether selection is required                     |
 | `disabled`          | `boolean`       | `false`      | Whether the group is disabled                     |
@@ -187,6 +189,24 @@ const paymentMethods = RadioGroup({
   layout: 'horizontal',
   value: 'credit', // Preselected
   onChange: (event, value) => console.log('Method:', value),
+});
+```
+
+### Using defaultValue
+
+```javascript
+const options = [
+  { label: 'Standard (Free)', value: 'standard' },
+  { label: 'Express ($10)', value: 'express' },
+  { label: 'Next Day ($25)', value: 'next_day' },
+];
+
+const shipping = RadioGroup({
+  options,
+  name: 'shipping',
+  legend: 'Shipping Method',
+  defaultValue: 'standard', // Initial value
+  onChange: (event, value) => console.log('Shipping:', value),
 });
 ```
 
@@ -300,7 +320,7 @@ Keyboard support:
 
 4. **Use clear validation messages**: Validation messages should be specific about what the user needs to do.
 
-5. **Provide preselected values when appropriate**: For options with a logical default, preselect it to reduce user effort.
+5. **Provide preselected values when appropriate**: For options with a logical default, preselect it using `value` or `defaultValue` to reduce user effort.
 
 6. **Use horizontal layout only for small option sets**: Vertical layouts are easier to scan for most users, especially on mobile devices.
 

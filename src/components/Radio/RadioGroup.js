@@ -9,6 +9,31 @@ import { isTestEnvironment } from '../../utils/environment.js';
 import Radio from './Radio.js';
 
 /**
+ * Migrate legacy props to standardized props
+ * @param {Object} props - Component properties
+ * @returns {Object} Normalized properties
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Handle defaultActiveTab -> defaultValue alias
+  if ('defaultActiveTab' in props && !('defaultValue' in props)) {
+    console.warn(
+      '[RadioGroup] defaultActiveTab is deprecated, use defaultValue instead'
+    );
+    migrated.defaultValue = props.defaultActiveTab;
+    delete migrated.defaultActiveTab;
+  }
+
+  // Use defaultValue to set initial value if not explicitly set
+  if ('defaultValue' in migrated && !('value' in migrated)) {
+    migrated.value = migrated.defaultValue;
+  }
+
+  return migrated;
+};
+
+/**
  * Create the RadioGroup DOM structure
  * @param {Object} props - Component properties
  * @returns {HTMLElement} The RadioGroup element
@@ -134,9 +159,12 @@ const focusAndSelectRadio = (radio) => {
  * @returns {Object} RadioGroup component API
  */
 const createRadioGroup = createBaseComponent((props) => {
+  // Migrate legacy props first
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props
   validateRequiredProps(
-    props,
+    normalizedProps,
     {
       options: {
         required: true,
@@ -149,6 +177,7 @@ const createRadioGroup = createBaseComponent((props) => {
       },
       name: { required: true, type: 'string' },
       value: { required: false },
+      defaultValue: { required: false },
       legend: { required: false, type: 'string' },
       required: { required: false, type: 'boolean' },
       disabled: { required: false, type: 'boolean' },
@@ -175,7 +204,7 @@ const createRadioGroup = createBaseComponent((props) => {
     'RadioGroup'
   );
 
-  return createRadioGroupDOM(props);
+  return createRadioGroupDOM(normalizedProps);
 });
 
 /**
@@ -188,7 +217,7 @@ const RadioGroupFactory = (props) => {
   const benchmark = new PerformanceBenchmark('RadioGroup');
 
   // Make a copy of props to safely modify
-  const stateProps = { ...props };
+  const stateProps = { ...migrateLegacyProps(props) };
 
   // Create base component
   const component = createRadioGroup(stateProps);
@@ -347,13 +376,16 @@ const RadioGroupFactory = (props) => {
      * Custom update handler - avoids full rerender when possible
      */
     shouldRerender: (newProps) => {
+      // Migrate legacy props first
+      const normalizedProps = migrateLegacyProps(newProps);
+
       return (
-        newProps.options !== stateProps.options ||
-        newProps.layout !== stateProps.layout ||
-        newProps.legend !== stateProps.legend ||
-        newProps.className !== stateProps.className ||
-        (newProps.showValidation !== stateProps.showValidation &&
-          newProps.showValidation !== undefined)
+        normalizedProps.options !== stateProps.options ||
+        normalizedProps.layout !== stateProps.layout ||
+        normalizedProps.legend !== stateProps.legend ||
+        normalizedProps.className !== stateProps.className ||
+        (normalizedProps.showValidation !== stateProps.showValidation &&
+          normalizedProps.showValidation !== undefined)
       );
     },
 
@@ -363,62 +395,71 @@ const RadioGroupFactory = (props) => {
     partialUpdate: function (element, newProps) {
       const endBenchmark = benchmark.start('updates');
 
+      // Migrate legacy props first
+      const normalizedProps = migrateLegacyProps(newProps);
+
       // Update disabled state
       if (
-        newProps.disabled !== undefined &&
-        newProps.disabled !== stateProps.disabled
+        normalizedProps.disabled !== undefined &&
+        normalizedProps.disabled !== stateProps.disabled
       ) {
         element.setAttribute(
           'aria-disabled',
-          newProps.disabled ? 'true' : 'false'
+          normalizedProps.disabled ? 'true' : 'false'
         );
 
         // Update all child radios
         element._radioComponents.forEach((radio, index) => {
           const option = stateProps.options[index];
           radio.update({
-            disabled: newProps.disabled || (option && option.disabled) || false,
+            disabled:
+              normalizedProps.disabled || (option && option.disabled) || false,
           });
         });
       }
 
       // Update required state
       if (
-        newProps.required !== undefined &&
-        newProps.required !== stateProps.required
+        normalizedProps.required !== undefined &&
+        normalizedProps.required !== stateProps.required
       ) {
         element.setAttribute(
           'aria-required',
-          newProps.required ? 'true' : 'false'
+          normalizedProps.required ? 'true' : 'false'
         );
 
         // Only set required on first radio
         if (element._radioComponents.length > 0) {
-          element._radioComponents[0].update({ required: newProps.required });
+          element._radioComponents[0].update({
+            required: normalizedProps.required,
+          });
         }
       }
 
       // Update selected value
-      if (newProps.value !== undefined && newProps.value !== stateProps.value) {
+      if (
+        normalizedProps.value !== undefined &&
+        normalizedProps.value !== stateProps.value
+      ) {
         element._radioComponents.forEach((radio) => {
-          radio.setChecked(radio.getValue() === newProps.value);
+          radio.setChecked(radio.getValue() === normalizedProps.value);
         });
       }
 
       // Update validation message
       if (
-        newProps.validationMessage !== undefined &&
+        normalizedProps.validationMessage !== undefined &&
         element._messageElement &&
-        stateProps.validationMessage !== newProps.validationMessage
+        stateProps.validationMessage !== normalizedProps.validationMessage
       ) {
         if (element.classList.contains('radio-group--invalid')) {
           element._messageElement.textContent =
-            newProps.validationMessage || 'Please select an option';
+            normalizedProps.validationMessage || 'Please select an option';
         }
       }
 
       // Update props reference
-      Object.assign(stateProps, newProps);
+      Object.assign(stateProps, normalizedProps);
 
       endBenchmark();
     },

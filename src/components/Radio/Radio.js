@@ -10,6 +10,19 @@ import { debounce, PerformanceBenchmark } from '../../utils/performance.js';
 import { isTestEnvironment } from '../../utils/environment.js';
 
 /**
+ * Migrate legacy props to standardized props
+ * @param {Object} props - Component properties
+ * @returns {Object} Normalized properties
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // No specific property migrations needed for Radio component currently
+
+  return migrated;
+};
+
+/**
  * Create the DOM structure for the radio component
  * @param {Object} props - Component properties
  * @param {Object} state - Internal component state storage
@@ -149,13 +162,15 @@ const createChangeHandler = (input, container, props) => {
  * @param {boolean} [props.disabled=false] - Whether the radio is disabled
  * @param {string} [props.className=''] - Additional CSS class names
  * @param {Function} [props.onChange] - Change event handler
- * @param {string} [props.validationMessage] - Custom validation message
  * @returns {Object} Radio component API
  */
 const createRadio = createBaseComponent((props) => {
+  // Normalize props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props
   validateRequiredProps(
-    props,
+    normalizedProps,
     {
       label: { required: true, type: 'string' },
       value: { required: true },
@@ -172,11 +187,11 @@ const createRadio = createBaseComponent((props) => {
   );
 
   // Create component DOM structure
-  const container = createRadioDOM(props, {});
+  const container = createRadioDOM(normalizedProps, {});
   const inputElement = container._input;
 
   // Set up event handling
-  const handler = createChangeHandler(inputElement, container, props);
+  const handler = createChangeHandler(inputElement, container, normalizedProps);
   inputElement.addEventListener('change', handler);
   inputElement._changeHandler = handler; // Store for cleanup
 
@@ -192,18 +207,24 @@ const RadioFactory = (props) => {
   // Initialize performance benchmarking
   const benchmark = new PerformanceBenchmark('Radio');
 
+  // Normalize props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Create base component
-  const component = createRadio(props);
+  const component = createRadio(normalizedProps);
   const element = component.getElement();
   const inputElement = element._input;
 
   // Determine when a full rerender is needed
   component.shouldRerender = (newProps) => {
+    const normalizedNewProps = migrateLegacyProps(newProps);
     return (
-      newProps.label !== props.label ||
-      newProps.className !== props.className ||
-      (newProps.validationMessage !== props.validationMessage &&
-        (!newProps.validationMessage || !props.validationMessage))
+      normalizedNewProps.label !== normalizedProps.label ||
+      normalizedNewProps.className !== normalizedProps.className ||
+      (normalizedNewProps.validationMessage !==
+        normalizedProps.validationMessage &&
+        (!normalizedNewProps.validationMessage ||
+          !normalizedProps.validationMessage))
     );
   };
 
@@ -211,75 +232,84 @@ const RadioFactory = (props) => {
   component.partialUpdate = (element, newProps) => {
     const endBenchmark = benchmark.start('updates');
 
+    // Normalize props
+    const normalizedNewProps = migrateLegacyProps(newProps);
+
     // Update checked state
     if (
-      newProps.checked !== undefined &&
-      inputElement.checked !== newProps.checked
+      normalizedNewProps.checked !== undefined &&
+      inputElement.checked !== normalizedNewProps.checked
     ) {
-      inputElement.checked = newProps.checked;
+      inputElement.checked = normalizedNewProps.checked;
       inputElement.setAttribute(
         'aria-checked',
-        newProps.checked ? 'true' : 'false'
+        normalizedNewProps.checked ? 'true' : 'false'
       );
     }
 
     // Update disabled state
     if (
-      newProps.disabled !== undefined &&
-      inputElement.disabled !== newProps.disabled
+      normalizedNewProps.disabled !== undefined &&
+      inputElement.disabled !== normalizedNewProps.disabled
     ) {
-      inputElement.disabled = newProps.disabled;
+      inputElement.disabled = normalizedNewProps.disabled;
       inputElement.setAttribute(
         'aria-disabled',
-        newProps.disabled ? 'true' : 'false'
+        normalizedNewProps.disabled ? 'true' : 'false'
       );
     }
 
     // Update required state
     if (
-      newProps.required !== undefined &&
-      inputElement.required !== newProps.required
+      normalizedNewProps.required !== undefined &&
+      inputElement.required !== normalizedNewProps.required
     ) {
-      inputElement.required = newProps.required;
+      inputElement.required = normalizedNewProps.required;
       inputElement.setAttribute(
         'aria-required',
-        newProps.required ? 'true' : 'false'
+        normalizedNewProps.required ? 'true' : 'false'
       );
     }
 
     // Update name attribute
-    if (newProps.name !== undefined && inputElement.name !== newProps.name) {
-      inputElement.name = newProps.name;
+    if (
+      normalizedNewProps.name !== undefined &&
+      inputElement.name !== normalizedNewProps.name
+    ) {
+      inputElement.name = normalizedNewProps.name;
     }
 
     // Update value
-    if (newProps.value !== undefined && inputElement.value !== newProps.value) {
-      inputElement.value = newProps.value;
+    if (
+      normalizedNewProps.value !== undefined &&
+      inputElement.value !== normalizedNewProps.value
+    ) {
+      inputElement.value = normalizedNewProps.value;
     }
 
     // Update label text
     if (
-      newProps.label !== undefined &&
-      element._label.textContent !== newProps.label
+      normalizedNewProps.label !== undefined &&
+      element._label.textContent !== normalizedNewProps.label
     ) {
-      element._label.textContent = newProps.label;
+      element._label.textContent = normalizedNewProps.label;
     }
 
     // Update validation message
     if (
-      newProps.validationMessage !== undefined &&
+      normalizedNewProps.validationMessage !== undefined &&
       element.validationContainer &&
-      props.validationMessage !== newProps.validationMessage
+      normalizedProps.validationMessage !== normalizedNewProps.validationMessage
     ) {
       validateInput(inputElement, {
         container: element,
         messageElement: element.validationContainer,
-        customMessage: newProps.validationMessage,
+        customMessage: normalizedNewProps.validationMessage,
       });
     }
 
     // Update props reference
-    Object.assign(props, newProps);
+    Object.assign(normalizedProps, normalizedNewProps);
 
     endBenchmark();
   };
@@ -292,7 +322,7 @@ const RadioFactory = (props) => {
      * Gets the radio value
      * @returns {string} The radio value
      */
-    getValue: () => props.value,
+    getValue: () => normalizedProps.value,
 
     /**
      * Checks if the radio is checked
@@ -320,7 +350,7 @@ const RadioFactory = (props) => {
         return validateInput(inputElement, {
           container: element,
           messageElement: element.validationContainer,
-          customMessage: props.validationMessage,
+          customMessage: normalizedProps.validationMessage,
         });
       }
       return inputElement.checkValidity();
