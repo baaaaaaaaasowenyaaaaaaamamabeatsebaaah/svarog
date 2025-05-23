@@ -19,25 +19,28 @@ document.body.appendChild(myInput.getElement());
 
 ## Props
 
-| Prop              | Type     | Default   | Description                                             |
-| ----------------- | -------- | --------- | ------------------------------------------------------- |
-| type              | string   | 'text'    | Input type (text, email, password, number, search, etc) |
-| id                | string   | undefined | HTML id attribute                                       |
-| name              | string   | undefined | Input name for form submission                          |
-| value             | string   | ''        | Input value                                             |
-| placeholder       | string   | ''        | Placeholder text                                        |
-| required          | boolean  | false     | Whether input is required                               |
-| disabled          | boolean  | false     | Whether input is disabled                               |
-| readonly          | boolean  | false     | Whether input is read-only                              |
-| pattern           | string   | undefined | Validation pattern regex                                |
-| minLength         | number   | undefined | Minimum input length                                    |
-| maxLength         | number   | undefined | Maximum input length                                    |
-| className         | string   | ''        | Additional CSS classes                                  |
-| onChange          | function | undefined | Change event handler: (event, value) => void            |
-| onFocus           | function | undefined | Focus event handler: (event) => void                    |
-| onBlur            | function | undefined | Blur event handler: (event) => void                     |
-| validationMessage | string   | ''        | Custom validation message                               |
-| showValidation    | boolean  | true      | Whether to show validation message                      |
+| Prop           | Type     | Default   | Description                                             |
+| -------------- | -------- | --------- | ------------------------------------------------------- |
+| type           | string   | 'text'    | Input type (text, email, password, number, search, etc) |
+| id             | string   | undefined | HTML id attribute                                       |
+| name           | string   | undefined | Input name for form submission                          |
+| value          | string   | ''        | Input value                                             |
+| defaultValue   | string   | undefined | Initial value (used if value not provided)              |
+| placeholder    | string   | ''        | Placeholder text                                        |
+| required       | boolean  | false     | Whether input is required                               |
+| disabled       | boolean  | false     | Whether input is disabled                               |
+| readonly       | boolean  | false     | Whether input is read-only                              |
+| pattern        | string   | undefined | Validation pattern regex                                |
+| minLength      | number   | undefined | Minimum input length                                    |
+| maxLength      | number   | undefined | Maximum input length                                    |
+| className      | string   | ''        | Additional CSS classes                                  |
+| onChange       | function | undefined | Change event handler: (event, value) => void            |
+| onFocus        | function | undefined | Focus event handler: (event) => void                    |
+| onBlur         | function | undefined | Blur event handler: (event) => void                     |
+| error          | boolean  | null      | Error state (true = error, false = valid, null = unset) |
+| errorMessage   | string   | ''        | Error message to display when validation fails          |
+| loading        | boolean  | false     | Whether the input is in a loading state                 |
+| showValidation | boolean  | true      | Whether to show validation message                      |
 
 ## Methods
 
@@ -84,7 +87,7 @@ Updates multiple input properties at once.
 myInput.update({
   disabled: true,
   value: 'Updated value',
-  validationMessage: 'Custom validation message',
+  errorMessage: 'Custom error message',
 });
 ```
 
@@ -133,14 +136,14 @@ const numberInput = Input({
 
 ## Validation
 
-Enable validation by using the `required`, `pattern`, or `minLength`/`maxLength` props. You can provide a custom validation message with the `validationMessage` prop.
+Enable validation by using the `required`, `pattern`, or `minLength`/`maxLength` props. You can provide a custom validation message with the `errorMessage` prop.
 
 ```javascript
 const emailInput = Input({
   type: 'email',
   required: true,
   pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$',
-  validationMessage: 'Please enter a valid email address',
+  errorMessage: 'Please enter a valid email address',
 });
 
 // Trigger validation manually
@@ -183,3 +186,15 @@ The Input component is designed with accessibility in mind:
 - Screen reader announcements for validation errors
 - Visual AND programmatic state indication (disabled, invalid, etc.)
 - Maintains proper focus handling
+
+## Legacy Props Support
+
+For backward compatibility, the component supports the following legacy props:
+
+| Legacy Prop       | New Prop     | Notes                       |
+| ----------------- | ------------ | --------------------------- |
+| isValid           | error        | error is inverse of isValid |
+| validationMessage | errorMessage | Use errorMessage instead    |
+| isLoading         | loading      | Use loading instead         |
+
+Using legacy props will log deprecation warnings to the console.

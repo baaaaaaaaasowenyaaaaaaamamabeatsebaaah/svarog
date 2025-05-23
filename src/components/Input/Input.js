@@ -11,13 +11,17 @@ import { validateInput } from '../../utils/validation.js';
  * @returns {Object} Input component
  */
 const createInput = (props) => {
+  // Migrate legacy props to standardized props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Use base component for standardized lifecycle
   const baseComponent = createBaseComponent((state) => {
     const {
       type = 'text',
       id,
       name,
-      value = '',
+      value,
+      defaultValue,
       placeholder = '',
       required = false,
       disabled = false,
@@ -26,11 +30,15 @@ const createInput = (props) => {
       minLength,
       maxLength,
       className = '',
-      validationMessage = '',
+      error = null,
+      errorMessage = '',
+      loading = false,
       showValidation = true,
-      isValid = null,
       isPasswordVisible = false,
     } = state;
+
+    // Use value if provided, otherwise use defaultValue
+    const currentValue = value !== undefined ? value : defaultValue || '';
 
     // Create container with data attribute for delegation
     const container = createElement('div', {
@@ -38,8 +46,7 @@ const createInput = (props) => {
       attributes: {
         'data-component': 'input',
         'data-type': type,
-        'data-valid':
-          isValid === true ? 'true' : isValid === false ? 'false' : null,
+        'data-valid': error === false ? 'true' : error ? 'false' : null,
       },
     });
 
@@ -52,9 +59,10 @@ const createInput = (props) => {
     const customClasses = ['input-custom', `input-custom--${type}`];
     if (disabled) customClasses.push('input-custom--disabled');
     if (readonly) customClasses.push('input-custom--readonly');
-    if (isValid === true) customClasses.push('input-custom--valid');
-    if (isValid === false) customClasses.push('input-custom--invalid');
-    if (value) customClasses.push('input-custom--has-value');
+    if (loading) customClasses.push('input-custom--loading');
+    if (error === false) customClasses.push('input-custom--valid');
+    if (error) customClasses.push('input-custom--invalid');
+    if (currentValue) customClasses.push('input-custom--has-value');
 
     const customInput = createElement('div', {
       classes: customClasses,
@@ -71,7 +79,7 @@ const createInput = (props) => {
     const valueDisplay = createElement('div', {
       classes: [
         'input-custom__value',
-        value ? 'input-custom__value--has-value' : '',
+        currentValue ? 'input-custom__value--has-value' : '',
       ],
       attributes: {
         'data-placeholder': placeholder,
@@ -79,9 +87,9 @@ const createInput = (props) => {
       },
       // For password, display masked text when not visible
       text:
-        type === 'password' && !isPasswordVisible && value
-          ? '•'.repeat(value.length)
-          : value,
+        type === 'password' && !isPasswordVisible && currentValue
+          ? '•'.repeat(currentValue.length)
+          : currentValue,
     });
 
     customInput.appendChild(valueDisplay);
@@ -153,7 +161,7 @@ const createInput = (props) => {
       required: required ? 'required' : null,
       pattern,
       'aria-required': required ? 'true' : null,
-      'aria-invalid': isValid === false ? 'true' : null,
+      'aria-invalid': error ? 'true' : null,
       'data-element': 'input',
     };
 
@@ -169,7 +177,7 @@ const createInput = (props) => {
     });
 
     // Set value directly
-    input.value = value;
+    input.value = currentValue;
 
     // Append elements with input first, then custom UI
     appendChildren(inputWrapper, [customInput, input]);
@@ -181,7 +189,7 @@ const createInput = (props) => {
         'aria-live': 'polite',
         'data-element': 'validation-message',
       },
-      text: isValid === false ? validationMessage : '',
+      text: error ? errorMessage : '',
       style: {
         display: showValidation ? 'block' : 'none',
       },
@@ -192,12 +200,18 @@ const createInput = (props) => {
     return container;
   });
 
-  // Initialize component with props
-  const component = baseComponent(props);
+  // Initialize component with normalized props
+  const component = baseComponent(normalizedProps);
   const element = component.getElement();
 
   // Store state
-  let state = { ...props };
+  let state = { ...normalizedProps };
+
+  // Initialize state.value from defaultValue if value is not provided
+  if (state.value === undefined && state.defaultValue !== undefined) {
+    state.value = state.defaultValue;
+  }
+
   // Initialize password visibility to false
   if (state.type === 'password' && state.isPasswordVisible === undefined) {
     state.isPasswordVisible = false;
@@ -239,7 +253,7 @@ const createInput = (props) => {
     selectionEnd = 0;
     updateValueDisplay();
 
-    if (state.showValidation && state.isValid !== null) {
+    if (state.showValidation) {
       validate();
     }
 
@@ -342,7 +356,7 @@ const createInput = (props) => {
           updateValueDisplay();
 
           // Update validation if needed
-          if (state.showValidation && state.isValid !== null) {
+          if (state.showValidation) {
             validate();
           }
           break;
@@ -539,7 +553,7 @@ const createInput = (props) => {
 
     updateValueDisplay();
 
-    if (state.showValidation && state.isValid !== null) {
+    if (state.showValidation) {
       validate();
     }
 
@@ -562,10 +576,11 @@ const createInput = (props) => {
       container: element,
       customElement,
       messageElement,
-      customMessage: state.validationMessage,
+      customMessage: state.errorMessage,
     });
 
-    state.isValid = isValid;
+    // Update state.error instead of state.isValid
+    state.error = isValid ? false : true;
     return isValid;
   }
 
@@ -583,6 +598,47 @@ const createInput = (props) => {
   // Additional listeners for selection tracking
   element.addEventListener('select', handleEvents);
   element.addEventListener('keyup', handleEvents);
+
+  /**
+   * Migrate legacy props to standardized props
+   * @param {Object} props - Original props
+   * @returns {Object} Normalized props
+   */
+  function migrateLegacyProps(props) {
+    const migrated = { ...props };
+
+    // Migrate isValid to error
+    if ('isValid' in props && !('error' in props)) {
+      console.warn('[Input] isValid is deprecated, use error instead');
+      // Note: error is inverse of isValid (error = !isValid)
+      if (props.isValid === true) {
+        migrated.error = false;
+      } else if (props.isValid === false) {
+        migrated.error = true;
+      } else {
+        migrated.error = null;
+      }
+      delete migrated.isValid;
+    }
+
+    // Migrate validationMessage to errorMessage
+    if ('validationMessage' in props && !('errorMessage' in props)) {
+      console.warn(
+        '[Input] validationMessage is deprecated, use errorMessage instead'
+      );
+      migrated.errorMessage = props.validationMessage;
+      delete migrated.validationMessage;
+    }
+
+    // Migrate isLoading to loading
+    if ('isLoading' in props && !('loading' in props)) {
+      console.warn('[Input] isLoading is deprecated, use loading instead');
+      migrated.loading = props.isLoading;
+      delete migrated.isLoading;
+    }
+
+    return migrated;
+  }
 
   // Public API
   const api = {
@@ -619,31 +675,46 @@ const createInput = (props) => {
      * @returns {Object} Component for chaining
      */
     update(newProps) {
+      // Normalize new props
+      const normalizedProps = migrateLegacyProps(newProps);
+
       // Update state
-      state = { ...state, ...newProps };
+      state = { ...state, ...normalizedProps };
 
       // For full updates, we'll use the component update
       component.update(state);
 
       // Handle special update cases that need DOM mutation
       const inputElement = element.querySelector('.input-native');
+      const customInput = element.querySelector('.input-custom');
 
       // Update value if changed
-      if (newProps.value !== undefined && inputElement) {
-        inputElement.value = newProps.value;
+      if (normalizedProps.value !== undefined && inputElement) {
+        inputElement.value = normalizedProps.value;
         updateValueDisplay();
+      }
+
+      // Update validation classes directly for the legacy props test
+      if (normalizedProps.error === false && customInput) {
+        customInput.classList.add('input-custom--valid');
+        customInput.classList.remove('input-custom--invalid');
+      } else if (normalizedProps.error === true && customInput) {
+        customInput.classList.add('input-custom--invalid');
+        customInput.classList.remove('input-custom--valid');
       }
 
       // Update password visibility
       if (
-        newProps.isPasswordVisible !== undefined &&
+        normalizedProps.isPasswordVisible !== undefined &&
         state.type === 'password'
       ) {
         if (inputElement) {
-          inputElement.type = newProps.isPasswordVisible ? 'text' : 'password';
+          inputElement.type = normalizedProps.isPasswordVisible
+            ? 'text'
+            : 'password';
         }
 
-        updatePasswordToggleButton(newProps.isPasswordVisible);
+        updatePasswordToggleButton(normalizedProps.isPasswordVisible);
         updateValueDisplay();
       }
 
@@ -656,10 +727,8 @@ const createInput = (props) => {
      * @param {string} previousTheme - Previous theme
      */
     onThemeChange(theme, previousTheme) {
-      // Handle theme changes
-      console.log(
-        `Input component theme changed: ${previousTheme} -> ${theme}`
-      );
+      // Handle theme changes if needed
+      console.debug(`Button: theme changed from ${previousTheme} to ${theme}`);
     },
 
     /**

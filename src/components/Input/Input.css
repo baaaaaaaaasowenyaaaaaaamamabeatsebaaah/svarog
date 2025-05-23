@@ -97,6 +97,32 @@
   cursor: default;
 }
 
+/* Loading state */
+.input-custom--loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.input-custom--loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-brand-primary, #3182ce);
+  border-radius: 50%;
+  animation: input-loading-spinner 0.8s linear infinite;
+}
+
+@keyframes input-loading-spinner {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
 /* Validation states */
 .input-custom--valid {
   border-color: var(--input-valid-border-color,);
