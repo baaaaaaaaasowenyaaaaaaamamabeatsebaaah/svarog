@@ -84,7 +84,7 @@ export const WithBackgroundImage = () => {
   content.appendChild(paragraph);
 
   const section = Section({
-    backgroundImage: bgImage,
+    backgroundImageElement: bgImage,
     children: [content],
   });
 
@@ -197,7 +197,7 @@ export const BackgroundColorAndImage = () => {
 
   const section = Section({
     backgroundColor: '#004466',
-    backgroundImage: bgImage,
+    backgroundImageElement: bgImage,
     children: [content],
   });
 
@@ -241,7 +241,7 @@ export const ComprehensiveExample = () => {
     title: 'Section Title',
     description:
       'This is the section description that appears above the main content.',
-    backgroundImage: bgImage,
+    backgroundImageElement: bgImage,
     backgroundColor: '#001a33', // Visible if image fails to load
     children: [content],
   });

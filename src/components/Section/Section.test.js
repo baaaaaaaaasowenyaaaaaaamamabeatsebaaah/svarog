@@ -43,7 +43,19 @@ describe('Section component', () => {
     bgImage.src = 'https://via.placeholder.com/150';
     bgImage.alt = 'Background Image';
     const section = Section({
-      backgroundImage: bgImage,
+      backgroundImageElement: bgImage,
+      children: 'This is a section.',
+    });
+    const element = section.getElement();
+    expect(element.querySelector('.section__background-image')).not.toBeNull();
+  });
+
+  it('should support legacy backgroundImage prop', () => {
+    const bgImage = document.createElement('img');
+    bgImage.src = 'https://via.placeholder.com/150';
+    bgImage.alt = 'Background Image';
+    const section = Section({
+      backgroundImage: bgImage, // Using legacy prop
       children: 'This is a section.',
     });
     const element = section.getElement();
@@ -101,12 +113,12 @@ describe('Section component', () => {
     }).toThrow(/variant must be "minor" or undefined/);
   });
 
-  it('should throw error when backgroundImage is not an HTMLElement', () => {
+  it('should throw error when backgroundImageElement is not an HTMLElement', () => {
     expect(() => {
       Section({
-        backgroundImage: 'not-an-element',
-        children: 'Invalid backgroundImage.',
+        backgroundImageElement: 'not-an-element',
+        children: 'Invalid backgroundImageElement.',
       });
-    }).toThrow(/backgroundImage must be an HTMLElement/);
+    }).toThrow(/backgroundImageElement must be an HTMLElement/);
   });
 });

@@ -18,17 +18,17 @@ document.body.appendChild(mySection.getElement());
 
 ## Props
 
-| Prop            | Type                       | Default    | Description                                       |
-| --------------- | -------------------------- | ---------- | ------------------------------------------------- |
-| children        | string\|HTMLElement\|Array | (Required) | Content for the section                           |
-| id              | string                     | null       | Section ID for anchor links                       |
-| variant         | string                     | null       | Section variant ("minor" for alternative styling) |
-| backgroundImage | HTMLElement                | null       | Optional background image element                 |
-| backgroundColor | string                     | null       | Custom background color (CSS color value)         |
-| noPaddingBottom | boolean                    | false      | Whether to remove bottom padding                  |
-| className       | string                     | ''         | Additional CSS classes                            |
-| title           | string                     | null       | Optional section title                            |
-| description     | string                     | null       | Optional section description                      |
+| Prop                   | Type                       | Default    | Description                                       |
+| ---------------------- | -------------------------- | ---------- | ------------------------------------------------- |
+| children               | string\|HTMLElement\|Array | (Required) | Content for the section                           |
+| id                     | string                     | null       | Section ID for anchor links                       |
+| variant                | string                     | null       | Section variant ("minor" for alternative styling) |
+| backgroundImageElement | HTMLElement                | null       | Optional background image element                 |
+| backgroundColor        | string                     | null       | Custom background color (CSS color value)         |
+| noPaddingBottom        | boolean                    | false      | Whether to remove bottom padding                  |
+| className              | string                     | ''         | Additional CSS classes                            |
+| title                  | string                     | null       | Optional section title                            |
+| description            | string                     | null       | Optional section description                      |
 
 ## Methods
 
@@ -163,7 +163,7 @@ bgImage.alt = '';
 bgImage.style.objectFit = 'cover';
 
 const sectionWithBg = Section({
-  backgroundImage: bgImage,
+  backgroundImageElement: bgImage,
   children: 'Section with background image',
 });
 ```
@@ -211,3 +211,7 @@ The Section component follows best practices for accessibility:
 - Supports ID attributes for anchor links
 - Ensures background images have appropriate contrast for overlaid content
 - Maintains consistent spacing and layout across various screen sizes
+
+## Prop Migration
+
+Note: The `backgroundImage` prop is now deprecated. Please use `backgroundImageElement` instead.

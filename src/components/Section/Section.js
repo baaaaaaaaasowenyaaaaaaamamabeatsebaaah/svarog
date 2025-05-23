@@ -10,7 +10,7 @@ import Typography from '../Typography/Typography.js';
  * @param {string|HTMLElement|Array} props.children - Content for the section
  * @param {string} [props.id] - Section ID for anchor links
  * @param {string} [props.variant] - Section variant ("minor" for alternative styling)
- * @param {HTMLElement} [props.backgroundImage] - Optional background image element
+ * @param {HTMLElement} [props.backgroundImageElement] - Optional background image element
  * @param {string} [props.backgroundColor] - Custom background color (CSS color value)
  * @param {boolean} [props.noPaddingBottom=false] - Whether to remove bottom padding
  * @param {string} [props.className=''] - Additional CSS class names
@@ -19,20 +19,23 @@ import Typography from '../Typography/Typography.js';
  * @returns {Object} Section component API
  */
 const createSection = (props) => {
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate props
-  if (!props.children) {
+  if (!normalizedProps.children) {
     throw new Error('Section: children is required');
   }
 
-  if (props.variant && props.variant !== 'minor') {
+  if (normalizedProps.variant && normalizedProps.variant !== 'minor') {
     throw new Error('Section: variant must be "minor" or undefined');
   }
 
   if (
-    props.backgroundImage &&
-    !(props.backgroundImage instanceof HTMLElement)
+    normalizedProps.backgroundImageElement &&
+    !(normalizedProps.backgroundImageElement instanceof HTMLElement)
   ) {
-    throw new Error('Section: backgroundImage must be an HTMLElement');
+    throw new Error('Section: backgroundImageElement must be an HTMLElement');
   }
 
   /**
@@ -68,11 +71,11 @@ const createSection = (props) => {
     });
 
     // Add background image if provided
-    if (state.backgroundImage) {
+    if (state.backgroundImageElement) {
       const bgContainer = createElement('div', {
         classes: ['section__background-image'],
       });
-      bgContainer.appendChild(state.backgroundImage);
+      bgContainer.appendChild(state.backgroundImageElement);
       section.appendChild(bgContainer);
     }
 
@@ -119,7 +122,7 @@ const createSection = (props) => {
   };
 
   // Create component using baseComponent
-  const baseComponent = createBaseComponent(renderSection)(props);
+  const baseComponent = createBaseComponent(renderSection)(normalizedProps);
 
   /**
    * Determines if component needs to fully re-render based on prop changes
@@ -127,15 +130,20 @@ const createSection = (props) => {
    * @returns {boolean} Whether a full re-render is required
    */
   const shouldRerender = (newProps) => {
+    // Migrate legacy props
+    const normalizedNewProps = migrateLegacyProps(newProps);
+
     // Only rebuild if critical props change
     const criticalProps = [
       'children',
       'variant',
-      'backgroundImage',
+      'backgroundImageElement',
       'title',
       'description',
     ];
-    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+    return Object.keys(normalizedNewProps).some((key) =>
+      criticalProps.includes(key)
+    );
   };
 
   /**
@@ -144,32 +152,35 @@ const createSection = (props) => {
    * @param {Object} newProps - New properties
    */
   const partialUpdate = (element, newProps) => {
+    // Migrate legacy props
+    const normalizedNewProps = migrateLegacyProps(newProps);
+
     // Update background color
-    if (newProps.backgroundColor !== undefined) {
-      element.style.backgroundColor = newProps.backgroundColor || '';
+    if (normalizedNewProps.backgroundColor !== undefined) {
+      element.style.backgroundColor = normalizedNewProps.backgroundColor || '';
     }
 
     // Update class names
     if (
-      newProps.className !== undefined ||
-      newProps.noPaddingBottom !== undefined ||
-      newProps.variant !== undefined
+      normalizedNewProps.className !== undefined ||
+      normalizedNewProps.noPaddingBottom !== undefined ||
+      normalizedNewProps.variant !== undefined
     ) {
       const baseClasses = ['section'];
 
       // Get current state with updates
       const currentState = { ...baseComponent.state };
 
-      if (newProps.className !== undefined) {
-        currentState.className = newProps.className;
+      if (normalizedNewProps.className !== undefined) {
+        currentState.className = normalizedNewProps.className;
       }
 
-      if (newProps.noPaddingBottom !== undefined) {
-        currentState.noPaddingBottom = newProps.noPaddingBottom;
+      if (normalizedNewProps.noPaddingBottom !== undefined) {
+        currentState.noPaddingBottom = normalizedNewProps.noPaddingBottom;
       }
 
-      if (newProps.variant !== undefined) {
-        currentState.variant = newProps.variant;
+      if (normalizedNewProps.variant !== undefined) {
+        currentState.variant = normalizedNewProps.variant;
       }
 
       // Build new class names
@@ -189,9 +200,9 @@ const createSection = (props) => {
     }
 
     // Update ID
-    if (newProps.id !== undefined) {
-      if (newProps.id) {
-        element.setAttribute('id', newProps.id);
+    if (normalizedNewProps.id !== undefined) {
+      if (normalizedNewProps.id) {
+        element.setAttribute('id', normalizedNewProps.id);
       } else {
         element.removeAttribute('id');
       }
@@ -274,6 +285,25 @@ const createSection = (props) => {
   };
 
   return sectionComponent;
+};
+
+/**
+ * Migrates legacy props to standardized props
+ * @param {Object} props - Component properties
+ * @returns {Object} Normalized properties
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  if ('backgroundImage' in props && !('backgroundImageElement' in props)) {
+    console.warn(
+      '[Section] backgroundImage is deprecated, use backgroundImageElement instead'
+    );
+    migrated.backgroundImageElement = props.backgroundImage;
+    delete migrated.backgroundImage;
+  }
+
+  return migrated;
 };
 
 // Define required props for validation
