@@ -13,7 +13,7 @@ const myBlogCard = BlogCard({
   slug: 'getting-started-with-web-components',
   excerpt:
     'Learn how to create reusable web components using vanilla JavaScript...',
-  featuredImage: 'https://example.com/image.jpg',
+  imageUrl: 'https://example.com/image.jpg',
   publishedDate: '2024-01-15T00:00:00Z',
   author: 'Jane Smith',
   categories: ['Web Development', 'JavaScript'],
@@ -30,11 +30,17 @@ document.body.appendChild(myBlogCard.getElement());
 | title         | string | (Required) | Blog post title                           |
 | slug          | string | (Required) | URL slug for the blog post                |
 | excerpt       | string | ''         | Short excerpt or summary of the blog post |
-| featuredImage | string | ''         | URL for the featured image                |
+| imageUrl      | string | ''         | URL for the featured image                |
 | publishedDate | string | ''         | ISO date string for the publication date  |
 | author        | string | ''         | Author name                               |
 | categories    | array  | []         | Array of category names                   |
 | className     | string | ''         | Additional CSS class names                |
+
+### Deprecated Props
+
+| Prop          | Deprecated Since | Use Instead | Migration Notes                  |
+| ------------- | ---------------- | ----------- | -------------------------------- |
+| featuredImage | v2.0.0           | imageUrl    | Will show console warning in dev |
 
 ## Methods
 
@@ -64,6 +70,31 @@ Cleans up event listeners and resources. Call when removing the blog card.
 
 ```javascript
 myBlogCard.destroy();
+```
+
+## Migration Guide
+
+### From v1.x to v2.x
+
+**Image Props Standardization**
+
+- Change `featuredImage` to `imageUrl`
+- The old prop will continue to work but will show deprecation warnings
+
+```javascript
+// Before (v1.x)
+const blogCard = BlogCard({
+  title: 'My Post',
+  slug: 'my-post',
+  featuredImage: 'https://example.com/image.jpg', // Deprecated
+});
+
+// After (v2.x)
+const blogCard = BlogCard({
+  title: 'My Post',
+  slug: 'my-post',
+  imageUrl: 'https://example.com/image.jpg', // New standardized prop
+});
 ```
 
 ## CSS Customization
@@ -117,7 +148,7 @@ const basicCard = BlogCard({
   slug: 'getting-started-with-web-components',
   excerpt:
     'Learn how to create reusable web components using vanilla JavaScript...',
-  featuredImage: 'https://example.com/image.jpg',
+  imageUrl: 'https://example.com/image.jpg',
   publishedDate: '2024-01-15T00:00:00Z',
   author: 'Jane Smith',
   categories: ['Web Development', 'JavaScript'],
@@ -144,7 +175,7 @@ const noAuthorCard = BlogCard({
   title: 'CSS Variables Guide',
   slug: 'css-variables-guide',
   excerpt: 'A comprehensive guide to using CSS variables in your projects...',
-  featuredImage: 'https://example.com/css-image.jpg',
+  imageUrl: 'https://example.com/css-image.jpg',
   publishedDate: '2024-01-25T00:00:00Z',
   categories: ['CSS', 'Web Development'],
 });

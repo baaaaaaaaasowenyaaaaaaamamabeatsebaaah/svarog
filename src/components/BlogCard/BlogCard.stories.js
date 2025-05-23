@@ -11,7 +11,7 @@ const defaultArgs = {
   slug: 'getting-started-with-web-components',
   excerpt:
     'Learn how to create reusable web components using vanilla JavaScript. This guide covers the basics of custom elements, shadow DOM, and component lifecycle.',
-  featuredImage:
+  imageUrl:
     'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80',
   publishedDate: '2024-01-15T00:00:00Z',
   author: 'Jane Smith',
@@ -24,7 +24,7 @@ export const Default = () => {
 
 export const WithoutImage = () => {
   const args = { ...defaultArgs };
-  delete args.featuredImage;
+  delete args.imageUrl;
   return BlogCard(args);
 };
 
@@ -52,5 +52,13 @@ export const WithManyCategories = () => {
       'Tutorial',
       'Components',
     ],
+  });
+};
+
+// Story to demonstrate migration from legacy prop
+export const LegacyPropMigration = () => {
+  return BlogCard({
+    ...defaultArgs,
+    featuredImage: defaultArgs.imageUrl, // This will show a deprecation warning
   });
 };

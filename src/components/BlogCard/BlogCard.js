@@ -16,7 +16,8 @@ import Link from '../Link/Link.js';
  * @param {string} [props.title=''] - Blog post title
  * @param {string} [props.slug=''] - Blog post URL slug
  * @param {string} [props.excerpt=''] - Blog post excerpt
- * @param {string} [props.featuredImage=''] - URL of featured image
+ * @param {string} [props.imageUrl=''] - URL of featured image
+ * @param {string} [props.featuredImage=''] - DEPRECATED: Use imageUrl instead
  * @param {string} [props.publishedDate=''] - Published date string
  * @param {string} [props.author=''] - Author name
  * @param {Array} [props.categories=[]] - Post categories
@@ -24,12 +25,35 @@ import Link from '../Link/Link.js';
  * @returns {Object} BlogCard component API
  */
 const createBlogCard = (props) => {
+  /**
+   * Migrates legacy props to new standardized props
+   * @param {Object} props - Original props
+   * @returns {Object} Migrated props
+   */
+  const migrateLegacyProps = (props) => {
+    const migrated = { ...props };
+
+    // Handle featuredImage -> imageUrl migration
+    if ('featuredImage' in props && !('imageUrl' in props)) {
+      console.warn(
+        '[BlogCard] featuredImage is deprecated, use imageUrl instead'
+      );
+      migrated.imageUrl = props.featuredImage;
+      delete migrated.featuredImage;
+    }
+
+    return migrated;
+  };
+
+  // Migrate legacy props
+  const migratedProps = migrateLegacyProps(props);
+
   // Define prop requirements
   const propRequirements = {
     title: { required: true, type: 'string' },
     slug: { required: true, type: 'string' },
     excerpt: { required: false, type: 'string' },
-    featuredImage: { required: false, type: 'string' },
+    imageUrl: { required: false, type: 'string' },
     publishedDate: { required: false, type: 'string' },
     author: { required: false, type: 'string' },
     categories: { required: false, type: 'array' },
@@ -37,19 +61,19 @@ const createBlogCard = (props) => {
   };
 
   // Validate required props
-  validateRequiredProps(props, propRequirements, 'BlogCard');
+  validateRequiredProps(migratedProps, propRequirements, 'BlogCard');
 
   // Set default props and merge with provided props
   const {
     title,
     slug,
     excerpt = '',
-    featuredImage = '',
+    imageUrl = '',
     publishedDate = '',
     author = '',
     categories = [],
     className = '',
-  } = props;
+  } = migratedProps;
 
   /**
    * Helper function to format date
@@ -76,7 +100,7 @@ const createBlogCard = (props) => {
     });
 
     // Add featured image if available
-    if (featuredImage) {
+    if (imageUrl) {
       const imageContainer = createElement('div', {
         classes: 'blog-card__image-container',
       });
@@ -84,7 +108,7 @@ const createBlogCard = (props) => {
       const imageElement = createElement('img', {
         classes: 'blog-card__image',
         attributes: {
-          src: featuredImage,
+          src: imageUrl,
           alt: title || '',
           loading: 'lazy',
         },
