@@ -26,10 +26,10 @@ describe('Card component', () => {
     expect(titleElement.textContent).toBe('Card Title');
   });
 
-  it('should render with an image from URL', () => {
+  it('should render with an image from imageUrl', () => {
     const imageUrl = 'https://example.com/image.jpg';
     const card = Card({
-      image: imageUrl,
+      imageUrl: imageUrl,
       children: 'Card content',
     });
 
@@ -39,10 +39,55 @@ describe('Card component', () => {
     expect(imageElement.src).toContain(imageUrl);
   });
 
-  it('should render with an image element', () => {
+  it('should render with an imageElement', () => {
     const imgElement = document.createElement('img');
     imgElement.src = 'https://example.com/image.jpg';
     imgElement.alt = 'Test image';
+
+    const card = Card({
+      imageElement: imgElement,
+      children: 'Card content',
+    });
+
+    const element = card.getElement();
+    const imageElement = element.querySelector('img');
+    expect(imageElement).not.toBeNull();
+    expect(imageElement).toBe(imgElement);
+  });
+
+  it('should support legacy image prop with string value', () => {
+    // Setup spy for console.warn
+    const originalWarn = console.warn;
+    const warnMock = vi.fn();
+    console.warn = warnMock;
+
+    const imageUrl = 'https://example.com/legacy-image.jpg';
+    const card = Card({
+      image: imageUrl,
+      children: 'Card content',
+    });
+
+    const element = card.getElement();
+    const imageElement = element.querySelector('img');
+    expect(imageElement).not.toBeNull();
+    expect(imageElement.src).toContain(imageUrl);
+    expect(warnMock).toHaveBeenCalledWith(
+      '[Card] image is deprecated, use imageUrl for strings or imageElement for DOM elements'
+    );
+
+    // Restore console.warn
+    console.warn = originalWarn;
+  });
+
+  it('should support legacy image prop with element value', () => {
+    // Setup spy for console.warn
+    const originalWarn = console.warn;
+    const warnMock = vi.fn();
+    console.warn = warnMock;
+
+    const imgElement = document.createElement('img');
+    imgElement.src = 'https://example.com/legacy-element.jpg';
+    imgElement.alt = 'Legacy test image';
 
     const card = Card({
       image: imgElement,
@@ -53,6 +98,12 @@ describe('Card component', () => {
     const imageElement = element.querySelector('img');
     expect(imageElement).not.toBeNull();
     expect(imageElement).toBe(imgElement);
+    expect(warnMock).toHaveBeenCalledWith(
+      '[Card] image is deprecated, use imageUrl for strings or imageElement for DOM elements'
+    );
+
+    // Restore console.warn
+    console.warn = originalWarn;
   });
 
   it('should render with a footer', () => {

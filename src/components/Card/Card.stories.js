@@ -14,11 +14,33 @@ export const Default = () => {
   });
 };
 
-export const WithImage = () => {
+export const WithImageUrl = () => {
   return Card({
-    title: 'Card with Image',
+    title: 'Card with Image URL',
+    imageUrl: 'https://picsum.photos/300/200',
+    children: 'This card includes an image at the top using imageUrl prop.',
+  });
+};
+
+export const WithImageElement = () => {
+  const img = document.createElement('img');
+  img.src = 'https://picsum.photos/300/200';
+  img.alt = 'Custom image';
+  img.className = 'custom-image';
+
+  return Card({
+    title: 'Card with Image Element',
+    imageElement: img,
+    children: 'This card includes a custom image element at the top.',
+  });
+};
+
+export const WithLegacyImage = () => {
+  return Card({
+    title: 'Card with Legacy Image Prop',
     image: 'https://picsum.photos/300/200',
-    children: 'This card includes an image at the top.',
+    children:
+      'This card uses the deprecated image prop (will show a console warning).',
   });
 };
 
@@ -93,9 +115,15 @@ export const ComplexCard = () => {
   footerContainer.appendChild(cancelButton);
   footerContainer.appendChild(confirmButton);
 
+  // Create a custom image
+  const img = document.createElement('img');
+  img.src = 'https://picsum.photos/400/200';
+  img.alt = 'Complex card example';
+  img.style.borderRadius = '4px 4px 0 0';
+
   return Card({
     title: 'Complex Card Example',
-    image: 'https://picsum.photos/400/200',
+    imageElement: img,
     children: contentContainer,
     footer: footerContainer,
     elevated: true,

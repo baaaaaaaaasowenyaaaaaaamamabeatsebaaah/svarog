@@ -8,12 +8,41 @@ import {
 import { withThemeAwareness } from '../../utils/composition.js';
 
 /**
+ * Migrates legacy props to the new standardized format
+ * @param {Object} props - Original props
+ * @returns {Object} Migrated props
+ * @private
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  if (
+    'image' in props &&
+    !('imageUrl' in props) &&
+    !('imageElement' in props)
+  ) {
+    console.warn(
+      '[Card] image is deprecated, use imageUrl for strings or imageElement for DOM elements'
+    );
+    if (typeof props.image === 'string') {
+      migrated.imageUrl = props.image;
+    } else {
+      migrated.imageElement = props.image;
+    }
+    delete migrated.image;
+  }
+
+  return migrated;
+};
+
+/**
  * Creates a Card component for displaying content in a card container
  *
  * @param {Object} props - Card properties
  * @param {string|HTMLElement|Array} props.children - Card content
  * @param {string} [props.title] - Card title
- * @param {string|HTMLElement} [props.image] - Card image (URL string or HTMLElement)
+ * @param {string} [props.imageUrl] - Card image URL
+ * @param {HTMLElement} [props.imageElement] - Card image element
  * @param {string|HTMLElement} [props.footer] - Card footer content
  * @param {boolean} [props.outlined=false] - Whether to use an outlined style
  * @param {boolean} [props.elevated=false] - Whether to add elevation shadow
@@ -21,20 +50,24 @@ import { withThemeAwareness } from '../../utils/composition.js';
  * @returns {Object} Card component API
  */
 const createCard = (props) => {
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props
-  if (!props.children) {
+  if (!normalizedProps.children) {
     throw new Error('Card: children is required');
   }
 
   const {
     children,
     title,
-    image,
+    imageUrl,
+    imageElement,
     footer,
     outlined = false,
     elevated = false,
     className = '',
-  } = props;
+  } = normalizedProps;
 
   // Create class name with conditionals
   const classNames = ['card'];
@@ -48,19 +81,17 @@ const createCard = (props) => {
   });
 
   // Add image if provided
-  if (image) {
-    if (typeof image === 'string') {
-      const imageEl = createElement('img', {
-        classes: 'card__image',
-        attributes: {
-          src: image,
-          alt: title || 'Card image',
-        },
-      });
-      card.appendChild(imageEl);
-    } else {
-      card.appendChild(image);
-    }
+  if (imageUrl) {
+    const imgEl = createElement('img', {
+      classes: 'card__image',
+      attributes: {
+        src: imageUrl,
+        alt: title || 'Card image',
+      },
+    });
+    card.appendChild(imgEl);
+  } else if (imageElement) {
+    card.appendChild(imageElement);
   }
 
   // Add title if provided
@@ -131,7 +162,7 @@ const createCard = (props) => {
      * @returns {Object} Updated component
      */
     update(newProps) {
-      const updatedProps = { ...props, ...newProps };
+      const updatedProps = { ...normalizedProps, ...newProps };
       const newCard = createCard(updatedProps);
 
       // Replace the old element with the new one if it's in the DOM

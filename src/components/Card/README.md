@@ -19,15 +19,18 @@ document.body.appendChild(myCard.getElement());
 
 ## Props
 
-| Prop      | Type                       | Default    | Description                                                     |
-| --------- | -------------------------- | ---------- | --------------------------------------------------------------- |
-| children  | string\|HTMLElement\|Array | (Required) | The content of the card                                         |
-| title     | string                     | undefined  | Optional title for the card                                     |
-| image     | string\|HTMLElement        | undefined  | Optional image URL or element to display at the top of the card |
-| footer    | string\|HTMLElement        | undefined  | Optional footer content                                         |
-| outlined  | boolean                    | false      | Whether to use an outlined style                                |
-| elevated  | boolean                    | false      | Whether to add elevation shadow                                 |
-| className | string                     | ''         | Additional CSS class names                                      |
+| Prop         | Type                       | Default    | Description                            |
+| ------------ | -------------------------- | ---------- | -------------------------------------- |
+| children     | string\|HTMLElement\|Array | (Required) | The content of the card                |
+| title        | string                     | undefined  | Optional title for the card            |
+| imageUrl     | string                     | undefined  | URL of the image to display at the top |
+| imageElement | HTMLElement                | undefined  | Image element to display at the top    |
+| footer       | string\|HTMLElement        | undefined  | Optional footer content                |
+| outlined     | boolean                    | false      | Whether to use an outlined style       |
+| elevated     | boolean                    | false      | Whether to add elevation shadow        |
+| className    | string                     | ''         | Additional CSS class names             |
+
+> **Note:** The `image` prop is deprecated. Use `imageUrl` for string URLs or `imageElement` for HTML elements instead.
 
 ## Methods
 
@@ -115,13 +118,29 @@ const basicCard = Card({
 });
 ```
 
-### Card with Image
+### Card with Image (URL)
 
 ```javascript
 const imageCard = Card({
   title: 'Card with Image',
-  image: 'https://example.com/image.jpg',
+  imageUrl: 'https://example.com/image.jpg',
   children: 'This card includes an image at the top.',
+});
+```
+
+### Card with Image (Element)
+
+```javascript
+// Create a custom image element
+const imgElement = document.createElement('img');
+imgElement.src = 'https://example.com/image.jpg';
+imgElement.alt = 'Custom image';
+imgElement.className = 'custom-image';
+
+const imageElementCard = Card({
+  title: 'Card with Image Element',
+  imageElement: imgElement,
+  children: 'This card includes a custom image element at the top.',
 });
 ```
 
