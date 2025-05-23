@@ -13,12 +13,12 @@ const myFooter = Footer({
   footer: {
     copyright: '© 2024 My Website. All rights reserved.',
     links: [
-      { label: 'Privacy Policy', url: '/privacy' },
-      { label: 'Terms of Service', url: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
     ],
     social: [
-      { platform: 'Twitter', url: 'https://twitter.com' },
-      { platform: 'GitHub', url: 'https://github.com' },
+      { platform: 'Twitter', href: 'https://twitter.com' },
+      { platform: 'GitHub', href: 'https://github.com' },
     ],
   },
 });
@@ -48,7 +48,7 @@ document.body.appendChild(myFooter.getElement());
 ```javascript
 {
   label: 'Privacy Policy', // Link text
-  url: '/privacy'          // Link URL
+  href: '/privacy'         // Link URL
 }
 ```
 
@@ -57,7 +57,7 @@ document.body.appendChild(myFooter.getElement());
 ```javascript
 {
   platform: 'Twitter',           // Platform name
-  url: 'https://twitter.com'     // Platform URL
+  href: 'https://twitter.com'    // Platform URL
 }
 ```
 
@@ -85,8 +85,8 @@ Updates the footer links.
 
 ```javascript
 myFooter.setLinks([
-  { label: 'About', url: '/about' },
-  { label: 'Contact', url: '/contact' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
 ]);
 ```
 
@@ -96,8 +96,8 @@ Updates the social media links.
 
 ```javascript
 myFooter.setSocial([
-  { platform: 'Facebook', url: 'https://facebook.com' },
-  { platform: 'Instagram', url: 'https://instagram.com' },
+  { platform: 'Facebook', href: 'https://facebook.com' },
+  { platform: 'Instagram', href: 'https://instagram.com' },
 ]);
 ```
 
@@ -110,7 +110,7 @@ myFooter.update({
   siteName: 'Updated Site Name',
   footer: {
     copyright: 'New copyright text',
-    links: [{ label: 'New Link', url: '/new' }],
+    links: [{ label: 'New Link', href: '/new' }],
   },
   className: 'custom-footer',
 });
@@ -153,12 +153,12 @@ const standardFooter = Footer({
   footer: {
     copyright: '© 2024 My Website. All rights reserved.',
     links: [
-      { label: 'Privacy Policy', url: '/privacy' },
-      { label: 'Terms of Service', url: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
     ],
     social: [
-      { platform: 'Twitter', url: 'https://twitter.com' },
-      { platform: 'GitHub', url: 'https://github.com' },
+      { platform: 'Twitter', href: 'https://twitter.com' },
+      { platform: 'GitHub', href: 'https://github.com' },
     ],
   },
 });
@@ -182,9 +182,9 @@ const linksFooter = Footer({
   siteName: 'Links Site',
   footer: {
     links: [
-      { label: 'About', url: '/about' },
-      { label: 'Blog', url: '/blog' },
-      { label: 'Contact', url: '/contact' },
+      { label: 'About', href: '/about' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Contact', href: '/contact' },
     ],
   },
 });
@@ -197,9 +197,9 @@ const socialFooter = Footer({
   siteName: 'Social Site',
   footer: {
     social: [
-      { platform: 'Facebook', url: 'https://facebook.com' },
-      { platform: 'Instagram', url: 'https://instagram.com' },
-      { platform: 'YouTube', url: 'https://youtube.com' },
+      { platform: 'Facebook', href: 'https://facebook.com' },
+      { platform: 'Instagram', href: 'https://instagram.com' },
+      { platform: 'YouTube', href: 'https://youtube.com' },
     ],
   },
 });
@@ -213,22 +213,22 @@ const extensiveFooter = Footer({
   footer: {
     copyright: '© 2024 Large Website. All rights reserved.',
     links: [
-      { label: 'About Us', url: '/about' },
-      { label: 'Services', url: '/services' },
-      { label: 'Portfolio', url: '/portfolio' },
-      { label: 'Blog', url: '/blog' },
-      { label: 'Careers', url: '/careers' },
-      { label: 'Contact', url: '/contact' },
-      { label: 'Privacy Policy', url: '/privacy' },
-      { label: 'Terms of Service', url: '/terms' },
+      { label: 'About Us', href: '/about' },
+      { label: 'Services', href: '/services' },
+      { label: 'Portfolio', href: '/portfolio' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Careers', href: '/careers' },
+      { label: 'Contact', href: '/contact' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
     ],
     social: [
-      { platform: 'Facebook', url: 'https://facebook.com' },
-      { platform: 'Twitter', url: 'https://twitter.com' },
-      { platform: 'Instagram', url: 'https://instagram.com' },
-      { platform: 'LinkedIn', url: 'https://linkedin.com' },
-      { platform: 'YouTube', url: 'https://youtube.com' },
-      { platform: 'GitHub', url: 'https://github.com' },
+      { platform: 'Facebook', href: 'https://facebook.com' },
+      { platform: 'Twitter', href: 'https://twitter.com' },
+      { platform: 'Instagram', href: 'https://instagram.com' },
+      { platform: 'LinkedIn', href: 'https://linkedin.com' },
+      { platform: 'YouTube', href: 'https://youtube.com' },
+      { platform: 'GitHub', href: 'https://github.com' },
     ],
   },
 });
@@ -242,3 +242,13 @@ The Footer component follows best practices for accessibility:
 - Provides proper link attributes for social media links
 - Maintains proper color contrast ratios when using theme variables
 - Works seamlessly with screen readers
+
+## Migration Notes
+
+### v2.0 Changes
+
+The Footer component has standardized its link properties:
+
+- Changed `url` to `href` in both `links` and `social` arrays
+- Legacy `url` property is still supported but deprecated and will show a warning
+- Update your code to use `href` instead of `url` for future compatibility

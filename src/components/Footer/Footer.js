@@ -49,6 +49,44 @@ const createFooter = (props) => {
   let currentState = { ...initialProps };
 
   /**
+   * Migrates legacy props to standardized ones
+   * @param {Object} props - Component props
+   * @returns {Object} Normalized props
+   */
+  const migrateLegacyProps = (props) => {
+    if (!props || typeof props !== 'object') return props;
+
+    const migrated = { ...props };
+
+    // Handle footer links and social links
+    if (migrated.footer?.links) {
+      migrated.footer.links = migrated.footer.links.map((link) => {
+        if ('url' in link && !('href' in link)) {
+          console.warn(
+            '[Footer] link.url is deprecated, use link.href instead'
+          );
+          return { ...link, href: link.url };
+        }
+        return link;
+      });
+    }
+
+    if (migrated.footer?.social) {
+      migrated.footer.social = migrated.footer.social.map((social) => {
+        if ('url' in social && !('href' in social)) {
+          console.warn(
+            '[Footer] social.url is deprecated, use social.href instead'
+          );
+          return { ...social, href: social.url };
+        }
+        return social;
+      });
+    }
+
+    return migrated;
+  };
+
+  /**
    * Renders the footer element based on current state
    * @param {Object} state - Current component state
    * @returns {HTMLElement} Footer element
@@ -83,7 +121,7 @@ const createFooter = (props) => {
         const linkElement = createElement('a', {
           classes: ['footer__link'],
           attributes: {
-            href: link.url || '#',
+            href: link.href || link.url || '#', // Support both new href and legacy url
             'data-label': link.label, // Add data attribute for testing
           },
           text: link.label,
@@ -105,7 +143,7 @@ const createFooter = (props) => {
         const socialLink = createElement('a', {
           classes: ['footer__social-link'],
           attributes: {
-            href: item.url || '#',
+            href: item.href || item.url || '#', // Support both new href and legacy url
             target: '_blank',
             rel: 'noopener noreferrer',
             'data-platform': item.platform, // Add data attribute for testing
@@ -143,8 +181,11 @@ const createFooter = (props) => {
     return footerElement;
   };
 
+  // Normalize props before creating the component
+  const normalizedProps = migrateLegacyProps(initialProps);
+
   // Create component using baseComponent
-  const baseComponent = createBaseComponent(renderFooter)(initialProps);
+  const baseComponent = createBaseComponent(renderFooter)(normalizedProps);
 
   /**
    * Determines if component needs to fully re-render based on prop changes
@@ -180,6 +221,15 @@ const createFooter = (props) => {
     partialUpdate,
 
     /**
+     * Update component with new properties
+     * @param {Object} newProps - New properties to update
+     * @returns {Object} Component instance for chaining
+     */
+    update(newProps) {
+      return baseComponent.update(migrateLegacyProps(newProps));
+    },
+
+    /**
      * Updates the copyright text
      * @param {string} copyright - New copyright text
      * @returns {Object} Footer component (for chaining)
@@ -190,7 +240,7 @@ const createFooter = (props) => {
         copyright,
       };
 
-      return baseComponent.update({
+      return this.update({
         footer: newFooter,
       });
     },
@@ -201,9 +251,20 @@ const createFooter = (props) => {
      * @returns {Object} Footer component (for chaining)
      */
     setLinks(links) {
+      // Normalize links to use href instead of url
+      const normalizedLinks = links.map((link) => {
+        if ('url' in link && !('href' in link)) {
+          console.warn(
+            '[Footer] link.url is deprecated, use link.href instead'
+          );
+          return { ...link, href: link.url };
+        }
+        return link;
+      });
+
       const newFooter = {
         ...currentState.footer,
-        links,
+        links: normalizedLinks,
       };
 
       return baseComponent.update({
@@ -217,9 +278,20 @@ const createFooter = (props) => {
      * @returns {Object} Footer component (for chaining)
      */
     setSocial(social) {
+      // Normalize social links to use href instead of url
+      const normalizedSocial = social.map((item) => {
+        if ('url' in item && !('href' in item)) {
+          console.warn(
+            '[Footer] social.url is deprecated, use social.href instead'
+          );
+          return { ...item, href: item.url };
+        }
+        return item;
+      });
+
       const newFooter = {
         ...currentState.footer,
-        social,
+        social: normalizedSocial,
       };
 
       return baseComponent.update({
