@@ -22,6 +22,14 @@ const createMap = (props = {}) => {
     throw new Error('longitude must be a number');
   }
 
+  if (
+    props.locationName !== undefined &&
+    typeof props.locationName !== 'string'
+  ) {
+    throw new Error('locationName must be a string');
+  }
+
+  // Backward compatibility for 'location' prop
   if (props.location !== undefined && typeof props.location !== 'string') {
     throw new Error('location must be a string');
   }
@@ -53,21 +61,40 @@ const createMap = (props = {}) => {
     }
   }
 
+  // Normalize props to handle legacy properties
+  const normalizeProps = (inputProps) => {
+    const normalized = { ...inputProps };
+
+    // Handle legacy 'location' prop
+    if (normalized.location !== undefined && !normalized.locationName) {
+      console.warn(
+        'Map: "location" prop is deprecated, use "locationName" instead'
+      );
+      normalized.locationName = normalized.location;
+      delete normalized.location;
+    }
+
+    return normalized;
+  };
+
+  // Apply normalization to initial props
+  const normalizedProps = normalizeProps(props);
+
   // Predefined store locations
   const predefinedStores = {
     default: {
       name: 'Sample Store',
       latitude: 40.7128,
       longitude: -74.006,
-      location: 'New York City',
+      locationName: 'New York City',
     },
   };
 
   // Resolve location and coordinates
   const resolveLocation = (config) => {
-    const { location, latitude, longitude, storeId } = config;
+    const { locationName, latitude, longitude, storeId } = config;
 
-    let resolvedLocation = location;
+    let resolvedLocation = locationName;
     let resolvedLatitude = latitude;
     let resolvedLongitude = longitude;
 
@@ -86,7 +113,7 @@ const createMap = (props = {}) => {
     }
 
     return {
-      location: resolvedLocation,
+      locationName: resolvedLocation,
       latitude: resolvedLatitude,
       longitude: resolvedLongitude,
     };
@@ -179,7 +206,7 @@ const createMap = (props = {}) => {
           lng: config.longitude,
         },
         map: map,
-        title: config.location,
+        title: config.locationName,
       });
 
       // Store marker instance for later cleanup
@@ -206,7 +233,7 @@ const createMap = (props = {}) => {
     const mockDetails = createElement('div', {
       classes: ['map-mock-details'],
       html: `
-        <h3>${config.location}</h3>
+        <h3>${config.locationName}</h3>
         <p>Latitude: ${config.latitude.toFixed(4)}</p>
         <p>Longitude: ${config.longitude.toFixed(4)}</p>
         <small>${
@@ -243,7 +270,7 @@ const createMap = (props = {}) => {
 
     // Resolve location
     const locationInfo = resolveLocation({
-      location: state.location,
+      locationName: state.locationName,
       latitude: state.latitude,
       longitude: state.longitude,
       storeId: state.storeId,
@@ -252,7 +279,7 @@ const createMap = (props = {}) => {
     // Create config object
     const config = {
       apiKey: state.apiKey,
-      location: locationInfo.location,
+      locationName: locationInfo.locationName,
       latitude: locationInfo.latitude,
       longitude: locationInfo.longitude,
       options,
@@ -265,7 +292,7 @@ const createMap = (props = {}) => {
   };
 
   // Create component using baseComponent
-  const baseComponent = createBaseComponent(renderMap)(props);
+  const baseComponent = createBaseComponent(renderMap)(normalizedProps);
 
   // Custom methods for Map component
   const mapComponent = {
@@ -278,14 +305,29 @@ const createMap = (props = {}) => {
      */
     shouldRerender(newProps) {
       // Always re-render if any of these critical props change
+      const normalizedNewProps = normalizeProps(newProps);
+
       const criticalProps = [
         'latitude',
         'longitude',
-        'location',
+        'locationName',
         'storeId',
         'apiKey',
       ];
-      return Object.keys(newProps).some((key) => criticalProps.includes(key));
+
+      return Object.keys(normalizedNewProps).some((key) =>
+        criticalProps.includes(key)
+      );
+    },
+
+    /**
+     * Override update to handle prop normalization
+     * @param {Object} newProps - New properties
+     * @returns {Object} Map component (for chaining)
+     */
+    update(newProps) {
+      const normalizedNewProps = normalizeProps(newProps);
+      return baseComponent.update.call(this, normalizedNewProps);
     },
 
     /**
@@ -311,7 +353,7 @@ const createMap = (props = {}) => {
       return this.update({
         latitude,
         longitude,
-        location: locationName || `Lat: ${latitude}, Lng: ${longitude}`,
+        locationName: locationName || `Lat: ${latitude}, Lng: ${longitude}`,
       });
     },
 

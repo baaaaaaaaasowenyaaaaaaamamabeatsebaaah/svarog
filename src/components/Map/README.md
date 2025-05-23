@@ -14,7 +14,7 @@ const myMap = Map({});
 const locationMap = Map({
   latitude: 37.7749,
   longitude: -122.4194,
-  location: 'San Francisco',
+  locationName: 'San Francisco',
 });
 
 // Add to DOM
@@ -23,14 +23,15 @@ document.body.appendChild(myMap.getElement());
 
 ## Props
 
-| Prop      | Type   | Default         | Description                      |
-| --------- | ------ | --------------- | -------------------------------- |
-| apiKey    | string | null            | Google Maps API key (optional)   |
-| latitude  | number | 40.7128         | Map center latitude              |
-| longitude | number | -74.006         | Map center longitude             |
-| location  | string | 'New York City' | Location name                    |
-| storeId   | string | null            | ID for predefined store location |
-| options   | object | {}              | Additional map options           |
+| Prop         | Type   | Default         | Description                      |
+| ------------ | ------ | --------------- | -------------------------------- |
+| apiKey       | string | null            | Google Maps API key (optional)   |
+| latitude     | number | 40.7128         | Map center latitude              |
+| longitude    | number | -74.006         | Map center longitude             |
+| locationName | string | 'New York City' | Location name                    |
+| storeId      | string | null            | ID for predefined store location |
+| options      | object | {}              | Additional map options           |
+| location     | string | -               | _Deprecated: Use locationName_   |
 
 ### Options Object
 
@@ -81,7 +82,7 @@ Updates multiple map properties at once.
 myMap.update({
   latitude: 51.5074,
   longitude: -0.1278,
-  location: 'London',
+  locationName: 'London',
   options: {
     zoom: 10,
     mapType: 'hybrid',
@@ -129,7 +130,7 @@ const basicMap = Map({});
 const londonMap = Map({
   latitude: 51.5074,
   longitude: -0.1278,
-  location: 'London, UK',
+  locationName: 'London, UK',
 });
 ```
 
@@ -140,7 +141,7 @@ const googleMap = Map({
   apiKey: 'your-google-maps-api-key',
   latitude: 48.8566,
   longitude: 2.3522,
-  location: 'Paris, France',
+  locationName: 'Paris, France',
   options: {
     zoom: 14,
     mapType: 'satellite',
@@ -162,7 +163,7 @@ const storeMap = Map({
 const customMap = Map({
   latitude: 55.7558,
   longitude: 37.6173,
-  location: 'Moscow, Russia',
+  locationName: 'Moscow, Russia',
   options: {
     zoom: 16,
     mapType: 'terrain',
