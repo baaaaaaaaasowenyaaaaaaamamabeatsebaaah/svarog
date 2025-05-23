@@ -45,7 +45,7 @@ export const Default = () => {
   return BlogDetail({
     title: 'Getting Started with Web Components',
     content: defaultContent,
-    featuredImage:
+    imageUrl:
       'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&q=80',
     publishedDate: '2024-01-15T00:00:00Z',
     author: 'Jane Smith',
@@ -84,10 +84,24 @@ export const LongContent = () => {
   return BlogDetail({
     title: 'Comprehensive Guide to Web Components',
     content: longContent,
-    featuredImage:
+    imageUrl:
       'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=1200&q=80',
     publishedDate: '2024-01-15T00:00:00Z',
     author: 'Expert Developer',
     categories: ['Web Development', 'JavaScript', 'Advanced'],
+  });
+};
+
+// Example showing backwards compatibility with featuredImage
+export const LegacyProps = () => {
+  return BlogDetail({
+    title: 'Using Legacy Props (featuredImage)',
+    content:
+      '<p>This example demonstrates backwards compatibility with the old featuredImage prop.</p>',
+    featuredImage:
+      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80',
+    publishedDate: '2024-01-15T00:00:00Z',
+    author: 'Legacy Developer',
+    categories: ['Compatibility'],
   });
 };

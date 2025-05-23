@@ -13,7 +13,8 @@ import { validateRequiredProps } from '../../utils/validation.js';
  * @param {Object} props - BlogDetail properties
  * @param {string} [props.title=''] - Blog post title
  * @param {string} [props.content=''] - Blog post HTML content
- * @param {string} [props.featuredImage=''] - URL of featured image
+ * @param {string} [props.imageUrl=''] - URL of featured image
+ * @param {string} [props.featuredImage=''] - DEPRECATED: Use imageUrl instead
  * @param {string} [props.publishedDate=''] - Published date string
  * @param {string} [props.author=''] - Author name
  * @param {Array} [props.categories=[]] - Post categories
@@ -21,11 +22,28 @@ import { validateRequiredProps } from '../../utils/validation.js';
  * @returns {Object} BlogDetail component API
  */
 const createBlogDetail = (props) => {
+  // Migrate legacy props
+  const migrateLegacyProps = (originalProps) => {
+    const migratedProps = { ...originalProps };
+
+    if ('featuredImage' in originalProps && !('imageUrl' in originalProps)) {
+      console.warn(
+        '[BlogDetail] featuredImage is deprecated, use imageUrl instead'
+      );
+      migratedProps.imageUrl = originalProps.featuredImage;
+    }
+
+    return migratedProps;
+  };
+
+  // Apply prop migration
+  const normalizedProps = migrateLegacyProps(props);
+
   // Define prop requirements
   const propRequirements = {
     title: { required: false, type: 'string' },
     content: { required: false, type: 'string' },
-    featuredImage: { required: false, type: 'string' },
+    imageUrl: { required: false, type: 'string' },
     publishedDate: { required: false, type: 'string' },
     author: { required: false, type: 'string' },
     categories: { required: false, type: 'array' },
@@ -34,18 +52,18 @@ const createBlogDetail = (props) => {
 
   try {
     // Validate required props
-    validateRequiredProps(props, propRequirements, 'BlogDetail');
+    validateRequiredProps(normalizedProps, propRequirements, 'BlogDetail');
 
     // Set default props and merge with provided props
     const {
       title = '',
       content = '',
-      featuredImage = '',
+      imageUrl = '',
       publishedDate = '',
       author = '',
       categories = [],
       className = '',
-    } = props;
+    } = normalizedProps;
 
     /**
      * Helper function to format date
@@ -104,7 +122,7 @@ const createBlogDetail = (props) => {
         article.appendChild(header);
 
         // Add featured image if available
-        if (featuredImage) {
+        if (imageUrl) {
           article.appendChild(createImageSection());
         }
 
@@ -190,7 +208,7 @@ const createBlogDetail = (props) => {
       const imageElement = createElement('img', {
         classes: 'blog-detail__image',
         attributes: {
-          src: featuredImage,
+          src: imageUrl,
           alt: title || 'Blog featured image',
           loading: 'lazy',
         },
@@ -240,7 +258,7 @@ const createBlogDetail = (props) => {
        */
       update(newProps) {
         try {
-          const updatedProps = { ...props, ...newProps };
+          const updatedProps = { ...normalizedProps, ...newProps };
           const newBlogDetail = createBlogDetail(updatedProps);
 
           // Replace the old element if it's in the DOM

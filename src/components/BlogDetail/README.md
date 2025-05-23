@@ -12,7 +12,7 @@ const myBlogDetail = BlogDetail({
   title: 'Getting Started with Web Components',
   content:
     '<p>Web Components are a set of web platform APIs that allow you to create new custom, reusable, encapsulated HTML tags to use in web pages and web apps.</p>',
-  featuredImage: 'https://example.com/image.jpg',
+  imageUrl: 'https://example.com/image.jpg',
   publishedDate: '2024-01-15T00:00:00Z',
   author: 'Jane Smith',
   categories: ['Web Development', 'JavaScript'],
@@ -28,11 +28,13 @@ document.body.appendChild(myBlogDetail.getElement());
 | ------------- | ------ | ------- | ---------------------------------------- |
 | title         | string | ''      | Blog post title                          |
 | content       | string | ''      | HTML content for the blog post           |
-| featuredImage | string | ''      | URL for the featured image               |
+| imageUrl      | string | ''      | URL for the featured image               |
 | publishedDate | string | ''      | ISO date string for the publication date |
 | author        | string | ''      | Author name                              |
 | categories    | array  | []      | Array of category names                  |
 | className     | string | ''      | Additional CSS class names               |
+
+> **Note:** The `featuredImage` prop is deprecated and will be removed in a future version. Please use `imageUrl` instead.
 
 ## Methods
 
@@ -110,7 +112,7 @@ The BlogDetail component follows accessibility best practices:
 const basicDetail = BlogDetail({
   title: 'Getting Started with Web Components',
   content: '<p>Learn how to create reusable web components...</p>',
-  featuredImage: 'https://example.com/image.jpg',
+  imageUrl: 'https://example.com/image.jpg',
   publishedDate: '2024-01-15T00:00:00Z',
   author: 'Jane Smith',
   categories: ['Web Development', 'JavaScript'],
