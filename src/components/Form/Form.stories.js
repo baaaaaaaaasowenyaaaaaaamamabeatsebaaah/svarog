@@ -318,12 +318,12 @@ export const FormWithValidation = () => {
   });
 
   const emailInput = new Input({
-    id: 'email',
-    name: 'email',
+    id: 'email-no-label',
+    name: 'email-no-label',
     type: 'email',
-    placeholder: 'Enter your email',
+    placeholder: 'Enter email (valid format required)',
     required: true,
-    pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$',
+    pattern: '[a-z0-9._%+]+@[a-z0-9.]+\\.[a-z]{2,}$',
     validationMessage: 'Please enter a valid email address',
   });
 
@@ -473,13 +473,14 @@ export const NoLabelsValidation = () => {
     validationMessage: 'Name is required',
   });
 
+  // Fixed: Double-escape the backslash for the pattern
   const emailInput = new Input({
     id: 'email-no-label',
     name: 'email-no-label',
     type: 'email',
     placeholder: 'Enter email (valid format required)',
     required: true,
-    pattern: '[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$',
+    pattern: '[a-z0-9._%+]+@[a-z0-9.]+\\.[a-z]{2,}$',
     validationMessage: 'Please enter a valid email address',
   });
 

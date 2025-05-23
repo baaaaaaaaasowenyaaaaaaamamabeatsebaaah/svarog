@@ -14,7 +14,7 @@ export const Default = () => {
   });
 };
 
-export const WithImageUrl = () => {
+export const WithImage = () => {
   return Card({
     title: 'Card with Image URL',
     imageUrl: 'https://picsum.photos/300/200',
