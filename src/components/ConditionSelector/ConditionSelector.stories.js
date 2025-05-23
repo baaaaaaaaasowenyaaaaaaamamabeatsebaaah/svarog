@@ -46,7 +46,7 @@ const sampleConditions = [
 export const Default = () => {
   return ConditionSelector({
     conditions: sampleConditions,
-    onSelect: (conditionId) => console.log('Selected condition:', conditionId),
+    onChange: (conditionId) => console.log('Selected condition:', conditionId),
   });
 };
 
@@ -55,7 +55,7 @@ export const WithSelectedCondition = () => {
   return ConditionSelector({
     conditions: sampleConditions,
     selectedId: '2', // Good condition selected
-    onSelect: (conditionId) => console.log('Selected condition:', conditionId),
+    onChange: (conditionId) => console.log('Selected condition:', conditionId),
   });
 };
 
@@ -63,8 +63,17 @@ export const WithSelectedCondition = () => {
 export const LoadingState = () => {
   return ConditionSelector({
     conditions: sampleConditions,
-    isLoading: true,
+    loading: true,
+    onChange: (conditionId) => console.log('Selected condition:', conditionId),
+  });
+};
+
+// Story showing legacy props for backward compatibility
+export const UsingLegacyProps = () => {
+  return ConditionSelector({
+    conditions: sampleConditions,
     onSelect: (conditionId) => console.log('Selected condition:', conditionId),
+    isLoading: false,
   });
 };
 
@@ -98,7 +107,7 @@ export const Interactive = () => {
   // Create condition selector
   const conditionSelector = ConditionSelector({
     conditions: sampleConditions,
-    onSelect: (conditionId) => {
+    onChange: (conditionId) => {
       const selectedCondition = sampleConditions.find(
         (c) => c.id.toString() === conditionId.toString()
       );
@@ -131,7 +140,7 @@ export const AllStates = () => {
 
   const regularSelector = ConditionSelector({
     conditions: sampleConditions,
-    onSelect: (id) => console.log('Selected:', id),
+    onChange: (id) => console.log('Selected:', id),
   });
   regularContainer.appendChild(regularSelector.getElement());
 
@@ -144,7 +153,7 @@ export const AllStates = () => {
   const selectedSelector = ConditionSelector({
     conditions: sampleConditions,
     selectedId: '3', // Fair condition
-    onSelect: (id) => console.log('Selected:', id),
+    onChange: (id) => console.log('Selected:', id),
   });
   selectedContainer.appendChild(selectedSelector.getElement());
 
@@ -156,8 +165,8 @@ export const AllStates = () => {
 
   const loadingSelector = ConditionSelector({
     conditions: sampleConditions,
-    isLoading: true,
-    onSelect: (id) => console.log('Selected:', id),
+    loading: true,
+    onChange: (id) => console.log('Selected:', id),
   });
   loadingContainer.appendChild(loadingSelector.getElement());
 
@@ -169,7 +178,7 @@ export const AllStates = () => {
 
   const emptySelector = ConditionSelector({
     conditions: [],
-    onSelect: (id) => console.log('Selected:', id),
+    onChange: (id) => console.log('Selected:', id),
   });
   emptyContainer.appendChild(emptySelector.getElement());
 
@@ -222,7 +231,7 @@ export const CustomStyling = () => {
   const conditionSelector = ConditionSelector({
     conditions: sampleConditions,
     className: 'custom-condition-selector',
-    onSelect: (id) => console.log('Selected:', id),
+    onChange: (id) => console.log('Selected:', id),
   });
 
   container.appendChild(conditionSelector.getElement());

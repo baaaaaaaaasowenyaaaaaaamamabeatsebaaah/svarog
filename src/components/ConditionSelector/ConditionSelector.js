@@ -9,6 +9,33 @@ import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 
 /**
+ * Migrates legacy props to new standardized props
+ * @param {Object} props - Component props
+ * @returns {Object} - Normalized props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Migrate onSelect to onChange
+  if ('onSelect' in props && !('onChange' in props)) {
+    console.warn(
+      '[ConditionSelector] onSelect is deprecated, use onChange instead'
+    );
+    migrated.onChange = props.onSelect;
+  }
+
+  // Migrate isLoading to loading
+  if ('isLoading' in props && !('loading' in props)) {
+    console.warn(
+      '[ConditionSelector] isLoading is deprecated, use loading instead'
+    );
+    migrated.loading = props.isLoading;
+  }
+
+  return migrated;
+};
+
+/**
  * Validates condition-specific props
  * @param {Object} props - Condition selector properties
  */
@@ -74,7 +101,7 @@ const getConditionIcon = (conditionName) => {
  * @param {string|number} conditionId - ID of the selected condition
  */
 const handleConditionSelect = (state, conditionId) => {
-  if (!state || state.isLoading || !state.onSelect) {
+  if (!state || state.loading || !state.onChange) {
     return;
   }
 
@@ -91,8 +118,8 @@ const handleConditionSelect = (state, conditionId) => {
       return;
     }
 
-    // Call onSelect callback
-    state.onSelect(conditionId);
+    // Call onChange callback
+    state.onChange(conditionId);
   } catch (error) {
     console.error(
       'ConditionSelector: Error in condition selection handler',
@@ -200,20 +227,20 @@ const createConditionOption = (condition, selectedId, clickHandler) => {
  * @returns {HTMLElement} Root element for the component
  */
 const renderConditionSelector = (state) => {
-  const { conditions, selectedId, isLoading, className } = state;
+  const { conditions, selectedId, loading, className } = state;
 
   // Create container with appropriate classes
   const classes = [
     'condition-selector',
     className,
-    isLoading ? 'condition-selector--loading' : '',
+    loading ? 'condition-selector--loading' : '',
   ].filter(Boolean);
 
   const container = createElement('div', {
     classes,
     attributes: {
       role: 'region',
-      'aria-busy': isLoading ? 'true' : 'false',
+      'aria-busy': loading ? 'true' : 'false',
       'aria-label': 'Condition Selection',
     },
   });
@@ -262,24 +289,31 @@ const renderConditionSelector = (state) => {
  * Create a ConditionSelector component
  * @param {Object} props - ConditionSelector properties
  * @param {Array<{id: (string|number), name: string, description?: string}>} [props.conditions=[]] - Array of condition objects
- * @param {Function} [props.onSelect=null] - Callback when a condition is selected
+ * @param {Function} [props.onChange=null] - Callback when a condition is selected
+ * @param {Function} [props.onSelect=null] - (Deprecated) Callback when a condition is selected
  * @param {string|number} [props.selectedId=''] - ID of the currently selected condition
- * @param {boolean} [props.isLoading=false] - Whether the component is in loading state
+ * @param {boolean} [props.loading=false] - Whether the component is in loading state
+ * @param {boolean} [props.isLoading=false] - (Deprecated) Whether the component is in loading state
  * @param {string} [props.className=''] - Additional CSS class names
  * @returns {Object} ConditionSelector component
  */
 const createConditionSelector = (props) => {
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate props
-  validateProps(props, createConditionSelector.requiredProps);
-  validateConditionSelectorProps(props);
+  validateProps(normalizedProps, createConditionSelector.requiredProps);
+  validateConditionSelectorProps(normalizedProps);
 
   // Initial state with defaults
   const initialState = {
-    conditions: props.conditions || [],
-    onSelect: props.onSelect || null,
-    selectedId: props.selectedId ? props.selectedId.toString() : '',
-    isLoading: props.isLoading || false,
-    className: props.className || '',
+    conditions: normalizedProps.conditions || [],
+    onChange: normalizedProps.onChange || null,
+    selectedId: normalizedProps.selectedId
+      ? normalizedProps.selectedId.toString()
+      : '',
+    loading: normalizedProps.loading || false,
+    className: normalizedProps.className || '',
   };
 
   // Create the base component
@@ -289,10 +323,17 @@ const createConditionSelector = (props) => {
 
   // Define the shouldRerender method
   conditionSelector.shouldRerender = (newProps) => {
+    // Normalize new props
+    const normalizedNewProps = migrateLegacyProps(newProps);
+
     // These props require a full re-render
-    return ['conditions', 'className', 'isLoading', 'selectedId'].some(
-      (prop) => newProps[prop] !== undefined
-    );
+    return [
+      'conditions',
+      'className',
+      'loading',
+      'isLoading',
+      'selectedId',
+    ].some((prop) => normalizedNewProps[prop] !== undefined);
   };
 
   // Add theme change handler
@@ -304,7 +345,7 @@ const createConditionSelector = (props) => {
 
   // Add convenience methods
   conditionSelector.setLoading = function (isLoading) {
-    return this.update({ isLoading });
+    return this.update({ loading: isLoading });
   };
 
   conditionSelector.updateConditions = function (conditions, selectedId = '') {

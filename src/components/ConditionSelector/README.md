@@ -22,7 +22,7 @@ const conditionSelector = ConditionSelector({
     },
     { id: 3, name: 'Fair', description: 'Visible signs of use but works well' },
   ],
-  onSelect: (conditionId) => console.log('Selected:', conditionId),
+  onChange: (conditionId) => console.log('Selected:', conditionId),
 });
 
 // Add to DOM
@@ -34,10 +34,17 @@ document.body.appendChild(conditionSelector.getElement());
 | Prop       | Type     | Default | Description                                                          |
 | ---------- | -------- | ------- | -------------------------------------------------------------------- |
 | conditions | Array    | []      | Array of condition objects with id, name, and description properties |
-| onSelect   | Function | null    | Callback function that receives the selected condition id            |
+| onChange   | Function | null    | Callback function that receives the selected condition id            |
 | selectedId | String   | ''      | ID of the initially selected condition                               |
-| isLoading  | Boolean  | false   | Whether the component is in a loading state                          |
+| loading    | Boolean  | false   | Whether the component is in a loading state                          |
 | className  | String   | ''      | Additional CSS classes to apply to the component                     |
+
+## Deprecated Props
+
+| Deprecated Prop | Use Instead |
+| --------------- | ----------- |
+| onSelect        | onChange    |
+| isLoading       | loading     |
 
 ## Condition Object Structure
 
@@ -100,7 +107,7 @@ Updates multiple component properties at once.
 conditionSelector.update({
   conditions: newConditions,
   selectedId: '3',
-  isLoading: false,
+  loading: false,
 });
 ```
 
@@ -134,7 +141,7 @@ const conditions = [
 
 const selector = ConditionSelector({
   conditions,
-  onSelect: (id) => console.log(`Selected condition: ${id}`),
+  onChange: (id) => console.log(`Selected condition: ${id}`),
 });
 ```
 
@@ -144,7 +151,7 @@ const selector = ConditionSelector({
 const selector = ConditionSelector({
   conditions,
   selectedId: '2', // 'Like New' is pre-selected
-  onSelect: (id) => console.log(`Changed selection to: ${id}`),
+  onChange: (id) => console.log(`Changed selection to: ${id}`),
 });
 ```
 
@@ -153,7 +160,7 @@ const selector = ConditionSelector({
 ```javascript
 const selector = ConditionSelector({
   conditions,
-  isLoading: true, // Show loading state
+  loading: true, // Show loading state
 });
 
 // Later, when data is ready:

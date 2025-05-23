@@ -42,7 +42,27 @@ describe('ConditionSelector component', () => {
     expect(selectedOption.getAttribute('data-condition-id')).toBe('1');
   });
 
-  it('should call onSelect callback when condition is selected', () => {
+  it('should call onChange callback when condition is selected', () => {
+    const onChange = vi.fn();
+    const conditions = [
+      { id: 1, name: 'New', description: 'Brand new, unused item' },
+      { id: 2, name: 'Good', description: 'Used but in good condition' },
+    ];
+
+    const conditionSelector = ConditionSelector({
+      conditions,
+      onChange,
+    });
+    const element = conditionSelector.getElement();
+
+    // Click on the second condition
+    const optionLabel = element.querySelectorAll('.condition-option__label')[1];
+    optionLabel.click();
+
+    expect(onChange).toHaveBeenCalledWith(2);
+  });
+
+  it('should still work with legacy onSelect prop for backward compatibility', () => {
     const onSelect = vi.fn();
     const conditions = [
       { id: 1, name: 'New', description: 'Brand new, unused item' },
@@ -65,7 +85,7 @@ describe('ConditionSelector component', () => {
   it('should toggle loading state', () => {
     // Create component with initially not loading
     const conditionSelector = ConditionSelector({
-      isLoading: false,
+      loading: false,
     });
 
     // Verify initial state
@@ -97,6 +117,18 @@ describe('ConditionSelector component', () => {
       false
     );
     expect(element.getAttribute('aria-busy')).toBe('false');
+  });
+
+  it('should still work with legacy isLoading prop for backward compatibility', () => {
+    const conditionSelector = ConditionSelector({
+      isLoading: true,
+    });
+
+    const element = conditionSelector.getElement();
+    expect(element.classList.contains('condition-selector--loading')).toBe(
+      true
+    );
+    expect(element.getAttribute('aria-busy')).toBe('true');
   });
 
   it('should update conditions', () => {
@@ -200,14 +232,14 @@ describe('ConditionSelector component', () => {
     expect(element.querySelectorAll('.condition-option').length).toBe(0);
   });
 
-  it('should not call onSelect when in loading state', () => {
-    const onSelect = vi.fn();
+  it('should not call onChange when in loading state', () => {
+    const onChange = vi.fn();
     const conditions = [{ id: 1, name: 'New', description: 'Brand new' }];
 
     const conditionSelector = ConditionSelector({
       conditions,
-      onSelect,
-      isLoading: true,
+      onChange,
+      loading: true,
     });
     const element = conditionSelector.getElement();
 
@@ -215,16 +247,16 @@ describe('ConditionSelector component', () => {
     const optionLabel = element.querySelector('.condition-option__label');
     optionLabel.click();
 
-    expect(onSelect).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
   });
 
   it('should clean up event listeners when destroyed', () => {
-    const onSelect = vi.fn();
+    const onChange = vi.fn();
     const conditions = [{ id: 1, name: 'New', description: 'Brand new' }];
 
     const conditionSelector = ConditionSelector({
       conditions,
-      onSelect,
+      onChange,
     });
 
     // Get the element and find labels with click handlers
