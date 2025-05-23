@@ -69,19 +69,40 @@ export const Default = () => {
   return container;
 };
 
-// Pre-selected value select
+// Pre-selected value select using 'value'
 export const WithValue = () => {
   const container = document.createElement('div');
 
   const description = document.createElement('p');
   description.textContent =
-    'Select with pre-selected value (no validation styling)';
+    'Select with pre-selected value using "value" prop (no validation styling)';
   description.style.marginBottom = '8px';
   container.appendChild(description);
 
   const select = Select({
     options: countryOptions,
     value: 'fr',
+    onChange: (event, value) => console.log('Selected value:', value),
+    showValidation: false,
+  });
+
+  container.appendChild(select.getElement());
+  return container;
+};
+
+// New story using defaultValue
+export const WithDefaultValue = () => {
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent =
+    'Select with pre-selected value using standardized "defaultValue" prop';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = Select({
+    options: countryOptions,
+    defaultValue: 'de',
     onChange: (event, value) => console.log('Selected value:', value),
     showValidation: false,
   });
@@ -319,6 +340,28 @@ export const MultipleWithLoading = () => {
     placeholder: 'Select multiple countries',
     loadingText: 'Loading countries...',
     onLoadOptions: fetchCountries,
+    onChange: (event, values) => console.log('Selected values:', values),
+    showValidation: false,
+  });
+
+  container.appendChild(select.getElement());
+  return container;
+};
+
+// Multiple selection with defaultValue
+export const MultipleWithDefaultValue = () => {
+  const container = document.createElement('div');
+
+  const description = document.createElement('p');
+  description.textContent = 'Multiple selection with defaultValue prop';
+  description.style.marginBottom = '8px';
+  container.appendChild(description);
+
+  const select = Select({
+    options: countryOptions,
+    multiple: true,
+    placeholder: 'Select multiple countries',
+    defaultValue: ['us', 'de'],
     onChange: (event, values) => console.log('Selected values:', values),
     showValidation: false,
   });
