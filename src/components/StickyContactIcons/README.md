@@ -23,18 +23,29 @@ contactIcons.destroy();
 
 ## Props
 
-| Prop            | Type     | Default    | Description                                           |
-| --------------- | -------- | ---------- | ----------------------------------------------------- |
-| location        | string   | -          | Shop location address (required)                      |
-| phone           | string   | -          | Contact phone number (required)                       |
-| email           | string   | -          | Contact email address (required)                      |
-| locationId      | string   | "location" | ID of the page section to scroll to on location click |
-| onLocationClick | function | null       | Callback for location icon click                      |
-| onPhoneClick    | function | null       | Callback for phone icon click                         |
-| onEmailClick    | function | null       | Callback for email icon click                         |
-| className       | string   | ""         | Additional CSS classes                                |
-| position        | string   | "right"    | Position of icons ("right" or "bottom")               |
-| showTooltips    | boolean  | true       | Whether to show tooltips on hover                     |
+| Prop             | Type     | Default    | Description                                           |
+| ---------------- | -------- | ---------- | ----------------------------------------------------- |
+| location         | string   | -          | Shop location address (required)                      |
+| phone            | string   | -          | Contact phone number (required)                       |
+| email            | string   | -          | Contact email address (required)                      |
+| locationId       | string   | "location" | ID of the page section to scroll to on location click |
+| onClick          | object   | null       | Click handlers for each icon type                     |
+| onClick.location | function | null       | Callback for location icon click                      |
+| onClick.phone    | function | null       | Callback for phone icon click                         |
+| onClick.email    | function | null       | Callback for email icon click                         |
+| className        | string   | ""         | Additional CSS classes                                |
+| position         | string   | "right"    | Position of icons ("right" or "bottom")               |
+| showTooltips     | boolean  | true       | Whether to show tooltips on hover                     |
+
+## Deprecated Props
+
+The following props are deprecated and will be removed in a future version:
+
+| Deprecated Prop | Use Instead      |
+| --------------- | ---------------- |
+| onLocationClick | onClick.location |
+| onPhoneClick    | onClick.phone    |
+| onEmailClick    | onClick.email    |
 
 ## Methods
 
@@ -104,19 +115,21 @@ const contactIcons = StickyContactIcons({
   location: 'Luisenstr. 1',
   phone: '0176/88778877',
   email: 'info@muchandy.de',
-  onLocationClick: (event) => {
-    console.log('Location clicked');
-    // Return false to prevent default navigation
-    return false;
-  },
-  onPhoneClick: (event) => {
-    console.log('Phone clicked');
-    // Analytics tracking could go here
-  },
-  onEmailClick: (event) => {
-    console.log('Email clicked');
-    // You could open a custom modal instead
-    return false;
+  onClick: {
+    location: (event) => {
+      console.log('Location clicked');
+      // Return false to prevent default navigation
+      return false;
+    },
+    phone: (event) => {
+      console.log('Phone clicked');
+      // Analytics tracking could go here
+    },
+    email: (event) => {
+      console.log('Email clicked');
+      // You could open a custom modal instead
+      return false;
+    },
   },
 });
 ```

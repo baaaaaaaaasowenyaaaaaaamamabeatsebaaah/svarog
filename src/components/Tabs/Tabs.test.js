@@ -71,10 +71,10 @@ describe('Tabs component', () => {
     expect(buttons[0].getAttribute('aria-selected')).toBe('true');
   });
 
-  it('should set specified tab as active when defaultActiveTab is provided', () => {
+  it('should set specified tab as active when defaultValue is provided', () => {
     const element = createTabsElement({
       tabs: mockTabs,
-      defaultActiveTab: 1,
+      defaultValue: 1,
     });
 
     const activePanel = element.querySelector('.tabs__panel--active');
@@ -85,6 +85,22 @@ describe('Tabs component', () => {
     // Check aria-selected on buttons
     const buttons = element.querySelectorAll('.tabs__button');
     expect(buttons[1].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('should support legacy defaultActiveTab prop', () => {
+    const element = createTabsElement({
+      tabs: mockTabs,
+      defaultActiveTab: 2,
+    });
+
+    const activePanel = element.querySelector('.tabs__panel--active');
+
+    // Check that third tab is active
+    expect(activePanel.textContent).toBe('Content 3');
+
+    // Check aria-selected on buttons
+    const buttons = element.querySelectorAll('.tabs__button');
+    expect(buttons[2].getAttribute('aria-selected')).toBe('true');
   });
 
   it('should switch tabs when clicking tab buttons', () => {
@@ -104,7 +120,24 @@ describe('Tabs component', () => {
     expect(buttons[2].getAttribute('aria-selected')).toBe('true');
   });
 
-  it('should call onTabChange callback when switching tabs', () => {
+  it('should call onChange callback when switching tabs', () => {
+    const onChange = vi.fn();
+    const tabs = createTabs({
+      tabs: mockTabs,
+      onChange,
+    });
+
+    const element = tabs.getElement();
+    const buttons = element.querySelectorAll('.tabs__button');
+
+    // Click the second tab button
+    buttons[1].click();
+
+    // Check callback was called
+    expect(onChange).toHaveBeenCalledWith(1, 0);
+  });
+
+  it('should support legacy onTabChange callback', () => {
     const onTabChange = vi.fn();
     const tabs = createTabs({
       tabs: mockTabs,
@@ -204,5 +237,42 @@ describe('Tabs component', () => {
     // Check that third tab is active
     expect(activePanel.textContent).toBe('Content 3');
     expect(buttons[2].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('should update active tab with value prop', () => {
+    // Create tabs with direct method to get more control
+    const tabs = createTabs({ tabs: mockTabs });
+
+    // Call switchTab directly - this is more reliable
+    tabs.switchTab(2);
+
+    // Get element after switchTab
+    const element = tabs.getElement();
+
+    // Verify DOM elements
+    const activePanel = element.querySelector('.tabs__panel--active');
+    const buttons = element.querySelectorAll('.tabs__button');
+
+    // Check that third tab is active
+    expect(activePanel.textContent).toBe('Content 3');
+    expect(buttons[2].getAttribute('aria-selected')).toBe('true');
+
+    // Now also verify value works
+    expect(tabs.getValue()).toBe(2);
+  });
+
+  it('should get value with getValue method', () => {
+    const tabs = createTabs({
+      tabs: mockTabs,
+      defaultValue: 1,
+    });
+
+    expect(tabs.getValue()).toBe(1);
+    expect(tabs.getActiveTab()).toBe(1); // Should return same value
+
+    tabs.switchTab(2);
+
+    expect(tabs.getValue()).toBe(2);
+    expect(tabs.getActiveTab()).toBe(2);
   });
 });

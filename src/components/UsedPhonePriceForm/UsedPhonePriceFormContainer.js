@@ -63,6 +63,8 @@ const createUsedPhonePriceFormContainer = (props) => {
     labels,
     className,
     showStepsIndicator,
+    // Use loadingStates instead of loading per standardization
+    loadingStates: props.loadingStates || props.loading || {},
     ...otherProps,
   });
 

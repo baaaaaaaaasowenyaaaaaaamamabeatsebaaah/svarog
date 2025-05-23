@@ -133,4 +133,35 @@ describe('Typography component', () => {
 
     expect(element.classList.contains('typography--weight-bold')).toBe(true);
   });
+
+  // New tests for standardized props
+  it('should support value prop as alternative to children', () => {
+    const typography = Typography({
+      value: 'Value prop content',
+    });
+
+    const element = typography.getElement();
+    expect(element.textContent).toBe('Value prop content');
+  });
+
+  it('should prioritize value prop over children when both are provided', () => {
+    const typography = Typography({
+      children: 'Children content',
+      value: 'Value prop content',
+    });
+
+    const element = typography.getElement();
+    expect(element.textContent).toBe('Value prop content');
+  });
+
+  it('should update value when using setContent', () => {
+    const typography = Typography({
+      value: 'Original value',
+    });
+
+    typography.setContent('Updated content');
+
+    const element = typography.getElement();
+    expect(element.textContent).toBe('Updated content');
+  });
 });

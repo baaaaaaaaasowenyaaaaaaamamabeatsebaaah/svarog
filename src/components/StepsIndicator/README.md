@@ -14,7 +14,7 @@ const stepsIndicator = StepsIndicator({
     { name: 'Step 2', completed: false },
     { name: 'Step 3', completed: false },
   ],
-  activeIndex: 1,
+  activeIndex: 1, // or value: 1
 });
 
 // Add to DOM
@@ -23,11 +23,15 @@ document.body.appendChild(stepsIndicator.getElement());
 
 ## Props
 
-| Prop        | Type   | Default | Description                                   |
-| ----------- | ------ | ------- | --------------------------------------------- |
-| steps       | array  | -       | Array of step objects (required)              |
-| activeIndex | number | -       | Index of the currently active step (required) |
-| className   | string | ""      | Additional CSS classes                        |
+| Prop         | Type     | Default | Description                                   |
+| ------------ | -------- | ------- | --------------------------------------------- |
+| steps        | array    | -       | Array of step objects (required)              |
+| activeIndex  | number   | -       | Index of the currently active step (required) |
+| value        | number   | -       | Alias for activeIndex                         |
+| loading      | boolean  | false   | Whether the component is in loading state     |
+| className    | string   | ""      | Additional CSS classes                        |
+| onStepChange | function | -       | Callback when active step changes             |
+| onChange     | function | -       | Alias for onStepChange                        |
 
 ### Step Object Properties
 
@@ -62,7 +66,7 @@ Updates the steps indicator with new properties.
 ```javascript
 stepsIndicator.update({
   steps: updatedSteps,
-  activeIndex: 2,
+  activeIndex: 2, // or value: 2
 });
 ```
 
@@ -72,6 +76,14 @@ Sets the active step to the specified index.
 
 ```javascript
 stepsIndicator.setActiveStep(2); // Navigate to step 3
+```
+
+### setValue(index)
+
+Alias for setActiveStep - sets the active step to the specified index.
+
+```javascript
+stepsIndicator.setValue(2); // Navigate to step 3
 ```
 
 ### completeStep(index)
@@ -104,6 +116,26 @@ The StepsIndicator always displays exactly 3 sections in the progress bar, regar
 
 - For 3 steps or fewer: Each section corresponds directly to a step
 - For more than 3 steps: Steps are distributed proportionally across the 3 sections
+
+## Loading State
+
+The component supports a loading state that displays a subtle animation:
+
+```javascript
+// Create steps indicator in loading state
+const stepsIndicator = StepsIndicator({
+  steps: [
+    { name: 'Step 1', completed: false },
+    { name: 'Step 2', completed: false },
+    { name: 'Step 3', completed: false },
+  ],
+  activeIndex: 0,
+  loading: true,
+});
+
+// Update loading state
+stepsIndicator.update({ loading: false });
+```
 
 ## CSS Customization
 
@@ -146,7 +178,7 @@ const steps = [
 
 const stepsIndicator = StepsIndicator({
   steps,
-  activeIndex: 1,
+  activeIndex: 1, // or value: 1
 });
 ```
 
@@ -173,7 +205,7 @@ function moveToNextStep() {
 
   // Move to next step if not at the end
   if (currentIndex < state.steps.length - 1) {
-    stepsIndicator.setActiveStep(currentIndex + 1);
+    stepsIndicator.setValue(currentIndex + 1); // Using setValue alias
   }
 }
 
@@ -205,7 +237,7 @@ const steps = [
 
 const stepsIndicator = StepsIndicator({
   steps,
-  activeIndex: 2,
+  value: 2, // Using value instead of activeIndex
 });
 ```
 
@@ -221,11 +253,14 @@ const steps = [
 const stepsIndicator = StepsIndicator({
   steps,
   activeIndex: 0,
+  onChange: (newIndex) => {
+    console.log(`Step changed to ${newIndex + 1}`);
+  },
 });
 
 // Move to next step
 function nextStep() {
-  const currentIndex = stepsIndicator.getElement().state.activeIndex;
+  const currentIndex = stepsIndicator.getState().activeIndex;
 
   if (currentIndex < steps.length - 1) {
     // Mark current step as completed
@@ -255,6 +290,7 @@ The StepsIndicator is built with accessibility in mind:
 - Current step is marked with `aria-current="step"`
 - Purely decorative elements are hidden from screen readers
 - Progress is communicated through both visual cues and screen reader announcements
+- Loading state uses `aria-busy="true"` to communicate to assistive technologies
 
 For best results in your application, complement this component with:
 

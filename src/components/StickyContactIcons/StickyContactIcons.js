@@ -23,6 +23,45 @@ const validateStickyContactIconsProps = (props) => {
 };
 
 /**
+ * Migrates legacy props to standardized props
+ * @param {Object} props - Component properties
+ * @returns {Object} Normalized props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Migrate event handlers
+  if ('onLocationClick' in props && !('onLocationClick' in props)) {
+    console.warn(
+      '[StickyContactIcons] onLocationClick is deprecated, use onClick.location instead'
+    );
+    if (!migrated.onClick) migrated.onClick = {};
+    migrated.onClick.location = props.onLocationClick;
+    delete migrated.onLocationClick;
+  }
+
+  if ('onPhoneClick' in props && !('onClick' in props)) {
+    console.warn(
+      '[StickyContactIcons] onPhoneClick is deprecated, use onClick.phone instead'
+    );
+    if (!migrated.onClick) migrated.onClick = {};
+    migrated.onClick.phone = props.onPhoneClick;
+    delete migrated.onPhoneClick;
+  }
+
+  if ('onEmailClick' in props && !('onClick' in props)) {
+    console.warn(
+      '[StickyContactIcons] onEmailClick is deprecated, use onClick.email instead'
+    );
+    if (!migrated.onClick) migrated.onClick = {};
+    migrated.onClick.email = props.onEmailClick;
+    delete migrated.onEmailClick;
+  }
+
+  return migrated;
+};
+
+/**
  * Creates the location icon element
  * @param {Object} state - Component state
  * @returns {HTMLElement} Location icon element
@@ -31,7 +70,7 @@ const createLocationIconElement = (state) => {
   const locationHref = `#${state.locationId}`;
 
   const locationLink = createElement('a', {
-    classes: ['sticky-contact-icons__item'], // Changed from className to classes with array
+    classes: ['sticky-contact-icons__item'],
     attributes: {
       href: locationHref,
       title: state.showTooltips ? state.location : '',
@@ -40,7 +79,10 @@ const createLocationIconElement = (state) => {
     },
     events: {
       click: (event) => {
-        if (state.onLocationClick && state.onLocationClick(event) === false) {
+        if (
+          state.onClick?.location &&
+          state.onClick.location(event) === false
+        ) {
           event.preventDefault();
         }
       },
@@ -51,7 +93,7 @@ const createLocationIconElement = (state) => {
     classes: [
       'sticky-contact-icons__icon',
       'sticky-contact-icons__icon--location',
-    ], // Changed to classes array
+    ],
   });
 
   locationLink.appendChild(locationIcon);
@@ -64,22 +106,21 @@ const createLocationIconElement = (state) => {
  * @returns {HTMLElement} Phone icon element
  */
 const createPhoneIconElement = (state) => {
-  // Remove any non-numeric characters from phone for the href
   const cleanPhone = state.phone.replace(/[\s()/-]/g, '');
   const phoneHref = `tel:${cleanPhone}`;
 
   const phoneLink = createElement('a', {
-    classes: ['sticky-contact-icons__item'], // Changed from className to classes with array
+    classes: ['sticky-contact-icons__item'],
     attributes: {
       href: phoneHref,
       title: state.showTooltips ? state.phone : '',
       'data-href': phoneHref,
       'aria-label': `Call ${state.phone}`,
     },
-    events: state.onPhoneClick
+    events: state.onClick?.phone
       ? {
           click: (event) => {
-            if (state.onPhoneClick(event) === false) {
+            if (state.onClick.phone(event) === false) {
               event.preventDefault();
             }
           },
@@ -91,7 +132,7 @@ const createPhoneIconElement = (state) => {
     classes: [
       'sticky-contact-icons__icon',
       'sticky-contact-icons__icon--phone',
-    ], // Changed to classes array
+    ],
   });
 
   phoneLink.appendChild(phoneIcon);
@@ -107,17 +148,17 @@ const createEmailIconElement = (state) => {
   const emailHref = `mailto:${state.email}`;
 
   const emailLink = createElement('a', {
-    classes: ['sticky-contact-icons__item'], // Changed from className to classes with array
+    classes: ['sticky-contact-icons__item'],
     attributes: {
       href: emailHref,
       title: state.showTooltips ? state.email : '',
       'data-href': emailHref,
       'aria-label': `Email ${state.email}`,
     },
-    events: state.onEmailClick
+    events: state.onClick?.email
       ? {
           click: (event) => {
-            if (state.onEmailClick(event) === false) {
+            if (state.onClick.email(event) === false) {
               event.preventDefault();
             }
           },
@@ -129,7 +170,7 @@ const createEmailIconElement = (state) => {
     classes: [
       'sticky-contact-icons__icon',
       'sticky-contact-icons__icon--email',
-    ], // Changed to classes array
+    ],
   });
 
   emailLink.appendChild(emailIcon);
@@ -142,24 +183,20 @@ const createEmailIconElement = (state) => {
  * @returns {HTMLElement} The component's DOM element
  */
 const renderStickyContactIcons = (state) => {
-  // Build CSS class list
   const classNames = [
     'sticky-contact-icons',
     state.position !== 'right' ? `sticky-contact-icons--${state.position}` : '',
     state.className,
   ].filter(Boolean);
 
-  // Create container element
   const container = createElement('div', {
-    classes: classNames, // This was already correct
+    classes: classNames,
   });
 
-  // Create and append individual icons
   const locationElement = createLocationIconElement(state);
   const phoneElement = createPhoneIconElement(state);
   const emailElement = createEmailIconElement(state);
 
-  // Append all elements to container
   container.appendChild(locationElement);
   container.appendChild(phoneElement);
   container.appendChild(emailElement);
@@ -174,33 +211,50 @@ const renderStickyContactIcons = (state) => {
  * @param {string} props.phone - Contact phone number
  * @param {string} props.email - Contact email address
  * @param {string} [props.locationId='location'] - ID of the location section to scroll to
- * @param {Function} [props.onLocationClick=null] - Optional callback for location click
- * @param {Function} [props.onPhoneClick=null] - Optional callback for phone click
- * @param {Function} [props.onEmailClick=null] - Optional callback for email click
+ * @param {Object} [props.onClick] - Click handlers for icons
+ * @param {Function} [props.onClick.location] - Callback for location icon click
+ * @param {Function} [props.onClick.phone] - Callback for phone icon click
+ * @param {Function} [props.onClick.email] - Callback for email icon click
+ * @param {Function} [props.onLocationClick] - DEPRECATED: Use onClick.location instead
+ * @param {Function} [props.onPhoneClick] - DEPRECATED: Use onClick.phone instead
+ * @param {Function} [props.onEmailClick] - DEPRECATED: Use onClick.email instead
  * @param {string} [props.className=''] - Additional CSS class names
  * @param {string} [props.position='right'] - Position of the icons ('right' or 'bottom')
  * @param {boolean} [props.showTooltips=true] - Whether to show tooltips on hover
  * @returns {Object} StickyContactIcons component
  */
 const createStickyContactIcons = (props) => {
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props
-  validateProps(props, createStickyContactIcons.requiredProps);
+  validateProps(normalizedProps, createStickyContactIcons.requiredProps);
 
   // Validate component-specific props
-  validateStickyContactIconsProps(props);
+  validateStickyContactIconsProps(normalizedProps);
+
+  // Support both legacy and new event handler patterns
+  const onClick = {
+    location:
+      normalizedProps.onClick?.location ||
+      normalizedProps.onLocationClick ||
+      null,
+    phone:
+      normalizedProps.onClick?.phone || normalizedProps.onPhoneClick || null,
+    email:
+      normalizedProps.onClick?.email || normalizedProps.onEmailClick || null,
+  };
 
   // Initialize state with defaults
   const initialState = {
-    location: props.location,
-    phone: props.phone,
-    email: props.email,
-    locationId: props.locationId || 'location',
-    onLocationClick: props.onLocationClick || null,
-    onPhoneClick: props.onPhoneClick || null,
-    onEmailClick: props.onEmailClick || null,
-    className: props.className || '',
-    position: props.position || 'right',
-    showTooltips: props.showTooltips !== false,
+    location: normalizedProps.location,
+    phone: normalizedProps.phone,
+    email: normalizedProps.email,
+    locationId: normalizedProps.locationId || 'location',
+    onClick,
+    className: normalizedProps.className || '',
+    position: normalizedProps.position || 'right',
+    showTooltips: normalizedProps.showTooltips !== false,
   };
 
   // Create the base component

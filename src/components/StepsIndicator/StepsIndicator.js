@@ -73,14 +73,19 @@ function getSectionState(sectionIndex, steps, activeIndex) {
 
 // Render function to create component DOM
 function renderStepsIndicator(state) {
-  const { steps, activeIndex, className } = state;
+  const { steps, activeIndex, className, loading } = state;
 
   // Main container with ARIA attributes
   const container = createElement('div', {
-    classes: ['steps-indicator', className].filter(Boolean),
+    classes: [
+      'steps-indicator',
+      className,
+      loading ? 'steps-indicator--loading' : '',
+    ].filter(Boolean),
     attributes: {
       role: 'navigation',
       'aria-label': 'Progress indicator',
+      'aria-busy': loading ? 'true' : 'false',
     },
   });
 
@@ -115,7 +120,7 @@ function renderStepsIndicator(state) {
     }
 
     const section = createElement('div', {
-      classes: classes,
+      classes,
     });
 
     progressBar.appendChild(section);
@@ -178,28 +183,51 @@ function renderStepsIndicator(state) {
   return container;
 }
 
+// Function to migrate legacy props to standardized props
+function migrateLegacyProps(props) {
+  const migrated = { ...props };
+
+  // Support for value alias of activeIndex
+  if ('value' in props && !('activeIndex' in props)) {
+    migrated.activeIndex = props.value;
+  }
+
+  // Support for onChange alias of onStepChange
+  if ('onChange' in props && !('onStepChange' in props)) {
+    migrated.onStepChange = props.onChange;
+  }
+
+  return migrated;
+}
+
 // Factory function to create the component
 function createStepsIndicator(props) {
+  // Migrate legacy props to standardized props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props with component name
-  validateProps(props, ['steps', 'activeIndex'], 'StepsIndicator');
+  validateProps(normalizedProps, ['steps', 'activeIndex'], 'StepsIndicator');
 
   // Validate numeric activeIndex
-  if (typeof props.activeIndex !== 'number') {
+  if (typeof normalizedProps.activeIndex !== 'number') {
     throw new Error('StepsIndicator: activeIndex must be a number');
   }
 
   // Validate steps array
-  if (!Array.isArray(props.steps)) {
+  if (!Array.isArray(normalizedProps.steps)) {
     throw new Error('StepsIndicator: steps must be an array');
   }
 
   // Validate empty steps array
-  if (props.steps.length === 0) {
+  if (normalizedProps.steps.length === 0) {
     throw new Error('StepsIndicator: steps array cannot be empty');
   }
 
   // Validate activeIndex within bounds
-  if (props.activeIndex < 0 || props.activeIndex >= props.steps.length) {
+  if (
+    normalizedProps.activeIndex < 0 ||
+    normalizedProps.activeIndex >= normalizedProps.steps.length
+  ) {
     throw new Error(
       'StepsIndicator: activeIndex must be within steps array bounds'
     );
@@ -207,10 +235,11 @@ function createStepsIndicator(props) {
 
   // Create base component with render function
   const stepsIndicator = createBaseComponent(renderStepsIndicator)({
-    steps: props.steps,
-    activeIndex: props.activeIndex,
-    className: props.className || '',
-    onStepChange: props.onStepChange, // Support for callback, but component doesn't trigger it
+    steps: normalizedProps.steps,
+    activeIndex: normalizedProps.activeIndex,
+    className: normalizedProps.className || '',
+    loading: normalizedProps.loading || false,
+    onStepChange: normalizedProps.onStepChange, // Support for callback, but component doesn't trigger it
   });
 
   // Add component API methods
@@ -283,6 +312,11 @@ function createStepsIndicator(props) {
       steps: updatedSteps,
       activeIndex: 0,
     });
+  };
+
+  // Alias method for setActiveStep to match value pattern
+  stepsIndicator.setValue = function (index) {
+    return this.setActiveStep(index);
   };
 
   // Force full re-render on update

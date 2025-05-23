@@ -95,7 +95,8 @@ document.body.appendChild(priceForm.getElement());
 | selectedDevice       | string   | ""      | ID of selected device                                                 |
 | selectedCondition    | string   | ""      | ID of selected condition                                              |
 | currentPrice         | Object   | null    | Current price data object                                             |
-| loading              | Object   | {}      | Loading states: `{manufacturers, devices, conditions, price, submit}` |
+| loadingStates        | Object   | {}      | Loading states: `{manufacturers, devices, conditions, price, submit}` |
+| loading              | Object   | {}      | Alias for loadingStates (deprecated)                                  |
 | error                | Object   | {}      | Error states: `{manufacturers, devices, conditions, price}`           |
 | labels               | Object   | {}      | Text labels to customize UI (see below)                               |
 | className            | string   | ""      | Additional CSS class names                                            |
@@ -115,6 +116,8 @@ document.body.appendChild(priceForm.getElement());
 | onSubmit           | Function | No       | Callback when form is submitted `(formData) => {}` |
 | labels             | Object   | No       | Text labels to customize UI                        |
 | className          | string   | No       | Additional CSS class names                         |
+| loadingStates      | Object   | No       | Loading states object                              |
+| loading            | Object   | No       | Alias for loadingStates (deprecated)               |
 | showStepsIndicator | boolean  | No       | Whether to show the step indicator (default: true) |
 
 ### Service Interface

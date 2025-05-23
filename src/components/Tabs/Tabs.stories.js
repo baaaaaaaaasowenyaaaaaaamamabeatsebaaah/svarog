@@ -101,7 +101,7 @@ export const WithDefaultActiveTab = () => {
         content: 'Third tab content',
       },
     ],
-    defaultActiveTab: 1,
+    defaultValue: 1, // Using new prop name
   });
 };
 
@@ -130,7 +130,7 @@ export const WithCallback = () => {
         content: 'Content 3',
       },
     ],
-    onTabChange: (newIndex, oldIndex) => {
+    onChange: (newIndex, oldIndex) => {
       output.textContent = `Switched from tab ${oldIndex + 1} to tab ${newIndex + 1}`;
     },
   });
@@ -276,6 +276,113 @@ export const TabAlignments = () => {
     section.appendChild(tabs.getElement());
     container.appendChild(section);
   });
+
+  return container;
+};
+
+// Example showing both legacy and new props for documentation
+export const PropStandardization = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '2rem';
+
+  const header = document.createElement('h2');
+  header.textContent = 'Prop Standardization Examples';
+  container.appendChild(header);
+
+  // Legacy props example
+  const legacySection = document.createElement('div');
+  const legacyHeader = document.createElement('h3');
+  legacyHeader.textContent = 'Legacy Props (Deprecated)';
+  legacyHeader.style.color = '#e53e3e';
+
+  const legacyDesc = document.createElement('p');
+  legacyDesc.textContent =
+    'These props still work but will show deprecation warnings in the console:';
+
+  const legacyCode = document.createElement('pre');
+  legacyCode.textContent = `{
+  defaultActiveTab: 0,  // Deprecated
+  onTabChange: (newIndex, oldIndex) => { ... }  // Deprecated
+}`;
+  legacyCode.style.backgroundColor = '#f8f9fa';
+  legacyCode.style.padding = '1rem';
+  legacyCode.style.borderRadius = '4px';
+
+  legacySection.appendChild(legacyHeader);
+  legacySection.appendChild(legacyDesc);
+  legacySection.appendChild(legacyCode);
+  container.appendChild(legacySection);
+
+  // New props example
+  const newSection = document.createElement('div');
+  const newHeader = document.createElement('h3');
+  newHeader.textContent = 'Standardized Props (Recommended)';
+  newHeader.style.color = '#38a169';
+
+  const newDesc = document.createElement('p');
+  newDesc.textContent = 'Use these standardized props going forward:';
+
+  const newCode = document.createElement('pre');
+  newCode.textContent = `{
+  defaultValue: 0,  // ✓ Recommended
+  onChange: (newIndex, oldIndex) => { ... }  // ✓ Recommended
+}`;
+  newCode.style.backgroundColor = '#f8f9fa';
+  newCode.style.padding = '1rem';
+  newCode.style.borderRadius = '4px';
+
+  newSection.appendChild(newHeader);
+  newSection.appendChild(newDesc);
+  newSection.appendChild(newCode);
+  container.appendChild(newSection);
+
+  // Example tabs with both approaches
+  const tabsLegacy = createTabs({
+    tabs: [
+      { id: 'legacy1', label: 'Legacy Tab 1', content: 'Using legacy props' },
+      {
+        id: 'legacy2',
+        label: 'Legacy Tab 2',
+        content: 'Check console for warnings',
+      },
+    ],
+    defaultActiveTab: 1,
+    onTabChange: () => console.log('Legacy callback'),
+  });
+
+  const tabsNew = createTabs({
+    tabs: [
+      { id: 'new1', label: 'New Tab 1', content: 'Using standardized props' },
+      { id: 'new2', label: 'New Tab 2', content: 'No console warnings' },
+    ],
+    defaultValue: 1,
+    onChange: () => console.log('Standardized callback'),
+  });
+
+  const examplesContainer = document.createElement('div');
+  examplesContainer.style.display = 'flex';
+  examplesContainer.style.gap = '1rem';
+  examplesContainer.style.marginTop = '2rem';
+
+  const legacyExample = document.createElement('div');
+  legacyExample.style.flex = '1';
+  const legacyTitle = document.createElement('h4');
+  legacyTitle.textContent = 'Example with Legacy Props';
+  legacyExample.appendChild(legacyTitle);
+  legacyExample.appendChild(tabsLegacy.getElement());
+
+  const newExample = document.createElement('div');
+  newExample.style.flex = '1';
+  const newTitle = document.createElement('h4');
+  newTitle.textContent = 'Example with New Props';
+  newExample.appendChild(newTitle);
+  newExample.appendChild(tabsNew.getElement());
+
+  examplesContainer.appendChild(legacyExample);
+  examplesContainer.appendChild(newExample);
+  container.appendChild(examplesContainer);
 
   return container;
 };

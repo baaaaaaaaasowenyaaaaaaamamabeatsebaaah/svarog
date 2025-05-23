@@ -125,7 +125,7 @@ const canSubmit = (state) => {
   const hasCondition = state.selectedCondition ? 1 : 0;
   const hasPrice =
     state.currentPrice && state.currentPrice.price != null ? 1 : 0;
-  const notLoading = !Object.values(state.loading).some(Boolean) ? 1 : 0;
+  const notLoading = !Object.values(state.loadingStates).some(Boolean) ? 1 : 0;
 
   // Bitwise AND: all conditions must be true (all bits set)
   const allConditions =
@@ -225,7 +225,7 @@ const renderUsedPhonePriceForm = (state) => {
     placeholder: state.labels.manufacturerPlaceholder,
     options: manufacturerOptions,
     value: state.selectedManufacturer,
-    loading: state.loading.manufacturers,
+    loading: state.loadingStates.manufacturers,
     loadingText: 'Loading manufacturers...',
     emptyText: 'No manufacturers available',
     onChange: (event, value) => {
@@ -246,7 +246,7 @@ const renderUsedPhonePriceForm = (state) => {
     options: deviceOptions,
     value: state.selectedDevice,
     disabled: !state.selectedManufacturer,
-    loading: state.loading.devices,
+    loading: state.loadingStates.devices,
     loadingText: 'Loading devices...',
     emptyText: state.selectedManufacturer
       ? 'No devices available for this manufacturer'
@@ -264,9 +264,9 @@ const renderUsedPhonePriceForm = (state) => {
   components.conditionSelector = ConditionSelector({
     conditions: state.conditions,
     selectedId: state.selectedCondition,
-    isLoading: state.loading.conditions || false,
+    loading: state.loadingStates.conditions || false,
     disabled: !state.selectedDevice,
-    onSelect: (conditionId) => {
+    onChange: (conditionId) => {
       if (typeof state.onConditionChange === 'function') {
         setTimeout(() => state.onConditionChange(conditionId), 0);
       }
@@ -279,7 +279,7 @@ const renderUsedPhonePriceForm = (state) => {
     label: state.labels.priceLabel,
     value: state.priceDisplayText,
     isPlaceholder: !state.currentPrice,
-    isLoading: state.loading.price || false,
+    loading: state.loadingStates.price || false,
     isError: !!state.error.price,
   });
   form.appendChild(components.priceDisplay.getElement());
@@ -292,7 +292,7 @@ const renderUsedPhonePriceForm = (state) => {
   // Create submit button with algorithmic validation
   const canSubmitNow = canSubmit(state);
   components.submitButton = Button({
-    text: state.loading.submit
+    text: state.loadingStates.submit
       ? state.labels.submitButtonLoadingText
       : state.labels.submitButtonText,
     type: 'submit',
@@ -329,7 +329,7 @@ const renderUsedPhonePriceForm = (state) => {
     },
     disabled: !canSubmitNow,
     attributes: {
-      'aria-busy': state.loading.submit ? 'true' : 'false',
+      'aria-busy': state.loadingStates.submit ? 'true' : 'false',
     },
   });
   actionsContainer.appendChild(components.submitButton.getElement());
@@ -379,6 +379,9 @@ const createUsedPhonePriceForm = (props) => {
   const defaultLabels = createDefaultLabels();
   const labels = { ...defaultLabels, ...(props.labels || {}) };
 
+  // Standardize props - migrate from loading to loadingStates
+  const loadingStates = props.loadingStates || props.loading || {};
+
   // Enhanced initial state with better defaults
   const initialState = {
     manufacturers: props.manufacturers || [],
@@ -391,13 +394,13 @@ const createUsedPhonePriceForm = (props) => {
     priceDisplayText: props.currentPrice
       ? formatPrice(props.currentPrice.price)
       : labels.initialPriceText,
-    loading: {
+    loadingStates: {
       manufacturers: false,
       devices: false,
       conditions: false,
       price: false,
       submit: false,
-      ...props.loading,
+      ...loadingStates,
     },
     error: props.error || {},
     steps: [
@@ -414,7 +417,7 @@ const createUsedPhonePriceForm = (props) => {
     onConditionChange: props.onConditionChange,
     onSubmit: props.onSubmit,
     hasError: Object.values(props.error || {}).some(Boolean),
-    isLoading: Object.values(props.loading || {}).some(Boolean),
+    isLoading: Object.values(loadingStates).some(Boolean),
     animationEnabled: props.animationEnabled !== false,
   };
 
@@ -432,6 +435,12 @@ const createUsedPhonePriceForm = (props) => {
 
   // Enhanced state update method with algorithmic optimization
   usedPhonePriceForm.setState = function (newState) {
+    // Handle prop standardization when updating
+    if (newState.loading && !newState.loadingStates) {
+      newState.loadingStates = newState.loading;
+      delete newState.loading;
+    }
+
     // Update state
     currentState = { ...currentState, ...newState };
 
@@ -443,9 +452,9 @@ const createUsedPhonePriceForm = (props) => {
     currentState.hasError = Object.values(currentState.error || {}).some(
       Boolean
     );
-    currentState.isLoading = Object.values(currentState.loading || {}).some(
-      Boolean
-    );
+    currentState.isLoading = Object.values(
+      currentState.loadingStates || {}
+    ).some(Boolean);
 
     // Store state on element for container access
     const element = this.getElement();
@@ -479,6 +488,12 @@ const createUsedPhonePriceForm = (props) => {
 
     const components = element._components;
 
+    // Standardize props for update
+    const loadingStates = newProps.loadingStates || newProps.loading || {};
+    if (newProps.loading && !newProps.loadingStates) {
+      newProps.loadingStates = newProps.loading;
+    }
+
     // Check if steps need updating with mathematical approach
     const needsStepsUpdate = [
       'selectedManufacturer',
@@ -489,7 +504,7 @@ const createUsedPhonePriceForm = (props) => {
     // Update manufacturer select with memoized transformation
     if (
       newProps.manufacturers !== undefined ||
-      newProps.loading?.manufacturers !== undefined ||
+      loadingStates.manufacturers !== undefined ||
       newProps.selectedManufacturer !== undefined
     ) {
       const manufacturerOptions = transformToSelectOptions(
@@ -498,7 +513,8 @@ const createUsedPhonePriceForm = (props) => {
       components.manufacturerSelect?.update({
         options: manufacturerOptions,
         loading:
-          newProps.loading?.manufacturers ?? currentState.loading.manufacturers,
+          loadingStates.manufacturers ??
+          currentState.loadingStates.manufacturers,
         value:
           newProps.selectedManufacturer ?? currentState.selectedManufacturer,
       });
@@ -507,7 +523,7 @@ const createUsedPhonePriceForm = (props) => {
     // Update device select with memoized transformation
     if (
       newProps.devices !== undefined ||
-      newProps.loading?.devices !== undefined ||
+      loadingStates.devices !== undefined ||
       newProps.selectedManufacturer !== undefined ||
       newProps.selectedDevice !== undefined
     ) {
@@ -515,7 +531,7 @@ const createUsedPhonePriceForm = (props) => {
         newProps.devices || currentState.devices
       );
       const deviceLoading =
-        newProps.loading?.devices ?? currentState.loading.devices;
+        loadingStates.devices ?? currentState.loadingStates.devices;
       const manufacturerSelected =
         newProps.selectedManufacturer ?? currentState.selectedManufacturer;
 
@@ -533,18 +549,18 @@ const createUsedPhonePriceForm = (props) => {
     // Update condition selector
     if (
       newProps.conditions !== undefined ||
-      newProps.loading?.conditions !== undefined ||
+      loadingStates.conditions !== undefined ||
       newProps.selectedDevice !== undefined ||
       newProps.selectedCondition !== undefined
     ) {
       const conditionLoading =
-        newProps.loading?.conditions ?? currentState.loading.conditions;
+        loadingStates.conditions ?? currentState.loadingStates.conditions;
       const deviceSelected =
         newProps.selectedDevice ?? currentState.selectedDevice;
 
       components.conditionSelector?.update({
         conditions: newProps.conditions || currentState.conditions,
-        isLoading: conditionLoading,
+        loading: conditionLoading,
         disabled: !deviceSelected,
         selectedId:
           newProps.selectedCondition ?? currentState.selectedCondition,
@@ -555,7 +571,7 @@ const createUsedPhonePriceForm = (props) => {
     if (
       newProps.currentPrice !== undefined ||
       newProps.priceDisplayText !== undefined ||
-      newProps.loading?.price !== undefined ||
+      loadingStates.price !== undefined ||
       newProps.error?.price !== undefined
     ) {
       const displayText =
@@ -567,7 +583,7 @@ const createUsedPhonePriceForm = (props) => {
       components.priceDisplay?.update({
         value: displayText,
         isPlaceholder: !newProps.currentPrice && !currentState.currentPrice,
-        isLoading: newProps.loading?.price ?? currentState.loading.price,
+        loading: loadingStates.price ?? currentState.loadingStates.price,
         isError: !!(newProps.error?.price || currentState.error.price),
       });
     }
@@ -587,16 +603,24 @@ const createUsedPhonePriceForm = (props) => {
         'selectedDevice',
         'selectedCondition',
         'currentPrice',
+        'loadingStates',
         'loading',
       ].some((key) => newProps[key] !== undefined)
     ) {
-      const canSubmitNow = canSubmit({ ...currentState, ...newProps });
+      const canSubmitNow = canSubmit({
+        ...currentState,
+        ...newProps,
+        loadingStates:
+          newProps.loadingStates ||
+          newProps.loading ||
+          currentState.loadingStates,
+      });
       const isSubmitting =
-        newProps.loading?.submit ?? currentState.loading.submit;
+        loadingStates.submit ?? currentState.loadingStates.submit;
 
       components.submitButton?.setDisabled(!canSubmitNow || isSubmitting);
 
-      if (newProps.loading?.submit !== undefined) {
+      if (loadingStates.submit !== undefined) {
         components.submitButton?.setText(
           isSubmitting
             ? currentState.labels.submitButtonLoadingText
@@ -624,9 +648,9 @@ const createUsedPhonePriceForm = (props) => {
 
   // Convenience methods
   usedPhonePriceForm.setLoading = function (loadingState) {
-    const mergedLoading = { ...currentState.loading, ...loadingState };
+    const mergedLoading = { ...currentState.loadingStates, ...loadingState };
     return this.setState({
-      loading: mergedLoading,
+      loadingStates: mergedLoading,
       isLoading: Object.values(mergedLoading).some(Boolean),
     });
   };
@@ -665,6 +689,12 @@ const createUsedPhonePriceForm = (props) => {
   usedPhonePriceForm.update = function (newProps) {
     try {
       validateProps(newProps, createUsedPhonePriceForm.requiredProps);
+
+      // Standardize props
+      if (newProps.loading && !newProps.loadingStates) {
+        newProps.loadingStates = newProps.loading;
+        delete newProps.loading;
+      }
 
       if (this.shouldRerender(newProps)) {
         return createBaseComponent.prototype.update.call(this, {

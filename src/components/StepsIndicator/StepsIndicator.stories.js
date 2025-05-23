@@ -12,6 +12,29 @@ export default {
       },
     },
   },
+  argTypes: {
+    activeIndex: {
+      control: { type: 'number' },
+      description: 'Index of the currently active step',
+    },
+    value: {
+      control: { type: 'number' },
+      description: 'Alias for activeIndex',
+    },
+    loading: {
+      control: { type: 'boolean' },
+      description: 'Whether the component is in loading state',
+      defaultValue: false,
+    },
+    onChange: {
+      action: 'onChange',
+      description: 'Callback when step changes (alias for onStepChange)',
+    },
+    onStepChange: {
+      action: 'onStepChange',
+      description: 'Callback when step changes',
+    },
+  },
 };
 
 export const Default = () => {
@@ -24,6 +47,33 @@ export const Default = () => {
   return StepsIndicator({
     steps,
     activeIndex: 1,
+  });
+};
+
+export const WithValueProp = () => {
+  const steps = [
+    { name: 'Step 1', completed: true },
+    { name: 'Step 2', completed: false },
+    { name: 'Step 3', completed: false },
+  ];
+
+  return StepsIndicator({
+    steps,
+    value: 1, // Using value instead of activeIndex
+  });
+};
+
+export const Loading = () => {
+  const steps = [
+    { name: 'Step 1', completed: true },
+    { name: 'Step 2', completed: false },
+    { name: 'Step 3', completed: false },
+  ];
+
+  return StepsIndicator({
+    steps,
+    activeIndex: 1,
+    loading: true,
   });
 };
 
@@ -84,7 +134,7 @@ export const AllSteps = () => {
       { name: 'Review', completed: false },
       { name: 'Confirmation', completed: false },
     ],
-    activeIndex: 2,
+    value: 2, // Using value instead of activeIndex
   });
   example4.appendChild(indicator4.getElement());
 
@@ -145,11 +195,15 @@ export const Interactive = () => {
   // Track current state
   let activeIndex = 0;
   let isWorkflowCompleted = false;
+  let isLoading = false;
 
   // Create initial component
   createFreshComponent({
     steps,
     activeIndex,
+    onChange: (index) => {
+      console.log(`Step changed to ${index + 1}`);
+    },
   });
 
   // Create controls
@@ -187,14 +241,26 @@ export const Interactive = () => {
   resetButton.style.borderRadius = '4px';
   resetButton.style.cursor = 'pointer';
 
+  // Toggle loading button
+  const toggleLoadingButton = document.createElement('button');
+  toggleLoadingButton.textContent = 'Toggle Loading';
+  toggleLoadingButton.style.padding = '8px 16px';
+  toggleLoadingButton.style.backgroundColor = '#805ad5';
+  toggleLoadingButton.style.color = 'white';
+  toggleLoadingButton.style.border = 'none';
+  toggleLoadingButton.style.borderRadius = '4px';
+  toggleLoadingButton.style.cursor = 'pointer';
+
   // Function to update button states
   function updateButtonStates() {
     // Disable previous button if on first step
-    prevButton.disabled = activeIndex === 0 || isWorkflowCompleted;
+    prevButton.disabled = activeIndex === 0 || isWorkflowCompleted || isLoading;
     prevButton.style.opacity =
-      activeIndex === 0 || isWorkflowCompleted ? '0.5' : '1';
+      activeIndex === 0 || isWorkflowCompleted || isLoading ? '0.5' : '1';
     prevButton.style.cursor =
-      activeIndex === 0 || isWorkflowCompleted ? 'not-allowed' : 'pointer';
+      activeIndex === 0 || isWorkflowCompleted || isLoading
+        ? 'not-allowed'
+        : 'pointer';
 
     // Change next button to Complete on last step
     if (activeIndex === steps.length - 1 && !isWorkflowCompleted) {
@@ -205,15 +271,24 @@ export const Interactive = () => {
       nextButton.style.backgroundColor = '#3182ce'; // Blue for next
     }
 
-    // Disable next button when workflow is completed
-    nextButton.disabled = isWorkflowCompleted;
-    nextButton.style.opacity = isWorkflowCompleted ? '0.5' : '1';
-    nextButton.style.cursor = isWorkflowCompleted ? 'not-allowed' : 'pointer';
+    // Disable next button when workflow is completed or loading
+    nextButton.disabled = isWorkflowCompleted || isLoading;
+    nextButton.style.opacity = isWorkflowCompleted || isLoading ? '0.5' : '1';
+    nextButton.style.cursor =
+      isWorkflowCompleted || isLoading ? 'not-allowed' : 'pointer';
+
+    // Toggle loading button text
+    toggleLoadingButton.textContent = isLoading
+      ? 'Stop Loading'
+      : 'Start Loading';
+    toggleLoadingButton.style.backgroundColor = isLoading
+      ? '#e53e3e'
+      : '#805ad5';
   }
 
   // Button event handlers
   prevButton.onclick = () => {
-    if (activeIndex > 0 && !isWorkflowCompleted) {
+    if (activeIndex > 0 && !isWorkflowCompleted && !isLoading) {
       // Move to previous step
       activeIndex--;
 
@@ -221,6 +296,10 @@ export const Interactive = () => {
       createFreshComponent({
         steps,
         activeIndex,
+        loading: isLoading,
+        onChange: (index) => {
+          console.log(`Step changed to ${index + 1}`);
+        },
       });
 
       // Update button states
@@ -229,7 +308,7 @@ export const Interactive = () => {
   };
 
   nextButton.onclick = () => {
-    if (isWorkflowCompleted) return;
+    if (isWorkflowCompleted || isLoading) return;
 
     // Mark current step as completed
     steps = [...steps];
@@ -245,7 +324,11 @@ export const Interactive = () => {
       // to trigger the success styling
       createFreshComponent({
         steps,
-        activeIndex: activeIndex,
+        activeIndex,
+        loading: isLoading,
+        onChange: (index) => {
+          console.log(`Step changed to ${index + 1}`);
+        },
       });
 
       // Create a message to show completion
@@ -268,6 +351,10 @@ export const Interactive = () => {
       createFreshComponent({
         steps,
         activeIndex,
+        loading: isLoading,
+        onChange: (index) => {
+          console.log(`Step changed to ${index + 1}`);
+        },
       });
     }
 
@@ -293,6 +380,28 @@ export const Interactive = () => {
     createFreshComponent({
       steps,
       activeIndex,
+      loading: isLoading,
+      onChange: (index) => {
+        console.log(`Step changed to ${index + 1}`);
+      },
+    });
+
+    // Update button states
+    updateButtonStates();
+  };
+
+  toggleLoadingButton.onclick = () => {
+    // Toggle loading state
+    isLoading = !isLoading;
+
+    // Update component with new loading state
+    createFreshComponent({
+      steps,
+      activeIndex,
+      loading: isLoading,
+      onChange: (index) => {
+        console.log(`Step changed to ${index + 1}`);
+      },
     });
 
     // Update button states
@@ -302,6 +411,7 @@ export const Interactive = () => {
   controls.appendChild(prevButton);
   controls.appendChild(nextButton);
   controls.appendChild(resetButton);
+  controls.appendChild(toggleLoadingButton);
   container.appendChild(controls);
 
   // Initialize button states

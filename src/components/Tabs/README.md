@@ -32,8 +32,12 @@ document.body.appendChild(myTabs.getElement());
 | Prop             | Type                              | Default    | Description                                      |
 | ---------------- | --------------------------------- | ---------- | ------------------------------------------------ |
 | tabs             | Array                             | (Required) | Array of tab objects                             |
-| defaultActiveTab | number                            | 0          | Index of the tab that should be active initially |
-| onTabChange      | function                          | null       | Callback function when active tab changes        |
+| defaultValue     | number                            | 0          | Index of the tab that should be active initially |
+| defaultActiveTab | number                            | 0          | **Deprecated** - Use defaultValue instead        |
+| onChange         | function                          | null       | Callback function when active tab changes        |
+| onTabChange      | function                          | null       | **Deprecated** - Use onChange instead            |
+| value            | number                            | -          | Current active tab index (controlled mode)       |
+| activeTab        | number                            | -          | **Deprecated** - Use value instead               |
 | className        | string                            | ''         | Additional CSS class                             |
 | variant          | 'default' \| 'simple' \| 'border' | 'default'  | Visual style variant                             |
 | align            | 'left' \| 'center' \| 'right'     | 'left'     | Alignment of tab buttons                         |
@@ -70,6 +74,14 @@ Returns the index of the currently active tab.
 
 ```javascript
 const activeTabIndex = myTabs.getActiveTab();
+```
+
+### getValue()
+
+Returns the current value (alias for getActiveTab).
+
+```javascript
+const value = myTabs.getValue();
 ```
 
 ### getTabCount()
@@ -232,7 +244,7 @@ const preselectedTabs = Tabs({
       content: 'Third tab content',
     },
   ],
-  defaultActiveTab: 1, // Second tab (index 1) is active by default
+  defaultValue: 1, // Second tab (index 1) is active by default
 });
 ```
 
@@ -290,7 +302,7 @@ const htmlTabs = Tabs({
 ```javascript
 const callbackTabs = Tabs({
   tabs: [...],
-  onTabChange: (newIndex, oldIndex) => {
+  onChange: (newIndex, oldIndex) => {
     console.log(`Switched from tab ${oldIndex} to tab ${newIndex}`);
     // Perform actions when tab changes
   }

@@ -325,7 +325,7 @@ describe('UsedPhonePriceForm component', () => {
 
   it('should handle loading states', () => {
     const form = createUsedPhonePriceForm({
-      loading: {
+      loadingStates: {
         manufacturers: true,
         devices: false,
         conditions: false,
@@ -368,7 +368,7 @@ describe('UsedPhonePriceForm component', () => {
     // Test setLoading method
     form.setLoading({ manufacturers: true });
     const state = form.getCurrentState();
-    expect(state.loading.manufacturers).toBe(true);
+    expect(state.loadingStates.manufacturers).toBe(true);
 
     // Test setErrors method
     form.setErrors({ price: 'Error message' });

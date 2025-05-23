@@ -8,17 +8,22 @@ import { validateRequiredProps } from '../../utils/validation.js';
  * Creates a Tabs component
  * @param {Object} props - Tabs properties
  * @param {Array} props.tabs - Array of tab objects (id, label, content)
- * @param {number} [props.defaultActiveTab=0] - Index of initially active tab
- * @param {Function} [props.onTabChange] - Callback when active tab changes
+ * @param {number} [props.defaultActiveTab=0] - Index of initially active tab (deprecated, use defaultValue)
+ * @param {number} [props.defaultValue=0] - Index of initially active tab
+ * @param {Function} [props.onChange] - Callback when active tab changes
+ * @param {Function} [props.onTabChange] - Callback when active tab changes (deprecated, use onChange)
  * @param {string} [props.className] - Additional CSS class
  * @param {string} [props.variant='default'] - Tab style variant ('default', 'simple', 'border')
  * @param {string} [props.align='left'] - Tab alignment ('left', 'center', 'right')
  * @returns {Object} Tabs component
  */
 const createTabs = (props) => {
+  // Migrate legacy props to new standard props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate props
   validateRequiredProps(
-    props,
+    normalizedProps,
     {
       tabs: {
         required: true,
@@ -26,7 +31,7 @@ const createTabs = (props) => {
         minLength: 1,
         validator: (tabs) => tabs.length > 0 || 'tabs array must not be empty',
       },
-      defaultActiveTab: {
+      defaultValue: {
         required: false,
         type: 'number',
       },
@@ -46,13 +51,13 @@ const createTabs = (props) => {
 
   // Create initial state by merging props with defaults
   const state = {
-    tabs: props.tabs || [],
-    defaultActiveTab: props.defaultActiveTab || 0,
-    onTabChange: props.onTabChange || null,
-    className: props.className || '',
-    variant: props.variant || 'default',
-    align: props.align || 'left',
-    activeTab: props.defaultActiveTab || 0,
+    tabs: normalizedProps.tabs || [],
+    defaultValue: normalizedProps.defaultValue || 0,
+    onChange: normalizedProps.onChange || null,
+    className: normalizedProps.className || '',
+    variant: normalizedProps.variant || 'default',
+    align: normalizedProps.align || 'left',
+    activeTab: normalizedProps.defaultValue || 0,
   };
 
   // References to DOM elements for easier access in switchTab
@@ -88,8 +93,8 @@ const createTabs = (props) => {
     });
 
     // Call callback if provided
-    if (state.onTabChange) {
-      state.onTabChange(index, previousTab);
+    if (state.onChange) {
+      state.onChange(index, previousTab);
     }
 
     return true;
@@ -309,9 +314,14 @@ const createTabs = (props) => {
    * @returns {boolean} Whether a full re-render is required
    */
   const shouldRerender = (newProps) => {
+    // Normalize new props
+    const normalizedNewProps = migrateLegacyProps(newProps);
+
     // Critical props that require a full re-render
     const criticalProps = ['tabs', 'variant', 'align'];
-    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+    return Object.keys(normalizedNewProps).some((key) =>
+      criticalProps.includes(key)
+    );
   };
 
   /**
@@ -320,11 +330,11 @@ const createTabs = (props) => {
    * @param {Object} newProps - New properties
    */
   const partialUpdate = (element, newProps) => {
-    // Update state with new props
-    Object.assign(state, newProps);
+    // Normalize new props
+    const normalizedNewProps = migrateLegacyProps(newProps);
 
     // Handle className update without re-rendering
-    if (newProps.className !== undefined) {
+    if (normalizedNewProps.className !== undefined) {
       // Get the current class list
       const classList = element.className.split(' ');
 
@@ -338,18 +348,29 @@ const createTabs = (props) => {
       }
 
       // Add the new className if it exists
-      if (newProps.className) {
-        classList.push(newProps.className);
+      if (normalizedNewProps.className) {
+        classList.push(normalizedNewProps.className);
       }
 
       // Set the new class list
       element.className = classList.join(' ');
     }
 
-    // Handle activeTab change
-    if (newProps.activeTab !== undefined) {
-      switchTab(newProps.activeTab);
+    // Handle activeTab/value change - IMPORTANT: do this before updating state
+    // to ensure switchTab works with the correct values
+    if (
+      normalizedNewProps.activeTab !== undefined ||
+      normalizedNewProps.value !== undefined
+    ) {
+      const newValue =
+        normalizedNewProps.value !== undefined
+          ? normalizedNewProps.value
+          : normalizedNewProps.activeTab;
+      switchTab(newValue);
     }
+
+    // Update state with new props after processing any tab changes
+    Object.assign(state, normalizedNewProps);
   };
 
   // Extended component with custom methods
@@ -389,6 +410,14 @@ const createTabs = (props) => {
     },
 
     /**
+     * Get the current value (alias for getActiveTab)
+     * @returns {number} Current value (active tab index)
+     */
+    getValue() {
+      return state.activeTab;
+    },
+
+    /**
      * Get the number of tabs
      * @returns {number} Number of tabs
      */
@@ -404,6 +433,43 @@ const createTabs = (props) => {
   };
 
   return tabsComponent;
+};
+
+/**
+ * Migrate legacy props to new standard props
+ * @param {Object} props - Component props
+ * @returns {Object} Normalized props
+ */
+const migrateLegacyProps = (props) => {
+  const normalized = { ...props };
+
+  // Handle onTabChange -> onChange
+  if ('onTabChange' in props && !('onChange' in props)) {
+    console.warn('[Tabs] onTabChange is deprecated, use onChange instead');
+    normalized.onChange = props.onTabChange;
+    delete normalized.onTabChange;
+  }
+
+  // Handle defaultActiveTab -> defaultValue
+  if ('defaultActiveTab' in props && !('defaultValue' in props)) {
+    console.warn(
+      '[Tabs] defaultActiveTab is deprecated, use defaultValue instead'
+    );
+    normalized.defaultValue = props.defaultActiveTab;
+    delete normalized.defaultActiveTab;
+  }
+
+  // Handle activeTab -> value (add alias)
+  if ('activeTab' in props && !('value' in props)) {
+    normalized.value = props.activeTab;
+  }
+
+  // Handle value -> activeTab (for internal state)
+  if ('value' in props && !('activeTab' in props)) {
+    normalized.activeTab = props.value;
+  }
+
+  return normalized;
 };
 
 // Define required props for validation

@@ -24,6 +24,7 @@ document.body.appendChild(heading.getElement());
 | Prop       | Type                           | Default    | Description                                                                           |
 | ---------- | ------------------------------ | ---------- | ------------------------------------------------------------------------------------- |
 | children   | string\|HTMLElement\|Component | (Required) | Text content or element to display                                                    |
+| value      | string\|HTMLElement\|Component | undefined  | Alternative to children prop for content (takes precedence over children)             |
 | as         | string                         | 'span'     | HTML element type ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'div')            |
 | textAlign  | string                         | null       | Text alignment ('left', 'center', 'right', 'justify')                                 |
 | weight     | string\|number                 | null       | Font weight ('light', 'regular', 'medium', 'semibold', 'bold', '100'-'900', 'normal') |
@@ -148,6 +149,15 @@ const h2 = Typography({
 const paragraph = Typography({
   children:
     'This is a paragraph with multiple sentences. It can contain lots of text and will wrap naturally.',
+  as: 'p',
+});
+```
+
+### Using the value prop
+
+```javascript
+const paragraph = Typography({
+  value: 'This text uses the standardized value prop',
   as: 'p',
 });
 ```

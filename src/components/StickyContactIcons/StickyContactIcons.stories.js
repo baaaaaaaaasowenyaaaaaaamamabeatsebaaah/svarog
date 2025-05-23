@@ -70,23 +70,25 @@ export const WithClickHandlers = () => {
       phone: '0176/88778877',
       email: 'info@muchandy.de',
       locationId: 'location-section',
-      onLocationClick: () => {
-        container.updateStatus(
-          `<strong>Location clicked!</strong> - ${new Date().toLocaleTimeString()}`
-        );
-        return false; // Prevent default behavior
-      },
-      onPhoneClick: () => {
-        container.updateStatus(
-          `<strong>Phone clicked!</strong> - ${new Date().toLocaleTimeString()}`
-        );
-        return false; // Prevent default behavior
-      },
-      onEmailClick: () => {
-        container.updateStatus(
-          `<strong>Email clicked!</strong> - ${new Date().toLocaleTimeString()}`
-        );
-        return false; // Prevent default behavior
+      onClick: {
+        location: () => {
+          container.updateStatus(
+            `<strong>Location clicked!</strong> - ${new Date().toLocaleTimeString()}`
+          );
+          return false; // Prevent default behavior
+        },
+        phone: () => {
+          container.updateStatus(
+            `<strong>Phone clicked!</strong> - ${new Date().toLocaleTimeString()}`
+          );
+          return false; // Prevent default behavior
+        },
+        email: () => {
+          container.updateStatus(
+            `<strong>Email clicked!</strong> - ${new Date().toLocaleTimeString()}`
+          );
+          return false; // Prevent default behavior
+        },
       },
     },
     {
@@ -97,6 +99,48 @@ export const WithClickHandlers = () => {
 
   // Initialize the status display
   container.updateStatus('Click an icon to see the event');
+
+  return container;
+};
+
+export const WithLegacyClickHandlers = () => {
+  const container = createBodyMountedStory(
+    StickyContactIcons,
+    {
+      location: 'Luisenstr. 1',
+      phone: '0176/88778877',
+      email: 'info@muchandy.de',
+      locationId: 'location-section',
+      onLocationClick: () => {
+        container.updateStatus(
+          `<strong>Location clicked (legacy)!</strong> - ${new Date().toLocaleTimeString()}`
+        );
+        return false; // Prevent default behavior
+      },
+      onPhoneClick: () => {
+        container.updateStatus(
+          `<strong>Phone clicked (legacy)!</strong> - ${new Date().toLocaleTimeString()}`
+        );
+        return false; // Prevent default behavior
+      },
+      onEmailClick: () => {
+        container.updateStatus(
+          `<strong>Email clicked (legacy)!</strong> - ${new Date().toLocaleTimeString()}`
+        );
+        return false; // Prevent default behavior
+      },
+    },
+    {
+      title: 'StickyContactIcons with legacy click handlers',
+      description:
+        'Using deprecated onLocationClick, onPhoneClick, onEmailClick props',
+    }
+  );
+
+  // Initialize the status display
+  container.updateStatus(
+    'Click an icon to see the event (using legacy handlers)'
+  );
 
   return container;
 };

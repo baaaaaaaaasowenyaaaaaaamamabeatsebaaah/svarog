@@ -25,7 +25,11 @@ const createTypography = (props) => {
     className = '',
     weight,
     block = null, // null to detect when explicitly set
+    value, // Added for standardization
   } = props;
+
+  // Migrate legacy props
+  const content = value !== undefined ? value : children;
 
   // Type validation
   const validElements = [
@@ -89,7 +93,7 @@ const createTypography = (props) => {
 
   // Component state
   const state = {
-    children,
+    content,
     textAlign,
     tabletSize,
     mobileSize,
@@ -167,15 +171,15 @@ const createTypography = (props) => {
     });
 
     // Set content
-    if (typeof state.children === 'string') {
-      element.innerHTML = state.children;
-    } else if (state.children instanceof HTMLElement) {
-      element.appendChild(state.children);
-    } else if (typeof state.children.getElement === 'function') {
-      element.appendChild(state.children.getElement());
+    if (typeof state.content === 'string') {
+      element.innerHTML = state.content;
+    } else if (state.content instanceof HTMLElement) {
+      element.appendChild(state.content);
+    } else if (typeof state.content?.getElement === 'function') {
+      element.appendChild(state.content.getElement());
     } else {
       throw new Error(
-        'children must be string, HTMLElement, or component with getElement method'
+        'content (children/value) must be string, HTMLElement, or component with getElement method'
       );
     }
 
@@ -194,8 +198,10 @@ const createTypography = (props) => {
     // Always rerender if tag type changes
     if (newProps.as && newProps.as !== state.as) return true;
 
-    // Always rerender if content changes
-    if (newProps.children && newProps.children !== state.children) return true;
+    // Always rerender if content changes (check both children and value)
+    const newContent =
+      newProps.value !== undefined ? newProps.value : newProps.children;
+    if (newContent && newContent !== state.content) return true;
 
     // Always rerender if block/inline display changes
     if (newProps.block !== undefined && newProps.block !== state.block)
@@ -211,6 +217,16 @@ const createTypography = (props) => {
    * @param {Object} newProps - New properties
    */
   const partialUpdate = (currentElement, newProps) => {
+    // Handle value/children migration for partial updates
+    if (newProps.value !== undefined || newProps.children !== undefined) {
+      const newContent =
+        newProps.value !== undefined ? newProps.value : newProps.children;
+      if (newContent !== state.content) {
+        // This would require a full rerender, but shouldRerender already checks this
+        state.content = newContent;
+      }
+    }
+
     // Update classes
     if (newProps.textAlign && newProps.textAlign !== state.textAlign) {
       // Remove old alignment class
@@ -220,6 +236,7 @@ const createTypography = (props) => {
       // Add new alignment class
       currentElement.classList.add(`typography--align-${newProps.textAlign}`);
       currentElement.style.textAlign = newProps.textAlign;
+      state.textAlign = newProps.textAlign;
     }
 
     if (newProps.weight && newProps.weight !== state.weight) {
@@ -229,17 +246,20 @@ const createTypography = (props) => {
       }
       // Add new weight class
       currentElement.classList.add(`typography--weight-${newProps.weight}`);
+      state.weight = newProps.weight;
     }
 
     if (newProps.italic !== undefined && newProps.italic !== state.italic) {
       // Toggle italic class
       currentElement.classList.toggle('typography--italic', newProps.italic);
       currentElement.style.fontStyle = newProps.italic ? 'italic' : '';
+      state.italic = newProps.italic;
     }
 
     if (newProps.color && newProps.color !== state.color) {
       // Update color
       currentElement.style.color = newProps.color;
+      state.color = newProps.color;
     }
 
     if (newProps.className && newProps.className !== state.className) {
@@ -251,25 +271,26 @@ const createTypography = (props) => {
       if (newProps.className) {
         currentElement.classList.add(...newProps.className.split(' '));
       }
+      state.className = newProps.className;
     }
 
     if (newProps.id && newProps.id !== state.id) {
       // Update ID
       currentElement.id = newProps.id;
+      state.id = newProps.id;
     }
 
     if (newProps.tabletSize && newProps.tabletSize !== state.tabletSize) {
       // Update tablet size
       currentElement.setAttribute('data-tablet-size', newProps.tabletSize);
+      state.tabletSize = newProps.tabletSize;
     }
 
     if (newProps.mobileSize && newProps.mobileSize !== state.mobileSize) {
       // Update mobile size
       currentElement.setAttribute('data-mobile-size', newProps.mobileSize);
+      state.mobileSize = newProps.mobileSize;
     }
-
-    // Update state
-    Object.assign(state, newProps);
   };
 
   // Handler for window resize events
@@ -316,10 +337,22 @@ const createTypography = (props) => {
      * @returns {Object} Typography component (for chaining)
      */
     update(newProps) {
+      const migratedProps = migrateLegacyProps(newProps);
+
       // If a full rerender is needed
-      if (this.shouldRerender(newProps)) {
+      if (this.shouldRerender(migratedProps)) {
         // Update state
-        Object.assign(state, newProps);
+        Object.assign(state, migratedProps);
+
+        // If children is provided but value is not, update content
+        if (
+          migratedProps.children !== undefined &&
+          migratedProps.value === undefined
+        ) {
+          state.content = migratedProps.children;
+        } else if (migratedProps.value !== undefined) {
+          state.content = migratedProps.value;
+        }
 
         // Rebuild element
         const oldElement = element;
@@ -331,7 +364,7 @@ const createTypography = (props) => {
         }
       } else {
         // More efficient partial updates
-        this.partialUpdate(element, newProps);
+        this.partialUpdate(element, migratedProps);
       }
 
       return this;
@@ -343,7 +376,7 @@ const createTypography = (props) => {
      * @returns {Object} Typography component (for chaining)
      */
     setContent(content) {
-      return this.update({ children: content });
+      return this.update({ value: content });
     },
 
     /**
@@ -380,6 +413,20 @@ const createTypography = (props) => {
 };
 
 /**
+ * Migrates legacy props to standardized props
+ * @param {Object} props - Component properties
+ * @returns {Object} Migrated properties
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Currently no legacy props to migrate in Typography
+  // This function is added for future compatibility
+
+  return migrated;
+};
+
+/**
  * Validate size value
  * @param {string} size - Size value to validate
  * @param {string} propertyName - Property name for error message
@@ -408,7 +455,7 @@ function isValidColor(color) {
 }
 
 // Define required props for validation
-createTypography.requiredProps = ['children'];
+createTypography.requiredProps = [];
 
 // Export as a component factory
 export default createComponent('Typography', createTypography);

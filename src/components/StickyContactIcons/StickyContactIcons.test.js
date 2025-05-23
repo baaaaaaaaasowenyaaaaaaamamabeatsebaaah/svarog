@@ -97,7 +97,76 @@ describe('StickyContactIcons', () => {
     iconsWithoutTooltips.destroy();
   });
 
-  it('should call location click handler', () => {
+  it('should call location click handler using onClick.location', () => {
+    const locationClickHandler = vi.fn(() => false);
+    const iconsWithHandler = StickyContactIcons({
+      ...defaultProps,
+      onClick: {
+        location: locationClickHandler,
+      },
+    });
+    const el = iconsWithHandler.getElement();
+    document.body.appendChild(el);
+
+    const links = el.querySelectorAll('a');
+    const locationLink = links[0];
+    expect(locationLink).not.toBeNull();
+    locationLink.click();
+
+    expect(locationClickHandler).toHaveBeenCalledTimes(1);
+
+    // Clean up
+    document.body.removeChild(el);
+    iconsWithHandler.destroy();
+  });
+
+  it('should call phone click handler using onClick.phone', () => {
+    const phoneClickHandler = vi.fn(() => false);
+    const iconsWithHandler = StickyContactIcons({
+      ...defaultProps,
+      onClick: {
+        phone: phoneClickHandler,
+      },
+    });
+    const el = iconsWithHandler.getElement();
+    document.body.appendChild(el);
+
+    const links = el.querySelectorAll('a');
+    const phoneLink = links[1];
+    expect(phoneLink).not.toBeNull();
+    phoneLink.click();
+
+    expect(phoneClickHandler).toHaveBeenCalledTimes(1);
+
+    // Clean up
+    document.body.removeChild(el);
+    iconsWithHandler.destroy();
+  });
+
+  it('should call email click handler using onClick.email', () => {
+    const emailClickHandler = vi.fn(() => false);
+    const iconsWithHandler = StickyContactIcons({
+      ...defaultProps,
+      onClick: {
+        email: emailClickHandler,
+      },
+    });
+    const el = iconsWithHandler.getElement();
+    document.body.appendChild(el);
+
+    const links = el.querySelectorAll('a');
+    const emailLink = links[2];
+    expect(emailLink).not.toBeNull();
+    emailLink.click();
+
+    expect(emailClickHandler).toHaveBeenCalledTimes(1);
+
+    // Clean up
+    document.body.removeChild(el);
+    iconsWithHandler.destroy();
+  });
+
+  it('should support legacy location click handler (onLocationClick)', () => {
     const onLocationClick = vi.fn(() => false);
     const iconsWithHandler = StickyContactIcons({
       ...defaultProps,
@@ -108,52 +177,9 @@ describe('StickyContactIcons', () => {
 
     const links = el.querySelectorAll('a');
     const locationLink = links[0];
-    expect(locationLink).not.toBeNull();
     locationLink.click();
 
     expect(onLocationClick).toHaveBeenCalledTimes(1);
-
-    // Clean up
-    document.body.removeChild(el);
-    iconsWithHandler.destroy();
-  });
-
-  it('should call phone click handler', () => {
-    const onPhoneClick = vi.fn(() => false);
-    const iconsWithHandler = StickyContactIcons({
-      ...defaultProps,
-      onPhoneClick,
-    });
-    const el = iconsWithHandler.getElement();
-    document.body.appendChild(el);
-
-    const links = el.querySelectorAll('a');
-    const phoneLink = links[1];
-    expect(phoneLink).not.toBeNull();
-    phoneLink.click();
-
-    expect(onPhoneClick).toHaveBeenCalledTimes(1);
-
-    // Clean up
-    document.body.removeChild(el);
-    iconsWithHandler.destroy();
-  });
-
-  it('should call email click handler', () => {
-    const onEmailClick = vi.fn(() => false);
-    const iconsWithHandler = StickyContactIcons({
-      ...defaultProps,
-      onEmailClick,
-    });
-    const el = iconsWithHandler.getElement();
-    document.body.appendChild(el);
-
-    const links = el.querySelectorAll('a');
-    const emailLink = links[2];
-    expect(emailLink).not.toBeNull();
-    emailLink.click();
-
-    expect(onEmailClick).toHaveBeenCalledTimes(1);
 
     // Clean up
     document.body.removeChild(el);

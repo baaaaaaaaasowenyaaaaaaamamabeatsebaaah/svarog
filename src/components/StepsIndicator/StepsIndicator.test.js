@@ -150,4 +150,87 @@ describe('StepsIndicator component', () => {
     const element = stepsIndicator.getElement();
     expect(element.className).toContain('custom-steps');
   });
+
+  it('should support loading state', () => {
+    const steps = [
+      { name: 'Step 1', completed: false },
+      { name: 'Step 2', completed: false },
+    ];
+
+    const stepsIndicator = StepsIndicator({
+      steps,
+      activeIndex: 0,
+      loading: true,
+    });
+
+    const element = stepsIndicator.getElement();
+    expect(element.className).toContain('steps-indicator--loading');
+    expect(element.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('should support value prop as an alias for activeIndex', () => {
+    const steps = [
+      { name: 'Step 1', completed: false },
+      { name: 'Step 2', completed: false },
+    ];
+
+    const stepsIndicator = StepsIndicator({
+      steps,
+      value: 1, // Use value instead of activeIndex
+    });
+
+    const element = stepsIndicator.getElement();
+    const state = element.state;
+
+    expect(state.activeIndex).toBe(1);
+
+    // Second step should be active
+    const stepElements = element.querySelectorAll('.steps-indicator__step');
+    expect(
+      stepElements[1].classList.contains('steps-indicator__step--active')
+    ).toBe(true);
+  });
+
+  it('should support onChange prop as an alias for onStepChange', () => {
+    const mockCallback = vi.fn();
+    const steps = [
+      { name: 'Step 1', completed: false },
+      { name: 'Step 2', completed: false },
+    ];
+
+    const stepsIndicator = StepsIndicator({
+      steps,
+      activeIndex: 0,
+      onChange: mockCallback,
+    });
+
+    // Get the component's state to verify onStepChange was assigned
+    const state = stepsIndicator.getState();
+    expect(state.onStepChange).toBe(mockCallback);
+
+    // Test that the callback is invoked when setActiveStep is called
+    stepsIndicator.setActiveStep(1);
+    expect(mockCallback).toHaveBeenCalledWith(1);
+  });
+
+  it('should support setValue method as an alias for setActiveStep', () => {
+    const steps = [
+      { name: 'Step 1', completed: false },
+      { name: 'Step 2', completed: false },
+    ];
+
+    const stepsIndicator = StepsIndicator({
+      steps,
+      activeIndex: 0,
+    });
+
+    // Spy on the setActiveStep method
+    stepsIndicator.setActiveStep = vi.fn();
+
+    // Call setValue
+    stepsIndicator.setValue(1);
+
+    // Verify setActiveStep was called with the same parameter
+    expect(stepsIndicator.setActiveStep).toHaveBeenCalledWith(1);
+  });
 });
