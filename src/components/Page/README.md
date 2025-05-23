@@ -84,6 +84,14 @@ error: {
 }
 ```
 
+### Image Props
+
+When working with images in components that render within the Page, follow these standardized props:
+
+- Use `imageUrl` (string) for image sources instead of variants like `featuredImage` or `image`
+- Use `backgroundImageUrl` (string) for background images
+- For DOM elements, use `imageElement` or `backgroundImageElement` (HTMLElement)
+
 ## Methods
 
 ### Basic Methods
@@ -214,6 +222,15 @@ const page = Page({
   },
 });
 ```
+
+## Event Handler Standardization
+
+For components rendered within the Page component, use these standardized event handler names:
+
+- `onClick` for primary click actions (instead of variants like `onCtaClick` or `onReserve`)
+- `onChange` for value change events (instead of variants like `onTabChange` or `onSelect`)
+- `onSubmit` for form submissions
+- `onBlur` and `onFocus` for focus events
 
 ## Storyblok Integration
 
@@ -394,6 +411,17 @@ const landingPage = Page({
 - Handle missing or malformed CMS data
 - Implement caching strategies
 - Validate CMS content before rendering
+
+### Props Standardization
+
+Follow these standardized props for child components:
+
+- `loading` (boolean) for loading states
+- `imageUrl` for image sources
+- `backgroundImageUrl` for background images
+- `href` for links and URLs (not `url` or `link`)
+- `onClick` for primary click handlers
+- `onChange` for value change events
 
 ## Browser Support
 

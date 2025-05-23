@@ -4,6 +4,20 @@ import { createBaseComponent } from '../../utils/baseComponent.js';
 import Head from '../Head/Head.js';
 
 /**
+ * Migrates legacy props to standardized props
+ * @param {Object} props - Original props
+ * @returns {Object} Standardized props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // No legacy props to migrate yet, but following the pattern
+  // for future compatibility
+
+  return migrated;
+};
+
+/**
  * Validates page-specific props
  * @param {Object} props - Page properties
  */
@@ -248,29 +262,32 @@ const renderPage = (state) => {
  * @returns {Object} Page component with standard API
  */
 const createPage = (props) => {
+  // Migrate legacy props to standardized props
+  const standardizedProps = migrateLegacyProps(props);
+
   // Validate required props
-  validateProps(props, createPage.requiredProps, 'Page');
-  validatePageProps(props);
+  validateProps(standardizedProps, createPage.requiredProps, 'Page');
+  validatePageProps(standardizedProps);
 
   // Initialize page head management
   let headComponent = null;
-  if (props.seo) {
-    headComponent = Head(props.seo);
+  if (standardizedProps.seo) {
+    headComponent = Head(standardizedProps.seo);
   }
 
   // Process initial state
   const initialState = {
-    id: props.id,
-    type: props.type || 'page',
-    loading: props.loading || false,
-    error: props.error || null,
-    loadingOptions: props.loadingOptions || {},
-    onRetry: props.onRetry,
-    header: props.header,
-    content: props.content || props.children,
-    footer: props.footer,
-    componentMapper: props.componentMapper,
-    seo: props.seo,
+    id: standardizedProps.id,
+    type: standardizedProps.type || 'page',
+    loading: standardizedProps.loading || false,
+    error: standardizedProps.error || null,
+    loadingOptions: standardizedProps.loadingOptions || {},
+    onRetry: standardizedProps.onRetry,
+    header: standardizedProps.header,
+    content: standardizedProps.content || standardizedProps.children,
+    footer: standardizedProps.footer,
+    componentMapper: standardizedProps.componentMapper,
+    seo: standardizedProps.seo,
   };
 
   // Create base component
@@ -312,8 +329,10 @@ const createPage = (props) => {
   const originalUpdate = pageComponent.update;
   Object.defineProperty(pageComponent, 'update', {
     value: function (newProps) {
-      this.setState(newProps);
-      return originalUpdate.call(this, newProps);
+      // Standardize incoming props on update as well
+      const standardized = migrateLegacyProps(newProps);
+      this.setState(standardized);
+      return originalUpdate.call(this, standardized);
     },
     writable: false,
     enumerable: false,
