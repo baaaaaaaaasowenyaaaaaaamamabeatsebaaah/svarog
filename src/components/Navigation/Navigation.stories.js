@@ -90,7 +90,7 @@ export const Vertical = () => {
 export const WithActiveItem = () => {
   return Navigation({
     items: navItems,
-    activeId: 'products',
+    value: 'products', // Using value instead of activeId for standardization
     submenuShadow: false,
   });
 };
@@ -125,7 +125,8 @@ export const WithItemSelectionCallback = () => {
   const navigation = Navigation({
     items: navItems,
     submenuShadow: false,
-    onItemSelect: (item) => {
+    onSelect: (item) => {
+      // Using onSelect instead of onItemSelect
       output.innerHTML = `
         <p><strong>Selected Item:</strong></p>
         <pre>${JSON.stringify(item, null, 2)}</pre>
@@ -253,6 +254,48 @@ export const ProgrammaticControl = () => {
 
   container.appendChild(controls);
   container.appendChild(navigation.getElement());
+
+  return container;
+};
+
+// New story to demonstrate standardized props
+export const StandardizedProps = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '20px';
+
+  const info = document.createElement('div');
+  info.innerHTML = `
+    <h3>Using Standardized Props</h3>
+    <ul>
+      <li><strong>value</strong>: 'about' (alias for activeId)</li>
+      <li><strong>onSelect</strong> instead of onItemSelect</li>
+      <li>All items use <strong>href</strong> instead of url</li>
+    </ul>
+  `;
+
+  const output = document.createElement('div');
+  output.style.padding = '10px';
+  output.style.border = '1px solid #ccc';
+  output.innerHTML = '<p>Click on a navigation item</p>';
+
+  // Create navigation with standardized props
+  const navigation = Navigation({
+    items: navItems,
+    value: 'about', // Using value instead of activeId
+    onSelect: (item) => {
+      // Using onSelect instead of onItemSelect
+      output.innerHTML = `
+        <p><strong>Selected:</strong> ${item.label} (id: ${item.id})</p>
+      `;
+    },
+    submenuShadow: true,
+  });
+
+  container.appendChild(info);
+  container.appendChild(navigation.getElement());
+  container.appendChild(output);
 
   return container;
 };

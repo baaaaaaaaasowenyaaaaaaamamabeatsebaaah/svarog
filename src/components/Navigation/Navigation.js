@@ -15,9 +15,11 @@ import { debounce } from '../../utils/performance.js';
  * @param {Array} props.items - Navigation items
  * @param {boolean} [props.responsive=true] - Whether navigation is responsive
  * @param {string|null} [props.activeId=null] - ID of the active navigation item
+ * @param {string|null} [props.value=null] - Alias for activeId
  * @param {boolean} [props.horizontal=true] - Whether navigation is horizontal
  * @param {boolean} [props.expandable=true] - Whether submenus can be expanded
- * @param {Function} [props.onItemSelect=null] - Callback when item is selected
+ * @param {Function} [props.onSelect=null] - Callback when item is selected
+ * @param {Function} [props.onItemSelect=null] - Deprecated: Use onSelect instead
  * @param {string} [props.className=''] - Additional CSS class names
  * @param {string} [props.burgerPosition='left'] - Burger menu position ('left' or 'right')
  * @param {boolean} [props.submenuShadow=false] - Whether to add shadow to submenus
@@ -27,19 +29,27 @@ const createNavigation = (props) => {
   // Validate required props
   validateProps(props, ['items'], 'Navigation');
 
+  // Migrate legacy props
+  const migratedProps = migrateLegacyProps(props);
+
   // Set default props
   const initialProps = {
     items: [],
     responsive: true,
     activeId: null,
+    value: null,
     horizontal: true,
     expandable: true,
-    onItemSelect: null,
+    onSelect: null,
     className: '',
     burgerPosition: 'left',
     submenuShadow: false,
-    ...props,
+    ...migratedProps,
   };
+
+  // Resolve activeId/value priority (value overrides activeId if both are provided)
+  initialProps.activeId =
+    initialProps.value !== null ? initialProps.value : initialProps.activeId;
 
   // Internal state
   const state = {
@@ -305,9 +315,9 @@ const createNavigation = (props) => {
     updateActiveStates(element);
 
     // Callback
-    if (state.onItemSelect) {
+    if (state.onSelect) {
       const item = findItemById(itemId);
-      if (item) state.onItemSelect(item);
+      if (item) state.onSelect(item);
     }
 
     // Close mobile menu on item click
@@ -497,13 +507,23 @@ const createNavigation = (props) => {
 
   // Add partialUpdate method for more efficient DOM updates
   component.partialUpdate = (element, newProps, oldState) => {
+    // Migrate legacy props in update as well
+    const migratedProps = migrateLegacyProps(newProps);
+
     let needsActiveUpdate = false;
     let needsExpandedUpdate = false;
 
     // Update internal state based on new props
-    Object.entries(newProps).forEach(([key, value]) => {
-      if (key === 'activeId' && value !== oldState.activeId) {
-        state[key] = value;
+    Object.entries(migratedProps).forEach(([key, value]) => {
+      if (
+        (key === 'activeId' || key === 'value') &&
+        ((key === 'activeId' && value !== oldState.activeId) ||
+          (key === 'value' && value !== null && value !== oldState.activeId))
+      ) {
+        // Handle value alias for activeId
+        const newActiveId = key === 'value' ? value : value;
+        state.activeId = newActiveId;
+        state.value = newActiveId;
         needsActiveUpdate = true;
       } else if (key === 'expandedId' && value !== oldState.expandedId) {
         state[key] = value;
@@ -568,6 +588,67 @@ const createNavigation = (props) => {
   };
 
   return component;
+};
+
+/**
+ * Migrates legacy prop names to standardized ones
+ * @param {Object} props - Component props
+ * @returns {Object} Migrated props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Handle onItemSelect -> onSelect migration
+  if ('onItemSelect' in props && !('onSelect' in props)) {
+    console.warn(
+      '[Navigation] onItemSelect is deprecated, use onSelect instead'
+    );
+    migrated.onSelect = props.onItemSelect;
+    delete migrated.onItemSelect;
+  }
+
+  // Handle activeId and value relationship
+  if ('value' in props && props.value !== null && !('activeId' in props)) {
+    migrated.activeId = props.value;
+  } else if ('activeId' in props && !('value' in props)) {
+    migrated.value = props.activeId;
+  }
+
+  // Process navigation items to normalize href/url
+  if (migrated.items) {
+    migrated.items = migrateItemURLs(migrated.items);
+  }
+
+  return migrated;
+};
+
+/**
+ * Recursively migrates item URLs from url to href
+ * @param {Array} items - Navigation items
+ * @returns {Array} Migrated items
+ */
+const migrateItemURLs = (items) => {
+  if (!Array.isArray(items)) return items;
+
+  return items.map((item) => {
+    const newItem = { ...item };
+
+    // Convert url to href if present
+    if ('url' in newItem && !('href' in newItem)) {
+      console.warn(
+        '[Navigation] item.url is deprecated, use item.href instead'
+      );
+      newItem.href = newItem.url;
+      delete newItem.url;
+    }
+
+    // Process child items recursively
+    if (Array.isArray(newItem.items)) {
+      newItem.items = migrateItemURLs(newItem.items);
+    }
+
+    return newItem;
+  });
 };
 
 // Specify required props for validation

@@ -26,8 +26,8 @@ const navItems = [
 // Create navigation
 const navigation = Navigation({
   items: navItems,
-  activeId: 'home',
-  onItemSelect: (item) => console.log('Selected:', item),
+  activeId: 'home', // or value: 'home'
+  onSelect: (item) => console.log('Selected:', item),
 });
 
 // Add to DOM
@@ -41,9 +41,11 @@ document.body.appendChild(navigation.getElement());
 | items          | Array    | []      | Navigation items structure                            |
 | responsive     | boolean  | true    | Whether navigation adapts to mobile screens           |
 | activeId       | string   | null    | ID of the initially active navigation item            |
+| value          | string   | null    | Alias for activeId                                    |
 | horizontal     | boolean  | true    | Whether navigation is horizontal (false for vertical) |
 | expandable     | boolean  | true    | Whether submenus can be expanded                      |
-| onItemSelect   | Function | null    | Callback when item is selected                        |
+| onSelect       | Function | null    | Callback when item is selected                        |
+| onItemSelect   | Function | null    | Deprecated: Use onSelect instead                      |
 | className      | string   | ""      | Additional CSS classes                                |
 | burgerPosition | string   | "left"  | Mobile burger position ("left" or "right")            |
 | submenuShadow  | boolean  | false   | Whether to add shadow to submenus                     |
@@ -119,7 +121,7 @@ Updates navigation properties.
 ```javascript
 navigation.update({
   items: newItems,
-  activeId: 'contact',
+  value: 'contact', // New standardized prop
   horizontal: false,
 });
 ```
@@ -232,3 +234,13 @@ Navigation styles can be customized using CSS variables:
   --nav-mobile-submenu-bg: rgba(0, 0, 0, 0.02);
 }
 ```
+
+## Migration Notes
+
+### Props Standardization (2025)
+
+The Navigation component has been updated with standardized prop names:
+
+- `onItemSelect` has been renamed to `onSelect` (deprecated but supported with warning)
+- Added `value` as an alias for `activeId` for consistency with other components
+- Items no longer support `url` property (use `href` instead)

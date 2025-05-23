@@ -157,7 +157,28 @@ describe('Navigation component', () => {
     document.body.removeChild(element);
   });
 
-  it('should call onItemSelect callback when an item is clicked', () => {
+  it('should call onSelect callback when an item is clicked', () => {
+    const onSelect = vi.fn();
+    const navigation = Navigation({
+      items: navItems,
+      onSelect,
+    });
+    document.body.appendChild(navigation.getElement());
+
+    const element = navigation.getElement();
+    const homeItem = element.querySelector(`.nav__item[data-id="home"]`);
+    const homeLink = homeItem.querySelector('.nav__link');
+
+    // Click on home item
+    homeLink.click();
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith(navItems[0]); // home item
+
+    document.body.removeChild(element);
+  });
+
+  it('should support legacy onItemSelect callback for backward compatibility', () => {
     const onItemSelect = vi.fn();
     const navigation = Navigation({
       items: navItems,
@@ -257,6 +278,56 @@ describe('Navigation component', () => {
     // Update burgerPosition
     navigation.update({ burgerPosition: 'right' });
     expect(element.classList.contains('nav--burger-right')).toBe(true);
+
+    document.body.removeChild(element);
+  });
+
+  // Tests for standardized props
+  it('should support value as an alias for activeId', () => {
+    const navigation = Navigation({
+      items: navItems,
+      value: 'about',
+    });
+
+    const element = navigation.getElement();
+    const aboutItem = element.querySelector(`.nav__item[data-id="about"]`);
+
+    expect(aboutItem.classList.contains('nav__item--active')).toBe(true);
+  });
+
+  it('should migrate items with url to href', () => {
+    const itemsWithUrl = [
+      { id: 'home', label: 'Home', url: '#home' },
+      { id: 'about', label: 'About', url: '#about' },
+    ];
+
+    // Mock console.warn to verify warning is shown
+    const consoleWarn = vi.spyOn(console, 'warn');
+
+    const navigation = Navigation({ items: itemsWithUrl });
+
+    // Verify items are properly migrated
+    const homeLink = navigation
+      .getElement()
+      .querySelector(`.nav__item[data-id="home"] a.nav__link`);
+    expect(homeLink.getAttribute('href')).toBe('#home');
+
+    // Verify warning was shown
+    expect(consoleWarn).toHaveBeenCalledWith(
+      expect.stringContaining('item.url is deprecated')
+    );
+  });
+
+  it('should update active item when value prop is updated', () => {
+    const navigation = Navigation({ items: navItems });
+    document.body.appendChild(navigation.getElement());
+
+    // Update with value prop
+    navigation.update({ value: 'products' });
+
+    const element = navigation.getElement();
+    const productItem = element.querySelector(`.nav__item[data-id="products"]`);
+    expect(productItem.classList.contains('nav__item--active')).toBe(true);
 
     document.body.removeChild(element);
   });
