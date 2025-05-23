@@ -114,6 +114,7 @@ export const MuchandyHeader = () => {
     },
     collapseThreshold: 50,
     callButtonText: 'Anrufen',
+    onCallClick: () => console.log('Call button clicked'),
     logo: logoFarbe,
     compactLogo: logoIconFarbe,
     showStickyIcons: true,
@@ -150,6 +151,32 @@ export const SecondDesign = () => {
 
 SecondDesign.storyName = 'Simple Design';
 
+// Demonstration of legacy prop support
+export const LegacyPropsSupport = () => {
+  const headerProps = {
+    siteName: 'Legacy Props Example',
+    navigation: {
+      items: [
+        { id: 'home', label: 'Home', href: '#' },
+        { id: 'contact', label: 'Contact', href: '#' },
+      ],
+    },
+    contactInfo: {
+      location: 'Main Street 123',
+      phone: '123-456-7890',
+      email: 'info@example.com',
+    },
+    collapseThreshold: 50,
+    // Using legacy prop name which will be migrated to onCallClick
+    onCallButtonClick: () => console.log('Legacy call button clicked'),
+    showStickyIcons: true,
+  };
+
+  return createStoryHeader(headerProps);
+};
+
+LegacyPropsSupport.storyName = 'Legacy Props Support';
+
 // We need to clean up event listeners and DOM elements when stories are unmounted
 const cleanup = () => {
   // Remove any sticky icons from the DOM
@@ -159,13 +186,18 @@ const cleanup = () => {
   });
 };
 
-// Attach the cleanup function to both stories
+// Attach the cleanup function to all stories
 MuchandyHeader.parameters = {
   docs: { source: { type: 'dynamic' } },
   beforeDestroy: cleanup,
 };
 
 SecondDesign.parameters = {
+  docs: { source: { type: 'dynamic' } },
+  beforeDestroy: cleanup,
+};
+
+LegacyPropsSupport.parameters = {
   docs: { source: { type: 'dynamic' } },
   beforeDestroy: cleanup,
 };

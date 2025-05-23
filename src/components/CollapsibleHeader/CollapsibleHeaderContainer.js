@@ -9,32 +9,59 @@ import CollapsibleHeader from './CollapsibleHeader.js';
 import StickyContactIcons from '../StickyContactIcons/StickyContactIcons.js';
 
 /**
+ * Migrates legacy props to standardized prop names
+ * @param {Object} props - Component properties
+ * @returns {Object} - Migrated properties
+ * @private
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Migrate onCallButtonClick → onCallClick
+  if ('onCallButtonClick' in props && !('onCallClick' in props)) {
+    console.warn(
+      '[CollapsibleHeaderContainer] onCallButtonClick is deprecated, use onCallClick instead'
+    );
+    migrated.onCallClick = props.onCallButtonClick;
+    delete migrated.onCallButtonClick;
+  }
+
+  return migrated;
+};
+
+/**
  * Creates a CollapsibleHeaderContainer component
  * @param {Object} props - CollapsibleHeaderContainer properties
  * @returns {Object} CollapsibleHeaderContainer component API
  */
 const createCollapsibleHeaderContainer = (props) => {
+  // Standardize props
+  const standardizedProps = migrateLegacyProps(props);
+
   // Validate props
-  validateProps(props, createCollapsibleHeaderContainer.requiredProps);
+  validateProps(
+    standardizedProps,
+    createCollapsibleHeaderContainer.requiredProps
+  );
 
   // Component state - use a simple object rather than getters/setters
   const componentState = {
     // Pass through all props to the header
-    ...props,
+    ...standardizedProps,
     // Container specific state
     isCollapsed: false,
     isMobile: checkIsMobile(),
     scrollY: 0,
     // Container configuration
-    collapseThreshold: props.collapseThreshold || 100,
-    showStickyIcons: props.showStickyIcons !== false,
-    stickyIconsPosition: props.stickyIconsPosition || 'right',
-    storyMode: props._storyMode === true,
+    collapseThreshold: standardizedProps.collapseThreshold || 100,
+    showStickyIcons: standardizedProps.showStickyIcons !== false,
+    stickyIconsPosition: standardizedProps.stickyIconsPosition || 'right',
+    storyMode: standardizedProps._storyMode === true,
   };
 
   // Create header component
   const header = CollapsibleHeader({
-    ...props,
+    ...standardizedProps,
     isCollapsed: componentState.isCollapsed,
     isMobile: componentState.isMobile,
   });
@@ -43,9 +70,9 @@ const createCollapsibleHeaderContainer = (props) => {
   let stickyIcons = null;
   if (componentState.showStickyIcons) {
     stickyIcons = StickyContactIcons({
-      location: props.contactInfo.location,
-      phone: props.contactInfo.phone,
-      email: props.contactInfo.email,
+      location: standardizedProps.contactInfo.location,
+      phone: standardizedProps.contactInfo.phone,
+      email: standardizedProps.contactInfo.email,
       position: componentState.stickyIconsPosition,
       className: 'collapsible-header__sticky-icons',
     });
@@ -189,16 +216,20 @@ const createCollapsibleHeaderContainer = (props) => {
      * @returns {Object} Component (for chaining)
      */
     update(newProps) {
+      // Standardize any new props
+      const standardizedNewProps = migrateLegacyProps(newProps);
+
       // Update internal state
-      Object.assign(componentState, newProps);
+      Object.assign(componentState, standardizedNewProps);
 
       // Update header component
-      header.update(newProps);
+      header.update(standardizedNewProps);
 
       // Update sticky icons if needed
       if (
         componentState.showStickyIcons &&
-        (newProps.isCollapsed !== undefined || newProps.isMobile !== undefined)
+        (standardizedNewProps.isCollapsed !== undefined ||
+          standardizedNewProps.isMobile !== undefined)
       ) {
         updateStickyIconsVisibility();
       }

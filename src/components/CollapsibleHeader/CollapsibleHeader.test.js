@@ -33,6 +33,9 @@ describe('CollapsibleHeader Components', () => {
       value: 0,
       configurable: true,
     });
+
+    // Spy on console.warn for deprecation warnings
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -113,6 +116,52 @@ describe('CollapsibleHeader Components', () => {
       expect(element.classList.contains('collapsible-header--collapsed')).toBe(
         true
       );
+    });
+
+    it('should support onCallClick prop', () => {
+      const onCallClick = vi.fn();
+      const header = CollapsibleHeader({
+        ...defaultProps,
+        onCallClick,
+      });
+
+      const element = header.getElement();
+      const callButton = element.querySelector(
+        '.collapsible-header__call-button button'
+      );
+
+      expect(callButton).not.toBeNull();
+
+      // Simulate click on the call button
+      callButton.click();
+
+      expect(onCallClick).toHaveBeenCalled();
+    });
+
+    it('should support legacy onCallButtonClick prop', () => {
+      const onCallButtonClick = vi.fn();
+      const header = CollapsibleHeader({
+        ...defaultProps,
+        onCallButtonClick,
+      });
+
+      const element = header.getElement();
+      const callButton = element.querySelector(
+        '.collapsible-header__call-button button'
+      );
+
+      expect(callButton).not.toBeNull();
+
+      // Simulate click on the call button
+      callButton.click();
+
+      // Should log a deprecation warning
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('onCallButtonClick is deprecated')
+      );
+
+      // The function should still be called
+      expect(onCallButtonClick).toHaveBeenCalled();
     });
 
     it('should throw error if required props are missing', () => {
@@ -205,6 +254,27 @@ describe('CollapsibleHeader Components', () => {
       // Should not find sticky icons
       const stickyIcons = document.querySelector('.sticky-contact-icons');
       expect(stickyIcons).toBeNull();
+
+      // Clean up
+      try {
+        document.body.removeChild(header.getElement());
+      } catch (e) {
+        // Ignore errors if already removed
+      }
+    });
+
+    it('should support legacy onCallButtonClick prop', () => {
+      const onCallButtonClick = vi.fn();
+      const header = CollapsibleHeaderContainer({
+        ...defaultProps,
+        onCallButtonClick,
+      });
+      document.body.appendChild(header.getElement());
+
+      // Should log a deprecation warning
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('onCallButtonClick is deprecated')
+      );
 
       // Clean up
       try {

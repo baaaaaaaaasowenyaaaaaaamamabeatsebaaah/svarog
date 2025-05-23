@@ -14,6 +14,27 @@ import Link from '../Link/Link.js';
 import Button from '../Button/Button.js';
 
 /**
+ * Migrates legacy props to standardized prop names
+ * @param {Object} props - Component properties
+ * @returns {Object} - Migrated properties
+ * @private
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Migrate onCallButtonClick → onCallClick
+  if ('onCallButtonClick' in props && !('onCallClick' in props)) {
+    console.warn(
+      '[CollapsibleHeader] onCallButtonClick is deprecated, use onCallClick instead'
+    );
+    migrated.onCallClick = props.onCallButtonClick;
+    delete migrated.onCallButtonClick;
+  }
+
+  return migrated;
+};
+
+/**
  * Validates collapsible header specific props
  * @param {Object} props - CollapsibleHeader properties
  */
@@ -43,7 +64,7 @@ const renderCollapsibleHeader = (state) => {
     navigation,
     contactInfo,
     callButtonText,
-    onCallButtonClick,
+    onCallClick,
     className,
     isCollapsed,
     isMobile,
@@ -143,7 +164,7 @@ const renderCollapsibleHeader = (state) => {
 
       // Default click handler that uses the phone number if no custom handler provided
       const handleCallClick =
-        onCallButtonClick ||
+        onCallClick ||
         (() => {
           window.location.href = `tel:${contactInfo.phone.replace(/[\s()/-]/g, '')}`;
         });
@@ -177,28 +198,31 @@ const renderCollapsibleHeader = (state) => {
  * @returns {Object} CollapsibleHeader component API
  */
 const createCollapsibleHeader = (props) => {
+  // Standardize props
+  const standardizedProps = migrateLegacyProps(props);
+
   // Validate props
-  validateProps(props, createCollapsibleHeader.requiredProps);
+  validateProps(standardizedProps, createCollapsibleHeader.requiredProps);
 
   // Custom validation
   try {
-    validateCollapsibleHeaderProps(props);
+    validateCollapsibleHeaderProps(standardizedProps);
   } catch (error) {
     throw new Error(`CollapsibleHeader: ${error.message}`);
   }
 
   // Initial state with defaults
   const initialState = {
-    siteName: props.siteName || '',
-    navigation: props.navigation || { items: [] },
-    contactInfo: props.contactInfo || {},
-    logo: props.logo || '',
-    compactLogo: props.compactLogo || props.logo || '',
-    callButtonText: props.callButtonText || 'Anrufen',
-    onCallButtonClick: props.onCallButtonClick || null,
-    className: props.className || '',
-    isCollapsed: props.isCollapsed || false,
-    isMobile: props.isMobile || false,
+    siteName: standardizedProps.siteName || '',
+    navigation: standardizedProps.navigation || { items: [] },
+    contactInfo: standardizedProps.contactInfo || {},
+    logo: standardizedProps.logo || '',
+    compactLogo: standardizedProps.compactLogo || standardizedProps.logo || '',
+    callButtonText: standardizedProps.callButtonText || 'Anrufen',
+    onCallClick: standardizedProps.onCallClick || null,
+    className: standardizedProps.className || '',
+    isCollapsed: standardizedProps.isCollapsed || false,
+    isMobile: standardizedProps.isMobile || false,
   };
 
   // Create the base component
@@ -274,22 +298,25 @@ const createCollapsibleHeader = (props) => {
      * @public
      */
     update(newProps) {
+      // Standardize any new props
+      const standardizedNewProps = migrateLegacyProps(newProps);
+
       // Update our stored state
-      componentState = { ...componentState, ...newProps };
+      componentState = { ...componentState, ...standardizedNewProps };
 
       // Check if we should do a full re-render
-      if (this.shouldRerender(newProps)) {
+      if (this.shouldRerender(standardizedNewProps)) {
         // Let the base component handle the complete re-render
-        return component.update(newProps);
+        return component.update(standardizedNewProps);
       }
 
       const element = this.getElement();
 
       // Handle partial updates
-      if (newProps.isCollapsed !== undefined) {
+      if (standardizedNewProps.isCollapsed !== undefined) {
         element.classList.toggle(
           'collapsible-header--collapsed',
-          newProps.isCollapsed
+          standardizedNewProps.isCollapsed
         );
 
         // Update logo based on collapsed state
@@ -298,10 +325,10 @@ const createCollapsibleHeader = (props) => {
         }
       }
 
-      if (newProps.isMobile !== undefined) {
+      if (standardizedNewProps.isMobile !== undefined) {
         element.classList.toggle(
           'collapsible-header--mobile',
-          newProps.isMobile
+          standardizedNewProps.isMobile
         );
 
         // Update logo based on mobile state
@@ -314,15 +341,15 @@ const createCollapsibleHeader = (props) => {
       }
 
       // Update className if provided
-      if (newProps.className !== undefined) {
+      if (standardizedNewProps.className !== undefined) {
         // Remove old custom class if it exists
         if (componentState.className) {
           element.classList.remove(componentState.className);
         }
 
         // Add new custom class if provided
-        if (newProps.className) {
-          element.classList.add(newProps.className);
+        if (standardizedNewProps.className) {
+          element.classList.add(standardizedNewProps.className);
         }
       }
 
@@ -344,6 +371,7 @@ const createCollapsibleHeader = (props) => {
         'compactLogo',
         'siteName',
         'callButtonText',
+        'onCallClick',
       ].some((prop) => newProps[prop] !== undefined);
     },
   };
