@@ -15,7 +15,7 @@ const myBlogList = BlogList({
       slug: 'getting-started-with-web-components',
       excerpt:
         'Learn how to create reusable web components using vanilla JavaScript...',
-      featuredImage: 'https://example.com/image.jpg',
+      imageUrl: 'https://example.com/image.jpg', // New standardized prop name
       publishedDate: '2024-01-15T00:00:00Z',
       author: 'Jane Smith',
       categories: ['Web Development', 'JavaScript'],
@@ -48,10 +48,12 @@ Each post in the `posts` array should have the following structure:
 | title         | string | Blog post title                           |
 | slug          | string | URL slug for the blog post                |
 | excerpt       | string | Short excerpt or summary of the blog post |
-| featuredImage | string | URL for the featured image                |
+| imageUrl      | string | URL for the featured image                |
 | publishedDate | string | ISO date string for the publication date  |
 | author        | string | Author name                               |
 | categories    | array  | Array of category names                   |
+
+> **Note:** For backward compatibility, the component also accepts `featuredImage` instead of `imageUrl`, but this is deprecated and will be removed in a future version.
 
 ## Methods
 

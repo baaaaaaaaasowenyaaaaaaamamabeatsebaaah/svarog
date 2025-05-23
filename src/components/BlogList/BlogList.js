@@ -42,19 +42,37 @@ const createBlogList = (props) => {
   };
 
   /**
+   * Migrate legacy post data structure to the standardized format
+   * @param {Object} post - Blog post data
+   * @returns {Object} Post with standardized props
+   */
+  const migratePostData = (post) => {
+    const migrated = { ...post };
+
+    // Handle migration from featuredImage to imageUrl
+    if ('featuredImage' in post && !('imageUrl' in post)) {
+      migrated.imageUrl = post.featuredImage;
+    }
+
+    return migrated;
+  };
+
+  /**
    * Creates a blog card component from post data
    * @param {Object} post - Blog post data
    * @returns {Object} BlogCard component
    */
   const createBlogCard = (post) => {
+    const migratedPost = migratePostData(post);
+
     return BlogCard({
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt,
-      featuredImage: post.featuredImage,
-      publishedDate: post.publishedDate,
-      author: post.author,
-      categories: post.categories || [],
+      title: migratedPost.title,
+      slug: migratedPost.slug,
+      excerpt: migratedPost.excerpt,
+      imageUrl: migratedPost.imageUrl, // Use standardized imageUrl prop
+      publishedDate: migratedPost.publishedDate,
+      author: migratedPost.author,
+      categories: migratedPost.categories || [],
     });
   };
 
