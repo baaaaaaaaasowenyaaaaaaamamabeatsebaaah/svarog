@@ -35,6 +35,9 @@ const createSelect = (props = {}) => {
     optionsCount: props.options?.length,
   });
 
+  // Migrate legacy props
+  const migratedProps = migrateLegacyProps(props);
+
   // Initialize state
   const state = {
     options: [],
@@ -42,7 +45,7 @@ const createSelect = (props = {}) => {
     loadingText: 'Loading options...',
     emptyText: 'No options available',
     onLoadOptions: null,
-    value: props?.multiple ? [] : '',
+    value: migratedProps?.multiple ? [] : '',
     placeholder: 'Select an option',
     required: false,
     disabled: false,
@@ -56,7 +59,7 @@ const createSelect = (props = {}) => {
     destroyed: false,
     isOpen: false,
     isValid: null,
-    ...props,
+    ...migratedProps,
   };
 
   debugLog('Initial state', {
@@ -591,6 +594,24 @@ const createSelect = (props = {}) => {
     return state.value;
   }
 
+  /**
+   * Migrate legacy props to standardized prop names
+   * @param {Object} props - Original props
+   * @returns {Object} - Migrated props object
+   */
+  function migrateLegacyProps(props) {
+    const migrated = { ...props };
+
+    // Support defaultValue as alias for value (when value is not specified)
+    if ('defaultValue' in migrated && !('value' in migrated)) {
+      migrated.value = migrated.defaultValue;
+    }
+
+    // Add other prop migrations as needed based on standardization guide
+
+    return migrated;
+  }
+
   // API
   const api = {
     getElement: () => container,
@@ -684,18 +705,21 @@ const createSelect = (props = {}) => {
         loading: newProps.loading,
       });
 
-      validateSelectProps(newProps);
+      // Migrate legacy props
+      const migratedProps = migrateLegacyProps(newProps);
+
+      validateSelectProps(migratedProps);
 
       // Handle multiple select value conversion
       if (
-        newProps.multiple &&
-        newProps.value !== undefined &&
-        !Array.isArray(newProps.value)
+        migratedProps.multiple &&
+        migratedProps.value !== undefined &&
+        !Array.isArray(migratedProps.value)
       ) {
-        newProps.value = [];
+        migratedProps.value = [];
       }
 
-      Object.assign(state, newProps);
+      Object.assign(state, migratedProps);
 
       // Update all relevant UI
       updateNativeOptions();

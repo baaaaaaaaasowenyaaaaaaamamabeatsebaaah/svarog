@@ -70,6 +70,25 @@ describe('Select component', () => {
       expect(select.getValue()).toBe(initialValue);
     });
 
+    // Test for defaultValue (standardized prop)
+    it('should accept defaultValue as alias for value', () => {
+      const initialValue = 'option3';
+      select = Select({ options, defaultValue: initialValue });
+
+      expect(select.getValue()).toBe(initialValue);
+    });
+
+    // Test priority of value over defaultValue
+    it('should prioritize value over defaultValue when both are provided', () => {
+      select = Select({
+        options,
+        value: 'option1',
+        defaultValue: 'option2',
+      });
+
+      expect(select.getValue()).toBe('option1');
+    });
+
     it('should update value with setValue method', () => {
       select = Select({ options });
       const newValue = 'option3';
@@ -368,6 +387,17 @@ describe('Select component', () => {
       // Should keep only option1 as option2 is not in new options
       expect(select.getValue()).toEqual(['option1']);
     });
+
+    // Test defaultValue with multiple selection
+    it('should handle defaultValue with multiple selection', () => {
+      select = Select({
+        options: options,
+        multiple: true,
+        defaultValue: ['option1', 'option3'],
+      });
+
+      expect(select.getValue()).toEqual(['option1', 'option3']);
+    });
   });
 
   describe('Error handling and validation', () => {
@@ -400,6 +430,50 @@ describe('Select component', () => {
       });
 
       expect(select.getValue()).toEqual([]);
+    });
+
+    // Test defaultValue conversion for multiple select
+    it('should handle multiple defaultValue type conversion', () => {
+      select = Select({
+        options: options,
+        multiple: true,
+        defaultValue: 'string-value', // Invalid for multiple, should be converted
+      });
+
+      expect(select.getValue()).toEqual([]);
+    });
+  });
+
+  describe('Props migration and standardization', () => {
+    it('should migrate defaultValue to value when only defaultValue is provided', () => {
+      select = Select({
+        options: options,
+        defaultValue: 'option2',
+      });
+
+      expect(select.getValue()).toBe('option2');
+    });
+
+    it('should handle both defaultValue and value correctly during update', () => {
+      select = Select({
+        options: options,
+        value: 'option1',
+      });
+
+      select.update({
+        defaultValue: 'option3',
+      });
+
+      // Without value specified, defaultValue is used
+      expect(select.getValue()).toBe('option3');
+
+      select.update({
+        value: 'option2',
+        defaultValue: 'option3',
+      });
+
+      // With both specified, value takes precedence
+      expect(select.getValue()).toBe('option2');
     });
   });
 

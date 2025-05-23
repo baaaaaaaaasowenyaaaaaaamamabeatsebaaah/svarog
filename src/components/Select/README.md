@@ -33,6 +33,7 @@ document.body.appendChild(mySelect.getElement());
 | id                | string          | null                   | ID attribute for the select element                |
 | name              | string          | null                   | Name attribute for form submission                 |
 | value             | string/string[] | ''                     | Current value(s) (array for multiple selects)      |
+| **defaultValue**  | string/string[] | ''                     | **Initial value(s) (alias for value)**             |
 | placeholder       | string          | 'Select an option'     | Placeholder text when no option selected           |
 | required          | boolean         | false                  | Whether selection is required                      |
 | disabled          | boolean         | false                  | Whether select is disabled                         |
@@ -84,7 +85,7 @@ mySelect.setValue(['option1', 'option3']);
 
 ### **setLoading(loading, loadingText)**
 
-**NEW: Controls the loading state of the select.**
+**Controls the loading state of the select.**
 
 ```javascript
 // Show loading state
@@ -96,7 +97,7 @@ mySelect.setLoading(false);
 
 ### **loadOptions(optionsFn)**
 
-**NEW: Loads options asynchronously.**
+**Loads options asynchronously.**
 
 ```javascript
 // Load options with custom function
@@ -151,6 +152,14 @@ Cleans up event listeners and resources. Call when removing the select.
 ```javascript
 mySelect.destroy();
 ```
+
+## **Standardized Props**
+
+This component follows the project's Props Standardization Guide:
+
+- **Loading State**: Uses standard `loading` prop (boolean)
+- **Value Management**: Uses standard `value` prop with added `defaultValue` alias
+- **Event Handlers**: Uses standard `onChange`, `onFocus`, and `onBlur` handlers
 
 ## **Async Data Loading Examples**
 
