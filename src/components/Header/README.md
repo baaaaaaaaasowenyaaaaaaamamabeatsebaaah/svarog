@@ -13,9 +13,9 @@ const header = Header({
   logo: '/path/to/logo.svg',
   navigation: {
     items: [
-      { id: 'home', label: 'Home', url: '/' },
-      { id: 'about', label: 'About', url: '/about' },
-      { id: 'contact', label: 'Contact', url: '/contact' },
+      { id: 'home', label: 'Home', href: '/' },
+      { id: 'about', label: 'About', href: '/about' },
+      { id: 'contact', label: 'Contact', href: '/contact' },
     ],
   },
 });
@@ -41,13 +41,10 @@ Each navigation item should follow the structure expected by the Navigation comp
 {
   id: 'unique-id',        // Required - Used for tracking active state
   label: 'Item Label',    // Required - Text to display
-  href: '/page-url',      // Optional - Link destination (recommended)
-  url: '/page-url',       // Optional - Alternative to href (for backward compatibility)
+  href: '/page-url',      // Required - Link destination
   items: [...]            // Optional - Array of child items for submenus
 }
 ```
-
-Note: The component supports both `href` and `url` properties for backward compatibility. The `href` property is recommended as it aligns with the Navigation component's API.
 
 ## Methods
 
@@ -152,8 +149,8 @@ const textHeader = Header({
   siteName: 'Simple Website',
   navigation: {
     items: [
-      { id: 'home', label: 'Home', url: '/' },
-      { id: 'about', label: 'About', url: '/about' },
+      { id: 'home', label: 'Home', href: '/' },
+      { id: 'about', label: 'About', href: '/about' },
     ],
   },
 });
@@ -184,8 +181,8 @@ const customHeader = Header({
   className: 'dark-theme-header',
   navigation: {
     items: [
-      { id: 'home', label: 'Home', url: '/' },
-      { id: 'about', label: 'About', url: '/about' },
+      { id: 'home', label: 'Home', href: '/' },
+      { id: 'about', label: 'About', href: '/about' },
     ],
   },
 });

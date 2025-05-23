@@ -26,11 +26,11 @@ const createHeader = (props) => {
   };
 
   /**
-   * Recursively converts url properties to href in navigation items
+   * Normalizes navigation items to use standardized href property
    * @param {Array} items - Navigation items
    * @returns {Array} Updated navigation items
    */
-  const convertNavigationUrls = (items) => {
+  const normalizeNavigationItems = (items) => {
     if (!items || !Array.isArray(items)) return items;
 
     return items.map((item) => {
@@ -38,12 +38,14 @@ const createHeader = (props) => {
 
       // Convert url to href if needed
       if (newItem.url && !newItem.href) {
+        console.warn('[Header] url is deprecated, use href instead');
         newItem.href = newItem.url;
+        delete newItem.url;
       }
 
       // Recursively handle children
       if (newItem.items && Array.isArray(newItem.items)) {
-        newItem.items = convertNavigationUrls(newItem.items);
+        newItem.items = normalizeNavigationItems(newItem.items);
       }
 
       return newItem;
@@ -100,8 +102,8 @@ const createHeader = (props) => {
       state.navigation.items &&
       state.navigation.items.length > 0
     ) {
-      // Convert url to href recursively for all navigation items
-      const navigationItems = convertNavigationUrls(state.navigation.items);
+      // Normalize navigation items to use href consistently
+      const navigationItems = normalizeNavigationItems(state.navigation.items);
 
       const nav = Navigation({
         items: navigationItems,
