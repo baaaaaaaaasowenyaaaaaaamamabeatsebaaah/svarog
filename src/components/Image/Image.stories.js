@@ -8,7 +8,7 @@ export default {
 
 export const Default = () => {
   const image = Image({
-    src: 'https://picsum.photos/300/200',
+    imageUrl: 'https://picsum.photos/300/200',
     alt: 'Random sample image',
   });
 
@@ -17,8 +17,8 @@ export const Default = () => {
 
 export const WithFallback = () => {
   const image = Image({
-    src: 'https://picsum.photos/broken-url', // This will intentionally fail
-    fallbackSrc: 'https://picsum.photos/300/200?grayscale', // Fallback to grayscale image
+    imageUrl: 'https://picsum.photos/broken-url', // This will intentionally fail
+    fallbackImageUrl: 'https://picsum.photos/300/200?grayscale', // Fallback to grayscale image
     alt: 'Image with fallback',
   });
 
@@ -33,7 +33,7 @@ export const Responsive = () => {
   container.style.border = '1px dashed #ccc';
 
   const image = Image({
-    src: 'https://picsum.photos/600/400',
+    imageUrl: 'https://picsum.photos/600/400',
     responsive: true,
     alt: 'Responsive image',
   });
@@ -50,7 +50,7 @@ export const WithCustomSizes = () => {
   container.style.border = '1px dashed #ccc';
 
   const image = Image({
-    src: 'https://picsum.photos/400/300',
+    imageUrl: 'https://picsum.photos/400/300',
     alt: 'Custom size image',
     className: 'custom-size',
   });
@@ -61,9 +61,20 @@ export const WithCustomSizes = () => {
 
 export const WithClickHandler = () => {
   const image = Image({
-    src: 'https://picsum.photos/300/200?blur=2',
+    imageUrl: 'https://picsum.photos/300/200?blur=2',
     alt: 'Clickable image',
     onClick: () => alert('Image clicked!'),
+  });
+
+  return image.getElement();
+};
+
+// Legacy API usage example
+export const UsingLegacyProps = () => {
+  const image = Image({
+    src: 'https://picsum.photos/300/200?blur=5',
+    fallbackSrc: 'https://picsum.photos/300/200?grayscale',
+    alt: 'Using legacy props (src and fallbackSrc)',
   });
 
   return image.getElement();

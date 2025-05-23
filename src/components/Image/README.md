@@ -9,7 +9,7 @@ import { Image } from '@svarog-ui/core';
 
 // Create a simple image
 const myImage = Image({
-  src: '/path/to/image.jpg',
+  imageUrl: '/path/to/image.jpg',
 });
 
 // Add to DOM
@@ -18,14 +18,16 @@ document.body.appendChild(myImage.getElement());
 
 ## Props
 
-| Prop        | Type     | Default    | Description                                            |
-| ----------- | -------- | ---------- | ------------------------------------------------------ |
-| src         | string   | (Required) | Path to the image                                      |
-| alt         | string   | 'Image'    | Alt text for the image                                 |
-| fallbackSrc | string   | ''         | Fallback image path if the primary image fails to load |
-| className   | string   | ''         | Additional CSS classes                                 |
-| onClick     | function | null       | Click event handler                                    |
-| responsive  | boolean  | true       | Whether image should be responsive                     |
+| Prop             | Type     | Default    | Description                                            |
+| ---------------- | -------- | ---------- | ------------------------------------------------------ |
+| imageUrl         | string   | (Required) | Path to the image                                      |
+| alt              | string   | 'Image'    | Alt text for the image                                 |
+| fallbackImageUrl | string   | ''         | Fallback image path if the primary image fails to load |
+| className        | string   | ''         | Additional CSS classes                                 |
+| onClick          | function | null       | Click event handler                                    |
+| responsive       | boolean  | true       | Whether image should be responsive                     |
+| ~~src~~          | string   | -          | **DEPRECATED**: Use `imageUrl` instead                 |
+| ~~fallbackSrc~~  | string   | -          | **DEPRECATED**: Use `fallbackImageUrl` instead         |
 
 ## Methods
 
@@ -43,18 +45,22 @@ Updates the image properties.
 
 ```javascript
 myImage.update({
-  src: '/path/to/new-image.jpg',
+  imageUrl: '/path/to/new-image.jpg',
   className: 'custom-class',
 });
 ```
 
-### setSrc(src)
+### setImageUrl(imageUrl)
 
 Updates the image source.
 
 ```javascript
-myImage.setSrc('/path/to/new-image.jpg');
+myImage.setImageUrl('/path/to/new-image.jpg');
 ```
+
+### ~~setSrc(src)~~ (DEPRECATED)
+
+**DEPRECATED**: Use `setImageUrl()` instead.
 
 ### setAlt(alt)
 
@@ -89,7 +95,7 @@ Image styles can be customized using CSS variables:
 
 ```javascript
 const image = Image({
-  src: '/path/to/image.jpg',
+  imageUrl: '/path/to/image.jpg',
   alt: 'Description of image',
 });
 ```
@@ -98,7 +104,7 @@ const image = Image({
 
 ```javascript
 const responsiveImage = Image({
-  src: '/path/to/image.jpg',
+  imageUrl: '/path/to/image.jpg',
   responsive: true,
 });
 ```
@@ -107,8 +113,8 @@ const responsiveImage = Image({
 
 ```javascript
 const imageWithFallback = Image({
-  src: '/path/to/primary-image.jpg',
-  fallbackSrc: '/path/to/fallback-image.jpg',
+  imageUrl: '/path/to/primary-image.jpg',
+  fallbackImageUrl: '/path/to/fallback-image.jpg',
   alt: 'Image with fallback',
 });
 ```
@@ -117,7 +123,7 @@ const imageWithFallback = Image({
 
 ```javascript
 const clickableImage = Image({
-  src: '/path/to/image.jpg',
+  imageUrl: '/path/to/image.jpg',
   onClick: () => {
     console.log('Image clicked!');
     // Perform action like showing a modal, etc.
@@ -129,7 +135,7 @@ const clickableImage = Image({
 
 ```javascript
 const styledImage = Image({
-  src: '/path/to/image.jpg',
+  imageUrl: '/path/to/image.jpg',
   className: 'rounded-corners',
 });
 
@@ -147,3 +153,18 @@ The Image component follows best practices for accessibility:
 - Requires alt text for screen readers (defaults to "Image" if not provided)
 - Provides fallback content if the image fails to load
 - Supports keyboard navigation when interactive (with onClick handler)
+
+## Migration from v1.x
+
+### Prop Name Changes
+
+| Old Prop      | New Prop           | Notes                                                    |
+| ------------- | ------------------ | -------------------------------------------------------- |
+| `src`         | `imageUrl`         | Old prop still works but will show a deprecation warning |
+| `fallbackSrc` | `fallbackImageUrl` | Old prop still works but will show a deprecation warning |
+
+### Method Name Changes
+
+| Old Method | New Method      | Notes                                                      |
+| ---------- | --------------- | ---------------------------------------------------------- |
+| `setSrc()` | `setImageUrl()` | Old method still works but will show a deprecation warning |

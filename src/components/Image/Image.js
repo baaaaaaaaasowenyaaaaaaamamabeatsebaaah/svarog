@@ -6,17 +6,22 @@ import { createElement } from '../../utils/componentFactory.js';
 /**
  * Creates an Image component with lazy-loading, fallback support, and responsive options
  * @param {Object} props - Image properties
- * @param {string} props.src - Path to the image (required)
+ * @param {string} props.imageUrl - Path to the image (required)
+ * @param {string} [props.src] - DEPRECATED: Path to the image (use imageUrl instead)
  * @param {string} [props.alt='Image'] - Alt text for the image
- * @param {string} [props.fallbackSrc] - Fallback image path if the primary image fails
+ * @param {string} [props.fallbackImageUrl] - Fallback image path if the primary image fails
+ * @param {string} [props.fallbackSrc] - DEPRECATED: Fallback image path (use fallbackImageUrl instead)
  * @param {string} [props.className] - Additional CSS classes
  * @param {Function} [props.onClick] - Click event handler
  * @param {boolean} [props.responsive=true] - Whether image should be responsive
  * @returns {Object} Image component API object
  */
 const createImage = (props) => {
-  if (!props.src) {
-    throw new Error('Image: src is required');
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
+  if (!normalizedProps.imageUrl) {
+    throw new Error('Image: imageUrl is required');
   }
 
   const renderImage = (state) => {
@@ -36,7 +41,7 @@ const createImage = (props) => {
     const img = createElement('img', {
       classes: ['image-element'],
       attributes: {
-        src: state.src,
+        src: state.imageUrl,
         alt: state.alt,
         loading: 'lazy',
       },
@@ -51,13 +56,13 @@ const createImage = (props) => {
       if (errorHandled) return;
       errorHandled = true;
 
-      console.error(`Failed to load image from path: ${state.src}`);
+      console.error(`Failed to load image from path: ${state.imageUrl}`);
 
-      if (state.fallbackSrc) {
+      if (state.fallbackImageUrl) {
         // Set new error handler for fallback image
         img.onerror = () => {
           console.error(
-            `Failed to load fallback image from path: ${state.fallbackSrc}`
+            `Failed to load fallback image from path: ${state.fallbackImageUrl}`
           );
           // Remove the error handler to prevent further attempts
           img.onerror = null;
@@ -71,7 +76,7 @@ const createImage = (props) => {
           );
         };
 
-        img.src = state.fallbackSrc;
+        img.src = state.fallbackImageUrl;
       } else {
         // Show error text immediately if no fallback
         container.innerHTML = '';
@@ -90,12 +95,15 @@ const createImage = (props) => {
 
   // Initialize with default props
   const defaultProps = {
-    src: props.src,
-    alt: props.alt || 'Image',
-    fallbackSrc: props.fallbackSrc || '',
-    className: props.className || '',
-    onClick: props.onClick || null,
-    responsive: props.responsive !== undefined ? props.responsive : true,
+    imageUrl: normalizedProps.imageUrl,
+    alt: normalizedProps.alt || 'Image',
+    fallbackImageUrl: normalizedProps.fallbackImageUrl || '',
+    className: normalizedProps.className || '',
+    onClick: normalizedProps.onClick || null,
+    responsive:
+      normalizedProps.responsive !== undefined
+        ? normalizedProps.responsive
+        : true,
   };
 
   // Create base component
@@ -103,19 +111,24 @@ const createImage = (props) => {
 
   // Determine if component needs full re-render based on props
   const shouldRerender = (newProps) => {
-    const criticalProps = ['src', 'fallbackSrc', 'responsive'];
-    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+    const normalizedNewProps = migrateLegacyProps(newProps);
+    const criticalProps = ['imageUrl', 'fallbackImageUrl', 'responsive'];
+    return Object.keys(normalizedNewProps).some((key) =>
+      criticalProps.includes(key)
+    );
   };
 
   // Perform partial update for non-critical props
   const partialUpdate = (element, newProps) => {
-    if (newProps.className !== undefined) {
+    const normalizedNewProps = migrateLegacyProps(newProps);
+
+    if (normalizedNewProps.className !== undefined) {
       const classes = [
         'image-container',
         baseComponent.getState().responsive
           ? 'image-container--responsive'
           : '',
-        newProps.className,
+        normalizedNewProps.className,
       ]
         .filter(Boolean)
         .join(' ');
@@ -123,20 +136,20 @@ const createImage = (props) => {
       element.className = classes;
     }
 
-    if (newProps.alt !== undefined) {
+    if (normalizedNewProps.alt !== undefined) {
       const img = element.querySelector('img');
-      if (img) img.alt = newProps.alt;
+      if (img) img.alt = normalizedNewProps.alt;
     }
 
-    if (newProps.onClick !== undefined) {
+    if (normalizedNewProps.onClick !== undefined) {
       if (element._listeners?.click) {
         element.removeEventListener('click', element._listeners.click);
       }
 
-      if (newProps.onClick) {
-        element.addEventListener('click', newProps.onClick);
+      if (normalizedNewProps.onClick) {
+        element.addEventListener('click', normalizedNewProps.onClick);
         element._listeners = element._listeners || {};
-        element._listeners.click = newProps.onClick;
+        element._listeners.click = normalizedNewProps.onClick;
       }
     }
   };
@@ -149,11 +162,21 @@ const createImage = (props) => {
 
     /**
      * Set image source
+     * @param {string} imageUrl - New image source
+     * @returns {Object} Component for chaining
+     */
+    setImageUrl(imageUrl) {
+      return this.update({ imageUrl });
+    },
+
+    /**
+     * DEPRECATED: Set image source
      * @param {string} src - New image source
      * @returns {Object} Component for chaining
      */
     setSrc(src) {
-      return this.update({ src });
+      console.warn('Image: setSrc is deprecated, use setImageUrl instead');
+      return this.update({ imageUrl: src });
     },
 
     /**
@@ -167,7 +190,32 @@ const createImage = (props) => {
   };
 };
 
+/**
+ * Migrate legacy props to standardized props
+ * @param {Object} props - Original props
+ * @returns {Object} Normalized props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  if ('src' in props && !('imageUrl' in props)) {
+    console.warn('[Image] src is deprecated, use imageUrl instead');
+    migrated.imageUrl = props.src;
+    delete migrated.src;
+  }
+
+  if ('fallbackSrc' in props && !('fallbackImageUrl' in props)) {
+    console.warn(
+      '[Image] fallbackSrc is deprecated, use fallbackImageUrl instead'
+    );
+    migrated.fallbackImageUrl = props.fallbackSrc;
+    delete migrated.fallbackSrc;
+  }
+
+  return migrated;
+};
+
 // Required props
-createImage.requiredProps = ['src'];
+createImage.requiredProps = ['imageUrl'];
 
 export default createImage;
