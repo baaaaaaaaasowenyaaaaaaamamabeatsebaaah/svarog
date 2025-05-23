@@ -21,11 +21,37 @@ describe('PriceDisplay component', () => {
     expect(valueElement.textContent).toBe('€29.99');
   });
 
-  it('should display loading state', () => {
+  it('should display loading state with legacy isLoading prop', () => {
+    const consoleSpy = vi.spyOn(console, 'warn');
+
     const priceDisplay = PriceDisplay({
       label: 'Price:',
       value: 'Loading price...',
       isLoading: true,
+    });
+
+    const element = priceDisplay.getElement();
+    expect(element.classList.contains('price-display--loading')).toBe(true);
+
+    // Check for loading indicator
+    const loadingIndicator = element.querySelector(
+      '.price-display__loading-indicator'
+    );
+    expect(loadingIndicator).not.toBeNull();
+
+    // Verify deprecation warning
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'PriceDisplay: "isLoading" prop is deprecated, use "loading" instead'
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should display loading state with standardized loading prop', () => {
+    const priceDisplay = PriceDisplay({
+      label: 'Price:',
+      value: 'Loading price...',
+      loading: true,
     });
 
     const element = priceDisplay.getElement();
@@ -146,7 +172,7 @@ describe('PriceDisplay component', () => {
     const priceDisplay = PriceDisplay({
       label: 'Price:',
       value: 'Loading...',
-      isLoading: true,
+      loading: true,
     });
 
     const element = priceDisplay.getElement();
@@ -166,6 +192,27 @@ describe('PriceDisplay component', () => {
       '.price-display__loading-indicator'
     );
     expect(loadingIndicator).toBeNull();
+  });
+
+  it('should handle both isLoading and loading props with loading taking precedence', () => {
+    const consoleSpy = vi.spyOn(console, 'warn');
+
+    const priceDisplay = PriceDisplay({
+      label: 'Price:',
+      value: 'Loading...',
+      isLoading: true,
+      loading: false,
+    });
+
+    const element = priceDisplay.getElement();
+    expect(element.classList.contains('price-display--loading')).toBe(false);
+
+    // Verify deprecation warning still shown even when both props provided
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'PriceDisplay: "isLoading" prop is deprecated, use "loading" instead'
+    );
+
+    consoleSpy.mockRestore();
   });
 
   it('should clean up event listeners when destroyed', () => {

@@ -9,6 +9,30 @@ import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 
 /**
+ * Normalizes props to handle both legacy and standardized prop names
+ * @param {Object} props - Price display properties
+ * @returns {Object} - Normalized props
+ */
+const normalizePriceDisplayProps = (props) => {
+  const normalized = { ...props };
+
+  // Handle loading/isLoading standardization
+  if ('isLoading' in props) {
+    console.warn(
+      'PriceDisplay: "isLoading" prop is deprecated, use "loading" instead'
+    );
+  }
+
+  if ('loading' in props) {
+    normalized.isLoading = props.loading;
+  } else if ('isLoading' in props) {
+    normalized.loading = props.isLoading;
+  }
+
+  return normalized;
+};
+
+/**
  * Validates price display-specific props
  * @param {Object} props - Price display properties
  */
@@ -78,21 +102,24 @@ const renderPriceDisplay = (state) => {
  * @returns {Object} PriceDisplay component
  */
 const createPriceDisplay = (props) => {
+  // Normalize props to handle both legacy and new prop names
+  const normalizedProps = normalizePriceDisplayProps(props);
+
   // Validate required props
-  validateProps(props, createPriceDisplay.requiredProps);
+  validateProps(normalizedProps, createPriceDisplay.requiredProps);
 
   // Validate price display-specific props
-  validatePriceDisplayProps(props);
+  validatePriceDisplayProps(normalizedProps);
 
   // Initial state with defaults
   const initialState = {
-    label: props.label || '',
-    value: props.value || '',
-    isLoading: props.isLoading || false,
-    isHighlighted: props.isHighlighted || false,
-    isPlaceholder: props.isPlaceholder || false,
-    isError: props.isError || false,
-    className: props.className || '',
+    label: normalizedProps.label || '',
+    value: normalizedProps.value || '',
+    isLoading: normalizedProps.isLoading || false,
+    isHighlighted: normalizedProps.isHighlighted || false,
+    isPlaceholder: normalizedProps.isPlaceholder || false,
+    isError: normalizedProps.isError || false,
+    className: normalizedProps.className || '',
   };
 
   // Track component destroyed state
@@ -101,6 +128,19 @@ const createPriceDisplay = (props) => {
   // Create the base component
   const priceDisplayComponent =
     createBaseComponent(renderPriceDisplay)(initialState);
+
+  // Override update method to handle prop normalization
+  const originalUpdate = priceDisplayComponent.update;
+  priceDisplayComponent.update = (newProps) => {
+    if (isDestroyed) {
+      console.warn('PriceDisplay: Attempted to update destroyed component');
+      return priceDisplayComponent;
+    }
+
+    // Normalize props before updating
+    const normalizedNewProps = normalizePriceDisplayProps(newProps);
+    return originalUpdate(normalizedNewProps);
+  };
 
   // Add partial update method for more efficient updates
   priceDisplayComponent.partialUpdate = (element, newProps) => {
@@ -115,35 +155,43 @@ const createPriceDisplay = (props) => {
       return;
     }
 
+    // Normalize props
+    const normalizedNewProps = normalizePriceDisplayProps(newProps);
     const { valueElement } = element._elements;
 
     // Handle value updates
-    if (newProps.value !== undefined) {
-      valueElement.textContent = newProps.value;
+    if (normalizedNewProps.value !== undefined) {
+      valueElement.textContent = normalizedNewProps.value;
     }
 
     // Handle class-based state changes
-    if (newProps.isHighlighted !== undefined) {
+    if (normalizedNewProps.isHighlighted !== undefined) {
       element.classList.toggle(
         'price-display--highlighted',
-        newProps.isHighlighted
+        normalizedNewProps.isHighlighted
       );
     }
 
-    if (newProps.isPlaceholder !== undefined) {
+    if (normalizedNewProps.isPlaceholder !== undefined) {
       element.classList.toggle(
         'price-display--placeholder',
-        newProps.isPlaceholder
+        normalizedNewProps.isPlaceholder
       );
     }
 
-    if (newProps.isError !== undefined) {
-      element.classList.toggle('price-display--error', newProps.isError);
+    if (normalizedNewProps.isError !== undefined) {
+      element.classList.toggle(
+        'price-display--error',
+        normalizedNewProps.isError
+      );
     }
 
     // Handle loading state changes
-    if (newProps.isLoading !== undefined) {
-      element.classList.toggle('price-display--loading', newProps.isLoading);
+    if (normalizedNewProps.isLoading !== undefined) {
+      element.classList.toggle(
+        'price-display--loading',
+        normalizedNewProps.isLoading
+      );
 
       // Remove existing loading indicator if any
       const existingIndicator = valueElement.querySelector(
@@ -154,7 +202,7 @@ const createPriceDisplay = (props) => {
       }
 
       // Add new loading indicator if loading
-      if (newProps.isLoading) {
+      if (normalizedNewProps.isLoading) {
         const loadingIndicator = createElement('span', {
           classes: ['price-display__loading-indicator'],
         });
@@ -179,7 +227,7 @@ const createPriceDisplay = (props) => {
   };
 
   priceDisplayComponent.setLoading = (isLoading) => {
-    return priceDisplayComponent.update({ isLoading });
+    return priceDisplayComponent.update({ loading: isLoading });
   };
 
   priceDisplayComponent.setPlaceholder = (isPlaceholder) => {
@@ -192,7 +240,7 @@ const createPriceDisplay = (props) => {
       isHighlighted: false,
       isPlaceholder: false,
       isError: true,
-      isLoading: false,
+      loading: false,
     });
   };
 

@@ -23,7 +23,8 @@ document.body.appendChild(myPriceDisplay.getElement());
 | ------------- | ------- | ------- | --------------------------------------- |
 | label         | string  | ""      | Label text for the price (required)     |
 | value         | string  | ""      | Initial price value text                |
-| isLoading     | boolean | false   | Whether the price is loading            |
+| loading       | boolean | false   | Whether the price is loading            |
+| isLoading     | boolean | false   | DEPRECATED: Use `loading` instead       |
 | isHighlighted | boolean | false   | Whether to highlight the price display  |
 | isPlaceholder | boolean | false   | Whether the value is a placeholder/hint |
 | isError       | boolean | false   | Whether displaying an error             |
@@ -82,6 +83,7 @@ myPriceDisplay.update({
   value: '€39.99',
   isHighlighted: true,
   className: 'custom-class',
+  loading: false,
 });
 ```
 
@@ -110,7 +112,7 @@ const regularPrice = PriceDisplay({
 const loadingPrice = PriceDisplay({
   label: 'Price:',
   value: 'Loading...',
-  isLoading: true,
+  loading: true,
 });
 ```
 

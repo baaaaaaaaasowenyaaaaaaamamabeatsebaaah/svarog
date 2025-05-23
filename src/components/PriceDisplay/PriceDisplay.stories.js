@@ -12,6 +12,24 @@ export default {
       },
     },
   },
+  argTypes: {
+    loading: {
+      control: 'boolean',
+      description: 'Whether the price is loading',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: false },
+      },
+    },
+    isLoading: {
+      control: 'boolean',
+      description: 'DEPRECATED: Use loading instead',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: false },
+      },
+    },
+  },
 };
 
 export const Default = () => {
@@ -25,7 +43,7 @@ export const Loading = () => {
   return PriceDisplay({
     label: 'Price:',
     value: 'Loading price...',
-    isLoading: true,
+    loading: true,
   });
 };
 
