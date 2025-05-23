@@ -10,8 +10,8 @@ describe('Hero', () => {
       title: 'Welcome to Our Site',
       subtitle: 'Discover amazing content and features',
       ctaText: 'Get Started',
-      ctaLink: '/signup',
-      backgroundImage: 'https://via.placeholder.com/1920x1080',
+      ctaHref: '/signup',
+      backgroundImageUrl: 'https://via.placeholder.com/1920x1080',
       align: 'center',
     };
   });
@@ -35,7 +35,7 @@ describe('Hero', () => {
     const element = hero.getElement();
 
     expect(element.style.backgroundImage).toBe(
-      `url(${defaultProps.backgroundImage})`
+      `url(${defaultProps.backgroundImageUrl})`
     );
     expect(element.classList.contains('hero--with-background')).toBe(true);
   });
@@ -52,20 +52,20 @@ describe('Hero', () => {
   });
 
   it('should handle CTA click', () => {
-    const onCtaClick = vi.fn();
+    const onClick = vi.fn();
     const hero = Hero({
       ...defaultProps,
-      onCtaClick,
-      ctaLink: null,
+      onClick,
+      ctaHref: null,
     });
     const element = hero.getElement();
     const button = element.querySelector('.hero__cta');
 
     button.click();
-    expect(onCtaClick).toHaveBeenCalled();
+    expect(onClick).toHaveBeenCalled();
   });
 
-  it('should navigate to ctaLink when clicked', () => {
+  it('should navigate to ctaHref when clicked', () => {
     const originalLocation = window.location;
     delete window.location;
     window.location = { href: '' };
@@ -75,7 +75,7 @@ describe('Hero', () => {
     const button = element.querySelector('.hero__cta');
 
     button.click();
-    expect(window.location.href).toBe(defaultProps.ctaLink);
+    expect(window.location.href).toBe(defaultProps.ctaHref);
 
     window.location = originalLocation;
   });
@@ -110,7 +110,7 @@ describe('Hero', () => {
   });
 
   it('should update background image with setBackgroundImage method', () => {
-    const hero = Hero({ backgroundImage: 'original.jpg' });
+    const hero = Hero({ backgroundImageUrl: 'original.jpg' });
     hero.setBackgroundImage('new.jpg');
     const element = hero.getElement();
 
@@ -157,5 +157,46 @@ describe('Hero', () => {
 
     // Restore original
     element.removeEventListener = originalRemoveEventListener;
+  });
+
+  it('should handle legacy prop backgroundImage', () => {
+    const hero = Hero({
+      title: 'Legacy Props',
+      backgroundImage: 'legacy.jpg',
+    });
+    const element = hero.getElement();
+
+    expect(element.style.backgroundImage).toBe('url(legacy.jpg)');
+  });
+
+  it('should handle legacy prop ctaLink', () => {
+    const originalLocation = window.location;
+    delete window.location;
+    window.location = { href: '' };
+
+    const hero = Hero({
+      ctaText: 'Legacy CTA',
+      ctaLink: '/legacy-url',
+    });
+    const element = hero.getElement();
+    const button = element.querySelector('.hero__cta');
+
+    button.click();
+    expect(window.location.href).toBe('/legacy-url');
+
+    window.location = originalLocation;
+  });
+
+  it('should handle legacy prop onCtaClick', () => {
+    const onCtaClick = vi.fn();
+    const hero = Hero({
+      ctaText: 'Legacy Click',
+      onCtaClick,
+    });
+    const element = hero.getElement();
+    const button = element.querySelector('.hero__cta');
+
+    button.click();
+    expect(onCtaClick).toHaveBeenCalled();
   });
 });

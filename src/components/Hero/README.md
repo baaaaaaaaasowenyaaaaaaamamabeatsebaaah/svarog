@@ -12,7 +12,7 @@ const hero = Hero({
   title: 'Welcome to Our Website',
   subtitle: 'Discover amazing features and content',
   ctaText: 'Get Started',
-  ctaLink: '/signup',
+  ctaHref: '/signup',
 });
 
 // Add to DOM
@@ -21,16 +21,26 @@ document.body.appendChild(hero.getElement());
 
 ## Props
 
-| Prop            | Type     | Default  | Description                                   |
-| --------------- | -------- | -------- | --------------------------------------------- |
-| title           | string   | ""       | Hero title text                               |
-| subtitle        | string   | ""       | Hero subtitle text                            |
-| ctaText         | string   | ""       | Call-to-action button text                    |
-| ctaLink         | string   | ""       | URL for the CTA button                        |
-| onCtaClick      | function | null     | Click handler for the CTA button              |
-| backgroundImage | string   | ""       | URL for background image                      |
-| className       | string   | ""       | Additional CSS classes                        |
-| align           | string   | "center" | Content alignment ("left", "center", "right") |
+| Prop               | Type     | Default  | Description                                   |
+| ------------------ | -------- | -------- | --------------------------------------------- |
+| title              | string   | ""       | Hero title text                               |
+| subtitle           | string   | ""       | Hero subtitle text                            |
+| ctaText            | string   | ""       | Call-to-action button text                    |
+| ctaHref            | string   | ""       | URL for the CTA button                        |
+| onClick            | function | null     | Click handler for the CTA button              |
+| backgroundImageUrl | string   | ""       | URL for background image                      |
+| className          | string   | ""       | Additional CSS classes                        |
+| align              | string   | "center" | Content alignment ("left", "center", "right") |
+
+### Legacy Props (Deprecated)
+
+The following props are deprecated but supported for backward compatibility:
+
+| Legacy Prop     | Replacement        |
+| --------------- | ------------------ |
+| backgroundImage | backgroundImageUrl |
+| ctaLink         | ctaHref            |
+| onCtaClick      | onClick            |
 
 ## Methods
 
@@ -82,7 +92,7 @@ Updates multiple hero properties at once.
 hero.update({
   title: 'Updated Title',
   subtitle: 'Updated subtitle',
-  backgroundImage: '/images/new-bg.jpg',
+  backgroundImageUrl: '/images/new-bg.jpg',
 });
 ```
 
@@ -115,7 +125,7 @@ const basicHero = Hero({
   title: 'Welcome to Our Site',
   subtitle: 'The best place for your needs',
   ctaText: 'Learn More',
-  ctaLink: '/about',
+  ctaHref: '/about',
 });
 ```
 
@@ -126,8 +136,8 @@ const imageHero = Hero({
   title: 'Discover our Products',
   subtitle: 'Quality solutions for every situation',
   ctaText: 'Shop Now',
-  ctaLink: '/products',
-  backgroundImage: '/images/hero-bg.jpg',
+  ctaHref: '/products',
+  backgroundImageUrl: '/images/hero-bg.jpg',
 });
 ```
 
@@ -138,7 +148,7 @@ const leftHero = Hero({
   title: 'Get in Touch',
   subtitle: 'Our team is ready to help',
   ctaText: 'Contact Us',
-  ctaLink: '/contact',
+  ctaHref: '/contact',
   align: 'left',
 });
 ```
@@ -150,7 +160,7 @@ const interactiveHero = Hero({
   title: 'Special Offer',
   subtitle: 'Limited time discount on all products',
   ctaText: 'Claim Offer',
-  onCtaClick: () => {
+  onClick: () => {
     // Show modal, trigger analytics, etc.
     console.log('Offer claimed!');
     showOfferModal();

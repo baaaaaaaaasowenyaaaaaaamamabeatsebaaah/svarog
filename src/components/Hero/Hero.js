@@ -11,6 +11,40 @@ import { withThemeAwareness } from '../../utils/composition.js';
 import Button from '../Button/Button.js';
 
 /**
+ * Migrates legacy props to standardized ones
+ * @param {Object} props - Hero properties
+ * @returns {Object} - Migrated props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Migrate backgroundImage → backgroundImageUrl
+  if ('backgroundImage' in props && !('backgroundImageUrl' in props)) {
+    console.warn(
+      '[Hero] backgroundImage is deprecated, use backgroundImageUrl instead'
+    );
+    migrated.backgroundImageUrl = props.backgroundImage;
+    delete migrated.backgroundImage;
+  }
+
+  // Migrate ctaLink → ctaHref
+  if ('ctaLink' in props && !('ctaHref' in props)) {
+    console.warn('[Hero] ctaLink is deprecated, use ctaHref instead');
+    migrated.ctaHref = props.ctaLink;
+    delete migrated.ctaLink;
+  }
+
+  // Migrate onCtaClick → onClick
+  if ('onCtaClick' in props && !('onClick' in props)) {
+    console.warn('[Hero] onCtaClick is deprecated, use onClick instead');
+    migrated.onClick = props.onCtaClick;
+    delete migrated.onCtaClick;
+  }
+
+  return migrated;
+};
+
+/**
  * Validates hero-specific props
  * @param {Object} props - Hero properties
  */
@@ -34,7 +68,7 @@ const renderHero = (state) => {
   const classNames = [
     'hero',
     `hero--${state.align}`,
-    state.backgroundImage ? 'hero--with-background' : '',
+    state.backgroundImageUrl ? 'hero--with-background' : '',
     state.className,
   ].filter(Boolean);
 
@@ -50,8 +84,8 @@ const renderHero = (state) => {
   });
 
   // Apply background image if provided
-  if (state.backgroundImage) {
-    hero.style.backgroundImage = `url(${state.backgroundImage})`;
+  if (state.backgroundImageUrl) {
+    hero.style.backgroundImage = `url(${state.backgroundImageUrl})`;
   }
 
   // Create content container
@@ -82,12 +116,12 @@ const renderHero = (state) => {
   }
 
   // Add CTA button if text and link/handler provided
-  if (state.ctaText && (state.ctaLink || state.onCtaClick)) {
+  if (state.ctaText && (state.ctaHref || state.onClick)) {
     const handleCtaClick = (e) => {
-      if (state.onCtaClick) {
-        state.onCtaClick(e);
-      } else if (state.ctaLink) {
-        window.location.href = state.ctaLink;
+      if (state.onClick) {
+        state.onClick(e);
+      } else if (state.ctaHref) {
+        window.location.href = state.ctaHref;
       }
     };
 
@@ -120,20 +154,23 @@ const renderHero = (state) => {
  * @returns {Object} Hero component
  */
 const createHero = (props) => {
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate props
-  validateProps(props, createHero.requiredProps);
-  validateHeroProps(props);
+  validateProps(normalizedProps, createHero.requiredProps);
+  validateHeroProps(normalizedProps);
 
   // Initial state with defaults
   const initialState = {
-    title: props.title || '',
-    subtitle: props.subtitle || '',
-    ctaText: props.ctaText || '',
-    ctaLink: props.ctaLink || '',
-    onCtaClick: props.onCtaClick || null,
-    backgroundImage: props.backgroundImage || '',
-    className: props.className || '',
-    align: props.align || 'center',
+    title: normalizedProps.title || '',
+    subtitle: normalizedProps.subtitle || '',
+    ctaText: normalizedProps.ctaText || '',
+    ctaHref: normalizedProps.ctaHref || '',
+    onClick: normalizedProps.onClick || null,
+    backgroundImageUrl: normalizedProps.backgroundImageUrl || '',
+    className: normalizedProps.className || '',
+    align: normalizedProps.align || 'center',
   };
 
   // Create the base component
@@ -158,16 +195,19 @@ const createHero = (props) => {
 
   // Define when we need a full re-render
   heroComponent.shouldRerender = (newProps) => {
+    // Migrate props before checking
+    const normalizedNewProps = migrateLegacyProps(newProps);
+
     // Any of these props changing requires a full re-render
     return [
       'title',
       'subtitle',
       'ctaText',
-      'ctaLink',
-      'backgroundImage',
+      'ctaHref',
+      'backgroundImageUrl',
       'className',
       'align',
-    ].some((prop) => newProps[prop] !== undefined);
+    ].some((prop) => normalizedNewProps[prop] !== undefined);
   };
 
   // Add theme change handler
@@ -186,7 +226,7 @@ const createHero = (props) => {
   };
 
   heroComponent.setBackgroundImage = function (newImage) {
-    return this.update({ backgroundImage: newImage });
+    return this.update({ backgroundImageUrl: newImage });
   };
 
   heroComponent.setAlignment = function (newAlign) {
