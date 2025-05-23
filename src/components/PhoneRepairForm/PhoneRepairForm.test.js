@@ -25,7 +25,7 @@ describe('PhoneRepairForm component', () => {
 
   it('should create a form with link and schedule button', () => {
     const form = createPhoneRepairForm({
-      usedPhoneUrl: 'https://example.com/used-phones',
+      usedPhoneHref: 'https://example.com/used-phones',
     });
 
     const element = form.getElement();
@@ -222,7 +222,7 @@ describe('PhoneRepairForm component', () => {
 
     const form = createPhoneRepairForm({
       labels: customLabels,
-      usedPhoneUrl: 'https://example.com/used-phones',
+      usedPhoneHref: 'https://example.com/used-phones',
       showStepsIndicator: true,
     });
 
@@ -305,7 +305,7 @@ describe('PhoneRepairForm component', () => {
 
   it('should handle loading states', () => {
     const form = createPhoneRepairForm({
-      loading: {
+      loadingStates: {
         manufacturers: true,
         devices: false,
         actions: false,
@@ -348,7 +348,7 @@ describe('PhoneRepairForm component', () => {
     // Test setLoading method
     form.setLoading({ manufacturers: true });
     const state = form.getCurrentState();
-    expect(state.loading.manufacturers).toBe(true);
+    expect(state.loadingStates.manufacturers).toBe(true);
 
     // Test setErrors method
     form.setErrors({ price: 'Error message' });

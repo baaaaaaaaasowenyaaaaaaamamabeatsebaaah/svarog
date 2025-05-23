@@ -124,7 +124,7 @@ const canSchedule = (state) => {
   const hasAction = state.selectedAction ? 1 : 0;
   const hasPrice =
     state.currentPrice && state.currentPrice.price != null ? 1 : 0;
-  const notLoading = !Object.values(state.loading).some(Boolean) ? 1 : 0;
+  const notLoading = !Object.values(state.loadingStates).some(Boolean) ? 1 : 0;
 
   // Bitwise AND: all conditions must be true (all bits set)
   const allConditions =
@@ -173,7 +173,7 @@ const renderPhoneRepairForm = (state) => {
     placeholder: state.labels.manufacturerPlaceholder,
     options: manufacturerOptions,
     value: state.selectedManufacturer,
-    loading: state.loading.manufacturers,
+    loading: state.loadingStates.manufacturers,
     loadingText: 'Loading manufacturers...',
     emptyText: 'No manufacturers available',
     onChange: (event, value) => {
@@ -194,7 +194,7 @@ const renderPhoneRepairForm = (state) => {
     options: deviceOptions,
     value: state.selectedDevice,
     disabled: !state.selectedManufacturer,
-    loading: state.loading.devices,
+    loading: state.loadingStates.devices,
     loadingText: 'Loading devices...',
     emptyText: state.selectedManufacturer
       ? 'No devices available for this manufacturer'
@@ -217,7 +217,7 @@ const renderPhoneRepairForm = (state) => {
     options: actionOptions,
     value: state.selectedAction,
     disabled: !state.selectedDevice,
-    loading: state.loading.actions,
+    loading: state.loadingStates.actions,
     loadingText: 'Loading services...',
     emptyText: state.selectedDevice
       ? 'No services available for this device'
@@ -236,7 +236,7 @@ const renderPhoneRepairForm = (state) => {
     label: state.labels.priceLabel,
     value: state.priceDisplayText,
     isPlaceholder: !state.currentPrice,
-    isLoading: state.loading.price,
+    isLoading: state.loadingStates.price,
     isError: !!state.error.price,
   });
   form.appendChild(components.priceDisplay.getElement());
@@ -247,12 +247,12 @@ const renderPhoneRepairForm = (state) => {
   });
 
   // Create link to used phones
-  if (state.usedPhoneUrl) {
+  if (state.usedPhoneHref) {
     const usedPhoneLink = createElement('a', {
       classes: 'phone-repair-form__link',
       text: state.labels.usedPhoneText,
       attributes: {
-        href: state.usedPhoneUrl,
+        href: state.usedPhoneHref,
         target: '_blank',
         rel: 'noopener noreferrer',
       },
@@ -361,29 +361,32 @@ const formatPrice = (price) => {
 const createPhoneRepairForm = (props) => {
   validateProps(props, createPhoneRepairForm.requiredProps);
 
+  // Migrate legacy props
+  const migratedProps = migrateLegacyProps(props);
+
   const defaultLabels = createDefaultLabels();
-  const labels = { ...defaultLabels, ...(props.labels || {}) };
+  const labels = { ...defaultLabels, ...(migratedProps.labels || {}) };
 
   // Enhanced initial state with better defaults
   const initialState = {
-    manufacturers: props.manufacturers || [],
-    devices: props.devices || [],
-    actions: props.actions || [],
-    selectedManufacturer: props.selectedManufacturer || '',
-    selectedDevice: props.selectedDevice || '',
-    selectedAction: props.selectedAction || '',
-    currentPrice: props.currentPrice || null,
-    priceDisplayText: props.currentPrice
-      ? formatPrice(props.currentPrice.price)
+    manufacturers: migratedProps.manufacturers || [],
+    devices: migratedProps.devices || [],
+    actions: migratedProps.actions || [],
+    selectedManufacturer: migratedProps.selectedManufacturer || '',
+    selectedDevice: migratedProps.selectedDevice || '',
+    selectedAction: migratedProps.selectedAction || '',
+    currentPrice: migratedProps.currentPrice || null,
+    priceDisplayText: migratedProps.currentPrice
+      ? formatPrice(migratedProps.currentPrice.price)
       : labels.initialPriceText,
-    loading: {
+    loadingStates: {
       manufacturers: false,
       devices: false,
       actions: false,
       price: false,
-      ...props.loading,
+      ...(migratedProps.loadingStates || {}),
     },
-    error: props.error || {},
+    error: migratedProps.error || {},
     steps: [
       { name: labels.manufacturerStep, completed: false },
       { name: labels.deviceStep, completed: false },
@@ -391,13 +394,13 @@ const createPhoneRepairForm = (props) => {
     ],
     activeStepIndex: 0,
     labels,
-    className: props.className || '',
-    usedPhoneUrl: props.usedPhoneUrl || null,
-    onManufacturerChange: props.onManufacturerChange,
-    onDeviceChange: props.onDeviceChange,
-    onActionChange: props.onActionChange,
-    onScheduleClick: props.onScheduleClick,
-    hasError: Object.values(props.error || {}).some(Boolean),
+    className: migratedProps.className || '',
+    usedPhoneHref: migratedProps.usedPhoneHref || null,
+    onManufacturerChange: migratedProps.onManufacturerChange,
+    onDeviceChange: migratedProps.onDeviceChange,
+    onActionChange: migratedProps.onActionChange,
+    onScheduleClick: migratedProps.onScheduleClick,
+    hasError: Object.values(migratedProps.error || {}).some(Boolean),
   };
 
   // Apply mathematical step progression
@@ -468,7 +471,7 @@ const createPhoneRepairForm = (props) => {
     // Update manufacturer select with memoized transformation
     if (
       newProps.manufacturers !== undefined ||
-      newProps.loading?.manufacturers !== undefined ||
+      newProps.loadingStates?.manufacturers !== undefined ||
       newProps.selectedManufacturer !== undefined
     ) {
       const manufacturerOptions = transformToSelectOptions(
@@ -477,7 +480,8 @@ const createPhoneRepairForm = (props) => {
       components.manufacturerSelect?.update({
         options: manufacturerOptions,
         loading:
-          newProps.loading?.manufacturers ?? currentState.loading.manufacturers,
+          newProps.loadingStates?.manufacturers ??
+          currentState.loadingStates.manufacturers,
         value:
           newProps.selectedManufacturer ?? currentState.selectedManufacturer,
       });
@@ -486,7 +490,7 @@ const createPhoneRepairForm = (props) => {
     // Update device select with memoized transformation
     if (
       newProps.devices !== undefined ||
-      newProps.loading?.devices !== undefined ||
+      newProps.loadingStates?.devices !== undefined ||
       newProps.selectedManufacturer !== undefined ||
       newProps.selectedDevice !== undefined
     ) {
@@ -494,7 +498,7 @@ const createPhoneRepairForm = (props) => {
         newProps.devices || currentState.devices
       );
       const deviceLoading =
-        newProps.loading?.devices ?? currentState.loading.devices;
+        newProps.loadingStates?.devices ?? currentState.loadingStates.devices;
       const manufacturerSelected =
         newProps.selectedManufacturer ?? currentState.selectedManufacturer;
 
@@ -512,7 +516,7 @@ const createPhoneRepairForm = (props) => {
     // Update action select with memoized transformation
     if (
       newProps.actions !== undefined ||
-      newProps.loading?.actions !== undefined ||
+      newProps.loadingStates?.actions !== undefined ||
       newProps.selectedDevice !== undefined ||
       newProps.selectedAction !== undefined
     ) {
@@ -520,7 +524,7 @@ const createPhoneRepairForm = (props) => {
         newProps.actions || currentState.actions
       );
       const actionLoading =
-        newProps.loading?.actions ?? currentState.loading.actions;
+        newProps.loadingStates?.actions ?? currentState.loadingStates.actions;
       const deviceSelected =
         newProps.selectedDevice ?? currentState.selectedDevice;
 
@@ -539,7 +543,7 @@ const createPhoneRepairForm = (props) => {
     if (
       newProps.currentPrice !== undefined ||
       newProps.priceDisplayText !== undefined ||
-      newProps.loading?.price !== undefined ||
+      newProps.loadingStates?.price !== undefined ||
       newProps.error?.price !== undefined
     ) {
       const displayText =
@@ -551,7 +555,8 @@ const createPhoneRepairForm = (props) => {
       components.priceDisplay?.update({
         value: displayText,
         isPlaceholder: !newProps.currentPrice && !currentState.currentPrice,
-        isLoading: newProps.loading?.price ?? currentState.loading.price,
+        isLoading:
+          newProps.loadingStates?.price ?? currentState.loadingStates.price,
         isError: !!(newProps.error?.price || currentState.error.price),
       });
     }
@@ -571,7 +576,7 @@ const createPhoneRepairForm = (props) => {
         'selectedDevice',
         'selectedAction',
         'currentPrice',
-        'loading',
+        'loadingStates',
       ].some((key) => newProps[key] !== undefined)
     ) {
       const canScheduleNow = canSchedule({ ...currentState, ...newProps });
@@ -586,8 +591,8 @@ const createPhoneRepairForm = (props) => {
 
   // Convenience methods
   phoneRepairForm.setLoading = function (loadingState) {
-    const mergedLoading = { ...currentState.loading, ...loadingState };
-    return this.setState({ loading: mergedLoading });
+    const mergedLoading = { ...currentState.loadingStates, ...loadingState };
+    return this.setState({ loadingStates: mergedLoading });
   };
 
   phoneRepairForm.setErrors = function (errorState) {
@@ -623,15 +628,17 @@ const createPhoneRepairForm = (props) => {
   // Enhanced update method with validation
   phoneRepairForm.update = function (newProps) {
     try {
-      validateProps(newProps, createPhoneRepairForm.requiredProps);
+      // Migrate legacy props first
+      const migratedProps = migrateLegacyProps(newProps);
+      validateProps(migratedProps, createPhoneRepairForm.requiredProps);
 
-      if (this.shouldRerender(newProps)) {
+      if (this.shouldRerender(migratedProps)) {
         return createBaseComponent.prototype.update.call(this, {
           ...currentState,
-          ...newProps,
+          ...migratedProps,
         });
       } else {
-        return this.setState(newProps);
+        return this.setState(migratedProps);
       }
     } catch (error) {
       console.error('PhoneRepairForm update error:', error);
@@ -652,6 +659,34 @@ const createPhoneRepairForm = (props) => {
   }
 
   return phoneRepairForm;
+};
+
+/**
+ * Migrates legacy props to the new standardized prop names
+ * @private
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Handle usedPhoneUrl → usedPhoneHref migration
+  if ('usedPhoneUrl' in props && !('usedPhoneHref' in props)) {
+    console.warn(
+      '[PhoneRepairForm] usedPhoneUrl is deprecated, use usedPhoneHref instead'
+    );
+    migrated.usedPhoneHref = props.usedPhoneUrl;
+    delete migrated.usedPhoneUrl;
+  }
+
+  // Handle loading → loadingStates migration
+  if ('loading' in props && !('loadingStates' in props)) {
+    console.warn(
+      '[PhoneRepairForm] loading is deprecated, use loadingStates instead'
+    );
+    migrated.loadingStates = props.loading;
+    delete migrated.loading;
+  }
+
+  return migrated;
 };
 
 createPhoneRepairForm.requiredProps = [];

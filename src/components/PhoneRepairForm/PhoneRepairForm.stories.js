@@ -85,15 +85,28 @@ const createMockService = (delay = 500) => {
 
 // Helper to create a PhoneRepairForm with mock data
 const createForm = (props = {}) => {
+  // Handle legacy props for backwards compatibility in stories
+  const standardizedProps = { ...props };
+
+  if (props.usedPhoneUrl && !props.usedPhoneHref) {
+    standardizedProps.usedPhoneHref = props.usedPhoneUrl;
+    delete standardizedProps.usedPhoneUrl;
+  }
+
+  if (props.loading && !props.loadingStates) {
+    standardizedProps.loadingStates = props.loading;
+    delete standardizedProps.loading;
+  }
+
   return PhoneRepairForm({
     manufacturers: mockPhoneRepairData.manufacturers,
     devices: [],
     actions: [],
-    onManufacturerChange: props.onManufacturerChange || (() => {}),
-    onDeviceChange: props.onDeviceChange || (() => {}),
-    onActionChange: props.onActionChange || (() => {}),
-    onScheduleClick: props.onScheduleClick || (() => {}),
-    ...props,
+    onManufacturerChange: standardizedProps.onManufacturerChange || (() => {}),
+    onDeviceChange: standardizedProps.onDeviceChange || (() => {}),
+    onActionChange: standardizedProps.onActionChange || (() => {}),
+    onScheduleClick: standardizedProps.onScheduleClick || (() => {}),
+    ...standardizedProps,
   });
 };
 
@@ -205,7 +218,7 @@ export const WithLoading = (args) => {
     devices: mockPhoneRepairData.manufacturers[0].devices,
     selectedDevice: '2',
     actions: mockPhoneRepairData.manufacturers[0].devices[1].actions,
-    loading: {
+    loadingStates: {
       price: true,
     },
     priceDisplayText: 'Loading price...',

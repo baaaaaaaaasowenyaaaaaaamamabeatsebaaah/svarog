@@ -12,7 +12,8 @@ const createPhoneRepairFormContainer = (props) => {
     service,
     onPriceChange,
     onScheduleClick,
-    usedPhoneUrl,
+    usedPhoneHref,
+    usedPhoneUrl, // Legacy prop
     labels,
     className,
     ...otherProps
@@ -51,6 +52,23 @@ const createPhoneRepairFormContainer = (props) => {
     isInitialized: false,
   };
 
+  // Handle legacy props
+  const resolvedUsedPhoneHref = usedPhoneHref || usedPhoneUrl;
+  if (usedPhoneUrl && !usedPhoneHref) {
+    console.warn(
+      '[PhoneRepairFormContainer] usedPhoneUrl is deprecated, use usedPhoneHref instead'
+    );
+  }
+
+  // Standardize loading states
+  const loadingStates = otherProps.loadingStates || otherProps.loading;
+  if (otherProps.loading && !otherProps.loadingStates) {
+    console.warn(
+      '[PhoneRepairFormContainer] loading is deprecated, use loadingStates instead'
+    );
+    delete otherProps.loading;
+  }
+
   // Create the form component
   const form = PhoneRepairForm({
     manufacturers: [],
@@ -60,7 +78,8 @@ const createPhoneRepairFormContainer = (props) => {
     onDeviceChange: handleDeviceChange,
     onActionChange: handleActionChange,
     onScheduleClick: handleScheduleClick,
-    usedPhoneUrl,
+    usedPhoneHref: resolvedUsedPhoneHref,
+    loadingStates,
     labels,
     className,
     ...otherProps,

@@ -36,7 +36,7 @@ const formContainer = PhoneRepairFormContainer({
   },
   onPriceChange: (priceData) => console.log('Price updated:', priceData),
   onScheduleClick: (repairInfo) => console.log('Repair scheduled:', repairInfo),
-  usedPhoneUrl: 'https://example.com/used-phones',
+  usedPhoneHref: 'https://example.com/used-phones',
 });
 
 // Add to DOM
@@ -94,15 +94,22 @@ document.body.appendChild(repairForm.getElement());
 | selectedDevice       | string   | ""      | ID of selected device                                         |
 | selectedAction       | string   | ""      | ID of selected action                                         |
 | currentPrice         | Object   | null    | Current price data object                                     |
-| loading              | Object   | {}      | Loading states: `{manufacturers, devices, actions, price}`    |
+| loadingStates        | Object   | {}      | Loading states: `{manufacturers, devices, actions, price}`    |
 | error                | Object   | {}      | Error states: `{manufacturers, devices, actions, price}`      |
 | labels               | Object   | {}      | Text labels to customize UI (see below)                       |
 | className            | string   | ""      | Additional CSS class names                                    |
-| usedPhoneUrl         | string   | null    | URL for the "used phone" link                                 |
+| usedPhoneHref        | string   | null    | URL for the "used phone" link                                 |
 | onManufacturerChange | Function | null    | Callback when manufacturer changes `(manufacturerId) => {}`   |
 | onDeviceChange       | Function | null    | Callback when device changes `(deviceId) => {}`               |
 | onActionChange       | Function | null    | Callback when action changes `(actionId) => {}`               |
 | onScheduleClick      | Function | null    | Callback when schedule button is clicked `(repairInfo) => {}` |
+
+### Deprecated Props
+
+| Deprecated Prop | New Prop      | Type   | Description                     |
+| --------------- | ------------- | ------ | ------------------------------- |
+| usedPhoneUrl    | usedPhoneHref | string | URL for the "used phone" link   |
+| loading         | loadingStates | Object | Loading states for each element |
 
 ### PhoneRepairFormContainer Props
 
@@ -111,7 +118,7 @@ document.body.appendChild(repairForm.getElement());
 | service         | Object   | Yes      | Service object with API methods (see below)                   |
 | onPriceChange   | Function | No       | Callback when price updates `(priceData) => {}`               |
 | onScheduleClick | Function | No       | Callback when schedule button is clicked `(repairInfo) => {}` |
-| usedPhoneUrl    | string   | No       | URL for the "used phone" link                                 |
+| usedPhoneHref   | string   | No       | URL for the "used phone" link                                 |
 | labels          | Object   | No       | Text labels to customize UI                                   |
 | className       | string   | No       | Additional CSS class names                                    |
 
