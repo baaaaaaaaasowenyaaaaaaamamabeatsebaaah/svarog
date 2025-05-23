@@ -37,7 +37,7 @@ const buybackForm = UsedPhonePriceFormContainer({
 
 // Create MuchandyHero component
 const hero = MuchandyHero({
-  backgroundImage: '/images/hero-background.jpg',
+  backgroundImageUrl: '/images/hero-background.jpg',
   title: 'Find<br>Your Price',
   subtitle: 'Calculate your price now.',
   repairForm,
@@ -53,7 +53,7 @@ document.body.appendChild(hero.getElement());
 
 ```javascript
 const hero = MuchandyHero({
-  backgroundImage: '/images/hero-bg.jpg',
+  backgroundImageUrl: '/images/hero-bg.jpg',
   title: 'Your Smartphone<br>Service',
   subtitle: 'Repair or sell - your choice!',
   repairForm,
@@ -65,7 +65,7 @@ const hero = MuchandyHero({
 // Dynamic updates
 hero.setTitle('Updated<br>Title');
 hero.setSubtitle('New subtitle text');
-hero.setBackgroundImage('/images/new-bg.jpg');
+hero.setBackgroundImageUrl('/images/new-bg.jpg');
 
 // Batch updates
 hero.setState({
@@ -77,15 +77,16 @@ hero.setState({
 
 ## Props
 
-| Prop            | Type   | Default                     | Required | Description                                     |
-| --------------- | ------ | --------------------------- | -------- | ----------------------------------------------- |
-| repairForm      | Object | -                           | Yes      | Phone repair form component instance            |
-| buybackForm     | Object | -                           | Yes      | Phone buyback form component instance           |
-| backgroundImage | string | ""                          | No       | URL for the hero background image               |
-| title           | string | "Finden Sie<br>Ihren Preis" | No       | Hero title text (supports HTML for line breaks) |
-| subtitle        | string | "Jetzt Preis berechnen."    | No       | Hero subtitle text                              |
-| defaultTab      | string | "repair"                    | No       | Default active tab ("repair" or "sell")         |
-| className       | string | ""                          | No       | Additional CSS classes for the component        |
+| Prop               | Type   | Default                     | Required | Description                                     |
+| ------------------ | ------ | --------------------------- | -------- | ----------------------------------------------- |
+| repairForm         | Object | -                           | Yes      | Phone repair form component instance            |
+| buybackForm        | Object | -                           | Yes      | Phone buyback form component instance           |
+| backgroundImageUrl | string | ""                          | No       | URL for the hero background image               |
+| title              | string | "Finden Sie<br>Ihren Preis" | No       | Hero title text (supports HTML for line breaks) |
+| subtitle           | string | "Jetzt Preis berechnen."    | No       | Hero subtitle text                              |
+| defaultTab         | string | "repair"                    | No       | Default active tab ("repair" or "sell")         |
+| className          | string | ""                          | No       | Additional CSS classes for the component        |
+| backgroundImage    | string | -                           | No       | _Deprecated: Use backgroundImageUrl_            |
 
 ### Form Component Requirements
 
@@ -157,12 +158,24 @@ console.log(currentState.title, currentState.subtitle);
 
 ### Convenience Methods
 
-#### setBackgroundImage(imageUrl)
+#### setBackgroundImageUrl(imageUrl)
 
 Updates the background image efficiently.
 
 ```javascript
+hero.setBackgroundImageUrl('/images/new-background.jpg');
+```
+
+#### setBackgroundImage(imageUrl)
+
+_Deprecated_: Use `setBackgroundImageUrl()` instead.
+
+```javascript
+// Deprecated method
 hero.setBackgroundImage('/images/new-background.jpg');
+
+// Recommended method
+hero.setBackgroundImageUrl('/images/new-background.jpg');
 ```
 
 #### setTitle(title)
@@ -281,7 +294,7 @@ const buybackForm = UsedPhonePriceFormContainer({
 
 // Create hero
 const hero = MuchandyHero({
-  backgroundImage: '/images/hero-bg.jpg',
+  backgroundImageUrl: '/images/hero-bg.jpg',
   title: 'Your Smartphone<br>Service Center',
   subtitle: 'Repair or sell your device with confidence.',
   repairForm,

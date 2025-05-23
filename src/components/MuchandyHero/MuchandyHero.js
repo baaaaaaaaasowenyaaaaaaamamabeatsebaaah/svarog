@@ -59,14 +59,36 @@ const createTabConfiguration = (state) => {
  * Applies styles using optimized DOM operations
  * @private
  */
-const applyContainerStyles = (container, backgroundImage) => {
+const applyContainerStyles = (container, backgroundImageUrl) => {
   // Handle both setting and clearing background images
-  if (backgroundImage) {
-    container.style.backgroundImage = `url(${backgroundImage})`;
+  if (backgroundImageUrl) {
+    container.style.backgroundImage = `url(${backgroundImageUrl})`;
   } else {
     // Clear background image when empty string is passed
     container.style.backgroundImage = '';
   }
+};
+
+/**
+ * Normalize props to handle legacy properties
+ * @private
+ */
+const normalizeProps = (props) => {
+  const normalized = { ...props };
+
+  // Handle legacy 'backgroundImage' prop
+  if (
+    normalized.backgroundImage !== undefined &&
+    normalized.backgroundImageUrl === undefined
+  ) {
+    console.warn(
+      'MuchandyHero: "backgroundImage" prop is deprecated, use "backgroundImageUrl" instead'
+    );
+    normalized.backgroundImageUrl = normalized.backgroundImage;
+    delete normalized.backgroundImage;
+  }
+
+  return normalized;
 };
 
 /**
@@ -81,7 +103,7 @@ const renderMuchandyHero = (state) => {
   });
 
   // Apply background styles efficiently
-  applyContainerStyles(container, state.backgroundImage);
+  applyContainerStyles(container, state.backgroundImageUrl);
 
   // Create grid structure efficiently
   const gridContainer = createElement('div', {
@@ -186,7 +208,7 @@ const validateMuchandyHeroProps = (props) => {
  * @private
  */
 const createDefaultConfig = () => ({
-  backgroundImage: '',
+  backgroundImageUrl: '',
   title: 'Finden Sie<br>Ihren Preis',
   subtitle: 'Jetzt Preis berechnen.',
   defaultTab: 'repair',
@@ -199,18 +221,21 @@ const createDefaultConfig = () => ({
  * @returns {Object} MuchandyHero component API
  */
 const createMuchandyHero = (props) => {
+  // Normalize props for backward compatibility
+  const normalizedProps = normalizeProps(props);
+
   // Validate props efficiently
-  validateProps(props, createMuchandyHero.requiredProps);
-  validateMuchandyHeroProps(props);
+  validateProps(normalizedProps, createMuchandyHero.requiredProps);
+  validateMuchandyHeroProps(normalizedProps);
 
   // Create optimized initial state
   const defaultConfig = createDefaultConfig();
   const initialState = {
     ...defaultConfig,
-    ...props,
+    ...normalizedProps,
     // Ensure forms are properly stored
-    repairForm: props.repairForm,
-    buybackForm: props.buybackForm,
+    repairForm: normalizedProps.repairForm,
+    buybackForm: normalizedProps.buybackForm,
   };
 
   // Create the base component
@@ -224,8 +249,11 @@ const createMuchandyHero = (props) => {
 
   // Enhanced state update method
   muchandyHero.setState = function (newState) {
+    // Normalize new state for backward compatibility
+    const normalizedNewState = normalizeProps(newState);
+
     // Update state efficiently
-    currentState = { ...currentState, ...newState };
+    currentState = { ...currentState, ...normalizedNewState };
 
     // Store state on element for updates
     const element = this.getElement();
@@ -234,19 +262,23 @@ const createMuchandyHero = (props) => {
     }
 
     // Efficient partial updates
-    this.partialUpdate(element, newState);
+    this.partialUpdate(element, normalizedNewState);
     return this;
   };
 
   // Define when we need a full re-render with algorithmic efficiency
   muchandyHero.shouldRerender = (newProps) => {
+    // Normalize new props for backward compatibility
+    const normalizedNewProps = normalizeProps(newProps);
+
     // Only these props require full re-render (structural changes)
     const rerenderProps = ['repairForm', 'buybackForm', 'defaultTab'];
 
     // Use some() for efficient early termination
     return rerenderProps.some(
       (prop) =>
-        newProps[prop] !== undefined && newProps[prop] !== currentState[prop]
+        normalizedNewProps[prop] !== undefined &&
+        normalizedNewProps[prop] !== currentState[prop]
     );
   };
 
@@ -262,9 +294,9 @@ const createMuchandyHero = (props) => {
     console.log('MuchandyHero partialUpdate called with:', newProps);
 
     // Update background image efficiently
-    if (newProps.backgroundImage !== undefined) {
-      console.log('Updating background image to:', newProps.backgroundImage);
-      applyContainerStyles(element, newProps.backgroundImage);
+    if (newProps.backgroundImageUrl !== undefined) {
+      console.log('Updating background image to:', newProps.backgroundImageUrl);
+      applyContainerStyles(element, newProps.backgroundImageUrl);
     }
 
     // Update title efficiently
@@ -330,8 +362,16 @@ const createMuchandyHero = (props) => {
   };
 
   // Convenience methods for easier state management
+  muchandyHero.setBackgroundImageUrl = function (backgroundImageUrl) {
+    return this.setState({ backgroundImageUrl });
+  };
+
+  // Legacy method for backward compatibility
   muchandyHero.setBackgroundImage = function (backgroundImage) {
-    return this.setState({ backgroundImage });
+    console.warn(
+      'MuchandyHero: "setBackgroundImage" method is deprecated, use "setBackgroundImageUrl" instead'
+    );
+    return this.setBackgroundImageUrl(backgroundImage);
   };
 
   muchandyHero.setTitle = function (title) {
@@ -349,22 +389,26 @@ const createMuchandyHero = (props) => {
   // Enhanced update method with validation
   muchandyHero.update = function (newProps) {
     try {
+      // Normalize new props for backward compatibility
+      const normalizedNewProps = normalizeProps(newProps);
+
       // Only validate form props if they're being updated
-      if (newProps.repairForm || newProps.buybackForm) {
+      if (normalizedNewProps.repairForm || normalizedNewProps.buybackForm) {
         validateMuchandyHeroProps({
-          repairForm: newProps.repairForm || currentState.repairForm,
-          buybackForm: newProps.buybackForm || currentState.buybackForm,
+          repairForm: normalizedNewProps.repairForm || currentState.repairForm,
+          buybackForm:
+            normalizedNewProps.buybackForm || currentState.buybackForm,
         });
       }
 
-      if (this.shouldRerender(newProps)) {
+      if (this.shouldRerender(normalizedNewProps)) {
         console.log(
           'MuchandyHero: Full rerender needed for props:',
-          Object.keys(newProps)
+          Object.keys(normalizedNewProps)
         );
 
         // Update current state
-        currentState = { ...currentState, ...newProps };
+        currentState = { ...currentState, ...normalizedNewProps };
 
         // Get current element and its parent
         const oldElement = this.getElement();
@@ -387,10 +431,10 @@ const createMuchandyHero = (props) => {
       } else {
         console.log(
           'MuchandyHero: Using partial update for props:',
-          Object.keys(newProps)
+          Object.keys(normalizedNewProps)
         );
         // Use partial updates for efficiency
-        return this.setState(newProps);
+        return this.setState(normalizedNewProps);
       }
     } catch (error) {
       console.error('MuchandyHero update error:', error);

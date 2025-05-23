@@ -20,7 +20,7 @@ export default {
     },
   },
   argTypes: {
-    backgroundImage: { control: 'text' },
+    backgroundImageUrl: { control: 'text' },
     title: { control: 'text' },
     subtitle: { control: 'text' },
     defaultTab: {
@@ -175,7 +175,7 @@ const createHero = (props = {}) => {
   const { repairForm, buybackForm } = createOptimizedForms(props.formOptions);
 
   return MuchandyHero({
-    backgroundImage: muchandyHeroBg,
+    backgroundImageUrl: muchandyHeroBg,
     title: 'Finden Sie<br>Ihren Preis',
     subtitle: 'Jetzt Preis berechnen.',
     repairForm,
@@ -202,7 +202,7 @@ export const WithSellTabDefault = (args) => {
 export const WithoutBackgroundImage = (args) => {
   const hero = createHero({
     ...args,
-    backgroundImage: '', // No background image
+    backgroundImageUrl: '', // No background image
     title: 'Finden Sie<br>Ihren Preis',
     subtitle: 'Ohne Hintergrundbild.',
   });
@@ -412,7 +412,7 @@ export const WithDynamicUpdates = (args) => {
       console.log('Toggle background clicked, current hasBg:', hasBg);
       hasBg = !hasBg;
       const newBg = hasBg ? muchandyHeroBg : '';
-      hero.setBackgroundImage(newBg);
+      hero.setBackgroundImageUrl(newBg);
       updateStatus(
         `Background ${hasBg ? 'enabled' : 'disabled'} (using setState/partialUpdate)`
       );
@@ -452,4 +452,20 @@ export const WithDynamicUpdates = (args) => {
   });
 
   return container;
+};
+
+// Legacy example for backward compatibility
+export const WithLegacyBackgroundImageProp = (args) => {
+  const { repairForm, buybackForm } = createOptimizedForms();
+
+  const hero = MuchandyHero({
+    backgroundImage: muchandyHeroBg, // Using deprecated prop
+    title: 'Legacy<br>Props Demo',
+    subtitle: 'Using deprecated backgroundImage prop',
+    repairForm,
+    buybackForm,
+    ...args,
+  });
+
+  return hero.getElement();
 };

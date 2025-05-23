@@ -60,11 +60,31 @@ describe('MuchandyHero', () => {
     it('should apply background image when provided', () => {
       const hero = MuchandyHero({
         ...mockForms,
-        backgroundImage: 'test-image.jpg',
+        backgroundImageUrl: 'test-image.jpg',
       });
       const element = hero.getElement();
 
       expect(element.style.backgroundImage).toBe('url(test-image.jpg)');
+    });
+
+    it('should handle legacy backgroundImage prop for backward compatibility', () => {
+      // Mock console.warn
+      const originalWarn = console.warn;
+      console.warn = vi.fn();
+
+      const hero = MuchandyHero({
+        ...mockForms,
+        backgroundImage: 'legacy-image.jpg',
+      });
+      const element = hero.getElement();
+
+      expect(element.style.backgroundImage).toBe('url(legacy-image.jpg)');
+      expect(console.warn).toHaveBeenCalledWith(
+        'MuchandyHero: "backgroundImage" prop is deprecated, use "backgroundImageUrl" instead'
+      );
+
+      // Restore console.warn
+      console.warn = originalWarn;
     });
 
     it('should render title with HTML support when provided', () => {
@@ -190,13 +210,38 @@ describe('MuchandyHero', () => {
     it('should provide convenience methods for common updates', () => {
       const hero = MuchandyHero(mockForms);
 
-      expect(typeof hero.setBackgroundImage).toBe('function');
+      expect(typeof hero.setBackgroundImageUrl).toBe('function');
       expect(typeof hero.setTitle).toBe('function');
       expect(typeof hero.setSubtitle).toBe('function');
 
       // Test chaining
       const result = hero.setTitle('New Title');
       expect(result).toBe(hero);
+    });
+
+    it('should support legacy setBackgroundImage method', () => {
+      const hero = MuchandyHero(mockForms);
+
+      // Mock console.warn
+      const originalWarn = console.warn;
+      console.warn = vi.fn();
+
+      expect(typeof hero.setBackgroundImage).toBe('function');
+
+      // Call deprecated method
+      hero.setBackgroundImage('test-image.jpg');
+
+      // Check warning was logged
+      expect(console.warn).toHaveBeenCalledWith(
+        'MuchandyHero: "setBackgroundImage" method is deprecated, use "setBackgroundImageUrl" instead'
+      );
+
+      // Verify the method works via the new method
+      const element = hero.getElement();
+      expect(element.style.backgroundImage).toBe('url(test-image.jpg)');
+
+      // Restore console.warn
+      console.warn = originalWarn;
     });
 
     it('should update state and element correctly', () => {
@@ -220,11 +265,11 @@ describe('MuchandyHero', () => {
   });
 
   describe('Partial Updates', () => {
-    it('should perform partial background image updates', () => {
+    it('should perform partial background image updates with backgroundImageUrl', () => {
       const hero = MuchandyHero(mockForms);
       const element = hero.getElement();
 
-      hero.setBackgroundImage('new-image.jpg');
+      hero.setBackgroundImageUrl('new-image.jpg');
 
       expect(element.style.backgroundImage).toBe('url(new-image.jpg)');
     });
@@ -263,6 +308,29 @@ describe('MuchandyHero', () => {
       expect(element.classList.contains('another-class')).toBe(true);
       expect(element.classList.contains('original-class')).toBe(false);
     });
+
+    it('should normalize props in setState method', () => {
+      const hero = MuchandyHero(mockForms);
+      const element = hero.getElement();
+
+      // Mock console.warn
+      const originalWarn = console.warn;
+      console.warn = vi.fn();
+
+      // Use legacy prop in setState
+      hero.setState({ backgroundImage: 'legacy-update.jpg' });
+
+      // Check that warning was logged
+      expect(console.warn).toHaveBeenCalledWith(
+        'MuchandyHero: "backgroundImage" prop is deprecated, use "backgroundImageUrl" instead'
+      );
+
+      // Check that element was updated correctly
+      expect(element.style.backgroundImage).toBe('url(legacy-update.jpg)');
+
+      // Restore console.warn
+      console.warn = originalWarn;
+    });
   });
 
   describe('Rerender Logic', () => {
@@ -288,6 +356,32 @@ describe('MuchandyHero', () => {
       hero.update({ title: 'New Title' });
 
       expect(setStateSpy).toHaveBeenCalledWith({ title: 'New Title' });
+    });
+
+    it('should normalize props in update method', () => {
+      const hero = MuchandyHero(mockForms);
+
+      // Mock console.warn
+      const originalWarn = console.warn;
+      console.warn = vi.fn();
+
+      const setStateSpy = vi.spyOn(hero, 'setState');
+
+      // Use legacy prop in update
+      hero.update({ backgroundImage: 'legacy-update.jpg' });
+
+      // Check that warning was logged
+      expect(console.warn).toHaveBeenCalledWith(
+        'MuchandyHero: "backgroundImage" prop is deprecated, use "backgroundImageUrl" instead'
+      );
+
+      // Check that setState was called with normalized props
+      expect(setStateSpy).toHaveBeenCalledWith({
+        backgroundImageUrl: 'legacy-update.jpg',
+      });
+
+      // Restore console.warn
+      console.warn = originalWarn;
     });
   });
 
