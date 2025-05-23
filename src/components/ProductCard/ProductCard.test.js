@@ -77,8 +77,26 @@ describe('ProductCard component', () => {
     expect(button.textContent).toBe(buttonText);
   });
 
-  it('should call onReserve callback when button is clicked', () => {
+  it('should call onClick callback when button is clicked', () => {
+    const onClick = vi.fn();
+    const productCard = ProductCard({
+      ...defaultProps,
+      onClick,
+    });
+    const element = productCard.getElement();
+    const button = element.querySelector('button');
+
+    button.click();
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('should support legacy onReserve prop and migrate it to onClick', () => {
     const onReserve = vi.fn();
+    // Mock console.warn to check for deprecation warning
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {});
+
     const productCard = ProductCard({
       ...defaultProps,
       onReserve,
@@ -88,6 +106,11 @@ describe('ProductCard component', () => {
 
     button.click();
     expect(onReserve).toHaveBeenCalledTimes(1);
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      '[ProductCard] onReserve is deprecated, use onClick instead'
+    );
+
+    consoleWarnSpy.mockRestore();
   });
 
   it('should apply additional class names', () => {

@@ -48,7 +48,7 @@ export const DefaultProductCard = () => {
       'Battery Health': '95%',
     },
     price: '399.99',
-    onReserve: () => alert('Product reserved!'),
+    onClick: () => alert('Product reserved!'),
   });
 
   return createWrapper(card.getElement());
@@ -67,7 +67,7 @@ export const WithCustomCurrency = () => {
     price: '459.99',
     currency: '$',
     buttonText: 'Buy Now',
-    onReserve: () => alert('Product purchased!'),
+    onClick: () => alert('Product purchased!'),
   });
 
   return createWrapper(card.getElement());
@@ -87,7 +87,7 @@ export const MuchandyThemed = () => {
     price: '349.99',
     className: 'muchandy-theme',
     buttonText: 'Reserve Now',
-    onReserve: () => alert('Muchandy product reserved!'),
+    onClick: () => alert('Muchandy product reserved!'),
   });
 
   return createWrapper(card.getElement());
@@ -107,7 +107,25 @@ export const WithMultipleSpecs = () => {
       Special: 'Limited Edition',
     },
     price: '499.99',
-    onReserve: () => alert('Product reserved!'),
+    onClick: () => alert('Product reserved!'),
+  });
+
+  return createWrapper(card.getElement());
+};
+
+// Show backward compatibility with onReserve
+export const WithLegacyOnReserve = () => {
+  const card = ProductCard({
+    imageUrl: getPhoneImage('iPhone 13'),
+    title: 'iPhone 13 - Legacy Props',
+    productData: {
+      Storage: '256GB',
+      Color: 'Midnight',
+      Condition: 'Excellent',
+      'Battery Health': '99%',
+    },
+    price: '599.99',
+    onReserve: () => alert('Using deprecated onReserve prop!'),
   });
 
   return createWrapper(card.getElement());
@@ -159,7 +177,7 @@ export const ProductGrid = () => {
         'Battery Health': product.batteryHealth,
       },
       price: product.price,
-      onReserve: () => alert(`${product.model} reserved!`),
+      onClick: () => alert(`${product.model} reserved!`),
     });
 
     const cardContainer = document.createElement('div');

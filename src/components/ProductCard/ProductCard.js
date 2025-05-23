@@ -57,10 +57,10 @@ const createProductDataElement = (productData) => {
  * @param {string|number} price - Product price
  * @param {string} currency - Currency symbol
  * @param {string} buttonText - Text for the reserve button
- * @param {Function} onReserve - Callback function when reserve button is clicked
+ * @param {Function} onClick - Callback function when reserve button is clicked
  * @returns {HTMLElement} The actions element
  */
-const createActionsElement = (price, currency, buttonText, onReserve) => {
+const createActionsElement = (price, currency, buttonText, onClick) => {
   const container = createElement('div', {
     classes: 'product-card__actions',
   });
@@ -76,7 +76,7 @@ const createActionsElement = (price, currency, buttonText, onReserve) => {
   // Create reserve button
   const reserveButton = Button({
     text: buttonText,
-    onClick: onReserve,
+    onClick,
     variant: 'primary',
     className: 'product-card__reserve-button',
   }).getElement();
@@ -84,6 +84,24 @@ const createActionsElement = (price, currency, buttonText, onReserve) => {
   container.appendChild(priceElement);
   container.appendChild(reserveButton);
   return container;
+};
+
+/**
+ * Migrates legacy props to standardized props
+ * @private
+ * @param {Object} props - Component props
+ * @returns {Object} Migrated props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  if ('onReserve' in props && !('onClick' in props)) {
+    console.warn('[ProductCard] onReserve is deprecated, use onClick instead');
+    migrated.onClick = props.onReserve;
+    delete migrated.onReserve;
+  }
+
+  return migrated;
 };
 
 /**
@@ -95,13 +113,21 @@ const createActionsElement = (price, currency, buttonText, onReserve) => {
  * @param {string|number} props.price - Product price
  * @param {string} [props.currency='€'] - Currency symbol
  * @param {string} [props.buttonText='Reserve'] - Text for the reserve button
- * @param {Function} [props.onReserve] - Callback function when reserve button is clicked
+ * @param {Function} [props.onClick] - Callback function when reserve button is clicked
+ * @param {Function} [props.onReserve] - DEPRECATED: Use onClick instead
  * @param {string} [props.className=''] - Additional CSS class names
  * @returns {Object} ProductCard component API
  */
 const createProductCard = (props) => {
+  // Migrate legacy props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props
-  validateProps(props, createProductCard.requiredProps, 'ProductCard');
+  validateProps(
+    normalizedProps,
+    createProductCard.requiredProps,
+    'ProductCard'
+  );
 
   // Extract props with defaults
   const {
@@ -111,9 +137,9 @@ const createProductCard = (props) => {
     price,
     currency = '€',
     buttonText = 'Reserve',
-    onReserve = () => {},
+    onClick = () => {},
     className = '',
-  } = props;
+  } = normalizedProps;
 
   // Combine class names
   const classNames = ['product-card'];
@@ -135,7 +161,7 @@ const createProductCard = (props) => {
     price,
     currency,
     buttonText,
-    onReserve
+    onClick
   );
   contentContainer.appendChild(actionsElement);
 
@@ -170,7 +196,7 @@ const createProductCard = (props) => {
     update(newProps) {
       // Create a new component with merged props
       const updatedComponent = createProductCard({
-        ...props,
+        ...normalizedProps,
         ...newProps,
       });
 

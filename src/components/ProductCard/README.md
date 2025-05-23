@@ -18,7 +18,7 @@ const productCard = ProductCard({
     'Battery Health': '98%',
   },
   price: '699.99',
-  onReserve: () => console.log('Product reserved'),
+  onClick: () => console.log('Product reserved'),
 });
 
 // Add to DOM
@@ -27,16 +27,17 @@ document.body.appendChild(productCard.getElement());
 
 ## Props
 
-| Prop        | Type           | Default    | Description                                      |
-| ----------- | -------------- | ---------- | ------------------------------------------------ |
-| imageUrl    | string         | (Required) | URL to the product image                         |
-| title       | string         | (Required) | Product title                                    |
-| productData | Object         | (Required) | Key-value pairs of product specifications        |
-| price       | string\|number | (Required) | Product price                                    |
-| currency    | string         | '€'        | Currency symbol                                  |
-| buttonText  | string         | 'Reserve'  | Text for the reserve/buy button                  |
-| onReserve   | Function       | () => {}   | Callback function when reserve button is clicked |
-| className   | string         | ''         | Additional CSS classes                           |
+| Prop        | Type           | Default    | Description                               |
+| ----------- | -------------- | ---------- | ----------------------------------------- |
+| imageUrl    | string         | (Required) | URL to the product image                  |
+| title       | string         | (Required) | Product title                             |
+| productData | Object         | (Required) | Key-value pairs of product specifications |
+| price       | string\|number | (Required) | Product price                             |
+| currency    | string         | '€'        | Currency symbol                           |
+| buttonText  | string         | 'Reserve'  | Text for the reserve/buy button           |
+| onClick     | Function       | () => {}   | Callback function when button is clicked  |
+| onReserve   | Function       | -          | DEPRECATED: Use onClick instead           |
+| className   | string         | ''         | Additional CSS classes                    |
 
 ## Methods
 
@@ -56,7 +57,7 @@ Updates multiple product card properties at once.
 productCard.update({
   price: '649.99',
   buttonText: 'Buy Now',
-  onReserve: () => console.log('Changed callback'),
+  onClick: () => console.log('Changed callback'),
 });
 ```
 
@@ -124,7 +125,7 @@ const basicCard = ProductCard({
     Color: 'Graphite',
   },
   price: '699.99',
-  onReserve: () => console.log('Product reserved'),
+  onClick: () => console.log('Product reserved'),
 });
 ```
 
@@ -141,7 +142,7 @@ const customCard = ProductCard({
   price: '799.99',
   currency: '$',
   buttonText: 'Buy Now',
-  onReserve: () => console.log('Product purchased'),
+  onClick: () => console.log('Product purchased'),
 });
 ```
 
@@ -159,7 +160,7 @@ products.forEach((product) => {
     title: product.name,
     productData: product.specs,
     price: product.price,
-    onReserve: () => handleReserve(product.id),
+    onClick: () => handleReserve(product.id),
   });
 
   grid.appendChild(card.getElement());
@@ -168,6 +169,13 @@ products.forEach((product) => {
 // Add grid to DOM
 document.body.appendChild(grid);
 ```
+
+## Migration Notes
+
+### v2.0.0 Breaking Changes
+
+- The `onReserve` prop has been renamed to `onClick` for consistency with other components.
+  - Legacy code using `onReserve` will continue to work but will show a deprecation warning.
 
 ## Accessibility Features
 
