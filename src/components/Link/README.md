@@ -30,6 +30,14 @@ document.body.appendChild(myLink.getElement());
 | id        | string                         | null       | HTML ID attribute                                      |
 | onClick   | function                       | null       | Click event handler                                    |
 
+### Standardized Props
+
+This component follows the company-wide Props Standardization Guide:
+
+- Uses `href` for navigation links (standard)
+- Uses `onClick` for click event handling (standard)
+- Uses standard naming conventions for all props
+
 ## Methods
 
 ### getElement()
@@ -169,3 +177,4 @@ The Link component follows best practices for accessibility:
 - Supports keyboard navigation
 - Maintains proper color contrast ratios when using theme variables
 - Works seamlessly with screen readers
+- Automatically adds `rel="noopener noreferrer"` for external links (`target="_blank"`)

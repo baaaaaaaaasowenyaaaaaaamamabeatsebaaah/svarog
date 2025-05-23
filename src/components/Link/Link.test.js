@@ -42,6 +42,28 @@ describe('Link component', () => {
     expect(element.href).toContain('https://example.com');
   });
 
+  it('should add rel attribute for external links', () => {
+    const link = Link({
+      children: 'External link',
+      href: 'https://example.com',
+      target: '_blank',
+    });
+
+    const element = link.getElement();
+    expect(element.getAttribute('rel')).toBe('noopener noreferrer');
+  });
+
+  it('should not add rel attribute for internal links', () => {
+    const link = Link({
+      children: 'Internal link',
+      href: '/internal-page',
+      target: '_self',
+    });
+
+    const element = link.getElement();
+    expect(element.getAttribute('rel')).toBeNull();
+  });
+
   it('should update href with setHref method', () => {
     const link = Link({
       children: 'Update href',
@@ -67,6 +89,7 @@ describe('Link component', () => {
     // Get the element AFTER the update
     const updatedElement = link.getElement();
     expect(updatedElement.target).toBe('_blank');
+    expect(updatedElement.getAttribute('rel')).toBe('noopener noreferrer');
   });
 
   it('should handle click events', () => {

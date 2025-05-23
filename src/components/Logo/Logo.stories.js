@@ -10,7 +10,7 @@ export default {
 
 export const Default = () => {
   const logo = Logo({
-    src: svarogSvg,
+    imageUrl: svarogSvg,
   });
   return logo.getElement();
 };
@@ -18,9 +18,29 @@ export const Default = () => {
 // Simple alias to handle backward compatibility with old stories
 export const SingleLogo = Default;
 
+// Legacy prop support example
+export const LegacyPropSupport = () => {
+  const logo = Logo({
+    src: svarogSvg, // Using legacy prop
+  });
+
+  const container = document.createElement('div');
+  const description = document.createElement('p');
+  description.textContent =
+    'This example uses the legacy "src" prop, which is still supported but deprecated.';
+  description.style.color = '#666';
+  description.style.fontStyle = 'italic';
+  description.style.marginBottom = '10px';
+
+  container.appendChild(description);
+  container.appendChild(logo.getElement());
+
+  return container;
+};
+
 export const WithCustomSizes = () => {
   const logo = Logo({
-    src: svarogSvg,
+    imageUrl: svarogSvg,
     className: 'custom-size-logo',
   });
 
@@ -43,8 +63,8 @@ export const WithCustomSizes = () => {
 export const WithFallback = () => {
   // Use an invalid path to trigger the fallback
   const logo = Logo({
-    src: 'invalid-path.svg',
-    fallbackSrc: '/assets/images/fallback-logo.svg',
+    imageUrl: 'invalid-path.svg',
+    fallbackImageUrl: '/assets/images/fallback-logo.svg',
     alt: 'Fallback Logo',
   });
 
@@ -61,7 +81,7 @@ export const WithFallback = () => {
 
 export const WithClickHandler = () => {
   const logo = Logo({
-    src: svarogSvg,
+    imageUrl: svarogSvg,
     onClick: () => {
       alert('Logo clicked!');
     },

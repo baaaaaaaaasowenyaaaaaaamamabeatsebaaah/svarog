@@ -7,18 +7,39 @@ import Image from '../Image/index.js';
 /**
  * Creates a Logo component
  * @param {Object} props - Logo properties
- * @param {string} props.src - Path to the logo image
+ * @param {string} [props.imageUrl] - Path to the logo image
+ * @param {string} [props.src] - Legacy: Path to the logo image (use imageUrl instead)
  * @param {string} [props.alt='Logo'] - Alt text for the logo
- * @param {string} [props.fallbackSrc=''] - Fallback image path if the primary image fails to load
+ * @param {string} [props.fallbackImageUrl=''] - Fallback image path if the primary image fails to load
+ * @param {string} [props.fallbackSrc=''] - Legacy: Fallback image path (use fallbackImageUrl instead)
  * @param {string} [props.className=''] - Additional CSS classes
  * @param {Function} [props.onClick=null] - Click event handler
  * @param {boolean} [props.responsive=true] - Whether logo should be responsive
  * @returns {Object} Logo component API object
  */
-const createLogo = (props) => {
-  // Validate props
-  if (!props.src) {
-    throw new Error('Logo: src is required');
+const createLogo = (props = {}) => {
+  // Make a copy of props to avoid modifying the original
+  const normalizedProps = { ...props };
+
+  // Handle legacy src prop
+  if ('src' in props && !('imageUrl' in props)) {
+    console.warn('[Logo] src is deprecated, use imageUrl instead');
+    normalizedProps.imageUrl = props.src;
+    delete normalizedProps.src;
+  }
+
+  // Handle legacy fallbackSrc prop
+  if ('fallbackSrc' in props && !('fallbackImageUrl' in props)) {
+    console.warn(
+      '[Logo] fallbackSrc is deprecated, use fallbackImageUrl instead'
+    );
+    normalizedProps.fallbackImageUrl = props.fallbackSrc;
+    delete normalizedProps.fallbackSrc;
+  }
+
+  // Validate required props
+  if (!normalizedProps.imageUrl) {
+    throw new Error('Logo: imageUrl is required');
   }
 
   /**
@@ -41,8 +62,8 @@ const createLogo = (props) => {
 
     // Create logo image using Image component
     const image = Image({
-      src: state.src,
-      fallbackSrc: state.fallbackSrc,
+      src: state.imageUrl, // Use old prop for backward compatibility with Image component
+      fallbackSrc: state.fallbackImageUrl, // Use old prop for backward compatibility
       alt: state.alt,
       onClick: state.onClick,
       responsive: true, // Always make image responsive
@@ -55,12 +76,15 @@ const createLogo = (props) => {
 
   // Create component using baseComponent with default props
   const baseComponent = createBaseComponent(renderLogo)({
-    src: props.src,
-    alt: props.alt || 'Logo',
-    fallbackSrc: props.fallbackSrc || '',
-    className: props.className || '',
-    onClick: props.onClick || null,
-    responsive: props.responsive !== undefined ? props.responsive : true,
+    imageUrl: normalizedProps.imageUrl,
+    alt: normalizedProps.alt || 'Logo',
+    fallbackImageUrl: normalizedProps.fallbackImageUrl || '',
+    className: normalizedProps.className || '',
+    onClick: normalizedProps.onClick || null,
+    responsive:
+      normalizedProps.responsive !== undefined
+        ? normalizedProps.responsive
+        : true,
   });
 
   /**
@@ -69,9 +93,28 @@ const createLogo = (props) => {
    * @returns {boolean} Whether a full re-render is required
    */
   const shouldRerender = (newProps) => {
+    // Normalize legacy props in updates
+    const normalizedNewProps = { ...newProps };
+
+    if ('src' in newProps && !('imageUrl' in newProps)) {
+      console.warn('[Logo] src is deprecated, use imageUrl instead');
+      normalizedNewProps.imageUrl = newProps.src;
+      delete normalizedNewProps.src;
+    }
+
+    if ('fallbackSrc' in newProps && !('fallbackImageUrl' in newProps)) {
+      console.warn(
+        '[Logo] fallbackSrc is deprecated, use fallbackImageUrl instead'
+      );
+      normalizedNewProps.fallbackImageUrl = newProps.fallbackSrc;
+      delete normalizedNewProps.fallbackSrc;
+    }
+
     // Only rebuild if these props change
-    const criticalProps = ['src', 'fallbackSrc', 'responsive'];
-    return Object.keys(newProps).some((key) => criticalProps.includes(key));
+    const criticalProps = ['imageUrl', 'fallbackImageUrl', 'responsive'];
+    return Object.keys(normalizedNewProps).some((key) =>
+      criticalProps.includes(key)
+    );
   };
 
   /**
@@ -97,24 +140,61 @@ const createLogo = (props) => {
   // Extended component with custom methods
   const logoComponent = {
     ...baseComponent,
+
+    /**
+     * Override the update method to handle legacy props
+     * @param {Object} newProps - New properties to update
+     * @returns {Object} The component instance
+     */
+    update(newProps) {
+      // Normalize legacy props
+      const normalizedNewProps = { ...newProps };
+
+      if ('src' in newProps && !('imageUrl' in newProps)) {
+        console.warn('[Logo] src is deprecated, use imageUrl instead');
+        normalizedNewProps.imageUrl = newProps.src;
+        delete normalizedNewProps.src;
+      }
+
+      if ('fallbackSrc' in newProps && !('fallbackImageUrl' in newProps)) {
+        console.warn(
+          '[Logo] fallbackSrc is deprecated, use fallbackImageUrl instead'
+        );
+        normalizedNewProps.fallbackImageUrl = newProps.fallbackSrc;
+        delete normalizedNewProps.fallbackSrc;
+      }
+
+      return baseComponent.update(normalizedNewProps);
+    },
+
     shouldRerender,
     partialUpdate,
 
     /**
-     * Set logo source
-     * @param {string} newSrc - New src
+     * Set logo source (legacy method)
+     * @param {string} newSrc - New image URL
      * @returns {Object} Logo component (for chaining)
      */
     setSrc(newSrc) {
-      return this.update({ src: newSrc });
+      console.warn('[Logo] setSrc is deprecated, use setImageUrl instead');
+      return this.setImageUrl(newSrc);
+    },
+
+    /**
+     * Set logo image URL
+     * @param {string} newImageUrl - New image URL
+     * @returns {Object} Logo component (for chaining)
+     */
+    setImageUrl(newImageUrl) {
+      return this.update({ imageUrl: newImageUrl });
     },
   };
 
   return logoComponent;
 };
 
-// Define required props for validation
-createLogo.requiredProps = ['src'];
+// Define required props for validation - empty since we handle validation ourselves
+createLogo.requiredProps = [];
 
 // Export the factory function
 export default createLogo;

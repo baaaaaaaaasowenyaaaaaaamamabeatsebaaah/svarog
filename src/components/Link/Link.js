@@ -9,6 +9,19 @@ import { createElement } from '../../utils/componentFactory.js';
  * @returns {Object} Link component
  */
 const createLink = (props) => {
+  // Migrate legacy props according to standardization guide
+  const migrateLegacyProps = (props) => {
+    const migrated = { ...props };
+
+    // Link component already uses correct prop names (href),
+    // so no specific migrations needed yet.
+
+    return migrated;
+  };
+
+  // Apply prop migration
+  props = migrateLegacyProps(props);
+
   // Validate props
   const validTargets = ['_self', '_blank', '_parent', '_top'];
   if (props.target && !validTargets.includes(props.target)) {
@@ -53,6 +66,7 @@ const createLink = (props) => {
       href: state.href,
       target: state.target || '_self',
       id: state.id || null,
+      rel: state.target === '_blank' ? 'noopener noreferrer' : null,
     };
 
     // Create element events
