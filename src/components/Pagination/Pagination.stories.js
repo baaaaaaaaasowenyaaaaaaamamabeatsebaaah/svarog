@@ -12,67 +12,67 @@ const onPageChange = (page) => {
 
 export const Default = () => {
   return Pagination({
-    currentPage: 1,
+    value: 1,
     totalPages: 10,
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
 export const MiddlePage = () => {
   return Pagination({
-    currentPage: 5,
+    value: 5,
     totalPages: 10,
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
 export const LastPage = () => {
   return Pagination({
-    currentPage: 10,
+    value: 10,
     totalPages: 10,
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
 export const ManyPages = () => {
   return Pagination({
-    currentPage: 10,
+    value: 10,
     totalPages: 50,
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
 export const FewPages = () => {
   return Pagination({
-    currentPage: 2,
+    value: 2,
     totalPages: 3,
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
 export const SinglePage = () => {
   return Pagination({
-    currentPage: 1,
+    value: 1,
     totalPages: 1,
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
 export const WithCustomSiblingCount = () => {
   return Pagination({
-    currentPage: 10,
+    value: 10,
     totalPages: 20,
     siblingCount: 2,
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
 export const WithCustomClass = () => {
   return Pagination({
-    currentPage: 3,
+    value: 3,
     totalPages: 10,
     className: 'custom-pagination',
-    onPageChange,
+    onChange: onPageChange,
   });
 };
 
@@ -104,11 +104,11 @@ export const Interactive = () => {
 
   // Create pagination
   const pagination = Pagination({
-    currentPage: 1,
+    value: 1,
     totalPages: 10,
-    onPageChange: (page) => {
+    onChange: (page) => {
       contentArea.textContent = `Page ${page} Content`;
-      pagination.update({ currentPage: page });
+      pagination.update({ value: page });
     },
   });
 
@@ -147,9 +147,9 @@ export const PaginationVariants = () => {
     createSection(
       'First Page (Prev Disabled)',
       Pagination({
-        currentPage: 1,
+        value: 1,
         totalPages: 10,
-        onPageChange,
+        onChange: onPageChange,
       })
     )
   );
@@ -158,9 +158,9 @@ export const PaginationVariants = () => {
     createSection(
       'Middle Pages (With Both Ellipses)',
       Pagination({
-        currentPage: 10,
+        value: 10,
         totalPages: 20,
-        onPageChange,
+        onChange: onPageChange,
       })
     )
   );
@@ -169,9 +169,9 @@ export const PaginationVariants = () => {
     createSection(
       'Last Page (Next Disabled)',
       Pagination({
-        currentPage: 10,
+        value: 10,
         totalPages: 10,
-        onPageChange,
+        onChange: onPageChange,
       })
     )
   );
@@ -180,9 +180,9 @@ export const PaginationVariants = () => {
     createSection(
       'Few Pages (No Ellipses)',
       Pagination({
-        currentPage: 2,
+        value: 2,
         totalPages: 5,
-        onPageChange,
+        onChange: onPageChange,
       })
     )
   );
@@ -191,10 +191,10 @@ export const PaginationVariants = () => {
     createSection(
       'Many Pages with Extended Siblings',
       Pagination({
-        currentPage: 15,
+        value: 15,
         totalPages: 30,
         siblingCount: 3,
-        onPageChange,
+        onChange: onPageChange,
       })
     )
   );

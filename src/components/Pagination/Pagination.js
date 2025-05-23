@@ -8,9 +8,11 @@ import Button from '../Button/Button.js';
 /**
  * Creates a Pagination component for navigating through paginated content
  * @param {Object} props - Pagination properties
- * @param {number} [props.currentPage=1] - Current active page
+ * @param {number} [props.currentPage=1] - Current active page (deprecated, use value instead)
+ * @param {number} [props.value=1] - Current active page
  * @param {number} [props.totalPages=1] - Total number of pages
- * @param {Function} [props.onPageChange] - Callback when page changes (receives page number)
+ * @param {Function} [props.onChange] - Callback when page changes (receives page number)
+ * @param {Function} [props.onPageChange] - Callback when page changes (deprecated, use onChange)
  * @param {number} [props.siblingCount=1] - Number of siblings to show around current page
  * @param {string} [props.className=''] - Additional CSS class names
  * @param {string} [props.prevText='Previous'] - Text for the previous button
@@ -18,6 +20,28 @@ import Button from '../Button/Button.js';
  * @returns {Object} Pagination component API
  */
 const createPagination = (props) => {
+  // Migrate legacy props to standardized props
+  const migrateLegacyProps = (props) => {
+    const migrated = { ...props };
+
+    // Support value as alias for currentPage
+    if ('currentPage' in props && !('value' in props)) {
+      console.warn('[Pagination] currentPage is deprecated, use value instead');
+      migrated.value = props.currentPage;
+    }
+
+    // Support onChange as replacement for onPageChange
+    if ('onPageChange' in props && !('onChange' in props)) {
+      console.warn(
+        '[Pagination] onPageChange is deprecated, use onChange instead'
+      );
+      migrated.onChange = props.onPageChange;
+    }
+
+    return migrated;
+  };
+
+  const normalizedProps = migrateLegacyProps(props);
   let buttonInstances = [];
 
   /**
@@ -67,14 +91,22 @@ const createPagination = (props) => {
    */
   const renderPagination = (state) => {
     const {
-      currentPage = 1,
+      value = 1,
+      currentPage,
       totalPages = 1,
       siblingCount = 1,
       className = '',
-      onPageChange = () => {},
+      onChange,
+      onPageChange,
       prevText = 'Previous',
       nextText = 'Next',
     } = state;
+
+    // Use value as primary, fallback to currentPage if value not provided
+    const activePage = value !== undefined ? value : currentPage || 1;
+
+    // Use onChange as primary callback, fallback to onPageChange
+    const handleChange = onChange || onPageChange || (() => {});
 
     // Handle page changes
     const handlePageClick = (page) => {
@@ -82,13 +114,13 @@ const createPagination = (props) => {
 
       const newPage =
         page === 'prev'
-          ? Math.max(1, currentPage - 1)
+          ? Math.max(1, activePage - 1)
           : page === 'next'
-            ? Math.min(totalPages, currentPage + 1)
+            ? Math.min(totalPages, activePage + 1)
             : Number(page);
 
-      if (newPage !== currentPage && typeof onPageChange === 'function') {
-        onPageChange(newPage);
+      if (newPage !== activePage) {
+        handleChange(newPage);
       }
     };
 
@@ -112,7 +144,7 @@ const createPagination = (props) => {
 
     const prevBtn = Button({
       text: prevText,
-      disabled: currentPage <= 1,
+      disabled: activePage <= 1,
       className: 'pagination__button pagination__button--prev',
       onClick: () => handlePageClick('prev'),
       ariaLabel: 'Go to previous page',
@@ -123,7 +155,7 @@ const createPagination = (props) => {
     list.appendChild(prevItem);
 
     // Add page buttons
-    generatePaginationRange(currentPage, totalPages, siblingCount).forEach(
+    generatePaginationRange(activePage, totalPages, siblingCount).forEach(
       (page) => {
         const pageItem = document.createElement('li');
         pageItem.className = 'pagination__item';
@@ -136,7 +168,7 @@ const createPagination = (props) => {
           dots.setAttribute('aria-hidden', 'true');
           pageItem.appendChild(dots);
         } else {
-          const isCurrentPage = page === currentPage;
+          const isCurrentPage = page === activePage;
           const pageBtn = Button({
             text: String(page),
             variant: isCurrentPage ? 'primary' : '',
@@ -164,7 +196,7 @@ const createPagination = (props) => {
 
     const nextBtn = Button({
       text: nextText,
-      disabled: currentPage >= totalPages,
+      disabled: activePage >= totalPages,
       className: 'pagination__button pagination__button--next',
       onClick: () => handlePageClick('next'),
       ariaLabel: 'Go to next page',
@@ -179,7 +211,7 @@ const createPagination = (props) => {
   };
 
   // Create the component
-  const component = createBaseComponent(renderPagination)(props);
+  const component = createBaseComponent(renderPagination)(normalizedProps);
 
   // Enhance destroy method
   const originalDestroy = component.destroy;
@@ -190,7 +222,14 @@ const createPagination = (props) => {
 
   // Add convenience methods
   component.setCurrentPage = function (page) {
-    return this.update({ currentPage: page });
+    console.warn(
+      '[Pagination] setCurrentPage is deprecated, use setValue instead'
+    );
+    return this.update({ value: page, currentPage: page });
+  };
+
+  component.setValue = function (page) {
+    return this.update({ value: page, currentPage: page });
   };
 
   component.setTotalPages = function (total) {

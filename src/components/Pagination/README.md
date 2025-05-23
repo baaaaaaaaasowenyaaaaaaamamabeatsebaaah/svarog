@@ -9,9 +9,9 @@ import { Pagination } from '@svarog-ui/core';
 
 // Create a pagination component
 const pagination = Pagination({
-  currentPage: 1,
+  value: 1,
   totalPages: 10,
-  onPageChange: (newPage) => {
+  onChange: (newPage) => {
     console.log(`Navigated to page ${newPage}`);
     // Update your content based on the new page
   },
@@ -24,7 +24,7 @@ document
 
 // Update properties
 pagination.update({
-  currentPage: 2,
+  value: 2,
 });
 
 // Clean up when removing
@@ -35,9 +35,11 @@ pagination.destroy();
 
 | Prop         | Type     | Default  | Description                                                 |
 | ------------ | -------- | -------- | ----------------------------------------------------------- |
-| currentPage  | number   | 1        | Current active page                                         |
+| value        | number   | 1        | Current active page                                         |
+| currentPage  | number   | 1        | Current active page (deprecated, use value instead)         |
 | totalPages   | number   | 1        | Total number of pages                                       |
-| onPageChange | function | () => {} | Callback called with the new page number when page changes  |
+| onChange     | function | () => {} | Callback called with the new page number when page changes  |
+| onPageChange | function | () => {} | Callback when page changes (deprecated, use onChange)       |
 | siblingCount | number   | 1        | Number of page buttons to show on each side of current page |
 | className    | string   | ''       | Additional CSS class for styling                            |
 
@@ -57,18 +59,26 @@ Updates the pagination with new properties.
 
 ```javascript
 // Update current page
-pagination.update({ currentPage: 3 });
+pagination.update({ value: 3 });
 
 // Update multiple properties
 pagination.update({
-  currentPage: 2,
+  value: 2,
   totalPages: 20,
 });
 ```
 
-### setCurrentPage(page)
+### setValue(page)
 
 Convenience method to update only the current page.
+
+```javascript
+pagination.setValue(5);
+```
+
+### setCurrentPage(page)
+
+Legacy method to update the current page (deprecated, use setValue instead).
 
 ```javascript
 pagination.setCurrentPage(5);
@@ -145,9 +155,9 @@ The Pagination component implements these accessibility features:
 
 ```javascript
 const pagination = Pagination({
-  currentPage: 1,
+  value: 1,
   totalPages: 10,
-  onPageChange: (page) => {
+  onChange: (page) => {
     console.log(`Go to page ${page}`);
     loadPageContent(page);
   },
@@ -160,10 +170,10 @@ Showing more page numbers around the current page:
 
 ```javascript
 const pagination = Pagination({
-  currentPage: 5,
+  value: 5,
   totalPages: 20,
   siblingCount: 2, // Show more page numbers around current page
-  onPageChange: handlePageChange,
+  onChange: handlePageChange,
 });
 ```
 
@@ -172,14 +182,14 @@ const pagination = Pagination({
 ```javascript
 // Initialize pagination and content
 const pagination = Pagination({
-  currentPage: 1,
+  value: 1,
   totalPages: totalPages,
-  onPageChange: (page) => {
+  onChange: (page) => {
     showLoadingIndicator();
     fetchPageData(page)
       .then((data) => {
         renderContent(data);
-        pagination.update({ currentPage: page });
+        pagination.update({ value: page });
         hideLoadingIndicator();
       })
       .catch((error) => {
@@ -201,9 +211,9 @@ const setupPagination = (initialData) => {
 
   // Setup pagination
   const pagination = Pagination({
-    currentPage,
+    value: currentPage,
     totalPages,
-    onPageChange: async (page) => {
+    onChange: async (page) => {
       try {
         // Show loading state
         showLoading(true);

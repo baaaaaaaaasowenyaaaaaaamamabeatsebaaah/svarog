@@ -4,7 +4,7 @@ import Pagination from './Pagination.js';
 
 describe('Pagination component', () => {
   let container;
-  let onPageChange;
+  let onChange;
 
   beforeEach(() => {
     // Create a container for mounting
@@ -12,7 +12,7 @@ describe('Pagination component', () => {
     document.body.appendChild(container);
 
     // Create a spy for page change callback
-    onPageChange = vi.fn();
+    onChange = vi.fn();
   });
 
   afterEach(() => {
@@ -32,9 +32,9 @@ describe('Pagination component', () => {
   it('should render correctly with basic props', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 1,
+      value: 1,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -53,9 +53,9 @@ describe('Pagination component', () => {
   it('should disable previous button on first page', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 1,
+      value: 1,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -72,9 +72,9 @@ describe('Pagination component', () => {
   it('should enable previous button when not on first page', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 2,
+      value: 2,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -91,9 +91,9 @@ describe('Pagination component', () => {
   it('should disable next button on last page', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 5,
+      value: 5,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -110,9 +110,9 @@ describe('Pagination component', () => {
   it('should enable next button when not on last page', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 4,
+      value: 4,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -126,12 +126,12 @@ describe('Pagination component', () => {
     expect(nextButton.disabled).toBe(false);
   });
 
-  it('should call onPageChange when page button is clicked', () => {
+  it('should call onChange when page button is clicked', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 1,
+      value: 1,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -151,16 +151,16 @@ describe('Pagination component', () => {
       pageButtons[1].click();
 
       // Assert
-      expect(onPageChange).toHaveBeenCalled();
+      expect(onChange).toHaveBeenCalled();
     }
   });
 
-  it('should call onPageChange when previous button is clicked', () => {
+  it('should call onChange when previous button is clicked', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 3,
+      value: 3,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -171,15 +171,15 @@ describe('Pagination component', () => {
     prevButton.click();
 
     // Assert
-    expect(onPageChange).toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalled();
   });
 
-  it('should call onPageChange when next button is clicked', () => {
+  it('should call onChange when next button is clicked', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 3,
+      value: 3,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -190,15 +190,15 @@ describe('Pagination component', () => {
     nextButton.click();
 
     // Assert
-    expect(onPageChange).toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalled();
   });
 
-  it('should not call onPageChange when clicking current page button', () => {
+  it('should not call onChange when clicking current page button', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 3,
+      value: 3,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -212,60 +212,46 @@ describe('Pagination component', () => {
       activeButton.click();
 
       // Assert
-      expect(onPageChange).not.toHaveBeenCalled();
+      expect(onChange).not.toHaveBeenCalled();
     }
   });
 
-  it('should update when setCurrentPage is called', () => {
+  it('should update when setValue is called', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 1,
+      value: 1,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     // Act - mount first
     mountComponent(pagination);
 
-    // Update to page 3 using the appropriate method
-    if (typeof pagination.setCurrentPage === 'function') {
-      pagination.setCurrentPage(3);
-    } else {
-      pagination.update({ currentPage: 3 });
-    }
+    // Update to page 3
+    pagination.setValue(3);
 
     // Re-mount to get the updated element
     const element = mountComponent(pagination);
 
-    // Assert - check for page 3 button
-    const pageButtons = Array.from(element.querySelectorAll('button')).filter(
-      (btn) => {
-        const text = btn.textContent.trim();
-        return !text.includes('Previous') && !text.includes('Next');
-      }
-    );
-
-    // Verify we have page buttons
-    expect(pageButtons.length).toBeGreaterThan(0);
+    // Assert - check for page 3 button being active
+    const activeButton = element.querySelector('.pagination__button--active');
+    expect(activeButton).toBeTruthy();
+    expect(activeButton.textContent.trim()).toBe('3');
   });
 
   it('should update when setTotalPages is called', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 1,
+      value: 1,
       totalPages: 3,
-      onPageChange,
+      onChange,
     });
 
     // Act - mount first
     mountComponent(pagination);
 
-    // Update total pages using the appropriate method
-    if (typeof pagination.setTotalPages === 'function') {
-      pagination.setTotalPages(8);
-    } else {
-      pagination.update({ totalPages: 8 });
-    }
+    // Update total pages
+    pagination.setTotalPages(8);
 
     // Re-mount to get the updated element
     const element = mountComponent(pagination);
@@ -280,16 +266,20 @@ describe('Pagination component', () => {
 
     // Verify we have page buttons
     expect(pageButtons.length).toBeGreaterThan(0);
+
+    // Should show at least first page and last page (8)
+    const lastPageButton = pageButtons[pageButtons.length - 1];
+    expect(lastPageButton.textContent.trim()).toBe('8');
   });
 
   it('should apply custom class names correctly', () => {
     // Arrange
     const customClass = 'custom-pagination';
     const pagination = Pagination({
-      currentPage: 1,
+      value: 1,
       totalPages: 5,
       className: customClass,
-      onPageChange,
+      onChange,
     });
 
     // Act
@@ -298,14 +288,15 @@ describe('Pagination component', () => {
     // Assert the component renders successfully
     expect(element).toBeTruthy();
     expect(element.tagName.toLowerCase()).toBe('nav');
+    expect(element.className).toContain(customClass);
   });
 
   it('should clean up properly when destroyed', () => {
     // Arrange
     const pagination = Pagination({
-      currentPage: 1,
+      value: 1,
       totalPages: 5,
-      onPageChange,
+      onChange,
     });
 
     mountComponent(pagination);
@@ -318,5 +309,41 @@ describe('Pagination component', () => {
 
     // Assert
     expect(destroySpy).toHaveBeenCalled();
+  });
+
+  it('should handle both value and currentPage props (with value taking precedence)', () => {
+    // Arrange - both props provided
+    const pagination = Pagination({
+      value: 3,
+      currentPage: 2,
+      totalPages: 5,
+      onChange,
+    });
+
+    // Act
+    const element = mountComponent(pagination);
+
+    // Assert - should use value (3) not currentPage (2)
+    const activeButton = element.querySelector('.pagination__button--active');
+    expect(activeButton).toBeTruthy();
+    expect(activeButton.textContent.trim()).toBe('3');
+  });
+
+  it('should support legacy onPageChange prop', () => {
+    // Arrange
+    const onPageChange = vi.fn();
+    const pagination = Pagination({
+      currentPage: 2,
+      totalPages: 5,
+      onPageChange,
+    });
+
+    // Act
+    const element = mountComponent(pagination);
+    const nextButton = element.querySelector('.pagination__button--next');
+    nextButton.click();
+
+    // Assert
+    expect(onPageChange).toHaveBeenCalledWith(3);
   });
 });
