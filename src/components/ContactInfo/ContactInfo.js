@@ -8,6 +8,19 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 
 /**
+ * Migrates legacy prop names to standardized prop names.
+ * @param {Object} props - The component props
+ * @returns {Object} - The normalized props
+ */
+const migrateLegacyProps = (props) => {
+  const migrated = { ...props };
+
+  // Add migration handlers if needed in the future
+
+  return migrated;
+};
+
+/**
  * Creates ContactInfo DOM element
  * @param {Object} state - ContactInfo state
  * @returns {HTMLElement} - ContactInfo element
@@ -120,22 +133,33 @@ const renderContactInfo = (state) => {
 /**
  * Creates a ContactInfo component
  * @param {Object} props - ContactInfo properties
+ * @param {string} props.location - Location address text
+ * @param {string} props.phone - Phone number
+ * @param {string} props.email - Email address
+ * @param {string} [props.locationId="location"] - ID of the location section to scroll to
+ * @param {Function} [props.onLocationClick] - Click handler for location link
+ * @param {Function} [props.onPhoneClick] - Click handler for phone link
+ * @param {Function} [props.onEmailClick] - Click handler for email link
+ * @param {string} [props.className=""] - Additional CSS classes for the container element
  * @returns {Object} ContactInfo component API
  */
 const createContactInfo = (props) => {
+  // Migrate any legacy props to standardized props
+  const normalizedProps = migrateLegacyProps(props);
+
   // Validate required props
-  validateProps(props, createContactInfo.requiredProps);
+  validateProps(normalizedProps, createContactInfo.requiredProps);
 
   // Initial state with defaults
   const initialState = {
-    location: props.location,
-    phone: props.phone,
-    email: props.email,
-    locationId: props.locationId || 'location',
-    onLocationClick: props.onLocationClick || null,
-    onPhoneClick: props.onPhoneClick || null,
-    onEmailClick: props.onEmailClick || null,
-    className: props.className || '',
+    location: normalizedProps.location,
+    phone: normalizedProps.phone,
+    email: normalizedProps.email,
+    locationId: normalizedProps.locationId || 'location',
+    onLocationClick: normalizedProps.onLocationClick || null,
+    onPhoneClick: normalizedProps.onPhoneClick || null,
+    onEmailClick: normalizedProps.onEmailClick || null,
+    className: normalizedProps.className || '',
   };
 
   // Create the base component
