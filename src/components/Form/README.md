@@ -40,13 +40,14 @@ const emailGroup = FormGroup({
 const submitButton = Button({
   text: 'Submit',
   type: 'submit',
+  onClick: () => console.log('Submit button clicked'),
 });
 
 const formActions = FormActions({
   children: submitButton,
 });
 
-// Create form with all elements
+// Create form
 const form = Form({
   children: [nameGroup, emailGroup, formActions],
   onSubmit: (event, data, isValid) => {
@@ -82,6 +83,7 @@ document.querySelector('#form-container').appendChild(form.getElement());
 | required      | boolean                | false      | Whether the field is required                     |
 | className     | string                 | ''         | Additional CSS classes                            |
 | labelPosition | string                 | 'top'      | Label position ('top', 'left', 'right', 'bottom') |
+| defaultValue  | string                 | undefined  | Alias for labelPosition (standardized)            |
 
 ## Form Section Component Props
 
@@ -98,6 +100,7 @@ document.querySelector('#form-container').appendChild(form.getElement());
 | --------- | ----------------------------- | ---------- | -------------------------------------------------- |
 | children  | Array\|HTMLElement\|Component | (Required) | Action buttons/controls                            |
 | align     | string                        | 'right'    | Alignment ('left', 'center', 'right', 'stretched') |
+| alignment | string                        | undefined  | Alias for align (standardized)                     |
 | className | string                        | ''         | Additional CSS classes                             |
 
 ## Methods
@@ -370,3 +373,12 @@ const form = Form({
 // Register the field for validation
 form.registerField(emailInput);
 ```
+
+## Prop Standardization Note
+
+This component follows the organization's prop standardization guidelines. Some props have standardized aliases for consistency across the component library:
+
+- `FormGroup`: `defaultValue` can be used as an alias for `labelPosition`
+- `FormActions`: `alignment` can be used as an alias for `align`
+
+For new development, always use the standard prop names (`labelPosition` and `align`).

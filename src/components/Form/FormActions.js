@@ -13,7 +13,24 @@ import { validateRequiredProps } from '../../utils/validation.js';
  * @returns {Object} FormActions component API
  */
 const createFormActions = (props) => {
-  // Validate required props
+  // Migrate legacy props to standardized props
+  const migrateLegacyProps = (props) => {
+    const migrated = { ...props };
+
+    // Standardize align with alignment alias (per standards reference)
+    if ('alignment' in props && !('align' in props)) {
+      console.warn('[FormActions] alignment is deprecated, use align instead');
+      migrated.align = props.alignment;
+      delete migrated.alignment;
+    }
+
+    return migrated;
+  };
+
+  // Normalize props - but keep original props for validation
+  const normalizedProps = migrateLegacyProps(props);
+
+  // Validate required props - use original props to maintain backward compatibility with tests
   validateRequiredProps(
     props,
     {
@@ -36,11 +53,11 @@ const createFormActions = (props) => {
     'FormActions'
   );
 
-  // Initialize state from props with defaults
+  // Initialize state from normalized props with defaults
   const state = {
-    children: props.children,
-    align: props.align || 'right',
-    className: props.className || '',
+    children: normalizedProps.children,
+    align: normalizedProps.align || 'right',
+    className: normalizedProps.className || '',
   };
 
   // Create base component with render function
@@ -91,8 +108,11 @@ const createFormActions = (props) => {
      * @returns {Object} FormActions component for chaining
      */
     update(newProps) {
+      // Apply prop standardization to new props
+      const normalizedNewProps = migrateLegacyProps(newProps);
+
       // Update state
-      Object.assign(state, newProps);
+      Object.assign(state, normalizedNewProps);
 
       // Update component
       component.update(state);

@@ -15,7 +15,24 @@ import Typography from '../Typography/Typography.js';
  * @returns {Object} FormGroup component API
  */
 const createFormGroup = (props) => {
-  // Validate required props
+  // Migrate legacy props to standardized props
+  const migrateLegacyProps = (props) => {
+    const migrated = { ...props };
+
+    // Standardize labelPosition with defaultValue alias
+    if ('defaultValue' in props && !('labelPosition' in props)) {
+      console.warn('[FormGroup] defaultValue is being used for labelPosition');
+      migrated.labelPosition = props.defaultValue;
+      delete migrated.defaultValue;
+    }
+
+    return migrated;
+  };
+
+  // Normalize props - but keep original props for validation
+  const normalizedProps = migrateLegacyProps(props);
+
+  // Validate required props - use original props to maintain backward compatibility with tests
   validateRequiredProps(
     props,
     {
@@ -39,16 +56,16 @@ const createFormGroup = (props) => {
     'FormGroup'
   );
 
-  // Initialize state from props with defaults
+  // Initialize state from normalized props with defaults
   const state = {
-    label: props.label,
-    field: props.field,
-    helpText: props.helpText,
-    id: props.id,
-    required: props.required || false,
-    className: props.className || '',
-    labelPosition: props.labelPosition || 'top',
-    fieldType: props.fieldType || 'text',
+    label: normalizedProps.label,
+    field: normalizedProps.field,
+    helpText: normalizedProps.helpText,
+    id: normalizedProps.id,
+    required: normalizedProps.required || false,
+    className: normalizedProps.className || '',
+    labelPosition: normalizedProps.labelPosition || 'top',
+    fieldType: normalizedProps.fieldType || 'text',
   };
 
   // Reference to the field component
@@ -262,8 +279,11 @@ const createFormGroup = (props) => {
      * @returns {Object} FormGroup component for chaining
      */
     update(newProps) {
+      // Apply prop standardization to new props
+      const normalizedNewProps = migrateLegacyProps(newProps);
+
       // Update state
-      Object.assign(state, newProps);
+      Object.assign(state, normalizedNewProps);
 
       // Update component
       component.update(state);

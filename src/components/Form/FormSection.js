@@ -13,7 +13,24 @@ import { validateRequiredProps } from '../../utils/validation.js';
  * @returns {Object} FormSection component API
  */
 const createFormSection = (props) => {
-  // Validate required props
+  // Migrate legacy props to standardized props
+  const migrateLegacyProps = (props) => {
+    const migrated = { ...props };
+
+    // Example for future migrations if needed
+    // if ('sectionTitle' in props && !('title' in props)) {
+    //   console.warn('[FormSection] sectionTitle is deprecated, use title instead');
+    //   migrated.title = props.sectionTitle;
+    //   delete migrated.sectionTitle;
+    // }
+
+    return migrated;
+  };
+
+  // Normalize props - but keep original props for validation
+  const normalizedProps = migrateLegacyProps(props);
+
+  // Validate required props - use original props to maintain backward compatibility with tests
   validateRequiredProps(
     props,
     {
@@ -24,12 +41,12 @@ const createFormSection = (props) => {
     'FormSection'
   );
 
-  // Initialize state from props with defaults
+  // Initialize state from normalized props with defaults
   const state = {
-    children: props.children,
-    title: props.title,
-    description: props.description,
-    className: props.className || '',
+    children: normalizedProps.children,
+    title: normalizedProps.title,
+    description: normalizedProps.description,
+    className: normalizedProps.className || '',
   };
 
   // Create base component with render function
@@ -100,8 +117,11 @@ const createFormSection = (props) => {
      * @returns {Object} FormSection component for chaining
      */
     update(newProps) {
+      // Apply prop standardization to new props
+      const normalizedNewProps = migrateLegacyProps(newProps);
+
       // Update state
-      Object.assign(state, newProps);
+      Object.assign(state, normalizedNewProps);
 
       // Update component
       component.update(state);

@@ -16,7 +16,24 @@ import { debounce } from '../../utils/performance.js';
  * @returns {Object} Form component API
  */
 const createForm = (props) => {
-  // Validate required props
+  // Migrate legacy props to standardized props
+  const migrateLegacyProps = (props) => {
+    const migrated = { ...props };
+
+    // Add loading standardization if needed in the future
+    // if ('isLoading' in props && !('loading' in props)) {
+    //   console.warn('[Form] isLoading is deprecated, use loading instead');
+    //   migrated.loading = props.isLoading;
+    //   delete migrated.isLoading;
+    // }
+
+    return migrated;
+  };
+
+  // Normalize props - but keep original props for validation
+  const normalizedProps = migrateLegacyProps(props);
+
+  // Validate required props - use original props to maintain backward compatibility with tests
   validateRequiredProps(
     props,
     {
@@ -36,15 +53,18 @@ const createForm = (props) => {
     'Form'
   );
 
-  // Initialize state from props with defaults
+  // Initialize state from normalized props with defaults
   const state = {
-    children: props.children,
-    id: props.id,
-    className: props.className || '',
-    onSubmit: props.onSubmit,
-    onChange: props.onChange,
-    autoValidate: props.autoValidate !== undefined ? props.autoValidate : true,
-    layout: props.layout || 'vertical',
+    children: normalizedProps.children,
+    id: normalizedProps.id,
+    className: normalizedProps.className || '',
+    onSubmit: normalizedProps.onSubmit,
+    onChange: normalizedProps.onChange,
+    autoValidate:
+      normalizedProps.autoValidate !== undefined
+        ? normalizedProps.autoValidate
+        : true,
+    layout: normalizedProps.layout || 'vertical',
   };
 
   // Store registered form fields
@@ -293,8 +313,11 @@ const createForm = (props) => {
      * @returns {Object} Form component for chaining
      */
     update(newProps) {
+      // Apply prop standardization to new props
+      const normalizedNewProps = migrateLegacyProps(newProps);
+
       // Update state
-      Object.assign(state, newProps);
+      Object.assign(state, normalizedNewProps);
 
       // Update component
       component.update(state);
