@@ -41,7 +41,7 @@ class ThemeManager {
       console.log(`Theme.js: Initializing theme, using ${themeToUse}`);
 
       this.switchTheme(themeToUse);
-    } catch (e) {
+    } catch (_e) {
       // If we can't access localStorage, just use the default theme
       // But don't overwrite a potentially set theme from elsewhere
       if (!this.currentTheme) {
