@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "build": "webpack --config webpack.config.js --mode production",
+    "build:storybook": "webpack --config .storybook/webpack.config.js --mode production",
     "dev": "webpack serve --config .storybook/webpack.config.js --mode development",
     "start": "npm run dev",
     "start:prod": "node server.mjs",
