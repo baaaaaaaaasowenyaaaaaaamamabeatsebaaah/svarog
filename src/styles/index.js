@@ -10,6 +10,9 @@ import './base/05-states.css';
 import './themes/default-theme.css';
 import './themes/cabalou-theme.css';
 import './themes/muchandy-theme.css';
+import './themes/dark-theme.css';
+import './themes/light-theme.css';
+import './themes/red-theme.css';
 
 // Export theme utilities
 export * from '../utils/theme.js';

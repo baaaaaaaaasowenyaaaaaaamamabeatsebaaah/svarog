@@ -1,0 +1,477 @@
+/* src/styles/themes/red-theme.css */
+.red-theme {
+  /* Typography */
+  --font-family-primary:
+    'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-heading: var(--font-family-primary);
+  --font-family-base: var(--font-family-primary);
+  --font-family-mono: 'Fira Code', 'Courier New', monospace;
+
+  /* Colors - Brand - Red & Bold */
+  --color-brand-primary: #dc2626;
+  --color-brand-primary-light: #ef4444;
+  --color-brand-primary-dark: #b91c1c;
+  --color-brand-secondary: #1f2937;
+  --color-brand-secondary-light: #374151;
+  --color-brand-secondary-dark: #111827;
+
+  /* Base colors */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #fef2f2;
+  --color-border: #fecaca;
+  --color-gray-50: #fef2f2;
+  --color-text: #1f2937;
+  --color-text-light: #6b7280;
+  --color-text-muted: #9ca3af;
+
+  /* Component: Typography */
+  --typography-color: var(--color-text);
+  --typography-muted-color: var(--color-text-muted);
+  --typography-margin-bottom: 1.5rem;
+  --typography-h1-size: 3.5rem;
+  --typography-h2-size: 2.5rem;
+  --typography-h3-size: 2rem;
+  --typography-h4-size: 1.5rem;
+  --typography-h5-size: 1.25rem;
+  --typography-h6-size: 1.125rem;
+  --typography-body-size: 1rem;
+  --typography-small-size: 0.875rem;
+
+  /* Component: Button */
+  --button-bg: var(--color-brand-primary);
+  --button-color: #ffffff;
+  --button-border: none;
+  --button-radius: 9999px;
+  --button-hover-bg: var(--color-brand-primary-dark);
+  --button-hover-border-color: transparent;
+  --button-hover-color: #ffffff;
+  --button-hover-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.25);
+  --button-hover-transform: scale(1.05);
+  --button-active-bg: #991b1b;
+  --button-active-border-color: transparent;
+  --button-active-transform: scale(0.98);
+  --button-active-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.2);
+  --button-disabled-bg: #fecaca;
+  --button-disabled-border-color: transparent;
+  --button-disabled-color: #f87171;
+  --button-disabled-opacity: 1;
+  --button-padding: 0.75rem 2rem;
+  --button-font-size: 1rem;
+  --button-font-family: var(--font-family-primary);
+  --button-font-weight: 600;
+  --button-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --button-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.2);
+  --button-focus-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+
+  /* Primary variant */
+  --button-primary-bg: var(--color-brand-primary);
+  --button-primary-color: #ffffff;
+  --button-primary-border-color: transparent;
+  --button-primary-hover-bg: var(--color-brand-primary-dark);
+  --button-primary-hover-border-color: transparent;
+  --button-primary-hover-color: #ffffff;
+  --button-primary-active-bg: #991b1b;
+  --button-primary-active-border-color: transparent;
+
+  /* Secondary variant */
+  --button-secondary-bg: var(--color-brand-secondary);
+  --button-secondary-color: #ffffff;
+  --button-secondary-border-color: transparent;
+  --button-secondary-hover-bg: var(--color-brand-secondary-dark);
+  --button-secondary-hover-border-color: transparent;
+  --button-secondary-hover-color: #ffffff;
+  --button-secondary-active-bg: #030712;
+  --button-secondary-active-border-color: transparent;
+
+  /* Text variant */
+  --button-text-color: var(--color-brand-primary);
+  --button-text-hover-color: var(--color-brand-primary-dark);
+  --button-text-padding: 0.75rem 1rem;
+
+  /* Small button styles */
+  --button-padding-sm: 0.5rem 1.25rem;
+  --button-font-size-sm: 0.875rem;
+  --button-radius-sm: 9999px;
+  --button-icon-size-sm: 1.125rem;
+
+  /* Large button styles */
+  --button-padding-lg: 1rem 2.5rem;
+  --button-font-size-lg: 1.125rem;
+  --button-radius-lg: 9999px;
+  --button-icon-size-lg: 1.5rem;
+
+  /* Icon button styles */
+  --button-icon-margin: 0.625rem;
+  --button-icon-padding: 0.875rem;
+  --button-icon-radius: 50%;
+  --button-icon-size: 1.375rem;
+
+  /* Outlined button styles */
+  --button-outlined-color: var(--color-brand-primary);
+  --button-outlined-border-color: var(--color-brand-primary);
+  --button-outlined-hover-bg: rgba(220, 38, 38, 0.05);
+  --button-outlined-hover-color: var(--color-brand-primary-dark);
+  --button-outlined-hover-border-color: var(--color-brand-primary-dark);
+
+  /* Success button styles */
+  --button-success-bg: #059669;
+  --button-success-color: #ffffff;
+  --button-success-border-color: transparent;
+  --button-success-hover-bg: #047857;
+  --button-success-hover-border-color: transparent;
+  --button-success-hover-color: #ffffff;
+
+  /* Danger button styles */
+  --button-danger-bg: #1f2937;
+  --button-danger-color: #ffffff;
+  --button-danger-border-color: transparent;
+  --button-danger-hover-bg: #111827;
+  --button-danger-hover-border-color: transparent;
+  --button-danger-hover-color: #ffffff;
+
+  /* Component: Link */
+  --link-color: var(--color-brand-primary);
+  --link-hover-color: var(--color-brand-primary-dark);
+  --link-active-color: #991b1b;
+  --link-margin-left: 0;
+  --link-margin-right: 0;
+  --link-font-family: var(--font-family-primary);
+  --link-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Component: Card */
+  --card-bg: #ffffff;
+  --card-color: var(--color-text);
+  --card-radius: 1rem;
+  --card-border: 2px solid transparent;
+  --card-border-color: transparent;
+  --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --card-hover-border-color: var(--color-brand-primary);
+  --card-hover-shadow: 0 25px 50px -12px rgba(220, 38, 38, 0.25);
+  --card-title-padding: 2rem;
+  --card-title-font-size: 1.5rem;
+  --card-title-font-weight: 700;
+  --card-title-border: none;
+  --card-content-padding: 2rem;
+  --card-footer-padding: 2rem;
+  --card-footer-bg: #fef2f2;
+  --card-footer-border: none;
+  --card-footer-font-size: 0.875rem;
+  --card-title-padding-mobile: 1.5rem;
+  --card-content-padding-mobile: 1.5rem;
+  --card-footer-padding-mobile: 1.5rem;
+
+  /* Component: Input */
+  --input-bg: #ffffff;
+  --input-color: var(--color-text);
+  --input-border: 2px solid #fecaca;
+  --input-radius: 0.75rem;
+  --input-padding: 0.75rem 1rem;
+  --input-font-size: 1rem;
+  --input-font-family: var(--font-family-primary);
+  --input-shadow: none;
+  --input-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --input-placeholder-color: #f87171;
+  --input-focus-border-color: var(--color-brand-primary);
+  --input-focus-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  --input-disabled-bg: #fef2f2;
+  --input-disabled-opacity: 0.6;
+  --input-valid-border-color: #059669;
+  --input-valid-color: #059669;
+  --input-invalid-border-color: #7f1d1d;
+  --input-validation-color: #7f1d1d;
+  --input-validation-font-size: 0.875rem;
+  --input-margin-bottom: 1.5rem;
+  --input-mobile-font-size: 16px;
+  --input-mobile-padding: 0.75rem 1rem;
+
+  /* Component: Select */
+  --select-bg: #ffffff;
+  --select-color: var(--color-text);
+  --select-border: 2px solid #fecaca;
+  --select-radius: 0.75rem;
+  --select-padding: 0.75rem 1rem;
+  --select-font-size: 1rem;
+  --select-font-family: var(--font-family-primary);
+  --select-shadow: none;
+  --select-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --select-option-color: var(--color-text);
+  --select-option-bg: #ffffff;
+  --select-option-disabled-color: #f87171;
+  --select-focus-border-color: var(--color-brand-primary);
+  --select-focus-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  --select-disabled-bg: #fef2f2;
+  --select-disabled-opacity: 0.6;
+  --select-valid-border-color: #059669;
+  --select-valid-color: #059669;
+  --select-invalid-border-color: #7f1d1d;
+  --select-validation-color: #7f1d1d;
+  --select-validation-font-size: 0.875rem;
+  --select-margin-bottom: 1.5rem;
+  --select-mobile-font-size: 16px;
+  --select-mobile-padding: 0.75rem 1rem;
+  --select-multiple-padding: 0.5rem;
+  --select-option-padding: 0.625rem 1rem;
+  --select-option-margin: 0.25rem 0;
+
+  /* Component: Checkbox */
+  --checkbox-bg: #ffffff;
+  --checkbox-border: 2px solid var(--color-brand-primary);
+  --checkbox-radius: 0.375rem;
+  --checkbox-size: 1.25rem;
+  --checkbox-color: var(--color-text);
+  --checkbox-indicator-margin: 0.75rem;
+  --checkbox-font-size: 1rem;
+  --checkbox-font-family: var(--font-family-primary);
+  --checkbox-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --checkbox-padding: 0;
+  --checkbox-hover-border-color: var(--color-brand-primary-dark);
+  --checkbox-checked-bg: var(--color-brand-primary);
+  --checkbox-checked-border-color: var(--color-brand-primary);
+  --checkbox-focus-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+  --checkbox-disabled-bg: #fef2f2;
+  --checkbox-disabled-border-color: #fecaca;
+  --checkbox-disabled-color: #f87171;
+  --checkbox-valid-border-color: #059669;
+  --checkbox-valid-color: #059669;
+  --checkbox-invalid-border-color: #7f1d1d;
+  --checkbox-validation-color: #7f1d1d;
+  --checkbox-validation-font-size: 0.875rem;
+  --checkbox-margin-bottom: 1.25rem;
+  --checkbox-indicator-width: 4px;
+  --checkbox-indicator-height: 10px;
+  --checkbox-required-color: #7f1d1d;
+  --checkbox-indeterminate-bg: var(--color-brand-primary);
+  --checkbox-indeterminate-border-color: var(--color-brand-primary);
+  --checkbox-indeterminate-width: 10px;
+  --checkbox-indeterminate-height: 2px;
+
+  /* Component: Radio */
+  --radio-bg: #ffffff;
+  --radio-border: 2px solid var(--color-brand-primary);
+  --radio-size: 1.25rem;
+  --radio-inner-size: 0.625rem;
+  --radio-color: var(--color-text);
+  --radio-indicator-margin: 0.75rem;
+  --radio-font-size: 1rem;
+  --radio-font-family: var(--font-family-primary);
+  --radio-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --radio-padding: 0;
+  --radio-hover-border-color: var(--color-brand-primary-dark);
+  --radio-checked-color: var(--color-brand-primary);
+  --radio-checked-border-color: var(--color-brand-primary);
+  --radio-focus-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+  --radio-disabled-bg: #fef2f2;
+  --radio-disabled-border-color: #fecaca;
+  --radio-disabled-color: #f87171;
+  --radio-disabled-checked-color: #fecaca;
+  --radio-margin-bottom: 1.25rem;
+  --radio-required-color: #7f1d1d;
+
+  /* Component: Radio Group */
+  --radio-group-margin-bottom: 1.5rem;
+  --radio-group-padding: 1rem;
+  --radio-group-border: 2px solid #fecaca;
+  --radio-group-radius: 0.75rem;
+  --radio-group-legend-font-size: 1rem;
+  --radio-group-legend-color: var(--color-text);
+  --radio-group-font-family: var(--font-family-primary);
+  --radio-group-legend-font-weight: 600;
+  --radio-group-legend-padding: 0 0.5rem;
+  --radio-group-legend-margin-bottom: 1rem;
+  --radio-group-required-color: #7f1d1d;
+  --radio-group-gap: 1rem;
+  --radio-group-valid-border-color: #059669;
+  --radio-group-invalid-border-color: #7f1d1d;
+  --radio-group-validation-color: #7f1d1d;
+  --radio-group-validation-font-size: 0.875rem;
+  --radio-group-disabled-opacity: 0.6;
+  --radio-group-disabled-bg: #fef2f2;
+
+  /* Component: Form Group */
+  --form-group-margin-bottom: 1.5rem;
+  --form-group-label-font-size: 1rem;
+  --form-group-label-color: var(--color-text);
+  --form-group-font-family: var(--font-family-primary);
+  --form-group-label-font-weight: 600;
+  --form-group-label-margin-bottom: 0.75rem;
+  --form-group-required-color: var(--color-brand-primary);
+  --form-group-help-font-size: 0.875rem;
+  --form-group-help-color: #6b7280;
+  --form-group-label-margin-right: 1.5rem;
+  --form-group-label-margin-left: 1.5rem;
+  --form-group-label-width: 30%;
+
+  /* Component: Form */
+  --form-label-width: 30%;
+  --form-section-margin-bottom: 3rem;
+  --form-section-title-font-size: 1.75rem;
+  --form-section-title-color: var(--color-brand-primary);
+  --form-section-title-font-weight: 700;
+  --form-section-title-margin-bottom: 1.5rem;
+  --form-section-title-border: none;
+  --form-section-description-font-size: 1rem;
+  --form-section-description-color: #6b7280;
+  --form-section-description-margin-bottom: 1.5rem;
+  --form-actions-gap: 1rem;
+  --form-actions-margin-top: 2.5rem;
+  --form-actions-justify: flex-end;
+
+  /* Component: Navigation */
+  --nav-bg: #ffffff;
+  --nav-border-bottom: 3px solid var(--color-brand-primary);
+  --nav-dropdown-bg: #ffffff;
+  --nav-dropdown-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --nav-padding: 0 2rem;
+  --nav-margin-right: 0;
+  --nav-font-size: 1rem;
+  --nav-line-height: 1.5;
+  --nav-active-font-weight: 700;
+  --nav-focus-shadow: none;
+  --nav-item-spacing: 2.5rem;
+  --nav-item-spacing-vertical: 1rem;
+  --nav-submenu-indent: 1.5rem;
+  --nav-link-color: var(--color-text);
+  --nav-link-hover-color: var(--color-brand-primary);
+  --nav-link-active-color: var(--color-brand-primary);
+  --nav-link-font-size: 1rem;
+  --nav-link-padding: 0.75rem 1rem;
+  --nav-link-radius: 0.5rem;
+  --nav-link-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --nav-burger-font-size: 1.5rem;
+  --nav-burger-color: var(--color-brand-primary);
+  --nav-burger-size: 1.5rem;
+  --nav-burger-margin-bottom: 0;
+  --nav-dropdown-border: 2px solid #fecaca;
+  --nav-dropdown-link-padding: 0.75rem 1.25rem;
+  --nav-dropdown-padding: 0.75rem;
+  --nav-dropdown-radius: 0.75rem;
+  --nav-padding-mobile: 1rem;
+  --nav-mobile-bg: #ffffff;
+  --nav-mobile-item-border: 2px solid #fecaca;
+  --nav-mobile-link-padding: 1.25rem;
+  --nav-mobile-max-height: calc(100vh - 5rem);
+  --nav-mobile-padding: 0;
+  --nav-mobile-radius: 0;
+  --nav-mobile-shadow: inset 0 3px 0 0 var(--color-brand-primary);
+  --nav-mobile-submenu-bg: #fef2f2;
+  --nav-mobile-active-bg: #fee2e2;
+  --nav-mobile-hover-bg: #fef2f2;
+
+  /* Component: Section */
+  --section-bg: #ffffff;
+  --section-color: var(--color-text);
+  --section-padding: 5rem 2.5rem;
+  --section-gap: 2rem;
+  --section-content-max-width: 80rem;
+  --section-padding-tablet: 4rem 2rem;
+  --section-gap-tablet: 1.5rem;
+  --section-padding-mobile: 3rem 1.5rem;
+  --section-bg-minor: #fef2f2;
+  --section-color-minor: #991b1b;
+
+  /* Component: Logo */
+  --logo-width: auto;
+  --logo-height: 3rem;
+  --logo-height-tablet: 2.5rem;
+  --logo-hover-opacity: 0.8;
+  --logo-max-height: 4rem;
+  --logo-max-width: 15rem;
+  --logo-width-tablet: auto;
+
+  /* ContactInfo Component */
+  --contact-info-gap: 1.5rem;
+  --contact-info-item-gap: 0.75rem;
+  --contact-info-mobile-gap: 0.75rem;
+  --contact-info-color: var(--color-text);
+  --contact-info-hover-color: var(--color-brand-primary);
+  --contact-info-font-size: 1rem;
+  --contact-info-icon-size: 1.25rem;
+
+  /* StickyContactIcons Variables */
+  --sticky-contact-icons-right: 2.5rem;
+  --sticky-contact-icons-gap: 1.25rem;
+  --sticky-contact-icons-padding: 1.25rem;
+  --sticky-contact-icons-bg: var(--color-brand-primary);
+  --sticky-contact-icons-radius: 50%;
+  --sticky-contact-icons-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.25);
+  --sticky-contact-icons-size: 3.5rem;
+  --sticky-contact-icons-color: #ffffff;
+  --sticky-contact-icons-hover-color: #fef2f2;
+  --sticky-contact-icons-icon-size: 1.75rem;
+  --sticky-contact-icons-mobile-right: 1.25rem;
+  --sticky-contact-icons-mobile-bottom: 1.25rem;
+  --sticky-contact-icons-mobile-size: 3rem;
+  --sticky-contact-icons-mobile-icon-size: 1.5rem;
+
+  /* Component: Header */
+  --header-bg: #ffffff;
+  --header-bg-scrolled: rgba(255, 255, 255, 0.98);
+  --header-branding-gap: 1.5rem;
+  --header-color: var(--color-text);
+  --header-height: 5rem;
+  --header-height-mobile: 4rem;
+  --header-max-width: 100%;
+  --header-padding: 0 2.5rem;
+  --header-padding-mobile: 0 1.5rem;
+  --header-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --header-shadow-scrolled: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --header-title-size: 1.5rem;
+  --header-title-size-mobile: 1.25rem;
+  --header-title-weight: 700;
+  --header-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --header-transparent-color: var(--color-text);
+  --header-z-index: 50;
+
+  /* Component: CollapsibleHeader */
+  --collapsible-header-collapsed-height: 5rem;
+  --collapsible-header-contact-bg: #fef2f2;
+  --collapsible-header-contact-transition: all 300ms
+    cubic-bezier(0.4, 0, 0.2, 1);
+  --collapsible-header-height: 8rem;
+  --collapsible-header-logo-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --collapsible-header-mobile-height: 4rem;
+  --collapsible-header-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --collapsible-header-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Component: Footer */
+  --footer-bg: var(--color-brand-secondary);
+  --footer-text: #e5e7eb;
+  --footer-link-hover: #ffffff;
+
+  /* Component: PriceDisplay */
+  --price-display-bg: rgba(220, 38, 38, 0.05);
+  --price-display-border: 2px solid var(--color-brand-primary);
+  --price-display-color: var(--color-brand-primary);
+
+  /* Additional Variables */
+  --color-yellow: #fbbf24;
+  --transition-duration: 300ms;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius: 0.75rem;
+  --border-radius-default: 0.75rem;
+  --box-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Red theme specific enhancements */
+.red-theme .card {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.red-theme .card:hover {
+  transform: translateY(-8px) rotate(-1deg);
+}
+
+.red-theme h1,
+.red-theme h2,
+.red-theme h3,
+.red-theme h4,
+.red-theme h5,
+.red-theme h6 {
+  color: var(--color-text);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.red-theme h1 {
+  color: var(--color-brand-primary);
+}

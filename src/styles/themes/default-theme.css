@@ -3,478 +3,483 @@
   /* Typography - use base variables */
   --font-family-primary: var(--font-family-primary);
   --font-family-heading: var(--font-family-primary);
+  --font-family-base: var(--font-family-primary);
+  --font-family-mono: 'Roboto Mono', monospace;
 
-  /* Colors - Brand - define theme colors */
-  --color-brand-primary: var(--color-primary);
-  --color-brand-primary-light: var(--color-primary-light);
-  --color-brand-primary-dark: var(--color-primary-dark);
-  --color-brand-secondary: var(--color-secondary);
-  --color-brand-secondary-light: var(--color-secondary-light);
-  --color-brand-secondary-dark: var(--color-secondary-dark);
+  /* Colors - Brand - Material UI Blue */
+  --color-brand-primary: #2196f3;
+  --color-brand-primary-light: #64b5f6;
+  --color-brand-primary-dark: #1976d2;
+  --color-brand-secondary: #ff5722;
+  --color-brand-secondary-light: #ff8a65;
+  --color-brand-secondary-dark: #e64a19;
+
+  /* Colors - Background */
+  --color-bg-secondary: #fafafa;
+  --color-border: #e0e0e0;
+  --color-gray-50: #fafafa;
+
+  /* Component: Typography */
+  --typography-color: var(--color-text);
+  --typography-muted-color: var(--color-text-light);
+  --typography-margin-bottom: var(--space-4);
+  --typography-h1-size: var(--font-size-6xl);
+  --typography-h2-size: var(--font-size-4xl);
+  --typography-h3-size: var(--font-size-3xl);
+  --typography-h4-size: var(--font-size-2xl);
+  --typography-h5-size: var(--font-size-xl);
+  --typography-h6-size: var(--font-size-lg);
+  --typography-body-size: var(--font-size-base);
+  --typography-small-size: var(--font-size-sm);
 
   /* Component: Button */
-  --button-bg: var(--color-primary);
+  --button-bg: var(--color-brand-primary);
   --button-color: var(--color-text-white);
-  --button-border: 1px solid var(--color-primary);
-  --button-radius: var(--border-radius-md);
-  --button-hover-bg: var(--color-primary-dark);
-  --button-hover-border-color: var(--color-primary-dark);
+  --button-border: none;
+  --button-radius: 4px;
+  --button-hover-bg: var(--color-brand-primary-dark);
+  --button-hover-border-color: transparent;
   --button-hover-color: var(--color-text-white);
-  --button-active-bg: var(--color-primary-dark);
-  --button-active-border-color: var(--color-primary-dark);
-  --button-active-transform: translateY(1px);
-  --button-disabled-bg: var(--color-gray-400);
-  --button-disabled-border-color: var(--color-gray-400);
-  --button-disabled-color: var(--color-text-white);
-  --button-disabled-opacity: 0.65;
-  --button-padding: var(--space-2) var(--space-4);
-  --button-font-size: var(--font-size-sm);
+  --button-hover-shadow:
+    0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
+  --button-hover-transform: translateY(-1px);
+  --button-active-bg: var(--color-brand-primary-dark);
+  --button-active-border-color: transparent;
+  --button-active-transform: translateY(0);
+  --button-active-shadow:
+    0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14);
+  --button-disabled-bg: rgba(0, 0, 0, 0.12);
+  --button-disabled-border-color: transparent;
+  --button-disabled-color: rgba(0, 0, 0, 0.26);
+  --button-disabled-opacity: 1;
+  --button-padding: 6px 16px;
+  --button-font-size: 0.875rem;
   --button-font-family: var(--font-family-primary);
-  --button-font-weight: var(--font-weight-medium);
-  --button-transition: var(--transition-normal);
-  --button-shadow: var(--shadow-sm);
-  --button-focus-shadow: 0 0 0 3px rgba(49, 130, 206, 0.25);
+  --button-font-weight: 500;
+  --button-transition:
+    background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --button-shadow:
+    0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  --button-focus-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
 
   /* Primary variant */
-  --button-primary-bg: var(--color-primary);
+  --button-primary-bg: var(--color-brand-primary);
   --button-primary-color: var(--color-text-white);
-  --button-primary-border-color: var(--color-primary);
-  --button-primary-hover-bg: var(--color-primary-dark);
-  --button-primary-hover-border-color: var(--color-primary-dark);
-  --button-primary-active-bg: var(--color-primary-dark);
-  --button-primary-active-border-color: var(--color-primary-dark);
+  --button-primary-border-color: transparent;
+  --button-primary-hover-bg: var(--color-brand-primary-dark);
+  --button-primary-hover-border-color: transparent;
+  --button-primary-hover-color: var(--color-text-white);
+  --button-primary-active-bg: var(--color-brand-primary-dark);
+  --button-primary-active-border-color: transparent;
 
   /* Secondary variant */
-  --button-secondary-bg: var(--color-secondary);
+  --button-secondary-bg: var(--color-brand-secondary);
   --button-secondary-color: var(--color-text-white);
-  --button-secondary-border-color: var(--color-secondary);
-  --button-secondary-hover-bg: var(--color-secondary-dark);
-  --button-secondary-hover-border-color: var(--color-secondary-dark);
-  --button-secondary-active-bg: var(--color-secondary-dark);
-  --button-secondary-active-border-color: var(--color-secondary-dark);
+  --button-secondary-border-color: transparent;
+  --button-secondary-hover-bg: var(--color-brand-secondary-dark);
+  --button-secondary-hover-border-color: transparent;
+  --button-secondary-hover-color: var(--color-text-white);
+  --button-secondary-active-bg: var(--color-brand-secondary-dark);
+  --button-secondary-active-border-color: transparent;
 
   /* Text variant */
-  --button-text-color: var(--color-primary);
-  --button-text-hover-color: var(--color-primary-dark);
-  --button-text-padding: 0;
+  --button-text-color: var(--color-brand-primary);
+  --button-text-hover-color: var(--color-brand-primary-dark);
+  --button-text-padding: 6px 8px;
+
+  /* Small button styles */
+  --button-padding-sm: 4px 10px;
+  --button-font-size-sm: 0.8125rem;
+  --button-radius-sm: 4px;
+  --button-icon-size-sm: 18px;
+
+  /* Large button styles */
+  --button-padding-lg: 8px 22px;
+  --button-font-size-lg: 0.9375rem;
+  --button-radius-lg: 4px;
+  --button-icon-size-lg: 22px;
+
+  /* Icon button styles */
+  --button-icon-margin: 8px;
+  --button-icon-padding: 12px;
+  --button-icon-radius: 50%;
+  --button-icon-size: 24px;
+
+  /* Outlined button styles */
+  --button-outlined-color: var(--color-brand-primary);
+  --button-outlined-border-color: rgba(33, 150, 243, 0.5);
+  --button-outlined-hover-bg: rgba(33, 150, 243, 0.08);
+  --button-outlined-hover-color: var(--color-brand-primary);
+  --button-outlined-hover-border-color: var(--color-brand-primary);
+
+  /* Success button styles */
+  --button-success-bg: #4caf50;
+  --button-success-color: var(--color-text-white);
+  --button-success-border-color: transparent;
+  --button-success-hover-bg: #388e3c;
+  --button-success-hover-border-color: transparent;
+  --button-success-hover-color: var(--color-text-white);
+
+  /* Danger button styles */
+  --button-danger-bg: #f44336;
+  --button-danger-color: var(--color-text-white);
+  --button-danger-border-color: transparent;
+  --button-danger-hover-bg: #d32f2f;
+  --button-danger-hover-border-color: transparent;
+  --button-danger-hover-color: var(--color-text-white);
 
   /* Component: Link */
-  --link-color: var(--color-primary);
-  --link-hover-color: var(--color-primary-dark);
-  --link-active-color: var(--color-primary-dark);
+  --link-color: var(--color-brand-primary);
+  --link-hover-color: var(--color-brand-primary-dark);
+  --link-active-color: var(--color-brand-primary-dark);
   --link-margin-left: 0;
   --link-margin-right: var(--space-1);
   --link-font-family: var(--font-family-primary);
-  --link-transition: var(--transition-fast);
+  --link-transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Component: Card */
   --card-bg: var(--color-white);
   --card-color: var(--color-text);
-  --card-radius: var(--border-radius-md);
-  --card-border: 1px solid var(--color-gray-200);
-  --card-border-color: var(--color-gray-200);
-  --card-shadow: var(--shadow-md);
-  --card-hover-border-color: var(--color-primary-light);
-  --card-hover-shadow: var(--shadow-lg);
-  --card-title-padding: var(--space-4);
-  --card-title-font-size: var(--font-size-xl);
-  --card-title-font-weight: var(--font-weight-bold);
-  --card-title-border: 1px solid var(--color-gray-200);
-  --card-content-padding: var(--space-4);
-  --card-footer-padding: var(--space-3) var(--space-4);
-  --card-footer-bg: var(--color-gray-100);
-  --card-footer-border: 1px solid var(--color-gray-200);
-  --card-footer-font-size: var(--font-size-sm);
-  --card-title-padding-mobile: var(--space-3);
-  --card-content-padding-mobile: var(--space-3);
-  --card-footer-padding-mobile: var(--space-2) var(--space-3);
+  --card-radius: 4px;
+  --card-border: none;
+  --card-border-color: transparent;
+  --card-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  --card-hover-border-color: transparent;
+  --card-hover-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.12);
+  --card-title-padding: 16px;
+  --card-title-font-size: 1.25rem;
+  --card-title-font-weight: 500;
+  --card-title-border: none;
+  --card-content-padding: 16px;
+  --card-footer-padding: 8px;
+  --card-footer-bg: transparent;
+  --card-footer-border: none;
+  --card-footer-font-size: 0.875rem;
+  --card-title-padding-mobile: 16px;
+  --card-content-padding-mobile: 16px;
+  --card-footer-padding-mobile: 8px;
 
   /* Component: Input */
   --input-bg: var(--color-bg);
   --input-color: var(--color-text);
-  --input-border: 1px solid var(--color-gray-400);
-  --input-radius: var(--border-radius-md);
-  --input-padding: var(--space-2) var(--space-3);
-  --input-font-size: var(--font-size-base);
+  --input-border: none;
+  --input-border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+  --input-radius: 4px 4px 0 0;
+  --input-padding: 4px 0 5px;
+  --input-font-size: 1rem;
   --input-font-family: var(--font-family-primary);
   --input-shadow: none;
-  --input-transition: all 0.2s ease-in-out;
-  --input-placeholder-color: var(--color-gray-500);
-  --input-focus-border-color: var(--color-primary);
-  --input-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  --input-disabled-bg: var(--color-gray-200);
-  --input-disabled-opacity: 0.6;
-  --input-valid-border-color: var(--color-success);
-  --input-invalid-border-color: var(--color-danger);
-  --input-validation-color: var(--color-danger);
-  --input-validation-font-size: var(--font-size-sm);
-  --input-margin-bottom: var(--space-4);
+  --input-transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --input-placeholder-color: rgba(0, 0, 0, 0.54);
+  --input-focus-border-color: var(--color-brand-primary);
+  --input-focus-shadow: none;
+  --input-disabled-bg: transparent;
+  --input-disabled-opacity: 0.38;
+  --input-valid-border-color: #4caf50;
+  --input-valid-color: #4caf50;
+  --input-invalid-border-color: #f44336;
+  --input-validation-color: #f44336;
+  --input-validation-font-size: 0.75rem;
+  --input-margin-bottom: 16px;
   --input-mobile-font-size: 16px;
-  --input-mobile-padding: var(--space-2);
+  --input-mobile-padding: 4px 0 5px;
 
   /* Component: Select */
   --select-bg: var(--color-bg);
   --select-color: var(--color-text);
-  --select-border: 1px solid var(--color-gray-400);
-  --select-radius: var(--border-radius-md);
-  --select-padding: var(--space-2) var(--space-3);
-  --select-font-size: var(--font-size-base);
+  --select-border: none;
+  --select-border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+  --select-radius: 4px 4px 0 0;
+  --select-padding: 4px 0 5px;
+  --select-font-size: 1rem;
   --select-font-family: var(--font-family-primary);
   --select-shadow: none;
-  --select-transition: all 0.2s ease-in-out;
+  --select-transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --select-option-color: var(--color-text);
   --select-option-bg: var(--color-bg);
-  --select-option-disabled-color: var(--color-gray-500);
-  --select-focus-border-color: var(--color-primary);
-  --select-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  --select-disabled-bg: var(--color-gray-200);
-  --select-disabled-opacity: 0.6;
-  --select-valid-border-color: var(--color-success);
-  --select-invalid-border-color: var(--color-danger);
-  --select-validation-color: var(--color-danger);
-  --select-validation-font-size: var(--font-size-sm);
-  --select-margin-bottom: var(--space-4);
+  --select-option-disabled-color: rgba(0, 0, 0, 0.38);
+  --select-focus-border-color: var(--color-brand-primary);
+  --select-focus-shadow: none;
+  --select-disabled-bg: transparent;
+  --select-disabled-opacity: 0.38;
+  --select-valid-border-color: #4caf50;
+  --select-valid-color: #4caf50;
+  --select-invalid-border-color: #f44336;
+  --select-validation-color: #f44336;
+  --select-validation-font-size: 0.75rem;
+  --select-margin-bottom: 16px;
   --select-mobile-font-size: 16px;
-  --select-mobile-padding: var(--space-2);
-  --select-multiple-padding: var(--space-1);
-  --select-option-padding: var(--space-1) var(--space-2);
-  --select-option-margin: 2px 0;
+  --select-mobile-padding: 4px 0 5px;
+  --select-multiple-padding: 4px 0;
+  --select-option-padding: 6px 16px;
+  --select-option-margin: 0;
 
   /* Component: Checkbox */
-  --checkbox-bg: var(--color-bg);
-  --checkbox-border: 1px solid var(--color-gray-400);
-  --checkbox-radius: var(--border-radius-sm);
-  --checkbox-size: 20px;
+  --checkbox-bg: transparent;
+  --checkbox-border: 2px solid rgba(0, 0, 0, 0.54);
+  --checkbox-radius: 2px;
+  --checkbox-size: 18px;
   --checkbox-color: var(--color-text);
-  --checkbox-indicator-margin: var(--space-2);
-  --checkbox-font-size: var(--font-size-base);
+  --checkbox-indicator-margin: 8px;
+  --checkbox-font-size: 1rem;
   --checkbox-font-family: var(--font-family-primary);
-  --checkbox-transition: all 0.2s ease-in-out;
-  --checkbox-padding: var(--space-1);
-  --checkbox-hover-border-color: var(--color-gray-600);
-  --checkbox-checked-bg: var(--color-primary);
-  --checkbox-checked-border-color: var(--color-primary);
-  --checkbox-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  --checkbox-disabled-bg: var(--color-gray-200);
-  --checkbox-disabled-border-color: var(--color-gray-300);
-  --checkbox-disabled-color: var(--color-gray-600);
-  --checkbox-valid-border-color: var(--color-success);
-  --checkbox-invalid-border-color: var(--color-danger);
-  --checkbox-validation-color: var(--color-danger);
-  --checkbox-validation-font-size: var(--font-size-sm);
-  --checkbox-margin-bottom: var(--space-3);
-  --checkbox-indicator-width: 6px;
-  --checkbox-indicator-height: 10px;
-  --checkbox-required-color: var(--color-danger);
-  --checkbox-indeterminate-bg: var(--color-primary);
-  --checkbox-indeterminate-border-color: var(--color-primary);
+  --checkbox-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --checkbox-padding: 0;
+  --checkbox-hover-border-color: rgba(0, 0, 0, 0.87);
+  --checkbox-checked-bg: var(--color-brand-primary);
+  --checkbox-checked-border-color: var(--color-brand-primary);
+  --checkbox-focus-shadow: 0 0 0 8px rgba(33, 150, 243, 0.16);
+  --checkbox-disabled-bg: transparent;
+  --checkbox-disabled-border-color: rgba(0, 0, 0, 0.26);
+  --checkbox-disabled-color: rgba(0, 0, 0, 0.26);
+  --checkbox-valid-border-color: #4caf50;
+  --checkbox-valid-color: #4caf50;
+  --checkbox-invalid-border-color: #f44336;
+  --checkbox-validation-color: #f44336;
+  --checkbox-validation-font-size: 0.75rem;
+  --checkbox-margin-bottom: 12px;
+  --checkbox-indicator-width: 4px;
+  --checkbox-indicator-height: 9px;
+  --checkbox-required-color: #f44336;
+  --checkbox-indeterminate-bg: var(--color-brand-primary);
+  --checkbox-indeterminate-border-color: var(--color-brand-primary);
   --checkbox-indeterminate-width: 10px;
   --checkbox-indeterminate-height: 2px;
 
   /* Component: Radio */
-  --radio-bg: var(--color-bg);
-  --radio-border: 1px solid var(--color-gray-400);
+  --radio-bg: transparent;
+  --radio-border: 2px solid rgba(0, 0, 0, 0.54);
   --radio-size: 20px;
   --radio-inner-size: 10px;
   --radio-color: var(--color-text);
-  --radio-indicator-margin: var(--space-2);
-  --radio-font-size: var(--font-size-base);
+  --radio-indicator-margin: 8px;
+  --radio-font-size: 1rem;
   --radio-font-family: var(--font-family-primary);
-  --radio-transition: all 0.2s ease-in-out;
-  --radio-padding: var(--space-1);
-  --radio-hover-border-color: var(--color-gray-600);
-  --radio-checked-color: var(--color-primary);
-  --radio-checked-border-color: var(--color-primary);
-  --radio-focus-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  --radio-disabled-bg: var(--color-gray-200);
-  --radio-disabled-border-color: var(--color-gray-300);
-  --radio-disabled-color: var(--color-gray-600);
-  --radio-disabled-checked-color: var(--color-gray-500);
-  --radio-margin-bottom: var(--space-3);
-  --radio-required-color: var(--color-danger);
+  --radio-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --radio-padding: 0;
+  --radio-hover-border-color: rgba(0, 0, 0, 0.87);
+  --radio-checked-color: var(--color-brand-primary);
+  --radio-checked-border-color: var(--color-brand-primary);
+  --radio-focus-shadow: 0 0 0 8px rgba(33, 150, 243, 0.16);
+  --radio-disabled-bg: transparent;
+  --radio-disabled-border-color: rgba(0, 0, 0, 0.26);
+  --radio-disabled-color: rgba(0, 0, 0, 0.26);
+  --radio-disabled-checked-color: rgba(0, 0, 0, 0.26);
+  --radio-margin-bottom: 12px;
+  --radio-required-color: #f44336;
 
   /* Component: Radio Group */
-  --radio-group-margin-bottom: var(--space-4);
-  --radio-group-padding: var(--space-2);
-  --radio-group-border: 1px solid var(--color-gray-300);
-  --radio-group-radius: var(--border-radius-md);
-  --radio-group-legend-font-size: var(--font-size-base);
-  --radio-group-legend-color: var(--color-text);
+  --radio-group-margin-bottom: 16px;
+  --radio-group-padding: 8px;
+  --radio-group-border: none;
+  --radio-group-radius: 4px;
+  --radio-group-legend-font-size: 0.75rem;
+  --radio-group-legend-color: rgba(0, 0, 0, 0.54);
   --radio-group-font-family: var(--font-family-primary);
-  --radio-group-legend-font-weight: var(--font-weight-medium);
-  --radio-group-legend-padding: 0 var(--space-2);
-  --radio-group-legend-margin-bottom: var(--space-2);
-  --radio-group-required-color: var(--color-danger);
-  --radio-group-gap: var(--space-2);
-  --radio-group-valid-border-color: var(--color-success);
-  --radio-group-invalid-border-color: var(--color-danger);
-  --radio-group-validation-color: var(--color-danger);
-  --radio-group-validation-font-size: var(--font-size-sm);
-  --radio-group-disabled-opacity: 0.7;
-  --radio-group-disabled-bg: var(--color-gray-100);
+  --radio-group-legend-font-weight: 400;
+  --radio-group-legend-padding: 0;
+  --radio-group-legend-margin-bottom: 8px;
+  --radio-group-required-color: #f44336;
+  --radio-group-gap: 8px;
+  --radio-group-valid-border-color: #4caf50;
+  --radio-group-invalid-border-color: #f44336;
+  --radio-group-validation-color: #f44336;
+  --radio-group-validation-font-size: 0.75rem;
+  --radio-group-disabled-opacity: 0.38;
+  --radio-group-disabled-bg: transparent;
 
   /* Component: Form Group */
-  --form-group-margin-bottom: var(--space-4);
-  --form-group-label-font-size: var(--font-size-base);
-  --form-group-label-color: var(--color-text);
+  --form-group-margin-bottom: 16px;
+  --form-group-label-font-size: 0.75rem;
+  --form-group-label-color: rgba(0, 0, 0, 0.54);
   --form-group-font-family: var(--font-family-primary);
-  --form-group-label-font-weight: var(--font-weight-medium);
-  --form-group-label-margin-bottom: var(--space-1);
-  --form-group-required-color: var(--color-danger);
-  --form-group-help-font-size: var(--font-size-sm);
-  --form-group-help-color: var(--color-text-light);
-  --form-group-label-margin-right: var(--space-3);
-  --form-group-label-margin-left: var(--space-3);
+  --form-group-label-font-weight: 400;
+  --form-group-label-margin-bottom: 8px;
+  --form-group-required-color: #f44336;
+  --form-group-help-font-size: 0.75rem;
+  --form-group-help-color: rgba(0, 0, 0, 0.54);
+  --form-group-label-margin-right: 16px;
+  --form-group-label-margin-left: 16px;
   --form-group-label-width: 30%;
 
   /* Component: Form */
   --form-label-width: 30%;
-  --form-section-margin-bottom: var(--space-6);
-  --form-section-title-font-size: var(--font-size-lg);
+  --form-section-margin-bottom: 24px;
+  --form-section-title-font-size: 1.25rem;
   --form-section-title-color: var(--color-text);
-  --form-section-title-font-weight: var(--font-weight-semibold);
-  --form-section-title-margin-bottom: var(--space-3);
-  --form-section-title-border: 1px solid var(--color-gray-200);
-  --form-section-description-font-size: var(--font-size-base);
-  --form-section-description-color: var(--color-text-light);
-  --form-section-description-margin-bottom: var(--space-3);
-  --form-actions-gap: var(--space-3);
-  --form-actions-margin-top: var(--space-5);
+  --form-section-title-font-weight: 500;
+  --form-section-title-margin-bottom: 16px;
+  --form-section-title-border: none;
+  --form-section-description-font-size: 0.875rem;
+  --form-section-description-color: rgba(0, 0, 0, 0.54);
+  --form-section-description-margin-bottom: 16px;
+  --form-actions-gap: 8px;
+  --form-actions-margin-top: 24px;
   --form-actions-justify: flex-end;
 
+  /* Component: Navigation */
+  --nav-bg: var(--color-bg);
+  --nav-border-bottom: none;
+  --nav-dropdown-bg: var(--color-bg);
+  --nav-dropdown-shadow:
+    0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+  --nav-padding: 0 16px;
+  --nav-margin-right: 0;
+  --nav-font-size: 0.875rem;
+  --nav-line-height: 1.5;
+  --nav-active-font-weight: 500;
+  --nav-focus-shadow: none;
+  --nav-item-spacing: 24px;
+  --nav-item-spacing-vertical: 8px;
+  --nav-submenu-indent: 16px;
+  --nav-link-color: rgba(0, 0, 0, 0.87);
+  --nav-link-hover-color: var(--color-brand-primary);
+  --nav-link-active-color: var(--color-brand-primary);
+  --nav-link-font-size: 0.875rem;
+  --nav-link-padding: 8px 16px;
+  --nav-link-radius: 4px;
+  --nav-link-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --nav-burger-font-size: 24px;
+  --nav-burger-color: rgba(0, 0, 0, 0.87);
+  --nav-burger-size: 24px;
+  --nav-burger-margin-bottom: 0;
+  --nav-dropdown-border: none;
+  --nav-dropdown-link-padding: 8px 16px;
+  --nav-dropdown-padding: 8px 0;
+  --nav-dropdown-radius: 4px;
+  --nav-padding-mobile: 8px;
+  --nav-mobile-bg: var(--color-bg);
+  --nav-mobile-item-border: none;
+  --nav-mobile-link-padding: 12px 16px;
+  --nav-mobile-max-height: calc(100vh - 64px);
+  --nav-mobile-padding: 0;
+  --nav-mobile-radius: 0;
+  --nav-mobile-shadow: none;
+  --nav-mobile-submenu-bg: rgba(0, 0, 0, 0.04);
+  --nav-mobile-active-bg: rgba(33, 150, 243, 0.12);
+  --nav-mobile-hover-bg: rgba(0, 0, 0, 0.04);
+
+  /* Component: Section */
+  --section-bg: var(--color-bg);
+  --section-color: var(--color-text);
+  --section-padding: 48px 24px;
+  --section-gap: 16px;
+  --section-content-max-width: 1200px;
+  --section-padding-tablet: 40px 16px;
+  --section-gap-tablet: 16px;
+  --section-padding-mobile: 32px 16px;
+  --section-bg-minor: var(--color-bg-secondary);
+  --section-color-minor: rgba(0, 0, 0, 0.54);
+
+  /* Component: Logo */
+  --logo-width: auto;
+  --logo-height: 40px;
+  --logo-height-tablet: 36px;
+  --logo-hover-opacity: 0.8;
+  --logo-max-height: 48px;
+  --logo-max-width: 200px;
+  --logo-width-tablet: auto;
+
   /* ContactInfo Component */
-  --contact-info-gap: var(--space-4);
-  --contact-info-item-gap: var(--space-2);
-  --contact-info-mobile-gap: var(--space-2);
-  --contact-info-color: var(--color-text);
+  --contact-info-gap: 16px;
+  --contact-info-item-gap: 8px;
+  --contact-info-mobile-gap: 8px;
+  --contact-info-color: rgba(0, 0, 0, 0.87);
   --contact-info-hover-color: var(--color-brand-primary);
-  --contact-info-font-size: var(--font-size-sm);
+  --contact-info-font-size: 0.875rem;
   --contact-info-icon-size: 18px;
 
   /* StickyContactIcons Variables */
-  --sticky-contact-icons-right: var(--space-4);
-  --sticky-contact-icons-gap: var(--space-3);
-  --sticky-contact-icons-padding: var(--space-3);
+  --sticky-contact-icons-right: 24px;
+  --sticky-contact-icons-gap: 12px;
+  --sticky-contact-icons-padding: 12px;
   --sticky-contact-icons-bg: var(--color-white);
-  --sticky-contact-icons-radius: var(--border-radius-md);
-  --sticky-contact-icons-shadow: var(--shadow-md);
-  --sticky-contact-icons-size: 40px;
-  --sticky-contact-icons-color: var(--color-gray-700);
-  --sticky-contact-icons-hover-color: var(--color-primary);
-  --sticky-contact-icons-icon-size: 20px;
+  --sticky-contact-icons-radius: 50%;
+  --sticky-contact-icons-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --sticky-contact-icons-size: 48px;
+  --sticky-contact-icons-color: rgba(0, 0, 0, 0.54);
+  --sticky-contact-icons-hover-color: var(--color-brand-primary);
+  --sticky-contact-icons-icon-size: 24px;
+  --sticky-contact-icons-mobile-right: 16px;
+  --sticky-contact-icons-mobile-bottom: 16px;
+  --sticky-contact-icons-mobile-size: 40px;
+  --sticky-contact-icons-mobile-icon-size: 20px;
 
-  /* Mobile adjustments */
-  --sticky-contact-icons-mobile-right: var(--space-2);
-  --sticky-contact-icons-mobile-bottom: var(--space-4);
-  --sticky-contact-icons-mobile-size: 36px;
-  --sticky-contact-icons-mobile-icon-size: 18px;
+  /* Component: Header */
+  --header-bg: var(--color-brand-primary);
+  --header-bg-scrolled: var(--color-brand-primary);
+  --header-branding-gap: 16px;
+  --header-color: var(--color-white);
+  --header-height: 64px;
+  --header-height-mobile: 56px;
+  --header-max-width: 100%;
+  --header-padding: 0 24px;
+  --header-padding-mobile: 0 16px;
+  --header-shadow:
+    0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
+  --header-shadow-scrolled:
+    0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14);
+  --header-title-size: 1.25rem;
+  --header-title-size-mobile: 1.125rem;
+  --header-title-weight: 500;
+  --header-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --header-transparent-color: var(--color-white);
+  --header-z-index: 1100;
+
+  /* Component: CollapsibleHeader */
+  --collapsible-header-collapsed-height: 64px;
+  --collapsible-header-contact-bg: rgba(0, 0, 0, 0.04);
+  --collapsible-header-contact-transition: all 200ms
+    cubic-bezier(0.4, 0, 0.2, 1);
+  --collapsible-header-height: 100px;
+  --collapsible-header-logo-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --collapsible-header-mobile-height: 56px;
+  --collapsible-header-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --collapsible-header-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Component: Footer */
+  --footer-bg: #424242;
+  --footer-text: rgba(255, 255, 255, 0.87);
+  --footer-link-hover: var(--color-brand-primary-light);
+
+  /* Component: PriceDisplay */
+  --price-display-bg: rgba(33, 150, 243, 0.08);
+  --price-display-border: 1px solid rgba(33, 150, 243, 0.24);
+  --price-display-color: var(--color-brand-primary);
+
+  /* Additional Variables */
+  --color-yellow: #ffeb3b;
+  --color-text-muted: rgba(0, 0, 0, 0.54);
+  --transition-duration: 200ms;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius: 4px;
+  --border-radius-default: 4px;
+  --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
+/* Material UI specific enhancements */
 .default-theme .card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .default-theme .card:hover {
-  transform: translateY(-2px);
+  transform: none;
   box-shadow: var(--card-hover-shadow);
 }
 
-/* Improve typography readability */
 .default-theme h1,
 .default-theme h2,
 .default-theme h3,
 .default-theme h4,
 .default-theme h5,
 .default-theme h6 {
-  color: var(--color-gray-900);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-tight);
-
-  /* TODO: Define value for 'border-radius' in default theme */
-  --border-radius: inherit;
-  /* TODO: Define value for 'border-radius-default' in default theme */
-  --border-radius-default: inherit;
-  /* TODO: Define value for 'box-shadow-sm' in default theme */
-  --box-shadow-sm: inherit;
-  /* TODO: Define value for 'button-active-shadow' in default theme */
-  --button-active-shadow: inherit;
-  /* TODO: Define value for 'button-danger-bg' in default theme */
-  --button-danger-bg: inherit;
-  /* TODO: Define value for 'button-danger-border-color' in default theme */
-  --button-danger-border-color: inherit;
-  /* TODO: Define value for 'button-danger-color' in default theme */
-  --button-danger-color: inherit;
-  /* TODO: Define value for 'button-danger-hover-bg' in default theme */
-  --button-danger-hover-bg: inherit;
-  /* TODO: Define value for 'button-danger-hover-border-color' in default theme */
-  --button-danger-hover-border-color: inherit;
-  /* TODO: Define value for 'button-font-size-lg' in default theme */
-  --button-font-size-lg: inherit;
-  /* TODO: Define value for 'button-font-size-sm' in default theme */
-  --button-font-size-sm: inherit;
-  /* TODO: Define value for 'button-hover-shadow' in default theme */
-  --button-hover-shadow: inherit;
-  /* TODO: Define value for 'button-hover-transform' in default theme */
-  --button-hover-transform: inherit;
-  /* TODO: Define value for 'button-icon-margin' in default theme */
-  --button-icon-margin: inherit;
-  /* TODO: Define value for 'button-icon-radius' in default theme */
-  --button-icon-radius: inherit;
-  /* TODO: Define value for 'button-icon-size' in default theme */
-  --button-icon-size: inherit;
-  /* TODO: Define value for 'button-icon-size-lg' in default theme */
-  --button-icon-size-lg: inherit;
-  /* TODO: Define value for 'button-icon-size-sm' in default theme */
-  --button-icon-size-sm: inherit;
-  /* TODO: Define value for 'button-outlined-border-color' in default theme */
-  --button-outlined-border-color: inherit;
-  /* TODO: Define value for 'button-outlined-color' in default theme */
-  --button-outlined-color: inherit;
-  /* TODO: Define value for 'button-outlined-hover-bg' in default theme */
-  --button-outlined-hover-bg: inherit;
-  /* TODO: Define value for 'button-outlined-hover-border-color' in default theme */
-  --button-outlined-hover-border-color: inherit;
-  /* TODO: Define value for 'button-outlined-hover-color' in default theme */
-  --button-outlined-hover-color: inherit;
-  /* TODO: Define value for 'button-padding-lg' in default theme */
-  --button-padding-lg: inherit;
-  /* TODO: Define value for 'button-padding-sm' in default theme */
-  --button-padding-sm: inherit;
-  /* TODO: Define value for 'button-radius-lg' in default theme */
-  --button-radius-lg: inherit;
-  /* TODO: Define value for 'button-radius-sm' in default theme */
-  --button-radius-sm: inherit;
-  /* TODO: Define value for 'button-success-bg' in default theme */
-  --button-success-bg: inherit;
-  /* TODO: Define value for 'button-success-border-color' in default theme */
-  --button-success-border-color: inherit;
-  /* TODO: Define value for 'button-success-color' in default theme */
-  --button-success-color: inherit;
-  /* TODO: Define value for 'button-success-hover-bg' in default theme */
-  --button-success-hover-bg: inherit;
-  /* TODO: Define value for 'button-success-hover-border-color' in default theme */
-  --button-success-hover-border-color: inherit;
-  /* TODO: Define value for 'checkbox-valid-color' in default theme */
-  --checkbox-valid-color: inherit;
-  /* TODO: Define value for 'collapsible-header-collapsed-height' in default theme */
-  --collapsible-header-collapsed-height: inherit;
-  /* TODO: Define value for 'collapsible-header-contact-bg' in default theme */
-  --collapsible-header-contact-bg: inherit;
-  /* TODO: Define value for 'collapsible-header-contact-transition' in default theme */
-  --collapsible-header-contact-transition: inherit;
-  /* TODO: Define value for 'collapsible-header-height' in default theme */
-  --collapsible-header-height: inherit;
-  /* TODO: Define value for 'collapsible-header-logo-transition' in default theme */
-  --collapsible-header-logo-transition: inherit;
-  /* TODO: Define value for 'collapsible-header-mobile-height' in default theme */
-  --collapsible-header-mobile-height: inherit;
-  /* TODO: Define value for 'collapsible-header-shadow' in default theme */
-  --collapsible-header-shadow: inherit;
-  /* TODO: Define value for 'collapsible-header-transition' in default theme */
-  --collapsible-header-transition: inherit;
-  /* TODO: Define value for 'color-bg-secondary' in default theme */
-  --color-bg-secondary: inherit;
-  /* TODO: Define value for 'color-border' in default theme */
-  --color-border: inherit;
-  /* TODO: Define value for 'color-gray-50' in default theme */
-  --color-gray-50: inherit;
-  /* TODO: Define value for 'color-text-muted' in default theme */
-  --color-text-muted: inherit;
-  /* TODO: Define value for 'color-yellow' in default theme */
-  --color-yellow: inherit;
-  /* TODO: Define value for 'font-family-base' in default theme */
-  --font-family-base: inherit;
-  /* TODO: Define value for 'font-family-mono' in default theme */
-  --font-family-mono: inherit;
-  /* TODO: Define value for 'footer-bg' in default theme */
-  --footer-bg: inherit;
-  /* TODO: Define value for 'footer-link-hover' in default theme */
-  --footer-link-hover: inherit;
-  /* TODO: Define value for 'footer-text' in default theme */
-  --footer-text: inherit;
-  /* TODO: Define value for 'header-bg' in default theme */
-  --header-bg: inherit;
-  /* TODO: Define value for 'input-valid-color' in default theme */
-  --input-valid-color: inherit;
-  /* TODO: Define value for 'logo-height' in default theme */
-  --logo-height: inherit;
-  /* TODO: Define value for 'logo-height-tablet' in default theme */
-  --logo-height-tablet: inherit;
-  /* TODO: Define value for 'logo-hover-opacity' in default theme */
-  --logo-hover-opacity: inherit;
-  /* TODO: Define value for 'logo-max-height' in default theme */
-  --logo-max-height: inherit;
-  /* TODO: Define value for 'logo-max-width' in default theme */
-  --logo-max-width: inherit;
-  /* TODO: Define value for 'logo-width' in default theme */
-  --logo-width: inherit;
-  /* TODO: Define value for 'logo-width-tablet' in default theme */
-  --logo-width-tablet: inherit;
-  /* TODO: Define value for 'nav-burger-color' in default theme */
-  --nav-burger-color: inherit;
-  /* TODO: Define value for 'nav-burger-size' in default theme */
-  --nav-burger-size: inherit;
-  /* TODO: Define value for 'nav-dropdown-bg' in default theme */
-  --nav-dropdown-bg: inherit;
-  /* TODO: Define value for 'nav-dropdown-shadow' in default theme */
-  --nav-dropdown-shadow: inherit;
-  /* TODO: Define value for 'nav-font-size' in default theme */
-  --nav-font-size: inherit;
-  /* TODO: Define value for 'nav-item-spacing' in default theme */
-  --nav-item-spacing: inherit;
-  /* TODO: Define value for 'nav-line-height' in default theme */
-  --nav-line-height: inherit;
-  /* TODO: Define value for 'nav-link-active-color' in default theme */
-  --nav-link-active-color: inherit;
-  /* TODO: Define value for 'nav-link-color' in default theme */
-  --nav-link-color: inherit;
-  /* TODO: Define value for 'nav-link-hover-color' in default theme */
-  --nav-link-hover-color: inherit;
-  /* TODO: Define value for 'nav-link-padding' in default theme */
-  --nav-link-padding: inherit;
-  /* TODO: Define value for 'nav-mobile-active-bg' in default theme */
-  --nav-mobile-active-bg: inherit;
-  /* TODO: Define value for 'nav-mobile-bg' in default theme */
-  --nav-mobile-bg: inherit;
-  /* TODO: Define value for 'nav-mobile-hover-bg' in default theme */
-  --nav-mobile-hover-bg: inherit;
-  /* TODO: Define value for 'nav-mobile-link-padding' in default theme */
-  --nav-mobile-link-padding: inherit;
-  /* TODO: Define value for 'nav-mobile-padding' in default theme */
-  --nav-mobile-padding: inherit;
-  /* TODO: Define value for 'nav-mobile-submenu-bg' in default theme */
-  --nav-mobile-submenu-bg: inherit;
-  /* TODO: Define value for 'nav-submenu-indent' in default theme */
-  --nav-submenu-indent: inherit;
-  /* TODO: Define value for 'price-display-bg' in default theme */
-  --price-display-bg: inherit;
-  /* TODO: Define value for 'price-display-border' in default theme */
-  --price-display-border: inherit;
-  /* TODO: Define value for 'price-display-color' in default theme */
-  --price-display-color: inherit;
-  /* TODO: Define value for 'section-bg' in default theme */
-  --section-bg: inherit;
-  /* TODO: Define value for 'section-bg-minor' in default theme */
-  --section-bg-minor: inherit;
-  /* TODO: Define value for 'section-color' in default theme */
-  --section-color: inherit;
-  /* TODO: Define value for 'section-color-minor' in default theme */
-  --section-color-minor: inherit;
-  /* TODO: Define value for 'section-content-max-width' in default theme */
-  --section-content-max-width: inherit;
-  /* TODO: Define value for 'section-gap' in default theme */
-  --section-gap: inherit;
-  /* TODO: Define value for 'section-gap-tablet' in default theme */
-  --section-gap-tablet: inherit;
-  /* TODO: Define value for 'section-padding' in default theme */
-  --section-padding: inherit;
-  /* TODO: Define value for 'section-padding-mobile' in default theme */
-  --section-padding-mobile: inherit;
-  /* TODO: Define value for 'section-padding-tablet' in default theme */
-  --section-padding-tablet: inherit;
-  /* TODO: Define value for 'transition-duration' in default theme */
-  --transition-duration: inherit;
-  /* TODO: Define value for 'transition-timing' in default theme */
-  --transition-timing: inherit;}
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
