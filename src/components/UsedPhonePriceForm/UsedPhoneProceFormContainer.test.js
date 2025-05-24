@@ -142,7 +142,7 @@ describe('UsedPhonePriceFormContainer', () => {
     // Directly call the handler method to trigger the error
     try {
       await container.handleManufacturerChange('1');
-    } catch (error) {
+    } catch (_error) {
       // Expected error, ignore it
     }
 

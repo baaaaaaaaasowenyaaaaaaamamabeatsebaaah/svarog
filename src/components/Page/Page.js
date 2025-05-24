@@ -505,7 +505,7 @@ const createPage = (props) => {
             this.loadFromCMS(result);
           }
         }
-      } catch (error) {
+      } catch (_error) {
         this.setError({
           message: 'Failed to load page',
           code: 500,
