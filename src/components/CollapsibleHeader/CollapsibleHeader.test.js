@@ -209,7 +209,7 @@ describe('CollapsibleHeader Components', () => {
       // Clean up
       try {
         document.body.removeChild(header.getElement());
-      } catch (e) {
+      } catch (_e) {
         // Ignore errors if already removed
       }
     });
@@ -234,7 +234,7 @@ describe('CollapsibleHeader Components', () => {
       // Clean up
       try {
         document.body.removeChild(header.getElement());
-      } catch (e) {
+      } catch (_e) {
         // Ignore errors if already removed
       }
     });
@@ -258,7 +258,7 @@ describe('CollapsibleHeader Components', () => {
       // Clean up
       try {
         document.body.removeChild(header.getElement());
-      } catch (e) {
+      } catch (_e) {
         // Ignore errors if already removed
       }
     });
@@ -279,7 +279,7 @@ describe('CollapsibleHeader Components', () => {
       // Clean up
       try {
         document.body.removeChild(header.getElement());
-      } catch (e) {
+      } catch (_e) {
         // Ignore errors if already removed
       }
     });
@@ -318,7 +318,7 @@ describe('CollapsibleHeader Components', () => {
         if (headerElement.parentNode) {
           document.body.removeChild(headerElement);
         }
-      } catch (e) {
+      } catch (_e) {
         // Ignore errors if already removed
       }
     });
@@ -345,7 +345,7 @@ describe('CollapsibleHeader Components', () => {
       // Clean up
       try {
         document.body.removeChild(header.getElement());
-      } catch (e) {
+      } catch (_e) {
         // Ignore errors if already removed
       }
     });

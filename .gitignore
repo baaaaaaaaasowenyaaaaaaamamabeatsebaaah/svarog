@@ -73,5 +73,5 @@ coverage/
 # VSCode settings
 .vscode/
 
-# scripts archives
+# Script archive files
 scripts/archive/
