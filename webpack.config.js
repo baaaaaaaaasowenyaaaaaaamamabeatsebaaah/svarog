@@ -1,80 +1,114 @@
-// webpack.config.js
 import path from 'path';
 import { fileURLToPath } from 'url';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import webpack from 'webpack';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default {
-  entry: './dist-entry.js',
-  output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
-    clean: true,
-    library: {
-      name: 'SvarogUI',
-      type: 'umd',
-      export: 'default',
+export default (env, argv) => {
+  const isProduction = argv.mode === 'production';
+
+  return {
+    mode: isProduction ? 'production' : 'development',
+    entry: './dist-entry.js',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'bundle.js',
+      library: 'SvarogUI',
+      libraryTarget: 'umd',
+      globalObject: 'this',
+      clean: true,
     },
-    globalObject: 'this',
-    // Configure output for Asset Modules
-    assetModuleFilename: 'assets/[name][ext]',
-  },
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              [
-                '@babel/preset-env',
-                {
-                  targets: '> 0.25%, not dead',
-                  modules: false,
+    module: {
+      rules: [
+        {
+          test: /\.css$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader',
+              options: {
+                modules: {
+                  auto: true,
+                  localIdentName: isProduction
+                    ? '[hash:base64:5]'
+                    : '[name]__[local]',
                 },
-              ],
-            ],
+              },
+            },
+          ],
+        },
+        {
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          type: 'asset',
+          parser: {
+            dataUrlCondition: {
+              maxSize: 8 * 1024,
+            },
           },
         },
-      },
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
-      // Use Asset Modules for SVGs and other assets
-      {
-        test: /\.svg$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/svg/[name][ext]',
-        },
-      },
-      {
-        test: /\.(png|jpg|jpeg|gif)$/i,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/images/[name][ext]',
-        },
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/fonts/[name][ext]',
-        },
-      },
+      ],
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: 'styles.css',
+      }),
+      // Ignore non-default themes in production
+      ...(isProduction
+        ? [
+            new webpack.IgnorePlugin({
+              resourceRegExp: /cabalou-theme\.css$/,
+            }),
+            new webpack.IgnorePlugin({
+              resourceRegExp: /muchandy-theme\.css$/,
+            }),
+          ]
+        : []),
+      ...(isProduction
+        ? [
+            new BundleAnalyzerPlugin({
+              analyzerMode: 'static',
+              openAnalyzer: false,
+              reportFilename: 'bundle-report.html',
+            }),
+          ]
+        : []),
     ],
-  },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: 'styles.css',
-    }),
-  ],
-  resolve: {
-    extensions: ['.js'],
-  },
+    optimization: isProduction
+      ? {
+          minimize: true,
+          minimizer: [
+            new TerserPlugin({
+              terserOptions: {
+                compress: {
+                  drop_console: true,
+                  drop_debugger: true,
+                  pure_funcs: ['console.log', 'console.info', 'console.debug'],
+                  passes: 3,
+                },
+                mangle: {
+                  properties: {
+                    regex: /^_/,
+                  },
+                  toplevel: true,
+                },
+                format: {
+                  comments: false,
+                  ascii_only: true,
+                },
+              },
+              extractComments: false,
+            }),
+            new CssMinimizerPlugin(),
+          ],
+          usedExports: true,
+          sideEffects: false,
+        }
+      : {},
+    devtool: isProduction ? false : 'source-map',
+  };
 };

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Svarog UI - Optimized Bundle</title>
+    <link rel="stylesheet" href="./dist/styles.css" />
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        padding: 2rem;
+        background: #f5f5f5;
+      }
+      .info {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .success {
+        color: #10b981;
+      }
+      .error {
+        color: #ef4444;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="info">
+      <h1>Svarog UI Bundle Test</h1>
+      <p>This bundle should only include the default theme.</p>
+      <div id="theme-check"></div>
+    </div>
+
+    <div id="app"></div>
+
+    <script src="./dist/bundle.js"></script>
+    <script>
+      // Check if only default theme is loaded
+      const checkThemes = () => {
+        const styles = document.styleSheets;
+        let hasDefault = false;
+        let hasOtherThemes = false;
+
+        for (let sheet of styles) {
+          try {
+            const rules = sheet.cssRules || sheet.rules;
+            for (let rule of rules) {
+              if (rule.selectorText) {
+                if (rule.selectorText.includes('.default-theme')) {
+                  hasDefault = true;
+                }
+                if (
+                  rule.selectorText.includes('.cabalou-theme') ||
+                  rule.selectorText.includes('.muchandy-theme')
+                ) {
+                  hasOtherThemes = true;
+                }
+              }
+            }
+          } catch (e) {
+            // Cross-origin styles
+          }
+        }
+
+        const themeCheck = document.getElementById('theme-check');
+        if (hasDefault && !hasOtherThemes) {
+          themeCheck.innerHTML =
+            '<p class="success">✓ Only default theme is loaded!</p>';
+        } else if (hasOtherThemes) {
+          themeCheck.innerHTML =
+            '<p class="error">✗ Other themes detected in bundle!</p>';
+        }
+      };
+
+      // Test components
+      if (SvarogUI) {
+        const app = document.getElementById('app');
+
+        // Add default theme class
+        document.body.classList.add('default-theme');
+
+        // Create test components
+        const button = SvarogUI.createButton({
+          text: 'Default Theme Button',
+          variant: 'primary',
+        });
+        app.appendChild(button.getElement());
+
+        // Check themes
+        setTimeout(checkThemes, 100);
+      }
+    </script>
+  </body>
+</html>
