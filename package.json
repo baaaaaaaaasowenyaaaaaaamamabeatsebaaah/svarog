@@ -92,7 +92,10 @@
     "url": "https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/issues"
   },
   "homepage": "https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog#readme",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css",
+    "src/styles/index.js"
+  ],
   "engines": {
     "node": ">=20.18.0"
   }

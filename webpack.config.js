@@ -31,12 +31,7 @@ export default (env, argv) => {
             {
               loader: 'css-loader',
               options: {
-                modules: {
-                  auto: true,
-                  localIdentName: isProduction
-                    ? '[hash:base64:5]'
-                    : '[name]__[local]',
-                },
+                modules: false, // Disable CSS modules - we want global styles
               },
             },
           ],
