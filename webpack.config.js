@@ -3,7 +3,6 @@ import { fileURLToPath } from 'url';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import webpack from 'webpack';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -68,15 +67,12 @@ export default (env, argv) => {
             }),
           ]
         : []),
-      ...(isProduction
-        ? [
-            new BundleAnalyzerPlugin({
-              analyzerMode: 'static',
-              openAnalyzer: false,
-              reportFilename: 'bundle-report.html',
-            }),
-          ]
-        : []),
+      // Add NODE_ENV definition for better optimization
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(
+          isProduction ? 'production' : 'development'
+        ),
+      }),
     ],
     optimization: isProduction
       ? {

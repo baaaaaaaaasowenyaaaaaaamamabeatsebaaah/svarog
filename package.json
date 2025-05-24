@@ -38,15 +38,14 @@
     "test:size": "npm run build && ls -lh dist/bundle.js",
     "pack:test": "npm pack && tar -tf svarog-ui-*.tgz",
     "size": "npm run build && ls -lh dist/",
-    "clean": "rm -rf dist",
-    "build:analyze": "webpack --config webpack.config.js --mode production --env analyze && open dist/bundle-report.html"
+    "clean": "rm -rf dist"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@babel/preset-env": "^7.24.7",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.5.0",
-    "babel-loader": "^9.1.3",
+    "babel-loader": "^10.0.0",
     "css": "^3.0.0",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
@@ -57,16 +56,15 @@
     "express": "^4.18.2",
     "html-webpack-plugin": "^5.6.0",
     "husky": "^9.0.11",
-    "lint-staged": "^15.2.7",
+    "lint-staged": "^16.0.0",
     "mini-css-extract-plugin": "^2.9.2",
     "prettier": "^3.5.3",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.14",
-    "vite": "^4.5.0",
-    "vitest": "^0.34.6",
+    "vite": "^6.3.5",
+    "vitest": "^3.1.4",
     "webpack": "^5.92.0",
-    "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-cli": "^5.1.4",
+    "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.0.4"
   },
   "lint-staged": {
@@ -93,8 +91,8 @@
     "url": "https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/issues"
   },
   "homepage": "https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog#readme",
-  "volta": {
-    "node": "20.18.3"
-  },
-  "sideEffects": false
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.18.0"
+  }
 }
