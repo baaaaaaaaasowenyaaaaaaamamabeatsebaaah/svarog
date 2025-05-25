@@ -1,6 +1,16 @@
 # Input Component
 
-The Input component provides a flexible, accessible input field with enhanced custom styling and validation capabilities.
+The Input component provides a flexible, accessible input field with enhanced custom styling and validation capabilities. It uses CSS injection for seamless integration across all environments.
+
+## Features
+
+✅ **Zero Configuration** - Works in Node.js, bundlers, everywhere  
+✅ **Auto-styling** - Styles inject automatically when component is used  
+✅ **Enhanced UI** - Custom visual interface with native accessibility  
+✅ **Type Support** - Text, email, password, number, search, and more  
+✅ **Validation** - Built-in HTML5 validation with custom messages  
+✅ **Accessibility** - Full keyboard navigation and screen reader support  
+✅ **Theming** - CSS variables for easy customization
 
 ## Usage
 
@@ -177,15 +187,61 @@ Input styles can be customized using CSS variables:
 }
 ```
 
+## Advanced Styling
+
+The component uses automatic CSS injection, so styles are loaded when the component is first used. You can also override specific parts:
+
+```css
+/* Override specific input styles */
+.input-custom--search {
+  background-color: #f7fafc;
+}
+
+.input-custom__clear:hover {
+  color: #e53e3e;
+}
+
+/* Custom validation styling */
+.input-container--invalid .input-custom {
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.25);
+}
+```
+
 ## Accessibility
 
 The Input component is designed with accessibility in mind:
 
-- Proper labeling support through ID attributes
-- Keyboard navigation support
-- Screen reader announcements for validation errors
-- Visual AND programmatic state indication (disabled, invalid, etc.)
-- Maintains proper focus handling
+- **Semantic HTML**: Uses proper input elements with correct attributes
+- **Keyboard Navigation**: Full keyboard support including tab order
+- **Screen Reader Support**: Proper ARIA labels and live announcements
+- **Visual Indicators**: Clear visual states for all interaction states
+- **Focus Management**: Proper focus handling for custom controls
+- **High Contrast**: Supports high contrast mode and themes
+
+### Accessibility Features
+
+- Native input element for screen reader compatibility
+- Custom UI overlay for enhanced visual design
+- Proper focus management and keyboard navigation
+- ARIA attributes for validation states
+- Live regions for validation announcements
+- Semantic button elements for controls
+
+## Browser Compatibility
+
+- **Modern Browsers**: Full support for all features
+- **Legacy Browsers**: Graceful degradation to native inputs
+- **Mobile**: Optimized for touch interaction and mobile browsers
+- **Screen Readers**: Compatible with JAWS, NVDA, VoiceOver
+- **High Contrast**: Supports Windows High Contrast mode
+
+## Performance
+
+- **CSS Injection**: Styles loaded only when component is used
+- **Event Delegation**: Efficient event handling
+- **Minimal DOM**: Optimized DOM structure for performance
+- **Tree Shaking**: Only loads what you use
+- **Memory Management**: Proper cleanup on component destruction
 
 ## Legacy Props Support
 
@@ -198,3 +254,73 @@ For backward compatibility, the component supports the following legacy props:
 | isLoading         | loading      | Use loading instead         |
 
 Using legacy props will log deprecation warnings to the console.
+
+## Examples
+
+### Basic Text Input
+
+```javascript
+const basicInput = Input({
+  placeholder: 'Enter text',
+  onChange: (event, value) => console.log('Value:', value),
+});
+```
+
+### Email Validation
+
+```javascript
+const emailInput = Input({
+  type: 'email',
+  required: true,
+  placeholder: 'your@email.com',
+  errorMessage: 'Please enter a valid email address',
+});
+```
+
+### Password with Toggle
+
+```javascript
+const passwordInput = Input({
+  type: 'password',
+  placeholder: 'Password',
+  minLength: 8,
+  errorMessage: 'Password must be at least 8 characters',
+});
+```
+
+### Search with Clear
+
+```javascript
+const searchInput = Input({
+  type: 'search',
+  placeholder: 'Search products...',
+  onChange: (event, value) => performSearch(value),
+});
+```
+
+### Number with Validation
+
+```javascript
+const ageInput = Input({
+  type: 'number',
+  placeholder: 'Age',
+  required: true,
+  onChange: (event, value) => console.log('Age:', value),
+});
+```
+
+## Migration from CSS Imports
+
+If you were previously importing CSS files, you can now remove those imports:
+
+```javascript
+// ❌ OLD: Remove CSS import
+// import './Input.css';
+
+// ✅ NEW: Just import and use
+import { Input } from '@svarog-ui/core';
+
+const input = Input({ placeholder: 'Text' });
+```
+
+The component now automatically injects its styles when first used, eliminating CSS import errors and making it work seamlessly in all environments including Node.js.

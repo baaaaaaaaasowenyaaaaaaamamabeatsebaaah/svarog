@@ -1,8 +1,12 @@
 // src/components/Footer/Footer.js
-import './Footer.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import { validateRequiredProps } from '../../utils/validation.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { footerStyles } from './Footer.styles.js';
+
+// Create style injector for Footer component
+const injectFooterStyles = createStyleInjector('Footer');
 
 /**
  * Creates a Footer component
@@ -92,6 +96,9 @@ const createFooter = (props) => {
    * @returns {HTMLElement} Footer element
    */
   const renderFooter = (state) => {
+    // Inject styles on first render
+    injectFooterStyles(footerStyles);
+
     // Update our reference to current state
     currentState = { ...state };
 
@@ -121,8 +128,8 @@ const createFooter = (props) => {
         const linkElement = createElement('a', {
           classes: ['footer__link'],
           attributes: {
-            href: link.href || link.url || '#', // Support both new href and legacy url
-            'data-label': link.label, // Add data attribute for testing
+            href: link.href || link.url || '#',
+            'data-label': link.label,
           },
           text: link.label,
         });
@@ -143,10 +150,10 @@ const createFooter = (props) => {
         const socialLink = createElement('a', {
           classes: ['footer__social-link'],
           attributes: {
-            href: item.href || item.url || '#', // Support both new href and legacy url
+            href: item.href || item.url || '#',
             target: '_blank',
             rel: 'noopener noreferrer',
-            'data-platform': item.platform, // Add data attribute for testing
+            'data-platform': item.platform,
           },
           text: item.platform,
         });
@@ -169,7 +176,7 @@ const createFooter = (props) => {
     const copyrightElement = createElement('p', {
       classes: ['footer__copyright-text'],
       attributes: {
-        'data-copyright': copyright || 'default', // Add data attribute for testing
+        'data-copyright': copyright || 'default',
       },
       text: copyrightText,
     });

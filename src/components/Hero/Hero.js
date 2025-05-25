@@ -1,5 +1,4 @@
 // src/components/Hero/Hero.js
-import './Hero.css';
 import {
   createElement,
   validateProps,
@@ -9,6 +8,13 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import Button from '../Button/Button.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { heroStyles } from './Hero.styles.js';
+
+// Create style injector for Hero component
+const injectHeroStyles = createStyleInjector('Hero');
 
 /**
  * Migrates legacy props to standardized ones
@@ -64,6 +70,9 @@ const validateHeroProps = (props) => {
  * @returns {HTMLElement} - Hero element
  */
 const renderHero = (state) => {
+  // Inject styles on render (automatically cached)
+  injectHeroStyles(heroStyles);
+
   // Create hero container with appropriate classes
   const classNames = [
     'hero',

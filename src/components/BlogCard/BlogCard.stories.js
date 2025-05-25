@@ -4,6 +4,14 @@ import BlogCard from './BlogCard.js';
 export default {
   title: 'Components/Blog/BlogCard',
   component: BlogCard,
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'BlogCard component with CSS injection for displaying blog post previews. Styles are automatically injected when the component is rendered.',
+      },
+    },
+  },
 };
 
 const defaultArgs = {
@@ -61,4 +69,28 @@ export const LegacyPropMigration = () => {
     ...defaultArgs,
     featuredImage: defaultArgs.imageUrl, // This will show a deprecation warning
   });
+};
+
+// Story to demonstrate style injection
+export const StyleInjectionDemo = () => {
+  const container = document.createElement('div');
+  container.innerHTML = `
+    <div style="margin-bottom: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+      <h3>CSS Injection Demo</h3>
+      <p>This BlogCard component automatically injects its styles when rendered. Check the document head for a &lt;style&gt; tag with <code>data-svarog="blogcard"</code>.</p>
+      <button onclick="
+        const styleEl = document.querySelector('[data-svarog=blogcard]');
+        if (styleEl) {
+          alert('Styles found! ID: ' + styleEl.id + ', Length: ' + styleEl.textContent.length + ' characters');
+        } else {
+          alert('No styles found - component may not be rendered yet');
+        }
+      ">Check Injected Styles</button>
+    </div>
+  `;
+
+  const blogCard = BlogCard(defaultArgs);
+  container.appendChild(blogCard.getElement());
+
+  return container;
 };

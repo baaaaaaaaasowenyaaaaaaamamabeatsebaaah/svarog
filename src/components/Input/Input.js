@@ -1,9 +1,13 @@
 // src/components/Input/Input.js
-import './Input.css';
 import { createElement, appendChildren } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { validateInput } from '../../utils/validation.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { inputStyles } from './Input.styles.js';
+
+// Create style injector for Input component
+const injectInputStyles = createStyleInjector('Input');
 
 /**
  * Create an Input component
@@ -11,6 +15,9 @@ import { validateInput } from '../../utils/validation.js';
  * @returns {Object} Input component
  */
 const createInput = (props) => {
+  // Inject styles on component creation
+  injectInputStyles(inputStyles);
+
   // Migrate legacy props to standardized props
   const normalizedProps = migrateLegacyProps(props);
 
@@ -225,7 +232,7 @@ const createInput = (props) => {
    * Handle input focus event
    * @param {Event} event - The focus event
    */
-  function handleFocus(event) {
+  const handleFocus = (event) => {
     element.classList.add('input-container--focused');
     const customInput = element.querySelector('.input-custom');
     if (customInput) {
@@ -235,13 +242,13 @@ const createInput = (props) => {
     if (typeof state.onFocus === 'function') {
       state.onFocus(event);
     }
-  }
+  };
 
   /**
    * Handle input blur event
    * @param {Event} event - The blur event
    */
-  function handleBlur(event) {
+  const handleBlur = (event) => {
     element.classList.remove('input-container--focused');
     const customInput = element.querySelector('.input-custom');
     if (customInput) {
@@ -260,13 +267,13 @@ const createInput = (props) => {
     if (typeof state.onBlur === 'function') {
       state.onBlur(event);
     }
-  }
+  };
 
   /**
    * Update password toggle button appearance
    * @param {boolean} isVisible - Whether password is visible
    */
-  function updatePasswordToggleButton(isVisible) {
+  const updatePasswordToggleButton = (isVisible) => {
     const toggleButton = element.querySelector('.input-custom__toggle');
     if (toggleButton) {
       toggleButton.classList.toggle('input-custom__toggle--visible', isVisible);
@@ -275,12 +282,12 @@ const createInput = (props) => {
         isVisible ? 'Hide password' : 'Show password'
       );
     }
-  }
+  };
 
   /**
    * Handle password visibility toggle
    */
-  function togglePasswordVisibility() {
+  const togglePasswordVisibility = () => {
     state.isPasswordVisible = !state.isPasswordVisible;
 
     const inputElement = element.querySelector('.input-native');
@@ -294,13 +301,13 @@ const createInput = (props) => {
 
     // Update display value
     updateValueDisplay();
-  }
+  };
 
   /**
    * Directly handle button clicks for controls
    * @param {Event} event - The click event
    */
-  function handleControlClick(event) {
+  const handleControlClick = (event) => {
     // Only handle direct clicks on buttons with data-action
     const button = event.target.closest('[data-action]');
     if (!button) return;
@@ -338,10 +345,10 @@ const createInput = (props) => {
         event.stopPropagation();
         break;
     }
-  }
+  };
 
   // Event delegation handler
-  function handleEvents(event) {
+  const handleEvents = (event) => {
     const targetElement = event.target;
     const eventType = event.type;
 
@@ -387,13 +394,13 @@ const createInput = (props) => {
           break;
       }
     }
-  }
+  };
 
   /**
    * Handle selection events
    * @param {HTMLElement} inputElement - The input element
    */
-  function handleSelection(inputElement) {
+  const handleSelection = (inputElement) => {
     if (
       inputElement.selectionStart !== undefined &&
       inputElement.selectionEnd !== undefined
@@ -406,13 +413,13 @@ const createInput = (props) => {
         updateValueDisplay();
       }
     }
-  }
+  };
 
   /**
    * Increment the input value
    * @param {HTMLElement} inputElement - The input element
    */
-  function incrementValue(inputElement) {
+  const incrementValue = (inputElement) => {
     const numValue = parseFloat(getValue()) || 0;
     const step = parseFloat(inputElement.step) || 1;
     const max = inputElement.hasAttribute('max')
@@ -421,13 +428,13 @@ const createInput = (props) => {
 
     setValue(Math.min(numValue + step, max).toString());
     inputElement.focus();
-  }
+  };
 
   /**
    * Decrement the input value
    * @param {HTMLElement} inputElement - The input element
    */
-  function decrementValue(inputElement) {
+  const decrementValue = (inputElement) => {
     const numValue = parseFloat(getValue()) || 0;
     const step = parseFloat(inputElement.step) || 1;
     const min = inputElement.hasAttribute('min')
@@ -436,13 +443,13 @@ const createInput = (props) => {
 
     setValue(Math.max(numValue - step, min).toString());
     inputElement.focus();
-  }
+  };
 
   /**
    * Handle keydown events specifically
    * @param {KeyboardEvent} event - Keyboard event
    */
-  function handleKeydown(event) {
+  const handleKeydown = (event) => {
     const inputElement = element.querySelector('.input-native');
     if (!inputElement) return;
 
@@ -464,12 +471,12 @@ const createInput = (props) => {
         }
         break;
     }
-  }
+  };
 
   /**
    * Update the input value display
    */
-  function updateValueDisplay() {
+  const updateValueDisplay = () => {
     const valueDisplay = element.querySelector('.input-custom__value');
     const customInput = element.querySelector('.input-custom');
 
@@ -528,22 +535,22 @@ const createInput = (props) => {
     if (state.type === 'search') {
       customInput.classList.toggle('input-custom--has-value', !!value);
     }
-  }
+  };
 
   /**
    * Get the input value
    * @returns {string} Current value
    */
-  function getValue() {
+  const getValue = () => {
     return state.value || '';
-  }
+  };
 
   /**
    * Set the input value
    * @param {string} newValue - New value
    * @returns {Object} Component for chaining
    */
-  function setValue(newValue) {
+  const setValue = (newValue) => {
     state.value = newValue;
 
     const inputElement = element.querySelector('.input-native');
@@ -558,13 +565,13 @@ const createInput = (props) => {
     }
 
     return api;
-  }
+  };
 
   /**
    * Validate the input
    * @returns {boolean} Whether the input is valid
    */
-  function validate() {
+  const validate = () => {
     const inputElement = element.querySelector('.input-native');
     const customElement = element.querySelector('.input-custom');
     const messageElement = element.querySelector('.input-validation-message');
@@ -582,7 +589,7 @@ const createInput = (props) => {
     // Update state.error instead of state.isValid
     state.error = isValid ? false : true;
     return isValid;
-  }
+  };
 
   // Set up delegated event listeners for input events
   element.addEventListener('input', handleEvents);
@@ -728,7 +735,7 @@ const createInput = (props) => {
      */
     onThemeChange(theme, previousTheme) {
       // Handle theme changes if needed
-      console.debug(`Button: theme changed from ${previousTheme} to ${theme}`);
+      console.debug(`Input: theme changed from ${previousTheme} to ${theme}`);
     },
 
     /**

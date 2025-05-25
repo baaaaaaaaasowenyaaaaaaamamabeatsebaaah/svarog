@@ -1,12 +1,16 @@
 // src/components/BlogDetail/BlogDetail.test.js
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import BlogDetail from './BlogDetail.js';
+import { removeStyles } from '../../utils/styleInjection.js';
 
 describe('BlogDetail', () => {
   let defaultProps;
   let consoleSpy;
 
   beforeEach(() => {
+    // Clear any existing styles before each test
+    removeStyles('blogdetail');
+
     defaultProps = {
       title: 'Test Blog Post',
       content: '<p>This is the blog post content.</p>',
@@ -22,6 +26,30 @@ describe('BlogDetail', () => {
 
   afterEach(() => {
     consoleSpy.mockRestore();
+    // Clean up styles after each test
+    removeStyles('blogdetail');
+  });
+
+  it('should inject styles when component is created', () => {
+    BlogDetail(defaultProps);
+
+    // Check if styles were injected
+    const injectedStyle = document.querySelector('[data-svarog="blogdetail"]');
+    expect(injectedStyle).toBeTruthy();
+    expect(injectedStyle.textContent).toContain('.blog-detail');
+  });
+
+  it('should not inject styles multiple times', () => {
+    // Create multiple components
+    BlogDetail(defaultProps);
+    BlogDetail(defaultProps);
+    BlogDetail(defaultProps);
+
+    // Should only have one style tag
+    const injectedStyles = document.querySelectorAll(
+      '[data-svarog="blogdetail"]'
+    );
+    expect(injectedStyles.length).toBe(1);
   });
 
   it('should render correctly with all props', () => {
@@ -151,5 +179,35 @@ describe('BlogDetail', () => {
 
     expect(element).toBeInstanceOf(HTMLElement);
     expect(element.classList.contains('blog-detail--error')).toBe(true);
+  });
+
+  it('should handle HTML content errors gracefully', () => {
+    const propsWithBadHTML = {
+      title: 'Test Post',
+      content: '<script>alert("xss")</script><p>Safe content</p>',
+    };
+
+    const detail = BlogDetail(propsWithBadHTML);
+    const element = detail.getElement();
+
+    // Should still create element without throwing
+    expect(element).toBeInstanceOf(HTMLElement);
+    expect(element.querySelector('.blog-detail__content')).toBeTruthy();
+  });
+
+  it('should maintain CSS injection state across component updates', () => {
+    const detail = BlogDetail(defaultProps);
+
+    // Verify initial style injection
+    expect(document.querySelector('[data-svarog="blogdetail"]')).toBeTruthy();
+
+    // Update component
+    detail.update({ title: 'New Title' });
+
+    // Should still have exactly one style tag
+    const injectedStyles = document.querySelectorAll(
+      '[data-svarog="blogdetail"]'
+    );
+    expect(injectedStyles.length).toBe(1);
   });
 });

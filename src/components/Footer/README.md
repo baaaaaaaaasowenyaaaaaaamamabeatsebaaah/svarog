@@ -1,6 +1,15 @@
 # Footer Component
 
-The Footer component provides a customizable, responsive footer section with links, social media links, and copyright information.
+The Footer component provides a customizable, responsive footer section with links, social media links, and copyright information. The component uses CSS injection for styling, ensuring it works seamlessly in all environments including Node.js.
+
+## Features
+
+✅ **Zero Configuration** - Styles inject automatically when component renders  
+✅ **SSR Compatible** - Works in Node.js environments without CSS import errors  
+✅ **Performance Optimized** - Styles cached and deduped automatically  
+✅ **Theme Aware** - Integrates with Svarog UI theme system  
+✅ **Responsive Design** - Adapts to mobile and desktop layouts  
+✅ **Backward Compatible** - Supports legacy `url` prop with deprecation warnings
 
 ## Usage
 
@@ -126,7 +135,7 @@ myFooter.destroy();
 
 ## CSS Customization
 
-Footer styles can be customized using CSS variables:
+Footer styles are automatically injected and can be customized using CSS variables:
 
 ```css
 :root {
@@ -142,6 +151,19 @@ Footer styles can be customized using CSS variables:
   --font-size-sm: 0.875rem;
 }
 ```
+
+### CSS Class Structure
+
+The Footer component uses the following CSS classes:
+
+- `.footer` - Root footer element
+- `.footer__container` - Content container with max-width
+- `.footer__links` - Links section container
+- `.footer__link` - Individual footer link
+- `.footer__social` - Social links section container
+- `.footer__social-link` - Individual social link
+- `.footer__copyright` - Copyright section container
+- `.footer__copyright-text` - Copyright text element
 
 ## Examples
 
@@ -252,3 +274,56 @@ The Footer component has standardized its link properties:
 - Changed `url` to `href` in both `links` and `social` arrays
 - Legacy `url` property is still supported but deprecated and will show a warning
 - Update your code to use `href` instead of `url` for future compatibility
+
+### CSS Injection Migration
+
+Starting with v2.1, the Footer component uses CSS injection instead of traditional CSS imports:
+
+- **No CSS imports required** - Component styles inject automatically
+- **Works in Node.js** - No more CSS import errors in server environments
+- **Better performance** - Styles cached and deduped automatically
+- **Zero configuration** - Just import and use the component
+
+#### Before (v2.0 and earlier)
+
+```javascript
+// CSS import was required
+import './Footer.css';
+import createFooter from './Footer.js';
+```
+
+#### After (v2.1+)
+
+```javascript
+// No CSS import needed - styles inject automatically
+import createFooter from './Footer.js';
+```
+
+## Browser Support
+
+The Footer component supports all modern browsers:
+
+- Chrome 60+
+- Firefox 55+
+- Safari 12+
+- Edge 79+
+
+Legacy browser support can be achieved with appropriate polyfills for:
+
+- CSS Custom Properties
+- ES6 Modules
+
+## Performance
+
+The Footer component is optimized for performance:
+
+- **Automatic style injection** - Styles load only when component is used
+- **Style deduplication** - Multiple Footer instances share the same styles
+- **Minimal DOM updates** - Only changed content is re-rendered
+- **Memory management** - Proper cleanup on component destruction
+
+The component uses efficient algorithms for:
+
+- O(1) style caching and deduplication
+- O(n) link rendering where n is the number of links
+- Minimal DOM operations for updates

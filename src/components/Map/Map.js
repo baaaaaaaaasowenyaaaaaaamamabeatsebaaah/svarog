@@ -1,7 +1,13 @@
 // src/components/Map/Map.js
-import './Map.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { mapStyles } from './Map.styles.js';
+
+// Create style injector for Map component
+const injectMapStyles = createStyleInjector('Map');
 
 /**
  * Creates a Map component
@@ -261,6 +267,9 @@ const createMap = (props = {}) => {
    * @returns {HTMLElement} Map element
    */
   const renderMap = (state) => {
+    // Inject styles on first render
+    injectMapStyles(mapStyles);
+
     // Create merged options with defaults
     const options = {
       zoom: 12,

@@ -1,5 +1,4 @@
 // src/components/PriceDisplay/PriceDisplay.js
-import './PriceDisplay.css';
 import {
   createElement,
   validateProps,
@@ -7,6 +6,13 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { priceDisplayStyles } from './PriceDisplay.styles.js';
+
+// Create style injector for PriceDisplay component
+const injectPriceDisplayStyles = createStyleInjector('PriceDisplay');
 
 /**
  * Normalizes props to handle both legacy and standardized prop names
@@ -50,6 +56,9 @@ const validatePriceDisplayProps = (props) => {
  * @returns {HTMLElement} - Price display element
  */
 const renderPriceDisplay = (state) => {
+  // Inject styles on render
+  injectPriceDisplayStyles(priceDisplayStyles);
+
   // Build CSS class list
   const classNames = [
     'price-display',

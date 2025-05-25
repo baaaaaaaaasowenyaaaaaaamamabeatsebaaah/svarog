@@ -1,5 +1,6 @@
 // src/components/MuchandyHero/MuchandyHero.js
-import './MuchandyHero.css';
+
+// REMOVE: import './MuchandyHero.css';
 import {
   createElement,
   validateProps,
@@ -8,6 +9,13 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import Tabs from '../Tabs/Tabs.js';
+
+// ADD: CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { muchandyHeroStyles } from './MuchandyHero.styles.js';
+
+// Create style injector for MuchandyHero component
+const injectMuchandyHeroStyles = createStyleInjector('MuchandyHero');
 
 /**
  * ALGORITHMIC OPTIMIZATION: Mathematical Tab Index Calculation
@@ -97,6 +105,9 @@ const normalizeProps = (props) => {
  * @returns {HTMLElement} - MuchandyHero element
  */
 const renderMuchandyHero = (state) => {
+  // ADD: Inject styles on render
+  injectMuchandyHeroStyles(muchandyHeroStyles);
+
   // Create main container with efficient class handling
   const container = createElement('div', {
     classes: ['muchandy-hero', state.className].filter(Boolean),

@@ -1,6 +1,17 @@
 # Checkbox Component
 
-The Checkbox component provides a customizable, accessible checkbox input with various states, validation, and styling options.
+The Checkbox component provides a customizable, accessible checkbox input with various states, validation, and styling options. It now uses CSS injection for seamless integration across different environments.
+
+## Features
+
+✅ **Zero Configuration** - No CSS imports needed, styles are automatically injected  
+✅ **SSR Compatible** - Styles inject safely in browser environments only  
+✅ **Tree Shakeable** - Only loads styles when component is used  
+✅ **Standardized Props** - Supports both `checked` and `value` props for consistency  
+✅ **Advanced Validation** - Built-in validation with custom messages  
+✅ **Loading States** - Visual loading indicators with spinner  
+✅ **Indeterminate State** - Support for tri-state checkboxes  
+✅ **Accessibility** - Full ARIA support and keyboard navigation
 
 ## Usage
 
@@ -128,10 +139,13 @@ myCheckbox.destroy();
 
 ## CSS Customization
 
-Checkbox styles can be customized using CSS variables:
+The component uses CSS injection for styling. You can customize the appearance using CSS variables. Styles are automatically injected when the component is first used.
+
+### CSS Variables
 
 ```css
 :root {
+  /* Basic styling */
   --checkbox-bg: #ffffff;
   --checkbox-border: 1px solid #cbd5e0;
   --checkbox-radius: 4px;
@@ -141,6 +155,8 @@ Checkbox styles can be customized using CSS variables:
   --checkbox-font-size: 16px;
   --checkbox-font-family: inherit;
   --checkbox-margin-bottom: 12px;
+  --checkbox-padding: 4px;
+  --checkbox-transition: all 0.2s ease-in-out;
 
   /* Hover state */
   --checkbox-hover-border-color: #a0aec0;
@@ -180,7 +196,28 @@ Checkbox styles can be customized using CSS variables:
   /* Indicator (checkmark) */
   --checkbox-indicator-width: 6px;
   --checkbox-indicator-height: 10px;
+
+  /* Spacing variables (if not defined elsewhere) */
+  --space-1: 4px;
+  --space-5: 20px;
 }
+```
+
+### Custom Styling Example
+
+```javascript
+// Apply custom theme to specific checkbox
+const customCheckbox = Checkbox({
+  label: 'Custom styled checkbox',
+  className: 'my-custom-checkbox',
+});
+
+// Add custom CSS variables
+document.documentElement.style.setProperty('--checkbox-checked-bg', '#10b981');
+document.documentElement.style.setProperty(
+  '--checkbox-checked-border-color',
+  '#10b981'
+);
 ```
 
 ## Examples
@@ -277,15 +314,82 @@ const checkbox = Checkbox({
   label: 'Custom styled checkbox',
   className: 'custom-checkbox',
 });
+
+// Styles are automatically injected, no need for separate CSS imports
 ```
+
+### Multi-checkbox Management
+
+```javascript
+const createCheckboxGroup = (options) => {
+  const checkboxes = options.map((option) =>
+    Checkbox({
+      id: option.id,
+      name: 'group',
+      label: option.label,
+      onChange: (event, checked) => {
+        console.log(`${option.label} selected:`, checked);
+      },
+    })
+  );
+
+  const selectAllCheckbox = Checkbox({
+    label: 'Select All',
+    onChange: (event, checked) => {
+      checkboxes.forEach((cb) => cb.setChecked(checked));
+    },
+  });
+
+  return { selectAllCheckbox, checkboxes };
+};
+```
+
+## Migration from CSS Import Version
+
+If you're upgrading from a version that required CSS imports:
+
+### Before (CSS imports required)
+
+```javascript
+import { Checkbox } from '@svarog-ui/core';
+import '@svarog-ui/core/styles/checkbox.css'; // ❌ No longer needed
+
+const checkbox = Checkbox({ label: 'My checkbox' });
+```
+
+### After (CSS injection)
+
+```javascript
+import { Checkbox } from '@svarog-ui/core';
+// ✅ No CSS import needed - styles are automatically injected
+
+const checkbox = Checkbox({ label: 'My checkbox' });
+```
+
+## Browser Support
+
+- ✅ **Chrome/Edge**: Full support including CSS injection
+- ✅ **Firefox**: Full support including CSS injection
+- ✅ **Safari**: Full support including CSS injection
+- ✅ **SSR/Node.js**: Graceful degradation (no styles injected on server)
+- ✅ **CSP Compliant**: Uses standard style elements, no inline styles
 
 ## Accessibility
 
 The Checkbox component follows best practices for accessibility:
 
-- Uses native checkbox inputs
-- Properly associates labels with inputs
-- Supports keyboard navigation
-- Includes aria attributes for validation messages
+- Uses native checkbox inputs for screen reader compatibility
+- Properly associates labels with inputs using `<label>` elements
+- Supports keyboard navigation (Space to toggle, Tab to navigate)
+- Includes ARIA attributes for validation messages (`aria-live="polite"`)
 - Maintains proper color contrast ratios when using theme variables
-- Loading state is properly conveyed to assistive technologies
+- Loading and disabled states are properly conveyed to assistive technologies
+- Required state is indicated both visually (\*) and semantically (`required` attribute)
+
+## Performance
+
+- **CSS Injection**: Styles are injected once per component type and cached
+- **Partial Updates**: DOM updates only changed properties, not the entire element
+- **Event Delegation**: Efficient event handling with cleanup
+- **Memory Management**: Proper cleanup of event listeners and references
+- **Bundle Size**: Tree-shakeable - only loads when used

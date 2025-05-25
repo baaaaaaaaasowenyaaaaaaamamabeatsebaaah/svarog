@@ -1,9 +1,13 @@
 // src/components/Pagination/Pagination.js
-import './Pagination.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { createComponent } from '../../utils/componentFactory.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { paginationStyles } from './Pagination.styles.js';
 import Button from '../Button/Button.js';
+
+// Create style injector for Pagination component
+const injectPaginationStyles = createStyleInjector('Pagination');
 
 /**
  * Creates a Pagination component for navigating through paginated content
@@ -20,6 +24,9 @@ import Button from '../Button/Button.js';
  * @returns {Object} Pagination component API
  */
 const createPagination = (props) => {
+  // Inject styles on component creation
+  injectPaginationStyles(paginationStyles);
+
   // Migrate legacy props to standardized props
   const migrateLegacyProps = (props) => {
     const migrated = { ...props };
@@ -147,7 +154,9 @@ const createPagination = (props) => {
       disabled: activePage <= 1,
       className: 'pagination__button pagination__button--prev',
       onClick: () => handlePageClick('prev'),
-      ariaLabel: 'Go to previous page',
+      attributes: {
+        'aria-label': 'Go to previous page',
+      },
     });
 
     buttonInstances.push(prevBtn);
@@ -199,7 +208,9 @@ const createPagination = (props) => {
       disabled: activePage >= totalPages,
       className: 'pagination__button pagination__button--next',
       onClick: () => handlePageClick('next'),
-      ariaLabel: 'Go to next page',
+      attributes: {
+        'aria-label': 'Go to next page',
+      },
     });
 
     buttonInstances.push(nextBtn);

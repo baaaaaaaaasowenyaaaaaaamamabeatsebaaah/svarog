@@ -1,7 +1,11 @@
 // src/components/Link/Link.js
-import './Link.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { linkStyles } from './Link.styles.js';
+
+// Create style injector for Link component
+const injectLinkStyles = createStyleInjector('Link');
 
 /**
  * Creates a Link component
@@ -9,6 +13,9 @@ import { createElement } from '../../utils/componentFactory.js';
  * @returns {Object} Link component
  */
 const createLink = (props) => {
+  // Inject styles on first render
+  injectLinkStyles(linkStyles);
+
   // Migrate legacy props according to standardization guide
   const migrateLegacyProps = (props) => {
     const migrated = { ...props };

@@ -1,5 +1,4 @@
 // src/components/Radio/RadioGroup.js
-import './RadioGroup.css';
 import { createComponent } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withEventDelegation } from '../../utils/composition.js';
@@ -7,6 +6,13 @@ import { throttle, PerformanceBenchmark } from '../../utils/performance.js';
 import { validateRequiredProps } from '../../utils/validation.js';
 import { isTestEnvironment } from '../../utils/environment.js';
 import Radio from './Radio.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { radioGroupStyles } from './RadioGroup.styles.js';
+
+// Create style injector for RadioGroup component
+const injectRadioGroupStyles = createStyleInjector('RadioGroup');
 
 /**
  * Migrate legacy props to standardized props
@@ -39,6 +45,9 @@ const migrateLegacyProps = (props) => {
  * @returns {HTMLElement} The RadioGroup element
  */
 const createRadioGroupDOM = (props) => {
+  // Inject styles on first render
+  injectRadioGroupStyles(radioGroupStyles);
+
   const layout = props.layout || 'vertical';
   const className = props.className || '';
 

@@ -1,5 +1,4 @@
 // src/components/ConditionSelector/ConditionSelector.js
-import './ConditionSelector.css';
 import {
   createElement,
   validateProps,
@@ -7,6 +6,13 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { conditionSelectorStyles } from './ConditionSelector.styles.js';
+
+// Create style injector for ConditionSelector component
+const injectConditionSelectorStyles = createStyleInjector('ConditionSelector');
 
 /**
  * Migrates legacy props to new standardized props
@@ -227,6 +233,9 @@ const createConditionOption = (condition, selectedId, clickHandler) => {
  * @returns {HTMLElement} Root element for the component
  */
 const renderConditionSelector = (state) => {
+  // Inject styles on first render
+  injectConditionSelectorStyles(conditionSelectorStyles);
+
   const { conditions, selectedId, loading, className } = state;
 
   // Create container with appropriate classes

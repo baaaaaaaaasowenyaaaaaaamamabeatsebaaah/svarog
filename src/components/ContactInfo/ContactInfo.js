@@ -1,11 +1,15 @@
 // src/components/ContactInfo/ContactInfo.js
-import './ContactInfo.css';
 import {
   createElement,
   validateProps,
   createComponent,
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { contactInfoStyles } from './ContactInfo.styles.js';
+
+// Create style injector for ContactInfo component
+const injectContactInfoStyles = createStyleInjector('ContactInfo');
 
 /**
  * Migrates legacy prop names to standardized prop names.
@@ -26,6 +30,17 @@ const migrateLegacyProps = (props) => {
  * @returns {HTMLElement} - ContactInfo element
  */
 const renderContactInfo = (state) => {
+  console.log('renderContactInfo called - injecting styles');
+
+  // Inject styles on render
+  injectContactInfoStyles(contactInfoStyles);
+
+  console.log('Styles injected in render, checking DOM...');
+  const injectedStyle = document.querySelector('[data-svarog="contactinfo"]');
+  console.log('Style found in DOM:', !!injectedStyle);
+  // Inject styles on render
+  injectContactInfoStyles(contactInfoStyles);
+
   // Create the contact info container
   const contactInfoClasses = ['contact-info'];
   if (state.className) contactInfoClasses.push(state.className);
@@ -144,6 +159,8 @@ const renderContactInfo = (state) => {
  * @returns {Object} ContactInfo component API
  */
 const createContactInfo = (props) => {
+  console.log('createContactInfo called - NOT injecting styles here');
+
   // Migrate any legacy props to standardized props
   const normalizedProps = migrateLegacyProps(props);
 

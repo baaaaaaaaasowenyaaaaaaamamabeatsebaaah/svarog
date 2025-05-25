@@ -1,6 +1,6 @@
 # PhoneRepairForm Component
 
-The PhoneRepairForm component provides a multi-step interface for users to select a phone manufacturer, device model, and repair service to get pricing information. It features async loading, error handling, and optimized user experience.
+The PhoneRepairForm component provides a multi-step interface for users to select a phone manufacturer, device model, and repair service to get pricing information. It features async loading, error handling, and optimized user experience with CSS injection for zero-configuration styling.
 
 ## Key Features
 
@@ -13,6 +13,21 @@ The PhoneRepairForm component provides a multi-step interface for users to selec
 - **Responsive design**: Works on desktop and mobile
 - **Accessibility**: Full keyboard navigation and screen reader support
 - **Theme awareness**: Responds to theme changes
+- **CSS Injection**: Zero-configuration styling that works everywhere
+- **SSR Compatible**: Safe for server-side rendering environments
+
+## CSS Injection Architecture
+
+This component uses the modern CSS injection pattern:
+
+✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere  
+✅ **Zero Configuration** - Users just import and use components  
+✅ **SSR Compatible** - Styles inject safely in browser only  
+✅ **Tree Shakeable** - Only loads styles for used components  
+✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Developer Experience** - No separate CSS imports to remember
+
+The component automatically injects its styles on first render using the `createStyleInjector` utility.
 
 ## Usage
 
@@ -39,7 +54,7 @@ const formContainer = PhoneRepairFormContainer({
   usedPhoneHref: 'https://example.com/used-phones',
 });
 
-// Add to DOM
+// Add to DOM - styles will inject automatically
 document.body.appendChild(formContainer.getElement());
 ```
 
@@ -78,6 +93,7 @@ const repairForm = PhoneRepairForm({
   },
 });
 
+// Styles inject automatically on first render
 document.body.appendChild(repairForm.getElement());
 ```
 
@@ -228,6 +244,7 @@ const container = PhoneRepairFormContainer({
   },
 });
 
+// Styles inject automatically
 document.getElementById('form-container').appendChild(container.getElement());
 ```
 
@@ -315,7 +332,7 @@ loadManufacturers().then((manufacturers) => {
 
 ## Styling
 
-The component can be styled using CSS custom properties:
+The component uses CSS injection for automatic styling. You can customize using CSS custom properties:
 
 ```css
 :root {
@@ -338,6 +355,27 @@ The component can be styled using CSS custom properties:
 }
 ```
 
+### CSS Injection Benefits
+
+- **Zero Configuration**: No CSS imports needed, styles work automatically
+- **Performance**: Styles are cached and deduped across instances
+- **Bundle Size**: Only used component styles are included
+- **SSR Safe**: Works in Node.js environments without errors
+- **Theme Compatible**: Integrates seamlessly with CSS custom properties
+
+## File Structure
+
+```
+src/components/PhoneRepairForm/
+├── PhoneRepairForm.js          # Main component with CSS injection
+├── PhoneRepairForm.styles.js   # Component-specific styles
+├── PhoneRepairFormContainer.js # Container for API management
+├── PhoneRepairForm.test.js     # Unit tests
+├── PhoneRepairForm.stories.js  # Storybook stories
+├── README.md                   # This documentation
+└── index.js                    # Exports
+```
+
 ## Accessibility
 
 - Full keyboard navigation support
@@ -352,10 +390,33 @@ The component can be styled using CSS custom properties:
 - Firefox (latest)
 - Safari (latest)
 - Mobile browsers (iOS Safari, Chrome for Android)
+- Node.js environments (SSR compatible)
 
 ## Performance
 
-- Efficient partial updates to minimize DOM changes
-- Debounced event handlers for smooth interactions
-- Lazy loading of dependent data
-- Memory leak prevention with proper cleanup
+- **CSS Injection**: Automatic style loading with caching and deduplication
+- **Efficient partial updates**: Minimal DOM changes with algorithmic optimization
+- **Debounced event handlers**: Smooth interactions
+- **Lazy loading**: Dependent data loads only when needed
+- **Memory leak prevention**: Proper cleanup with style injection management
+- **O(1) operations**: Optimized lookup maps for name resolution
+- **Mathematical algorithms**: Step progression and validation logic
+
+## Migration from CSS Imports
+
+If upgrading from a version that used CSS imports:
+
+### Before (CSS Import)
+
+```javascript
+import './PhoneRepairForm.css'; // ❌ Remove this
+import PhoneRepairForm from './PhoneRepairForm.js';
+```
+
+### After (CSS Injection)
+
+```javascript
+import PhoneRepairForm from './PhoneRepairForm.js'; // ✅ Styles included automatically
+```
+
+No other changes needed - the component API remains exactly the same!

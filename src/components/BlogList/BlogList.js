@@ -1,13 +1,17 @@
 // src/components/BlogList/BlogList.js
-import './BlogList.css';
 import {
   createComponent,
   createElement,
 } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { validateRequiredProps } from '../../utils/validation.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { blogListStyles } from './BlogList.styles.js';
 import BlogCard from '../BlogCard/BlogCard.js';
 import Grid from '../Grid/Grid.js';
+
+// Create style injector for BlogList component
+const injectBlogListStyles = createStyleInjector('BlogList');
 
 /**
  * Creates a BlogList component for displaying multiple blog post cards in a grid layout
@@ -20,6 +24,9 @@ import Grid from '../Grid/Grid.js';
  * @returns {Object} BlogList component API
  */
 const createBlogList = (props) => {
+  // Inject styles on first render
+  injectBlogListStyles(blogListStyles);
+
   // Define prop requirements
   const propRequirements = {
     posts: { required: false, type: 'array' },

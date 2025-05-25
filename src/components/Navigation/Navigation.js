@@ -1,5 +1,4 @@
 // src/components/Navigation/Navigation.js
-import './Navigation.css';
 import {
   createComponent,
   createElement,
@@ -8,6 +7,13 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { debounce } from '../../utils/performance.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { navigationStyles } from './Navigation.styles.js';
+
+// Create style injector for Navigation component
+const injectNavigationStyles = createStyleInjector('Navigation');
 
 /**
  * Creates a Navigation component
@@ -26,6 +32,9 @@ import { debounce } from '../../utils/performance.js';
  * @returns {Object} Navigation component API
  */
 const createNavigation = (props) => {
+  // Inject styles on first render
+  injectNavigationStyles(navigationStyles);
+
   // Validate required props
   validateProps(props, ['items'], 'Navigation');
 

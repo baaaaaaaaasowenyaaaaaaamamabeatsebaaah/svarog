@@ -3,6 +3,13 @@ import { createElement, validateProps } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import Head from '../Head/Head.js';
 
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { pageStyles } from './Page.styles.js';
+
+// Create style injector for Page component
+const injectPageStyles = createStyleInjector('Page');
+
 /**
  * Migrates legacy props to standardized props
  * @param {Object} props - Original props
@@ -214,6 +221,9 @@ const createPageFooter = (footerConfig, componentMapper) => {
  * @returns {HTMLElement} Page container element
  */
 const renderPage = (state) => {
+  // Inject styles on render (automatically cached)
+  injectPageStyles(pageStyles);
+
   const container = createElement('div', {
     classes: ['page'],
     attributes: {

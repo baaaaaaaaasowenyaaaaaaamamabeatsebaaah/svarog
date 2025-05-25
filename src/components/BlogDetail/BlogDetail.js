@@ -1,11 +1,17 @@
 // src/components/BlogDetail/BlogDetail.js
-import './BlogDetail.css';
 import {
   createComponent,
   createElement,
 } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { validateRequiredProps } from '../../utils/validation.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { blogDetailStyles } from './BlogDetail.styles.js';
+
+// Create style injector for BlogDetail component
+const injectBlogDetailStyles = createStyleInjector('BlogDetail');
 
 /**
  * Creates a BlogDetail component for displaying full blog post content
@@ -22,6 +28,9 @@ import { validateRequiredProps } from '../../utils/validation.js';
  * @returns {Object} BlogDetail component API
  */
 const createBlogDetail = (props) => {
+  // Inject styles on component creation
+  injectBlogDetailStyles(blogDetailStyles);
+
   // Migrate legacy props
   const migrateLegacyProps = (originalProps) => {
     const migratedProps = { ...originalProps };
@@ -69,7 +78,6 @@ const createBlogDetail = (props) => {
      * Helper function to format date
      * @param {string} dateString - ISO date string
      * @returns {string} Formatted date string
-     * @private
      */
     const formatDate = (dateString) => {
       if (!dateString) return '';
@@ -89,10 +97,8 @@ const createBlogDetail = (props) => {
     /**
      * Creates the blog detail element using DocumentFragment for performance
      * @returns {HTMLElement} Article element
-     * @private
      */
     const createArticleElement = () => {
-      // Use DocumentFragment for better performance
       const fragment = document.createDocumentFragment();
       const article = createElement('article', {
         classes: `blog-detail ${className}`.trim(),
@@ -129,14 +135,10 @@ const createBlogDetail = (props) => {
         // Add content section
         article.appendChild(createContentSection());
 
-        // Add complete article to fragment
         fragment.appendChild(article);
-
-        // Return the article element from the fragment
         return fragment.firstChild;
       } catch (error) {
         console.error('BlogDetail: Error creating article element', error);
-        // Return a minimal valid element if there's an error
         return createElement('article', {
           classes: 'blog-detail blog-detail--error',
           text: 'Error rendering blog content',
@@ -147,7 +149,6 @@ const createBlogDetail = (props) => {
     /**
      * Creates the metadata section with author, date, and categories
      * @returns {HTMLElement} Metadata container element
-     * @private
      */
     const createMetaSection = () => {
       const metaContainer = createElement('div', {
@@ -198,7 +199,6 @@ const createBlogDetail = (props) => {
     /**
      * Creates the featured image section
      * @returns {HTMLElement} Image container element
-     * @private
      */
     const createImageSection = () => {
       const imageContainer = createElement('div', {
@@ -221,13 +221,12 @@ const createBlogDetail = (props) => {
     /**
      * Creates the content section with blog post content
      * @returns {HTMLElement} Content container element
-     * @private
      */
     const createContentSection = () => {
       try {
         return createElement('div', {
           classes: 'blog-detail__content',
-          html: content, // Use HTML content
+          html: content,
         });
       } catch (error) {
         console.error('BlogDetail: Error rendering HTML content', error);
@@ -272,7 +271,7 @@ const createBlogDetail = (props) => {
           return newBlogDetail;
         } catch (error) {
           console.error('BlogDetail: Error updating component', error);
-          return this; // Return current instance if update fails
+          return this;
         }
       },
 

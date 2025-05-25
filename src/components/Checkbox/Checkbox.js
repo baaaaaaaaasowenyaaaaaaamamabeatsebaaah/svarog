@@ -1,6 +1,10 @@
 // src/components/Checkbox/Checkbox.js
-import './Checkbox.css';
 import { createComponent } from '../../utils/componentFactory.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { checkboxStyles } from './Checkbox.styles.js';
+
+// Create style injector for Checkbox component
+const injectCheckboxStyles = createStyleInjector('Checkbox');
 
 /**
  * Factory for creating change event handlers
@@ -67,6 +71,9 @@ const migrateLegacyProps = (props) => {
  * @returns {Object} Checkbox component
  */
 const createCheckbox = (props) => {
+  // Inject styles on component creation
+  injectCheckboxStyles(checkboxStyles);
+
   // Standardize props
   const normalizedProps = migrateLegacyProps(props);
 

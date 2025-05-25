@@ -1,6 +1,6 @@
 # Select Component
 
-The Select component provides a customizable, accessible dropdown selection with support for single and multiple selections, option groups, validation, and **asynchronous data loading**.
+The Select component provides a customizable, accessible dropdown selection with support for single and multiple selections, option groups, validation, and **asynchronous data loading**. **Styles are automatically injected - no CSS imports required.**
 
 ## Usage
 
@@ -259,7 +259,7 @@ The component supports three distinct states:
 
 ## CSS Customization
 
-Select styles can be customized using CSS variables:
+**Styles are automatically injected - no CSS imports required.** Select styles can be customized using CSS variables:
 
 ```css
 :root {
@@ -332,6 +332,32 @@ const select = Select({
 });
 ```
 
+## **CSS Injection Implementation**
+
+This component now uses automatic CSS injection:
+
+✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere  
+✅ **Zero Configuration** - Users just import and use components  
+✅ **SSR Compatible** - Styles inject safely in browser only  
+✅ **Tree Shakeable** - Only loads styles for used components  
+✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Developer Experience** - No separate CSS imports to remember
+
+### **Before (Required CSS Import)**
+
+```javascript
+import './Select.css'; // ❌ This caused Node.js errors
+import Select from './Select.js';
+```
+
+### **After (Automatic CSS Injection)**
+
+```javascript
+import { Select } from '@svarog-ui/core'; // ✅ Just works everywhere
+```
+
+The component automatically injects its styles when first used. Styles are cached and deduped, so multiple instances share the same CSS injection.
+
 ## Examples
 
 ### Single Select with Validation
@@ -364,6 +390,21 @@ const multiSelect = Select({
   ],
   multiple: true,
   value: ['red', 'blue'], // Initial values
+  onChange: (event, values) => console.log('Selected colors:', values),
+});
+```
+
+### Multiple Select with DefaultValue
+
+```javascript
+const multiSelect = Select({
+  options: [
+    { value: 'red', label: 'Red' },
+    { value: 'green', label: 'Green' },
+    { value: 'blue', label: 'Blue' },
+  ],
+  multiple: true,
+  defaultValue: ['red', 'blue'], // Using standardized prop
   onChange: (event, values) => console.log('Selected colors:', values),
 });
 ```

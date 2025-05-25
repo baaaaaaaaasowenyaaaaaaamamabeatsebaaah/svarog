@@ -1,6 +1,15 @@
 # Grid Component
 
-The Grid component provides a flexible 12-column grid system for creating responsive layouts.
+The Grid component provides a flexible 12-column grid system for creating responsive layouts. Styles are automatically injected when the component is used.
+
+## Features
+
+✅ **Auto-injected Styles** - No CSS imports needed, styles inject automatically  
+✅ **SSR Safe** - Works in server-side rendering environments  
+✅ **Responsive Design** - Built-in mobile, tablet, and desktop breakpoints  
+✅ **CSS Grid Based** - Modern CSS Grid implementation for optimal performance  
+✅ **Theme Aware** - Integrates with the Svarog UI theme system  
+✅ **TypeScript Support** - Full type definitions included
 
 ## Usage
 
@@ -54,6 +63,14 @@ document.body.appendChild(grid.getElement());
 | desktopWidth  | number                       | null     | Column width (1-12) for desktop screens (≥1024px)     |
 | offset        | number                       | null     | Number of columns to offset for all screen sizes      |
 | desktopOffset | number                       | null     | Number of columns to offset for desktop screens       |
+
+## Responsive Breakpoints
+
+The Grid component uses the following breakpoints:
+
+- **Mobile**: < 768px
+- **Tablet**: 768px - 1023px
+- **Desktop**: ≥ 1024px
 
 ## Grid Methods
 
@@ -204,6 +221,24 @@ grid.appendChild(column1.getElement());
 grid.appendChild(column2.getElement());
 ```
 
+### Centered Grid with Alignment
+
+```javascript
+const grid = Grid({
+  gap: '1rem',
+  alignItems: 'center',
+  justifyItems: 'center',
+});
+
+const column1 = Grid.Column({
+  width: 8,
+  desktopOffset: 2, // Center the column on desktop
+  children: myElement1,
+});
+
+grid.appendChild(column1.getElement());
+```
+
 ### Nested Grids
 
 ```javascript
@@ -247,6 +282,47 @@ outerGrid.appendChild(contentColumn.getElement());
 outerGrid.appendChild(footerColumn.getElement());
 ```
 
+### Complex Responsive Layout
+
+```javascript
+const grid = Grid({
+  gap: '1rem',
+  rowGap: '2rem', // Different row gap
+});
+
+// Sidebar - full width on mobile, 1/3 on tablet, 1/4 on desktop
+const sidebar = Grid.Column({
+  width: 12,
+  mobileWidth: 12,
+  tabletWidth: 4,
+  desktopWidth: 3,
+  children: sidebarElement,
+});
+
+// Main content - full width on mobile, 2/3 on tablet, 3/4 on desktop
+const mainContent = Grid.Column({
+  width: 12,
+  mobileWidth: 12,
+  tabletWidth: 8,
+  desktopWidth: 9,
+  children: mainContentElement,
+});
+
+grid.appendChild(sidebar.getElement());
+grid.appendChild(mainContent.getElement());
+```
+
+## CSS Injection
+
+The Grid component automatically injects its styles when first used. This includes:
+
+- Base grid and column styles
+- Responsive breakpoint styles
+- Utility classes for alignment and sizing
+- Direction modifiers for RTL layouts
+
+No manual CSS imports are required - the component handles all styling automatically.
+
 ## Browser Support
 
 The Grid component uses CSS Grid Layout and is compatible with:
@@ -265,3 +341,27 @@ The Grid component is designed with accessibility in mind:
 - Maintains a logical source order in the HTML
 - Preserves content flow even when visually reordered (with `reverse` option)
 - Works with screen readers and other assistive technologies
+- Semantic HTML structure with proper grid roles
+
+## Performance
+
+The Grid component is optimized for performance:
+
+- Styles are injected only once per page load
+- Uses modern CSS Grid for optimal rendering performance
+- Minimal DOM manipulation during updates
+- Efficient responsive class application
+
+## Migration from CSS Imports
+
+If you were previously importing CSS manually:
+
+```javascript
+// ❌ Remove this - no longer needed
+import '@svarog-ui/core/components/Grid/Grid.css';
+
+// ✅ Just use the component - styles inject automatically
+import { Grid } from '@svarog-ui/core';
+```
+
+The component now handles all styling automatically with zero configuration required.

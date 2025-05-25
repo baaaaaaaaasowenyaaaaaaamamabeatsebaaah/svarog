@@ -1,7 +1,11 @@
 // src/components/Image/Image.js
-import './Image.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { imageStyles } from './Image.styles.js';
+
+// Create style injector for Image component
+const injectImageStyles = createStyleInjector('Image');
 
 /**
  * Creates an Image component with lazy-loading, fallback support, and responsive options
@@ -17,6 +21,9 @@ import { createElement } from '../../utils/componentFactory.js';
  * @returns {Object} Image component API object
  */
 const Image = (props) => {
+  // Inject styles on component creation
+  injectImageStyles(imageStyles);
+
   // Migrate legacy props
   const normalizedProps = migrateLegacyProps(props);
 

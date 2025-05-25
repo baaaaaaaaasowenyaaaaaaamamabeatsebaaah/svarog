@@ -1,6 +1,14 @@
 # Tabs Component
 
-The Tabs component provides an accessible way to organize content into tabbed sections, allowing users to navigate between different views while maintaining a clean interface.
+The Tabs component provides an accessible way to organize content into tabbed sections, allowing users to navigate between different views while maintaining a clean interface. **This component now uses CSS injection for zero-configuration styling.**
+
+## Features
+
+✅ **Zero CSS Imports** - Styles inject automatically, works everywhere  
+✅ **SSR Compatible** - Safe injection in browser environments  
+✅ **Accessible** - Full ARIA support and keyboard navigation  
+✅ **Flexible Content** - Supports text, HTML, components, and functions  
+✅ **Performance Optimized** - Styles cached and deduped automatically
 
 ## Usage
 
@@ -114,7 +122,7 @@ myTabs.destroy();
 
 ## CSS Customization
 
-Tabs styles can be customized using CSS variables:
+Tabs styles can be customized using CSS variables. The component automatically injects its styles, but you can override them:
 
 ```css
 :root {
@@ -309,6 +317,18 @@ const callbackTabs = Tabs({
 });
 ```
 
+## Migration from CSS Imports
+
+If you were previously importing CSS files, you can now remove those imports:
+
+```javascript
+// REMOVE: import './Tabs.css';
+// REMOVE: import '@svarog-ui/core/dist/tabs.css';
+
+// The component now injects styles automatically
+import { Tabs } from '@svarog-ui/core';
+```
+
 ## Accessibility
 
 The Tabs component follows best practices for accessibility:
@@ -318,3 +338,17 @@ The Tabs component follows best practices for accessibility:
 - Keyboard navigation support
 - Focus management between tabs
 - Hidden attribute for inactive tab panels
+
+## Browser Support
+
+- Modern browsers with ES2020+ support
+- SSR/Node.js environments (styles inject only in browser)
+- Works with bundlers, CDN, and direct imports
+- No external CSS dependencies required
+
+## Performance
+
+- **Automatic style injection**: Styles load only when component is used
+- **Caching**: Styles are cached and deduped across instances
+- **Memory efficient**: Cleanup handled automatically
+- **Tree-shakeable**: Only loads what you use

@@ -1,5 +1,4 @@
 // src/components/StepsIndicator/StepsIndicator.js
-import './StepsIndicator.css';
 import {
   createElement,
   validateProps,
@@ -7,6 +6,13 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { stepsIndicatorStyles } from './StepsIndicator.styles.js';
+
+// Create style injector for StepsIndicator component
+const injectStepsIndicatorStyles = createStyleInjector('StepsIndicator');
 
 // Helper to determine section state
 function getSectionState(sectionIndex, steps, activeIndex) {
@@ -75,6 +81,9 @@ function getSectionState(sectionIndex, steps, activeIndex) {
 function renderStepsIndicator(state) {
   const { steps, activeIndex, className, loading } = state;
 
+  // Inject styles on first render (automatically cached)
+  injectStepsIndicatorStyles(stepsIndicatorStyles);
+
   // Main container with ARIA attributes
   const container = createElement('div', {
     classes: [
@@ -103,9 +112,7 @@ function renderStepsIndicator(state) {
   // Create the three sections
   for (let i = 0; i < 3; i++) {
     const sectionState = getSectionState(i, steps, activeIndex);
-    const isActive = sectionState.isActive;
-    const isCompleted = sectionState.isCompleted;
-    const isSuccess = sectionState.isSuccess;
+    const { isActive, isCompleted, isSuccess } = sectionState;
 
     // Apply CSS classes based on section state
     const classes = ['steps-indicator__section'];
@@ -119,10 +126,7 @@ function renderStepsIndicator(state) {
       classes.push('steps-indicator__section--active');
     }
 
-    const section = createElement('div', {
-      classes,
-    });
-
+    const section = createElement('div', { classes });
     progressBar.appendChild(section);
   }
 
@@ -239,7 +243,7 @@ function createStepsIndicator(props) {
     activeIndex: normalizedProps.activeIndex,
     className: normalizedProps.className || '',
     loading: normalizedProps.loading || false,
-    onStepChange: normalizedProps.onStepChange, // Support for callback, but component doesn't trigger it
+    onStepChange: normalizedProps.onStepChange,
   });
 
   // Add component API methods

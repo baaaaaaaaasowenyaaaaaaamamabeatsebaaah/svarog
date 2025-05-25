@@ -1,6 +1,15 @@
 # ConditionSelector Component
 
-The ConditionSelector component provides a user interface for selecting from a list of condition options, typically used in e-commerce scenarios where product condition is a factor.
+The ConditionSelector component provides a user interface for selecting from a list of condition options, typically used in e-commerce scenarios where product condition is a factor. The component automatically injects its styles using modern CSS injection patterns.
+
+## Features
+
+- **Automatic Style Injection**: Styles are automatically injected when the component is first rendered
+- **SSR Compatible**: Works safely in server-side rendering environments
+- **Accessibility**: Full keyboard navigation and screen reader support
+- **Legacy Props Support**: Maintains backward compatibility with deprecated props
+- **Loading States**: Visual feedback during async operations
+- **Theme Awareness**: Automatically responds to theme changes
 
 ## Usage
 
@@ -41,10 +50,10 @@ document.body.appendChild(conditionSelector.getElement());
 
 ## Deprecated Props
 
-| Deprecated Prop | Use Instead |
-| --------------- | ----------- |
-| onSelect        | onChange    |
-| isLoading       | loading     |
+| Deprecated Prop | Use Instead | Migration Notes                          |
+| --------------- | ----------- | ---------------------------------------- |
+| onSelect        | onChange    | Automatic migration with console warning |
+| isLoading       | loading     | Automatic migration with console warning |
 
 ## Condition Object Structure
 
@@ -119,13 +128,68 @@ Cleans up event listeners and resources. Call when removing the component.
 conditionSelector.destroy();
 ```
 
+## Styling
+
+### Automatic Style Injection
+
+The component automatically injects its styles when first rendered. No separate CSS imports are needed.
+
+### CSS Custom Properties
+
+The component uses CSS custom properties for theming:
+
+```css
+:root {
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+
+  /* Colors */
+  --color-bg: #ffffff;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-brand-secondary: #3b82f6;
+  --color-text-light: #6b7280;
+
+  /* Typography */
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-xl: 1.25rem;
+  --font-weight-bold: 600;
+}
+```
+
+### Custom Styling
+
+Apply custom styles by targeting the component's CSS classes:
+
+```css
+/* Custom styling example */
+.my-condition-selector .condition-option__label {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.my-condition-selector .condition-option--selected .condition-option__label {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+```
+
 ## Accessibility Features
 
-The ConditionSelector component uses radio buttons for selection, making it keyboard accessible and screen reader friendly.
+- **Radio Button Semantics**: Uses proper radio button implementation for single selection
+- **ARIA Labels**: Comprehensive labeling for screen readers
+- **Keyboard Navigation**: Full keyboard accessibility
+- **Focus Management**: Proper focus indication and management
+- **Loading State Indication**: Screen reader announcements for loading states
 
-## Theme Awareness
+## Browser Compatibility
 
-The component automatically responds to theme changes using the theme manager.
+- Works in all modern browsers
+- SSR compatible (no CSS import errors in Node.js)
+- Falls back gracefully if JavaScript is disabled
 
 ## Examples
 
@@ -167,21 +231,105 @@ const selector = ConditionSelector({
 selector.setLoading(false);
 ```
 
-## CSS Customization
+### Dynamic Updates
 
-The component can be customized through CSS variables:
+```javascript
+// Create selector with initial conditions
+const selector = ConditionSelector({
+  conditions: initialConditions,
+  onChange: handleConditionChange,
+});
 
-```css
-:root {
-  --condition-selector-bg: #ffffff;
-  --condition-option-border: 1px solid #e2e8f0;
-  --condition-option-border-selected: 1px solid #3182ce;
-  --condition-option-bg-selected: #ebf8ff;
-  --condition-option-hover-border: #3182ce;
-  --condition-option-padding: 1rem;
-  --condition-option-margin: 0.5rem;
-  --condition-option-icon-size: 1.5rem;
-  --condition-option-title-font-weight: 600;
-  --condition-option-description-color: #718096;
-}
+// Later, update with new conditions
+selector.updateConditions(newConditions, '3');
+
+// Or update just the selection
+selector.setSelectedCondition('2');
+```
+
+### Custom Styling
+
+```javascript
+const selector = ConditionSelector({
+  conditions,
+  className: 'my-custom-selector',
+  onChange: handleSelection,
+});
+
+// Add custom styles
+const style = document.createElement('style');
+style.textContent = `
+  .my-custom-selector .condition-option__label {
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .my-custom-selector .condition-option:hover .condition-option__label {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+`;
+document.head.appendChild(style);
+```
+
+## Migration from Previous Versions
+
+### Legacy Props
+
+The component automatically migrates legacy props:
+
+```javascript
+// Old way (still works with warnings)
+const selector = ConditionSelector({
+  conditions,
+  onSelect: handleSelection, // Migrated to onChange
+  isLoading: true, // Migrated to loading
+});
+
+// New way (recommended)
+const selector = ConditionSelector({
+  conditions,
+  onChange: handleSelection,
+  loading: true,
+});
+```
+
+### CSS Import Removal
+
+If upgrading from a version that required CSS imports:
+
+```javascript
+// Remove this line:
+// import 'svarog-ui/dist/ConditionSelector.css';
+
+// Just import the component - styles are automatic:
+import { ConditionSelector } from 'svarog-ui';
+```
+
+## Performance
+
+- **Lazy Style Injection**: Styles are only injected when component is first used
+- **Style Deduplication**: Multiple instances share the same stylesheet
+- **Memory Management**: Proper cleanup of event listeners and references
+- **Optimized Rendering**: Minimal DOM updates on prop changes
+
+## Testing
+
+The component includes comprehensive test coverage and provides testing utilities:
+
+```javascript
+import { describe, it, expect, vi } from 'vitest';
+import ConditionSelector from './ConditionSelector.js';
+
+describe('ConditionSelector', () => {
+  it('should inject styles automatically', () => {
+    const selector = ConditionSelector({ conditions: [] });
+    selector.getElement(); // Triggers style injection
+
+    const injectedStyle = document.querySelector(
+      '[data-svarog="conditionselector"]'
+    );
+    expect(injectedStyle).toBeTruthy();
+  });
+});
 ```

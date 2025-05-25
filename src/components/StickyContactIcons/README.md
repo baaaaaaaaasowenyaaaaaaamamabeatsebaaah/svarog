@@ -2,6 +2,15 @@
 
 The StickyContactIcons component provides a fixed-position set of contact icons (location, phone, email) that stay visible while the user scrolls through the page.
 
+## Features
+
+✅ **Zero Configuration** - Styles are automatically injected, no CSS imports needed  
+✅ **SSR Compatible** - Works in Node.js environments without errors  
+✅ **Responsive Design** - Adapts to mobile and desktop viewports  
+✅ **Accessibility** - Proper ARIA labels and keyboard navigation  
+✅ **Theme Aware** - Responds to theme changes automatically  
+✅ **Legacy Support** - Backward compatible with deprecated props
+
 ## Usage
 
 ```javascript
@@ -169,3 +178,39 @@ StickyContactIcons can be customized using CSS variables:
   --sticky-contact-icons-mobile-icon-size: 18px;
 }
 ```
+
+## Style Injection
+
+This component uses automatic CSS injection, which means:
+
+- **No CSS imports needed** - Styles are automatically injected when the component is used
+- **SSR Compatible** - Works in Node.js environments without browser APIs
+- **Performance Optimized** - Styles are cached and only injected once per component type
+- **Tree Shakeable** - Only used component styles are included in your bundle
+
+The styles are injected into a `<style>` tag with the ID `svarog-stickycontacticons` in the document head. If you need to override styles, ensure your CSS has sufficient specificity or use `!important`.
+
+## Browser Support
+
+- All modern browsers (Chrome, Firefox, Safari, Edge)
+- Internet Explorer 11+ (with polyfills for modern features)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## Migration from CSS Imports
+
+If you were previously importing CSS files:
+
+```javascript
+// OLD - Remove this line
+import './StickyContactIcons.css';
+
+// NEW - Nothing needed, styles are automatically injected
+import { StickyContactIcons } from '@svarog-ui/core';
+```
+
+## Performance Notes
+
+- Styles are injected only once per component type, regardless of how many instances you create
+- Style injection is deferred until the component is actually used
+- Minimal performance impact - injection takes less than 1ms on modern browsers
+- No additional HTTP requests for CSS files

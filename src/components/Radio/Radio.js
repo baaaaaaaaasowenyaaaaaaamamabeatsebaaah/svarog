@@ -1,5 +1,4 @@
 // src/components/Radio/Radio.js
-import './Radio.css';
 import { createComponent } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import {
@@ -8,6 +7,13 @@ import {
 } from '../../utils/validation.js';
 import { debounce, PerformanceBenchmark } from '../../utils/performance.js';
 import { isTestEnvironment } from '../../utils/environment.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { radioStyles } from './Radio.styles.js';
+
+// Create style injector for Radio component
+const injectRadioStyles = createStyleInjector('Radio');
 
 /**
  * Migrate legacy props to standardized props
@@ -25,10 +31,12 @@ const migrateLegacyProps = (props) => {
 /**
  * Create the DOM structure for the radio component
  * @param {Object} props - Component properties
- * @param {Object} state - Internal component state storage
  * @returns {HTMLElement} The created DOM structure
  */
 const createRadioDOM = (props) => {
+  // Inject styles on first render
+  injectRadioStyles(radioStyles);
+
   // Create container
   const container = document.createElement('div');
   container.className = `radio-container ${props.className || ''}`.trim();
@@ -187,7 +195,7 @@ const createRadio = createBaseComponent((props) => {
   );
 
   // Create component DOM structure
-  const container = createRadioDOM(normalizedProps, {});
+  const container = createRadioDOM(normalizedProps);
   const inputElement = container._input;
 
   // Set up event handling

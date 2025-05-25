@@ -1,5 +1,4 @@
 // src/components/UsedPhonePriceForm/UsedPhonePriceForm.js
-import './UsedPhonePriceForm.css';
 import {
   createElement,
   validateProps,
@@ -12,6 +11,14 @@ import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 import ConditionSelector from '../ConditionSelector/ConditionSelector.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { usedPhonePriceFormStyles } from './UsedPhonePriceForm.styles.js';
+
+// Create style injector for UsedPhonePriceForm component
+const injectUsedPhonePriceFormStyles =
+  createStyleInjector('UsedPhonePriceForm');
 
 /**
  * ALGORITHMIC OPTIMIZATION: O(1) Lookup Maps
@@ -180,6 +187,9 @@ const triggerAnimation = (element, animationType) => {
  * @returns {HTMLElement} - Used phone price form element
  */
 const renderUsedPhonePriceForm = (state) => {
+  // Inject styles on render (automatically cached)
+  injectUsedPhonePriceFormStyles(usedPhonePriceFormStyles);
+
   const classNames = [
     'used-phone-price-form',
     state.className,

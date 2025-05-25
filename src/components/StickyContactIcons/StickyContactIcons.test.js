@@ -1,6 +1,7 @@
 // src/components/StickyContactIcons/StickyContactIcons.test.js
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import StickyContactIcons from './StickyContactIcons.js';
+import { removeStyles } from '../../utils/styleInjection.js';
 
 describe('StickyContactIcons', () => {
   const defaultProps = {
@@ -25,11 +26,22 @@ describe('StickyContactIcons', () => {
     if (stickyIcons && stickyIcons.destroy) {
       stickyIcons.destroy();
     }
+    // Clean up injected styles for testing
+    removeStyles('stickycontacticons');
   });
 
   it('should render correctly', () => {
     expect(element).toBeInstanceOf(HTMLElement);
     expect(element.className).toContain('sticky-contact-icons');
+  });
+
+  it('should inject styles automatically', () => {
+    // Check that styles were injected
+    const injectedStyle = document.querySelector(
+      '[data-svarog="stickycontacticons"]'
+    );
+    expect(injectedStyle).not.toBeNull();
+    expect(injectedStyle.textContent).toContain('.sticky-contact-icons');
   });
 
   it('should render location icon with correct href', () => {
@@ -226,5 +238,23 @@ describe('StickyContactIcons', () => {
     expect(locationLink.getAttribute('aria-label')).toBe(
       `Go to ${newLocation} location`
     );
+  });
+
+  it('should not inject styles multiple times', () => {
+    // Create multiple instances
+    const icons1 = StickyContactIcons(defaultProps);
+    const icons2 = StickyContactIcons(defaultProps);
+    const icons3 = StickyContactIcons(defaultProps);
+
+    // Should only have one style tag
+    const styleTags = document.querySelectorAll(
+      '[data-svarog="stickycontacticons"]'
+    );
+    expect(styleTags.length).toBe(1);
+
+    // Clean up
+    icons1.destroy();
+    icons2.destroy();
+    icons3.destroy();
   });
 });
