@@ -1,6 +1,7 @@
 // src/components/BlogCard/BlogCard.test.js
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import BlogCard from './BlogCard.js';
+import { removeStyles } from '../../utils/styleInjection.js';
 
 describe('BlogCard', () => {
   let defaultProps;
@@ -23,6 +24,37 @@ describe('BlogCard', () => {
 
   afterEach(() => {
     consoleWarnSpy.mockRestore();
+    // Clean up injected styles after each test
+    removeStyles('blogcard');
+  });
+
+  it('should inject styles on first render', () => {
+    const card = BlogCard(defaultProps);
+    card.getElement();
+
+    // Check if styles were injected
+    const injectedStyle = document.querySelector('[data-svarog="blogcard"]');
+    expect(injectedStyle).toBeTruthy();
+    expect(injectedStyle.tagName).toBe('STYLE');
+    expect(injectedStyle.textContent).toContain('.blog-card');
+  });
+
+  it('should not inject styles multiple times for the same component type', () => {
+    const card1 = BlogCard(defaultProps);
+    const card2 = BlogCard({
+      ...defaultProps,
+      title: 'Another Post',
+      slug: 'another-post',
+    });
+
+    card1.getElement();
+    card2.getElement();
+
+    // Should only have one style element
+    const injectedStyles = document.querySelectorAll(
+      '[data-svarog="blogcard"]'
+    );
+    expect(injectedStyles.length).toBe(1);
   });
 
   it('should render correctly with all props', () => {
@@ -181,6 +213,39 @@ describe('BlogCard', () => {
           imageUrl: 42,
         })
       ).toThrow('BlogCard: imageUrl must be a string');
+    });
+  });
+
+  describe('Style Injection', () => {
+    it('should clean up styles properly', () => {
+      const card = BlogCard(defaultProps);
+      card.getElement();
+
+      // Verify styles are injected
+      let injectedStyle = document.querySelector('[data-svarog="blogcard"]');
+      expect(injectedStyle).toBeTruthy();
+
+      // Clean up
+      removeStyles('blogcard');
+
+      // Verify styles are removed
+      injectedStyle = document.querySelector('[data-svarog="blogcard"]');
+      expect(injectedStyle).toBeNull();
+    });
+
+    it('should inject styles with correct content', () => {
+      const card = BlogCard(defaultProps);
+      card.getElement();
+
+      const injectedStyle = document.querySelector('[data-svarog="blogcard"]');
+      const cssContent = injectedStyle.textContent;
+
+      // Check for key CSS classes
+      expect(cssContent).toContain('.blog-card');
+      expect(cssContent).toContain('.blog-card__image');
+      expect(cssContent).toContain('.blog-card__title');
+      expect(cssContent).toContain('.blog-card__excerpt');
+      expect(cssContent).toContain('.blog-card__category');
     });
   });
 });

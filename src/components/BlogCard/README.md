@@ -2,12 +2,19 @@
 
 The BlogCard component displays blog post previews with a consistent, attractive card layout. It's designed to show post titles, excerpts, metadata, and categories.
 
+## CSS Injection System
+
+**✅ Zero Configuration Required** - Styles are automatically injected when the component is used.  
+**✅ SSR Compatible** - Works safely in server-side rendering environments.  
+**✅ Performance Optimized** - Styles are cached and deduped automatically.  
+**✅ Node.js Compatible** - No CSS import errors in Node.js environments.
+
 ## Usage
 
 ```javascript
 import { BlogCard } from '@svarog-ui/core';
 
-// Create a blog card
+// Create a blog card - styles are automatically injected
 const myBlogCard = BlogCard({
   title: 'Getting Started with Web Components',
   slug: 'getting-started-with-web-components',
@@ -21,6 +28,22 @@ const myBlogCard = BlogCard({
 
 // Add to DOM
 document.body.appendChild(myBlogCard.getElement());
+
+// Styles are automatically available - no separate CSS imports needed!
+```
+
+## Migration from CSS Imports
+
+If you're migrating from the previous version that required CSS imports:
+
+```javascript
+// ❌ OLD - Required separate CSS import
+import { BlogCard } from '@svarog-ui/core';
+import '@svarog-ui/core/BlogCard.css'; // No longer needed!
+
+// ✅ NEW - Styles automatically injected
+import { BlogCard } from '@svarog-ui/core';
+// That's it! No CSS imports required.
 ```
 
 ## Props
@@ -76,6 +99,21 @@ myBlogCard.destroy();
 
 ### From v1.x to v2.x
 
+**CSS Import Removal**
+
+- Remove any CSS imports for BlogCard
+- Component now automatically injects styles when rendered
+
+```javascript
+// Before (v1.x)
+import { BlogCard } from '@svarog-ui/core';
+import '@svarog-ui/core/components/BlogCard/BlogCard.css'; // Remove this line
+
+// After (v2.x)
+import { BlogCard } from '@svarog-ui/core';
+// CSS is automatically injected - no imports needed!
+```
+
 **Image Props Standardization**
 
 - Change `featuredImage` to `imageUrl`
@@ -126,6 +164,35 @@ BlogCard styles can be customized using CSS variables:
   --blog-card-category-padding: var(--space-1) var(--space-2);
   --blog-card-category-border-radius: var(--border-radius-sm);
 }
+```
+
+## Browser Compatibility
+
+The CSS injection system is compatible with all modern browsers and gracefully handles:
+
+- **Server-Side Rendering** - Safe to use with SSR frameworks
+- **Node.js Environments** - No CSS import errors when using in Node.js
+- **Browser Support** - Works in all browsers that support ES6 modules
+
+## Development Notes
+
+### Style Injection Details
+
+- Styles are injected once per component type (not per instance)
+- Injection occurs during the first component render
+- Styles are added to the document `<head>` with `data-svarog="blogcard"` attribute
+- Multiple BlogCard instances share the same injected styles
+
+### Testing
+
+When writing tests, you may need to clean up injected styles:
+
+```javascript
+import { removeStyles } from '@svarog-ui/core/utils/styleInjection';
+
+afterEach(() => {
+  removeStyles('blogcard'); // Clean up after each test
+});
 ```
 
 ## Accessibility

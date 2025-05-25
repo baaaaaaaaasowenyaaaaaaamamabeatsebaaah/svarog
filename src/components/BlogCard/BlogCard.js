@@ -1,13 +1,17 @@
 // src/components/BlogCard/BlogCard.js
-import './BlogCard.css';
 import {
   createComponent,
   createElement,
 } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { validateRequiredProps } from '../../utils/validation.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { blogCardStyles } from './BlogCard.styles.js';
 import Card from '../Card/Card.js';
 import Link from '../Link/Link.js';
+
+// Create style injector for BlogCard component
+const injectBlogCardStyles = createStyleInjector('BlogCard');
 
 /**
  * Creates a BlogCard component for displaying blog post previews
@@ -25,6 +29,9 @@ import Link from '../Link/Link.js';
  * @returns {Object} BlogCard component API
  */
 const createBlogCard = (props) => {
+  // Inject styles on first render
+  injectBlogCardStyles(blogCardStyles);
+
   /**
    * Migrates legacy props to new standardized props
    * @param {Object} props - Original props
