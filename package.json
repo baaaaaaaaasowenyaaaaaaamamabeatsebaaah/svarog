@@ -1,6 +1,6 @@
 {
   "name": "svarog-ui",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "A lightweight, vanilla JavaScript component library with theme support",
   "main": "dist/bundle.js",
   "module": "src/index.js",
@@ -8,10 +8,13 @@
   "exports": {
     ".": {
       "import": "./src/index.js",
-      "require": "./dist/bundle.js"
+      "require": "./dist/bundle.js",
+      "types": "./dist/index.d.ts"
     },
     "./dist/styles.css": "./dist/styles.css",
-    "./styles": "./dist/styles.css"
+    "./styles": "./dist/styles.css",
+    "./css": "./dist/styles.css",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -97,6 +100,6 @@
     "src/styles/index.js"
   ],
   "engines": {
-    "node": ">=20.18.0"
+    "node": ">=18.0.0"
   }
 }

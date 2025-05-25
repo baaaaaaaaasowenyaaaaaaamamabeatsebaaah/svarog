@@ -1,10 +1,8 @@
 // src/index.js
-// Import styles first
-import './styles/index.js';
-
 /**
  * @file Main library entry point for Svarog UI
- * @description Provides categorized components and utility exports
+ * @description Provides both individual and categorized component exports
+ * Note: CSS styles should be imported separately by the consuming application
  */
 
 // ---- LAYOUT COMPONENTS ----
@@ -73,10 +71,81 @@ import {
   setThemeVariable,
 } from './utils/theme.js';
 
-/**
- * Component categories for organized imports
- */
-const Layout = {
+// ===============================================
+// PRIMARY EXPORTS - Individual Components
+// ===============================================
+// This is what most users will import
+
+export {
+  // Layout Components
+  Grid,
+  Section,
+  Header,
+  Footer,
+  Hero,
+  MuchandyHero,
+  CollapsibleHeader,
+  Page,
+
+  // Navigation Components
+  Navigation,
+  Link,
+  Tabs,
+  Pagination,
+  StickyContactIcons,
+
+  // UI Components
+  Button,
+  Typography,
+  Logo,
+  Card,
+  Rating,
+  StepsIndicator,
+  PriceDisplay,
+  ContactInfo,
+  ProductCard,
+  Image,
+
+  // Form Components
+  Input,
+  Select,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  Form,
+  FormGroup,
+  FormSection,
+  FormActions,
+  PhoneRepairForm,
+  PhoneRepairFormContainer,
+  UsedPhonePriceForm,
+  UsedPhonePriceFormContainer,
+  ConditionSelector,
+
+  // Content Components
+  BlogCard,
+  BlogList,
+  BlogDetail,
+
+  // Map Components
+  Map,
+
+  // Meta Components
+  Head,
+
+  // Theme Utilities
+  themeManager,
+  switchTheme,
+  getCurrentTheme,
+  setThemeVariable,
+};
+
+// ===============================================
+// CATEGORIZED EXPORTS - For Organized Imports
+// ===============================================
+// Advanced users can import by category
+
+export const Layout = {
   Grid,
   Section,
   Header,
@@ -87,8 +156,7 @@ const Layout = {
   Page,
 };
 
-// Using the name "Nav" for the category to avoid conflict with the Navigation component
-const Nav = {
+export const Nav = {
   Navigation,
   Link,
   Tabs,
@@ -96,7 +164,7 @@ const Nav = {
   StickyContactIcons,
 };
 
-const UI = {
+export const UI = {
   Button,
   Typography,
   Logo,
@@ -109,7 +177,7 @@ const UI = {
   Image,
 };
 
-const Forms = {
+export const Forms = {
   Input,
   Select,
   Checkbox,
@@ -126,34 +194,33 @@ const Forms = {
   ConditionSelector,
 };
 
-const Content = {
+export const Content = {
   BlogCard,
   BlogList,
   BlogDetail,
 };
 
-const Utils = {
+export const Utils = {
   themeManager,
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
 };
 
-// Define the library with categorized components
+// ===============================================
+// DEFAULT EXPORT - Complete Library Object
+// ===============================================
+
 const Svarog = {
+  // Categories
   Layout,
   Nav,
   UI,
   Forms,
   Content,
-  Map,
-  Head,
   Utils,
-};
 
-// Export all components individually to allow destructured imports
-export {
-  // Layout
+  // Individual components (for backward compatibility)
   Grid,
   Section,
   Header,
@@ -162,15 +229,11 @@ export {
   MuchandyHero,
   CollapsibleHeader,
   Page,
-
-  // Navigation
   Navigation,
   Link,
   Tabs,
   Pagination,
   StickyContactIcons,
-
-  // UI
   Button,
   Typography,
   Logo,
@@ -181,8 +244,6 @@ export {
   ContactInfo,
   ProductCard,
   Image,
-
-  // Form
   Input,
   Select,
   Checkbox,
@@ -197,27 +258,15 @@ export {
   UsedPhonePriceForm,
   UsedPhonePriceFormContainer,
   ConditionSelector,
-
-  // Blog/Content
   BlogCard,
   BlogList,
   BlogDetail,
-
-  // Map
   Map,
-
-  // Meta
   Head,
-
-  // Utils
   themeManager,
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
 };
 
-// Export categorized imports - keep Nav as Nav to avoid conflict with Navigation component
-export { Layout, Nav, UI, Forms, Content, Utils };
-
-// Default export of the whole library
 export default Svarog;
