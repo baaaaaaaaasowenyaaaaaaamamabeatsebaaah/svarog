@@ -16,7 +16,7 @@ import { createElement } from '../../utils/componentFactory.js';
  * @param {boolean} [props.responsive=true] - Whether image should be responsive
  * @returns {Object} Image component API object
  */
-const createImage = (props) => {
+const Image = (props) => {
   // Migrate legacy props
   const normalizedProps = migrateLegacyProps(props);
 
@@ -216,6 +216,6 @@ const migrateLegacyProps = (props) => {
 };
 
 // Required props
-createImage.requiredProps = ['imageUrl'];
+Image.requiredProps = ['imageUrl'];
 
-export default createImage;
+export default Image;
