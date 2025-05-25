@@ -7,10 +7,12 @@ A lightweight, highly optimized vanilla JavaScript component library with powerf
 - 🔍 **Zero Dependencies** - Pure JavaScript with no external runtime dependencies
 - 🎨 **Powerful Theming** - Comprehensive CSS variable-based theming system
 - 🧱 **Factory Pattern** - Consistent component API using factory functions
-- 🚀 **Performance Optimized** - Event delegation, DOM batching, and more
+- 🚀 **Performance Optimized** - Event delegation, DOM batching, and CSS injection
 - ♿ **Accessible** - Follows accessibility best practices
 - 🧪 **Well Tested** - Comprehensive test coverage with Vitest
 - 📚 **Custom Component Explorer** - Built-in Storybook-like viewer developed from scratch in vanilla JS
+- 🎯 **Zero Configuration** - Components automatically inject their own styles, works everywhere
+- 🌐 **Universal Compatibility** - Works in Node.js, browsers, bundlers without CSS import errors
 
 ## Installation
 
@@ -23,19 +25,21 @@ npm install svarog-ui
 ```javascript
 import { Button, Typography, Card, switchTheme } from 'svarog-ui';
 
-// Create a button component
+// Create a button component - styles inject automatically
 const button = Button({
   text: 'Click Me',
   variant: 'primary',
   onClick: () => console.log('Button clicked'),
 });
 
-// Add it to the DOM
+// Add it to the DOM - styles are already injected
 document.body.appendChild(button.getElement());
 
 // Switch themes dynamically
 switchTheme('cabalou');
 ```
+
+**No CSS imports needed!** Components automatically inject their styles when rendered.
 
 ## Component API Pattern
 
@@ -57,6 +61,29 @@ component.update({
 // Clean up when removing the component
 component.destroy();
 ```
+
+## CSS-in-JS Style System
+
+Svarog uses an innovative CSS injection system that eliminates CSS import errors while maintaining performance:
+
+- **Automatic Style Injection** - Components inject their styles on first render
+- **Deduplication** - Styles are cached and only injected once per component type
+- **SSR Safe** - Works correctly in server-side rendering environments
+- **Tree Shakeable** - Only styles for used components are loaded
+- **Performance Optimized** - Styles are inserted efficiently with priority management
+
+### How It Works
+
+```javascript
+// Component styles are automatically injected when the component renders
+const button = Button({ text: 'Hello' });
+// ↓ Styles for Button are now injected into document head
+
+const card = Card({ title: 'My Card' });
+// ↓ Styles for Card are now injected into document head
+```
+
+No manual CSS imports or configuration required!
 
 ## Component Categories
 
@@ -148,17 +175,20 @@ svarog/
 ├── src/
 │   ├── components/   # UI components
 │   │   └── ComponentName/
-│   │       ├── ComponentName.js
-│   │       ├── ComponentName.css
+│   │       ├── ComponentName.js        # Component with style injection
+│   │       ├── ComponentName.styles.js # Component-specific styles
 │   │       ├── ComponentName.stories.js
 │   │       ├── ComponentName.test.js
 │   │       ├── index.js
 │   │       └── README.md
 │   ├── constants/    # Shared constants
-│   ├── styles/       # Theme system
+│   ├── styles/       # Theme system and global styles
 │   │   ├── base/     # Base styles
-│   │   └── themes/   # Theme definitions
+│   │   ├── themes/   # Theme definitions
+│   │   └── componentStyles.js # Centralized component styles
 │   └── utils/        # Utility functions
+│       ├── styleInjection.js # CSS injection system
+│       └── ...       # Other utilities
 ├── scripts/          # Build and maintenance scripts
 └── tests/            # Testing utilities
 ```
@@ -169,24 +199,30 @@ All Svarog components adhere to these principles:
 
 1. **Factory Functions** - Components use factory functions for creation
 2. **Consistent API** - All components have getElement(), update(), and destroy() methods
-3. **DOM Efficiency** - Minimizes DOM operations for better performance
-4. **Event Delegation** - Uses event delegation for improved performance
-5. **Memory Management** - Cleans up listeners and references in destroy()
-6. **Validation** - Properly validates inputs with helpful error messages
-7. **Accessibility** - Uses semantic markup and ARIA attributes
-8. **Theming** - Uses CSS variables for consistent theming
+3. **Automatic Style Injection** - Components inject their own styles on render
+4. **DOM Efficiency** - Minimizes DOM operations for better performance
+5. **Event Delegation** - Uses event delegation for improved performance
+6. **Memory Management** - Cleans up listeners and references in destroy()
+7. **Validation** - Properly validates inputs with helpful error messages
+8. **Accessibility** - Uses semantic markup and ARIA attributes
+9. **Theming** - Uses CSS variables for consistent theming
+10. **Universal Compatibility** - Works in all JavaScript environments
 
 ## Creating a Component
 
-Components follow this pattern:
+Components follow this pattern with automatic style injection:
 
 ```javascript
 // src/components/MyComponent/MyComponent.js
-import './MyComponent.css';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { myComponentStyles } from '../../styles/componentStyles.js';
 import {
   createComponent,
   createElement,
 } from '../../utils/componentFactory.js';
+
+// Create style injector for this component
+const injectStyles = createStyleInjector('MyComponent');
 
 const createMyComponent = (props) => {
   // Validate required props
@@ -197,6 +233,9 @@ const createMyComponent = (props) => {
 
   // Render function
   const render = () => {
+    // Inject styles on render (automatically cached)
+    injectStyles(myComponentStyles);
+
     const element = createElement('div', {
       classes: ['my-component'],
       // Add attributes, event handlers, etc.
@@ -239,6 +278,23 @@ createMyComponent.requiredProps = ['prop1', 'prop2'];
 export default createComponent('MyComponent', createMyComponent);
 ```
 
+### Component Styles
+
+Styles are defined in `src/styles/componentStyles.js`:
+
+```javascript
+import { css } from '../utils/styleInjection.js';
+
+export const myComponentStyles = css`
+  .my-component {
+    /* Component styles using CSS variables for theming */
+    padding: var(--space-4);
+    background: var(--color-bg);
+    border-radius: var(--border-radius);
+  }
+`;
+```
+
 ## Performance Utilities
 
 Svarog includes several performance optimization utilities:
@@ -248,6 +304,27 @@ Svarog includes several performance optimization utilities:
 - `rafThrottle` - Animation frame-based throttling
 - `memoize` - Cache function results
 - `batchDomUpdates` - Batch DOM operations
+- `styleInjection` - Efficient CSS injection system
+
+## Node.js Compatibility
+
+Unlike traditional component libraries, Svarog works perfectly in Node.js environments:
+
+```javascript
+// This works without any CSS import errors!
+import { Button, Card } from 'svarog-ui';
+
+// Use components in server-side rendering
+const button = Button({ text: 'Server Rendered' });
+const html = button.getElement().outerHTML;
+```
+
+Perfect for:
+
+- Server-side rendering (SSR)
+- Static site generation
+- Node.js testing environments
+- Build tools and scripts
 
 ## Contributing
 
@@ -272,6 +349,7 @@ Contributions are welcome and appreciated! This project adheres to specific codi
 - **No Unused Variables**: Eliminate all unused variables and functions
 - **Single Responsibility**: Functions should do one thing well
 - **Component API**: Follow the standard `getElement()`, `update()`, `destroy()` pattern
+- **Style Injection**: Use CSS injection system instead of CSS imports
 - **Documentation**: Document "why" not just "what"
 - **Error Handling**: Include proper validation and error messages
 - **Theming**: Use CSS variables for all themeable properties
@@ -282,12 +360,15 @@ New components should:
 
 1. Follow the directory structure in `src/components/ComponentName/`
 2. Include all required files:
-   - `ComponentName.js` - Component implementation
-   - `ComponentName.css` - Component styles
+
+   - `ComponentName.js` - Component implementation with style injection
+   - `ComponentName.styles.js` - Component-specific styles (optional for modular approach)
    - `ComponentName.stories.js` - Example stories
    - `ComponentName.test.js` - Unit tests
    - `index.js` - Export file
    - `README.md` - Component documentation
+
+3. Add styles to `src/styles/componentStyles.js` (centralized approach)
 
 Use the component generator to scaffold a new component:
 
@@ -300,6 +381,7 @@ npm run create-component MyComponentName
 - All components must have unit tests
 - Tests should cover:
   - Basic rendering
+  - Style injection
   - Props validation
   - Event handling
   - Update method
@@ -313,6 +395,7 @@ npm run create-component MyComponentName
 - Focus on explaining "why" rather than "what"
 - Include usage examples in component README.md
 - Document theme variables used by the component
+- Explain style injection behavior if relevant
 
 ### Pull Request Process
 
