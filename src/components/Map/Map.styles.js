@@ -1,0 +1,76 @@
+import { css } from '../../utils/styleInjection.js';
+
+export const mapStyles = css`
+  /* Map Component Styles */
+  .map-container {
+    width: 100%;
+    height: 400px; /* Default height */
+    background-color: var(--color-gray-100, #f8f9fa);
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--border-radius-default, 8px);
+    box-shadow: var(--box-shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .map-container--mock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-gray-100, #f8f9fa);
+    border: 2px dashed var(--color-gray-300, #dee2e6);
+  }
+
+  .map-mock-overlay {
+    text-align: center;
+    padding: var(--space-4, 16px);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius-default, 8px);
+    max-width: 90%;
+    width: 400px;
+  }
+
+  .map-mock-pin {
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-primary, #007bff);
+    border-radius: 50%;
+    margin: 0 auto var(--space-3, 12px);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .map-mock-pin::after {
+    content: '📍';
+    font-size: 32px;
+  }
+
+  .map-mock-details h3 {
+    font-size: var(--font-size-lg, 18px);
+    color: var(--color-text, #212529);
+    margin-bottom: var(--space-2, 8px);
+  }
+
+  .map-mock-details p {
+    color: var(--color-text-light, #6c757d);
+    margin-bottom: var(--space-1, 4px);
+  }
+
+  .map-mock-details small {
+    color: var(--color-text-muted, #6c757d);
+    font-style: italic;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .map-container {
+      height: 300px;
+    }
+
+    .map-mock-overlay {
+      width: 90%;
+      padding: var(--space-3, 12px);
+    }
+  }
+`;

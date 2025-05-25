@@ -1,10 +1,16 @@
 // src/components/Typography/Typography.js
-import './Typography.css';
 import {
   createComponent,
   createElement,
 } from '../../utils/componentFactory.js';
 import { debounce } from '../../utils/performance.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { typographyStyles } from './Typography.styles.js';
+
+// Create style injector for Typography component
+const injectTypographyStyles = createStyleInjector('Typography');
 
 /**
  * Creates a Typography component for consistent text styling
@@ -12,6 +18,9 @@ import { debounce } from '../../utils/performance.js';
  * @returns {Object} Typography component
  */
 const createTypography = (props) => {
+  // Inject styles on first render
+  injectTypographyStyles(typographyStyles);
+
   // Destructure props with defaults
   const {
     children,

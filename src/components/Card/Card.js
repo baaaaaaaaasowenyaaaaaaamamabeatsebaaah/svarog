@@ -1,11 +1,15 @@
 // src/components/Card/Card.js
-import './Card.css';
 import {
   createComponent,
   createElement,
   appendChildren,
 } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { cardStyles } from './Card.styles.js';
+
+// Create style injector for Card component
+const injectCardStyles = createStyleInjector('Card');
 
 /**
  * Migrates legacy props to the new standardized format
@@ -50,6 +54,9 @@ const migrateLegacyProps = (props) => {
  * @returns {Object} Card component API
  */
 const createCard = (props) => {
+  // Inject styles on first render
+  injectCardStyles(cardStyles);
+
   // Migrate legacy props
   const normalizedProps = migrateLegacyProps(props);
 

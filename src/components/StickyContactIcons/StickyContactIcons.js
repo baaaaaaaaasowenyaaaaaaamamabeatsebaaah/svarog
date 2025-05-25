@@ -1,5 +1,4 @@
 // src/components/StickyContactIcons/StickyContactIcons.js
-import './StickyContactIcons.css';
 import {
   createElement,
   validateProps,
@@ -7,6 +6,13 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { stickyContactIconsStyles } from './StickyContactIcons.styles.js';
+
+// Create style injector for StickyContactIcons component
+const injectStyles = createStyleInjector('StickyContactIcons');
 
 /**
  * Validates sticky contact icons specific props
@@ -31,7 +37,7 @@ const migrateLegacyProps = (props) => {
   const migrated = { ...props };
 
   // Migrate event handlers
-  if ('onLocationClick' in props && !('onLocationClick' in props)) {
+  if ('onLocationClick' in props && !('onClick' in props)) {
     console.warn(
       '[StickyContactIcons] onLocationClick is deprecated, use onClick.location instead'
     );
@@ -183,6 +189,9 @@ const createEmailIconElement = (state) => {
  * @returns {HTMLElement} The component's DOM element
  */
 const renderStickyContactIcons = (state) => {
+  // Inject styles on first render (automatically cached)
+  injectStyles(stickyContactIconsStyles);
+
   const classNames = [
     'sticky-contact-icons',
     state.position !== 'right' ? `sticky-contact-icons--${state.position}` : '',

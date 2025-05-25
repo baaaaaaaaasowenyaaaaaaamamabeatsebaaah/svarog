@@ -1,13 +1,21 @@
 # Pagination Component
 
-The Pagination component provides navigation controls for paginated content with customizable page ranges and responsive design.
+The Pagination component provides navigation controls for paginated content with customizable page ranges and responsive design. **Styles are automatically injected** - no separate CSS imports required.
+
+## Features
+
+✅ **Zero Configuration** - Styles inject automatically  
+✅ **SSR Compatible** - Works in Node.js environments  
+✅ **Responsive Design** - Mobile-optimized navigation  
+✅ **Accessibility Compliant** - Full ARIA support  
+✅ **Tree Shakeable** - Only loads when used
 
 ## Usage
 
 ```javascript
 import { Pagination } from '@svarog-ui/core';
 
-// Create a pagination component
+// Create a pagination component - styles inject automatically
 const pagination = Pagination({
   value: 1,
   totalPages: 10,
@@ -33,17 +41,19 @@ pagination.destroy();
 
 ## Props
 
-| Prop         | Type     | Default  | Description                                                 |
-| ------------ | -------- | -------- | ----------------------------------------------------------- |
-| value        | number   | 1        | Current active page                                         |
-| currentPage  | number   | 1        | Current active page (deprecated, use value instead)         |
-| totalPages   | number   | 1        | Total number of pages                                       |
-| onChange     | function | () => {} | Callback called with the new page number when page changes  |
-| onPageChange | function | () => {} | Callback when page changes (deprecated, use onChange)       |
-| siblingCount | number   | 1        | Number of page buttons to show on each side of current page |
-| className    | string   | ''       | Additional CSS class for styling                            |
+| Prop         | Type     | Default    | Description                                                 |
+| ------------ | -------- | ---------- | ----------------------------------------------------------- |
+| value        | number   | 1          | Current active page                                         |
+| currentPage  | number   | 1          | Current active page (deprecated, use value instead)         |
+| totalPages   | number   | 1          | Total number of pages                                       |
+| onChange     | function | () => {}   | Callback called with the new page number when page changes  |
+| onPageChange | function | () => {}   | Callback when page changes (deprecated, use onChange)       |
+| siblingCount | number   | 1          | Number of page buttons to show on each side of current page |
+| className    | string   | ''         | Additional CSS class for styling                            |
+| prevText     | string   | 'Previous' | Text for the previous button                                |
+| nextText     | string   | 'Next'     | Text for the next button                                    |
 
-## Methods
+## API Methods
 
 ### getElement()
 
@@ -94,62 +104,103 @@ pagination.setTotalPages(15);
 
 ### destroy()
 
-Cleans up event listeners. Call before removing the component.
+Cleans up event listeners and button instances. Call before removing the component.
 
 ```javascript
 pagination.destroy();
 ```
 
-## Customization
+## Styling & Customization
 
-The Pagination component can be customized using CSS variables and classes:
+### CSS Variables
+
+The component uses CSS variables for theming. Styles are automatically injected:
 
 ```css
-.pagination {
-  /* Custom pagination styles */
-}
-
-.pagination__list {
-  /* Custom list styles */
-}
-
-.pagination__button {
-  /* Custom button styles */
-}
-
-.pagination__button--active {
-  /* Custom active button styles */
-}
-
-.pagination__dots {
-  /* Custom dots styles */
+:root {
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-8: 32px;
+  --color-text-light: #6b7280;
 }
 ```
 
-## Pagination Range Logic
+### CSS Classes
+
+All styles are automatically injected. Available classes for customization:
+
+```css
+.pagination {
+  /* Main pagination container */
+}
+
+.pagination__list {
+  /* Button list container */
+}
+
+.pagination__button {
+  /* Individual page buttons */
+}
+
+.pagination__button--active {
+  /* Active/current page button */
+}
+
+.pagination__button--prev,
+.pagination__button--next {
+  /* Previous/next navigation buttons */
+}
+
+.pagination__dots {
+  /* Ellipsis dots */
+}
+```
+
+### Custom Styling
+
+Override styles using CSS specificity:
+
+```css
+/* Custom pagination styling */
+.my-custom-pagination .pagination__button {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.my-custom-pagination .pagination__button--active {
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+}
+```
+
+## Pagination Logic
 
 The component intelligently handles large numbers of pages by displaying:
 
-1. Always the first page
-2. Always the last page
-3. The current page and a number of siblings on each side (controlled by `siblingCount`)
-4. Ellipsis dots (`...`) when there are gaps in the sequence
+1. **Always the first page**
+2. **Always the last page**
+3. **Current page and siblings** (controlled by `siblingCount`)
+4. **Ellipsis dots** (`...`) when there are gaps
 
-For example, with 20 total pages, current page 7, and siblingCount 1:
+### Examples
 
-- Display: 1 ... 6 7 8 ... 20
+```javascript
+// With 20 pages, current page 7, siblingCount 1:
+// Display: 1 ... 6 7 8 ... 20
 
-## Accessibility
+// With 20 pages, current page 15, siblingCount 2:
+// Display: 1 ... 13 14 15 16 17 ... 20
+```
 
-The Pagination component implements these accessibility features:
+## Accessibility Features
 
-- Proper `aria-label` for navigation
-- `aria-current="page"` for the current page button
-- Disabled state for previous/next buttons when at boundaries
-- Keyboard navigable buttons
-- Responsive design with appropriate text labels on larger screens
+- **ARIA Navigation**: Proper `aria-label` for navigation landmark
+- **Current Page**: `aria-current="page"` for active page
+- **Button States**: Disabled state for boundary buttons
+- **Keyboard Navigation**: Full keyboard support
+- **Screen Readers**: Descriptive labels for all buttons
+- **Responsive Design**: Mobile-friendly with icon fallbacks
 
-## Examples
+## Complete Examples
 
 ### Basic Pagination
 
@@ -164,9 +215,7 @@ const pagination = Pagination({
 });
 ```
 
-### Custom Sibling Count
-
-Showing more page numbers around the current page:
+### Extended Sibling Count
 
 ```javascript
 const pagination = Pagination({
@@ -184,18 +233,21 @@ const pagination = Pagination({
 const pagination = Pagination({
   value: 1,
   totalPages: totalPages,
-  onChange: (page) => {
-    showLoadingIndicator();
-    fetchPageData(page)
-      .then((data) => {
-        renderContent(data);
-        pagination.update({ value: page });
-        hideLoadingIndicator();
-      })
-      .catch((error) => {
-        showError(error);
-        hideLoadingIndicator();
-      });
+  onChange: async (page) => {
+    try {
+      showLoadingIndicator();
+
+      const data = await fetchPageData(page);
+      renderContent(data);
+
+      // Update pagination state
+      pagination.update({ value: page });
+
+      hideLoadingIndicator();
+    } catch (error) {
+      showError(error);
+      hideLoadingIndicator();
+    }
   },
 });
 ```
@@ -239,3 +291,59 @@ const setupPagination = (initialData) => {
   return pagination;
 };
 ```
+
+### Dynamic Pagination Updates
+
+```javascript
+const pagination = Pagination({
+  value: 1,
+  totalPages: 5,
+  onChange: (page) => console.log(`Page ${page}`),
+});
+
+// Dynamically update total pages based on search results
+const updateSearch = async (query) => {
+  const results = await searchItems(query);
+
+  // Update pagination with new total
+  pagination.update({
+    value: 1, // Reset to first page
+    totalPages: Math.ceil(results.total / results.perPage),
+  });
+
+  renderSearchResults(results.items);
+};
+```
+
+## Migration from CSS Imports
+
+**Before (Old Approach):**
+
+```javascript
+import './Pagination.css'; // ❌ Causes Node.js errors
+import Pagination from './Pagination.js';
+```
+
+**After (CSS Injection):**
+
+```javascript
+import Pagination from './Pagination.js'; // ✅ Styles inject automatically
+```
+
+## Node.js Compatibility
+
+The component now works seamlessly in Node.js environments:
+
+```javascript
+// This works without errors in Node.js
+const { Pagination } = require('@svarog-ui/core');
+
+// Or with ES modules
+import { Pagination } from '@svarog-ui/core';
+```
+
+## Browser Support
+
+- **Modern browsers**: Full support with automatic style injection
+- **SSR**: Compatible with server-side rendering
+- **Legacy browsers**: Graceful degradation with core functionality

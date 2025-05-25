@@ -1,6 +1,16 @@
 # Button Component
 
-The Button component provides a customizable, accessible button element with various styles, sizes, and states.
+The Button component provides a customizable, accessible button element with various styles, sizes, and states. It uses modern CSS injection for zero-configuration styling.
+
+## Features
+
+✅ **Zero CSS Import Errors** - Styles inject automatically, works everywhere  
+✅ **Zero Configuration** - Just import and use, no separate CSS imports needed  
+✅ **SSR Compatible** - Styles inject safely in browser only  
+✅ **Performance Optimized** - Styles are cached and deduped automatically  
+✅ **Modern Approach** - CSS injection eliminates dependency issues  
+✅ **Theme Awareness** - Automatically responds to theme changes  
+✅ **Full Accessibility** - ARIA attributes, keyboard navigation, screen reader support
 
 ## Usage
 
@@ -21,7 +31,7 @@ document.body.appendChild(myButton.getElement());
 
 | Prop         | Type     | Default  | Description                                                                              |
 | ------------ | -------- | -------- | ---------------------------------------------------------------------------------------- |
-| text         | string   | ""       | Button's text content                                                                    |
+| text         | string   | ""       | Button's text content (required)                                                         |
 | onClick      | function | null     | Click event handler                                                                      |
 | onMouseEnter | function | null     | Mouse enter event handler                                                                |
 | onMouseLeave | function | null     | Mouse leave event handler                                                                |
@@ -106,7 +116,7 @@ myButton.destroy();
 
 ## Accessibility Features
 
-The Button component implements these accessibility features:
+The Button component implements comprehensive accessibility features:
 
 - Proper `aria-disabled` state management
 - `aria-busy` for loading states
@@ -114,10 +124,7 @@ The Button component implements these accessibility features:
 - `aria-label` for icon-only buttons
 - Keyboard focus styling through `:focus-visible`
 - Screen reader support
-
-## Theme Awareness
-
-The Button automatically responds to theme changes using the theme manager.
+- Semantic HTML structure
 
 ## Examples
 
@@ -137,6 +144,7 @@ const primaryButton = Button({
 
 ```javascript
 const iconButton = Button({
+  text: '', // Required but empty for icon-only
   icon: '✓',
   variant: 'icon',
   ariaLabel: 'Confirm selection',
@@ -158,13 +166,15 @@ const loadingButton = Button({
 ### Toggle Button
 
 ```javascript
+let isPressed = false;
+
 const toggleButton = Button({
   text: 'Mute',
-  pressed: false,
+  pressed: isPressed,
   onClick: function () {
-    const newState = !this.pressed;
-    this.setPressed(newState);
-    console.log(newState ? 'Muted' : 'Unmuted');
+    isPressed = !isPressed;
+    this.setPressed(isPressed);
+    console.log(isPressed ? 'Muted' : 'Unmuted');
   },
 });
 ```
@@ -181,13 +191,67 @@ const saveButton = Button({
 });
 ```
 
-## CSS Customization
+### Async Action Button
 
-Button styles can be customized using CSS variables:
+```javascript
+const apiButton = Button({
+  text: 'Submit Form',
+  variant: 'primary',
+  onClick: async function () {
+    this.setLoading(true);
+    this.setText('Submitting...');
+
+    try {
+      await submitForm();
+      this.setText('Success!');
+      this.setVariant('success');
+    } catch (error) {
+      this.setText('Error - Try Again');
+      this.setVariant('danger');
+    } finally {
+      this.setLoading(false);
+
+      // Reset after 2 seconds
+      setTimeout(() => {
+        this.setText('Submit Form');
+        this.setVariant('primary');
+      }, 2000);
+    }
+  },
+});
+```
+
+## Styling & Theming
+
+### Automatic Style Injection
+
+The Button component automatically injects its styles when first used. No manual CSS imports are required:
+
+```javascript
+// ✅ This works automatically - no CSS imports needed!
+import { Button } from '@svarog-ui/core';
+
+const button = Button({ text: 'Styled automatically!' });
+```
+
+### Theme Integration
+
+The Button automatically responds to theme changes using CSS variables:
+
+```javascript
+// Styles automatically adapt to current theme
+import { switchTheme } from '@svarog-ui/core';
+
+switchTheme('dark'); // Button styles update automatically
+```
+
+### CSS Customization
+
+Button styles can be customized using CSS variables. All theme variables are applied automatically:
 
 ```css
 :root {
-  /* Base button */
+  /* Base button styles */
   --button-bg: #f0f0f0;
   --button-color: #333;
   --button-border: 1px solid #ccc;
@@ -283,3 +347,60 @@ Button styles can be customized using CSS variables:
   --button-icon-padding-lg: 0.75rem;
 }
 ```
+
+## Technical Implementation
+
+### CSS Injection Architecture
+
+The Button component uses a modern CSS injection system that:
+
+1. **Automatically injects styles** on first render
+2. **Caches styles** to prevent duplicate injections
+3. **Works in all environments** (Node.js, browsers, SSR)
+4. **Requires zero configuration** from developers
+5. **Supports tree-shaking** - only loads when used
+
+### Performance Characteristics
+
+- **Time Complexity**: O(1) for style injection (cached after first use)
+- **Space Complexity**: O(1) for style storage (single injection per component type)
+- **Render Performance**: Optimized with minimal DOM operations
+- **Memory Management**: Automatic cleanup on component destruction
+
+### Browser Support
+
+- Modern browsers with CSS custom properties support
+- Graceful degradation for older browsers
+- SSR compatible with hydration
+- Works in Node.js environments (no CSS errors)
+
+## Migration from CSS Imports
+
+If you were previously importing CSS manually, you can now remove those imports:
+
+```javascript
+// ❌ OLD: Manual CSS imports required
+import './Button.css';
+import { Button } from '@svarog-ui/core';
+
+// ✅ NEW: Styles inject automatically
+import { Button } from '@svarog-ui/core';
+```
+
+## Testing
+
+The component includes comprehensive test coverage for:
+
+- All prop variations and combinations
+- Event handling and state management
+- Accessibility compliance
+- Style injection functionality
+- Performance characteristics
+- Error handling scenarios
+
+## Related Components
+
+- **Link**: For navigation-style buttons
+- **Typography**: For text styling within buttons
+- **Form**: Buttons work seamlessly in form contexts
+- **Navigation**: Uses buttons for menu interactions

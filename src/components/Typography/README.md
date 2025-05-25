@@ -1,6 +1,13 @@
 # Typography Component
 
-The Typography component provides consistent text styling and formatting across your application, supporting various text elements, alignments, weights, and styles.
+The Typography component provides consistent text styling and formatting across your application, supporting various text elements, alignments, weights, and styles. **This component uses automatic CSS injection - no separate CSS imports required.**
+
+## Features
+
+✅ **Zero Configuration** - Styles automatically inject when component is used  
+✅ **SSR Compatible** - Works in Node.js environments without CSS import errors  
+✅ **Performance Optimized** - Styles are cached and deduped automatically  
+✅ **Tree Shakeable** - Only loads when component is actually used
 
 ## Usage
 
@@ -148,7 +155,7 @@ const h2 = Typography({
 ```javascript
 const paragraph = Typography({
   children:
-    'This is a paragraph with multiple sentences. It can contain lots of text and will wrap naturally.',
+    'This is a paragraph element. It contains regular body text that can wrap across multiple lines when needed.',
   as: 'p',
 });
 ```
@@ -220,6 +227,62 @@ const wrappedButton = Typography({
 });
 ```
 
+## Performance Optimizations
+
+The Typography component includes several performance optimizations:
+
+- **Style Injection Caching**: Styles are injected once and cached globally
+- **Partial Updates**: Style-only changes don't trigger full DOM rebuilds
+- **Debounced Resize Handling**: Window resize events are throttled for performance
+- **Efficient Class Management**: Class names are updated incrementally when possible
+
+## Architecture
+
+### CSS Injection System
+
+This component uses our modern CSS injection system:
+
+- **Automatic**: Styles inject automatically when component is used
+- **Deduped**: Multiple instances share the same injected styles
+- **SSR Safe**: Works in Node.js environments without errors
+- **Performance**: Styles are cached in memory and DOM
+
+### Component Structure
+
+```
+src/components/Typography/
+├── Typography.js              # Main component with CSS injection
+├── Typography.styles.js       # Component-specific styles
+├── Typography.test.js         # Component tests
+├── Typography.performance.test.js  # Performance tests
+├── Typography.stories.js      # Storybook stories
+├── README.md                  # This documentation
+└── index.js                   # Public exports
+```
+
+## Browser Support
+
+- **Modern Browsers**: Full support with CSS injection
+- **Legacy Browsers**: Graceful fallback to inline styles
+- **SSR**: Full Node.js compatibility
+
+## Migration from CSS Imports
+
+If upgrading from a version that used CSS imports:
+
+**Before:**
+
+```javascript
+import './Typography.css'; // ❌ No longer needed
+import { Typography } from '@svarog-ui/core';
+```
+
+**After:**
+
+```javascript
+import { Typography } from '@svarog-ui/core'; // ✅ Styles auto-inject
+```
+
 ## Accessibility
 
 The Typography component follows best practices for accessibility:
@@ -228,3 +291,4 @@ The Typography component follows best practices for accessibility:
 - Semantic HTML elements
 - Sufficient color contrast when using theme variables
 - Proper text sizing and spacing for readability
+- Support for assistive technologies

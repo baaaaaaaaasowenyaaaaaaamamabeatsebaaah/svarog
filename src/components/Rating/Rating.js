@@ -1,8 +1,12 @@
 // src/components/Rating/Rating.js
-import './Rating.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import { validateRequiredProps } from '../../utils/validation.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { ratingStyles } from './Rating.styles.js';
+
+// Create style injector for Rating component
+const injectRatingStyles = createStyleInjector('Rating');
 
 // SVG logos for different sources - defined outside the component for better performance
 const LOGO_SVGS = {
@@ -206,6 +210,9 @@ const createRating = (props) => {
    * @returns {HTMLElement} Rating element
    */
   const renderRating = (state) => {
+    // Inject styles on first render
+    injectRatingStyles(ratingStyles);
+
     // Normalize and prepare data
     const source = state.source.toLowerCase();
     const score = parseFloat(state.score).toFixed(1);

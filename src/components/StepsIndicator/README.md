@@ -1,13 +1,20 @@
 # StepsIndicator Component
 
-The StepsIndicator component provides a clean, modern multi-step progress indicator with a 3-section progress bar.
+The StepsIndicator component provides a clean, modern multi-step progress indicator with a 3-section progress bar. Styles are automatically injected when the component is used - no separate CSS imports required.
+
+## Features
+
+✅ **Zero Configuration** - Styles inject automatically, no CSS imports needed  
+✅ **SSR Compatible** - Works safely in server-side rendering environments  
+✅ **Tree Shakeable** - Only loads styles when component is used  
+✅ **Performance Optimized** - Styles are cached and deduped automatically
 
 ## Usage
 
 ```javascript
 import { StepsIndicator } from '@svarog-ui/core';
 
-// Create a steps indicator
+// Create a steps indicator - styles inject automatically
 const stepsIndicator = StepsIndicator({
   steps: [
     { name: 'Step 1', completed: true },
@@ -165,6 +172,29 @@ The StepsIndicator appearance can be customized with CSS variables:
 }
 ```
 
+### Custom Styling
+
+If you need to override default styles, target the component classes:
+
+```css
+/* Custom progress bar height */
+.steps-indicator__progress-bar {
+  height: 6px;
+}
+
+/* Custom step circle size */
+.steps-indicator__number {
+  width: 50px;
+  height: 50px;
+  font-size: 1rem;
+}
+
+/* Custom colors */
+.steps-indicator__section--completed {
+  background-color: #10b981; /* Custom green */
+}
+```
+
 ## Examples
 
 ### Basic Steps Indicator
@@ -281,6 +311,46 @@ nextButton.addEventListener('click', nextStep);
 document.body.appendChild(nextButton);
 ```
 
+## Implementation Details
+
+### CSS Injection System
+
+The component uses an automatic CSS injection system that:
+
+- **Automatically injects styles** when the component is first used
+- **Caches styles** to prevent duplicate injections
+- **Works in all environments** including Node.js, SSR, and browsers
+- **Requires zero configuration** from developers
+
+The injection happens in the `renderStepsIndicator` function:
+
+```javascript
+// Inject styles on first render (automatically cached)
+injectStepsIndicatorStyles(stepsIndicatorStyles);
+```
+
+### File Structure
+
+```
+src/components/StepsIndicator/
+├── StepsIndicator.js           # Main component with CSS injection
+├── StepsIndicator.styles.js    # Component-specific styles
+├── StepsIndicator.test.js      # Unit tests
+├── StepsIndicator.stories.js   # Storybook stories
+├── README.md                   # This documentation
+└── index.js                    # Export file
+```
+
+### Modernization Benefits
+
+This refactored component provides:
+
+- **Zero CSS Import Errors** - Works in Node.js environments without CSS processing
+- **Automatic Style Management** - No manual CSS imports required
+- **Better Tree Shaking** - Only loads styles for components actually used
+- **SSR Compatibility** - Styles inject safely in browser-only context
+- **Consistent Developer Experience** - Same usage pattern as other modern component libraries
+
 ## Accessibility
 
 The StepsIndicator is built with accessibility in mind:
@@ -314,3 +384,23 @@ The StepsIndicator is fully responsive and adapts to different screen sizes:
 
 - On desktop: Horizontal layout with steps in a row
 - On mobile: Vertical layout with steps stacked
+
+## Migration from CSS Import Version
+
+If upgrading from a version that used CSS imports:
+
+### Before (CSS Import Version)
+
+```javascript
+import StepsIndicator from './StepsIndicator.js';
+import './StepsIndicator.css'; // Manual CSS import required
+```
+
+### After (CSS Injection Version)
+
+```javascript
+import StepsIndicator from './StepsIndicator.js';
+// CSS injection happens automatically - no imports needed!
+```
+
+The component API remains exactly the same - only the styling system has been modernized.

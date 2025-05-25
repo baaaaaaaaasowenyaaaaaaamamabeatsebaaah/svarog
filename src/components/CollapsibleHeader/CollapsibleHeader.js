@@ -1,5 +1,4 @@
 // src/components/CollapsibleHeader/CollapsibleHeader.js
-import './CollapsibleHeader.css';
 import {
   createElement,
   validateProps,
@@ -7,11 +6,16 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { collapsibleHeaderStyles } from './CollapsibleHeader.styles.js';
 import Navigation from '../Navigation/Navigation.js';
 import ContactInfo from '../ContactInfo/ContactInfo.js';
 import Logo from '../Logo/Logo.js';
 import Link from '../Link/Link.js';
 import Button from '../Button/Button.js';
+
+// Create style injector for CollapsibleHeader component
+const injectStyles = createStyleInjector('CollapsibleHeader');
 
 /**
  * Migrates legacy props to standardized prop names
@@ -59,6 +63,9 @@ const validateCollapsibleHeaderProps = (props) => {
  * @returns {HTMLElement} - CollapsibleHeader element
  */
 const renderCollapsibleHeader = (state) => {
+  // Inject styles on first render
+  injectStyles(collapsibleHeaderStyles);
+
   const {
     siteName,
     navigation,
@@ -71,7 +78,6 @@ const renderCollapsibleHeader = (state) => {
   } = state;
 
   // Create header element with proper classes
-  // The componentFactory.createElement takes an array for 'classes'
   const headerElement = createElement('header', {
     classes: [
       'collapsible-header',

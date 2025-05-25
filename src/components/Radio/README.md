@@ -1,6 +1,6 @@
 # Radio Component
 
-A customizable Radio component and RadioGroup implementation for building accessible form controls.
+A customizable Radio component and RadioGroup implementation for building accessible form controls with automatic CSS injection.
 
 ## Table of Contents
 
@@ -13,12 +13,22 @@ A customizable Radio component and RadioGroup implementation for building access
 5. [CSS Customization](#css-customization)
 6. [Accessibility](#accessibility)
 7. [Best Practices](#best-practices)
+8. [CSS Injection](#css-injection)
 
 ## Overview
 
 The Radio component provides a styled, accessible alternative to the native HTML radio input. It follows WAI-ARIA best practices and supports keyboard navigation, custom styling, and form integration.
 
 The RadioGroup component combines multiple radio buttons into a group with support for validation, keyboard navigation, and consistent styling.
+
+**Key Features:**
+
+- ✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere
+- ✅ **Zero Configuration** - Users just import and use components
+- ✅ **SSR Compatible** - Styles inject safely in browser only
+- ✅ **Tree Shakeable** - Only loads styles for used components
+- ✅ **Performance Optimized** - Styles are cached and deduped
+- ✅ **Developer Experience** - No separate CSS imports to remember
 
 ## Usage
 
@@ -229,7 +239,7 @@ const shipping = RadioGroup({
 
 ## CSS Customization
 
-The Radio component and RadioGroup can be customized using CSS variables:
+The Radio component and RadioGroup automatically inject their styles and can be customized using CSS variables:
 
 ### Radio Variables
 
@@ -294,6 +304,44 @@ The Radio component and RadioGroup can be customized using CSS variables:
 }
 ```
 
+## CSS Injection
+
+### How It Works
+
+The Radio components use an automatic CSS injection system that:
+
+1. **Injects styles automatically** when components are first rendered
+2. **Caches styles** to prevent duplicate injections
+3. **Works in all environments** including Node.js and SSR
+4. **Requires no configuration** - just import and use
+
+### File Structure
+
+```
+src/components/Radio/
+├── Radio.js                 # Component with style injection
+├── Radio.styles.js          # Component-specific styles
+├── RadioGroup.js            # Component with style injection
+├── RadioGroup.styles.js     # Component-specific styles
+├── Radio.test.js
+├── RadioGroup.test.js
+├── Radio.stories.js
+├── README.md
+└── index.js
+```
+
+### Manual Style Management
+
+If you need to manually control style injection:
+
+```javascript
+import { removeStyles } from '../../utils/styleInjection.js';
+
+// Remove Radio styles (useful for testing)
+removeStyles('radio');
+removeStyles('radiogroup');
+```
+
 ## Accessibility
 
 The Radio and RadioGroup components follow accessibility best practices:
@@ -331,3 +379,7 @@ Keyboard support:
 9. **Size appropriately for touch targets**: Ensure radio buttons and their labels are large enough for comfortable touch interaction on mobile devices.
 
 10. **Test with keyboard navigation**: Ensure your radio implementation works properly with keyboard-only navigation.
+
+11. **No CSS imports needed**: The components handle all styling automatically - simply import and use.
+
+12. **Environment compatibility**: Components work seamlessly in Node.js, SSR, and browser environments without configuration.

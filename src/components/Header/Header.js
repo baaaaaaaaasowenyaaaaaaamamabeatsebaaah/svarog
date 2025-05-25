@@ -1,10 +1,16 @@
 // src/components/Header/Header.js
-import './Header.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import Navigation from '../Navigation/index.js';
 import Logo from '../Logo/index.js';
 import Link from '../Link/index.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { headerStyles } from './Header.styles.js';
+
+// Create style injector for Header component
+const injectStyles = createStyleInjector('Header');
 
 /**
  * Creates a Header component
@@ -58,6 +64,9 @@ const createHeader = (props) => {
    * @returns {HTMLElement} Header element
    */
   const renderHeader = (state) => {
+    // Inject styles on render
+    injectStyles(headerStyles);
+
     // Create header container with proper classes
     const header = createElement('header', {
       classes: ['header', state.className].filter(Boolean).join(' '),

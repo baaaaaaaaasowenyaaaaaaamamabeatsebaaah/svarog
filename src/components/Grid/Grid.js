@@ -1,11 +1,15 @@
 // src/components/Grid/Grid.js
-import './Grid.css';
 import {
   createComponent,
   createElement,
   appendChildren,
 } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { gridStyles } from './Grid.styles.js';
+
+// Create style injector for Grid component
+const injectGridStyles = createStyleInjector('Grid');
 
 /**
  * Creates a Column component for use within a Grid
@@ -21,6 +25,9 @@ const createColumn = (props) => {
     desktopOffset,
     offset,
   } = props;
+
+  // Inject styles on component creation
+  injectGridStyles(gridStyles);
 
   // State
   let columnState = { ...props };
@@ -42,33 +49,35 @@ const createColumn = (props) => {
 
   // Create the column element
   const buildColumnElement = () => {
-    const column = createElement('div', {
-      classes: ['column'],
-      style: {
-        gridColumnEnd: `span ${columnState.width}`,
-      },
-    });
-
-    // Handle offset
-    if (columnState.offset) {
-      column.style.gridColumnStart = columnState.offset + 1;
-    }
+    const classes = ['column'];
 
     // Add responsive classes
     if (columnState.mobileWidth) {
-      column.classList.add(`column--mobile-${columnState.mobileWidth}`);
+      classes.push(`column--mobile-${columnState.mobileWidth}`);
     }
     if (columnState.tabletWidth) {
-      column.classList.add(`column--tablet-${columnState.tabletWidth}`);
+      classes.push(`column--tablet-${columnState.tabletWidth}`);
     }
     if (columnState.desktopWidth) {
-      column.classList.add(`column--desktop-${columnState.desktopWidth}`);
+      classes.push(`column--desktop-${columnState.desktopWidth}`);
     }
     if (columnState.desktopOffset) {
-      column.classList.add(
-        `column--desktop-offset-${columnState.desktopOffset}`
-      );
+      classes.push(`column--desktop-offset-${columnState.desktopOffset}`);
     }
+
+    const style = {
+      gridColumnEnd: `span ${columnState.width}`,
+    };
+
+    // Handle offset
+    if (columnState.offset) {
+      style.gridColumnStart = columnState.offset + 1;
+    }
+
+    const column = createElement('div', {
+      classes,
+      style,
+    });
 
     // Append children - properly handle both array and single child
     if (Array.isArray(columnState.children)) {
@@ -145,6 +154,9 @@ const createColumn = (props) => {
 const createGrid = (props = {}) => {
   const { rowGap, columnGap, gap, alignItems, justifyItems } = props;
 
+  // Inject styles on component creation
+  injectGridStyles(gridStyles);
+
   // State
   let gridState = { ...props };
 
@@ -186,28 +198,27 @@ const createGrid = (props = {}) => {
     if (gridState.reverse) classNames.push('grid--reverse');
     if (gridState.mobileReverse) classNames.push('grid--mobile-reverse');
 
-    const grid = createElement('div', {
-      classes: classNames,
-      style: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(12, 1fr)',
-      },
-    });
+    const style = {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(12, 1fr)',
+    };
 
     // Gap handling
     if (gridState.gap) {
-      grid.style.gap = gridState.gap;
+      style.gap = gridState.gap;
     } else {
-      if (gridState.rowGap) grid.style.rowGap = gridState.rowGap;
-      if (gridState.columnGap) grid.style.columnGap = gridState.columnGap;
+      if (gridState.rowGap) style.rowGap = gridState.rowGap;
+      if (gridState.columnGap) style.columnGap = gridState.columnGap;
     }
 
     // Alignment
-    if (gridState.alignItems) grid.style.alignItems = gridState.alignItems;
-    if (gridState.justifyItems)
-      grid.style.justifyItems = gridState.justifyItems;
+    if (gridState.alignItems) style.alignItems = gridState.alignItems;
+    if (gridState.justifyItems) style.justifyItems = gridState.justifyItems;
 
-    return grid;
+    return createElement('div', {
+      classes: classNames,
+      style,
+    });
   };
 
   // Initial grid element

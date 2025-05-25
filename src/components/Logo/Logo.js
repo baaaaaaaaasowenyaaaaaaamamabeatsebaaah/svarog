@@ -1,8 +1,14 @@
 // src/components/Logo/Logo.js
-import './Logo.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import Image from '../Image/index.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { logoStyles } from './Logo.styles.js';
+
+// Create style injector for Logo component
+const injectLogoStyles = createStyleInjector('Logo');
 
 /**
  * Creates a Logo component
@@ -18,7 +24,10 @@ import Image from '../Image/index.js';
  * @returns {Object} Logo component API object
  */
 const createLogo = (props = {}) => {
-  // Make a copy of props to avoid modifying the original
+  // Inject styles on component creation
+  injectLogoStyles(logoStyles);
+
+  // Normalize legacy props
   const normalizedProps = { ...props };
 
   // Handle legacy src prop
@@ -55,7 +64,6 @@ const createLogo = (props = {}) => {
       state.className,
     ].filter(Boolean);
 
-    // Use 'classes' instead of 'className' for createElement
     const container = createElement('div', {
       classes: containerClasses,
     });

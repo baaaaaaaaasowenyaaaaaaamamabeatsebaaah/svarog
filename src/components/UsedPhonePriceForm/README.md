@@ -1,6 +1,6 @@
 # UsedPhonePriceForm Component
 
-The UsedPhonePriceForm component provides a multi-step interface for users to select a phone manufacturer, device model, and condition to get a buyback price estimate. It features async loading, error handling, and optimized user experience with algorithmic optimizations.
+The UsedPhonePriceForm component provides a multi-step interface for users to select a phone manufacturer, device model, and condition to get a buyback price estimate. It features async loading, error handling, optimized user experience with algorithmic optimizations, and modern CSS injection for zero-configuration styling.
 
 ## Key Features
 
@@ -14,7 +14,21 @@ The UsedPhonePriceForm component provides a multi-step interface for users to se
 - **Responsive design**: Works on desktop and mobile
 - **Accessibility**: Full keyboard navigation and screen reader support
 - **Theme awareness**: Responds to theme changes
+- **CSS Injection**: Automatic style injection with zero configuration
 - **Algorithmic optimizations**: O(1) lookups, mathematical calculations, and memoized transformations
+
+## Styling Architecture
+
+This component uses **CSS injection** for styling, which provides several benefits:
+
+✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere  
+✅ **Zero Configuration** - Users just import and use components  
+✅ **SSR Compatible** - Styles inject safely in browser only  
+✅ **Tree Shakeable** - Only loads styles for used components  
+✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Developer Experience** - No separate CSS imports to remember
+
+The component automatically injects its styles when first rendered, and styles are cached to prevent duplicate injections.
 
 ## Usage
 
@@ -342,10 +356,11 @@ The UsedPhonePriceForm includes several algorithmic optimizations:
 - **Mathematical Step Progression**: Efficient step calculation using arithmetic
 - **Bitwise Validation**: Ultra-fast form validation using bitwise operations
 - **Partial Updates**: Only updates changed components instead of full re-renders
+- **CSS Injection Caching**: Styles are injected once and cached automatically
 
-## Styling
+## Styling Customization
 
-The component can be styled using CSS custom properties:
+The component automatically injects its styles, but you can customize them using CSS custom properties:
 
 ```css
 :root {
@@ -370,6 +385,52 @@ The component can be styled using CSS custom properties:
 }
 ```
 
+### Advanced Styling
+
+You can also override specific component styles:
+
+```css
+/* Custom form background */
+.used-phone-price-form {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom animations */
+.used-phone-price-form--animate-submit {
+  animation: custom-submit-pulse 0.6s ease;
+}
+
+@keyframes custom-submit-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+```
+
+## File Structure
+
+```
+src/components/UsedPhonePriceForm/
+├── UsedPhonePriceForm.js              # Main component with CSS injection
+├── UsedPhonePriceForm.styles.js       # Component-specific styles
+├── UsedPhonePriceFormContainer.js     # Container for API management
+├── UsedPhonePriceForm.test.js         # Component tests
+├── UsedPhoneProceFormContainer.test.js # Container tests
+├── UsedPhonePriceForm.stories.js      # Storybook stories
+├── README.md                          # This file
+└── index.js                           # Exports
+```
+
+## Migration from CSS Imports
+
+If you're upgrading from a version that used CSS imports, no changes are needed in your code. The component now automatically handles its styling through CSS injection, providing better compatibility and zero configuration.
+
 ## Accessibility
 
 - Full keyboard navigation support
@@ -385,6 +446,7 @@ The component can be styled using CSS custom properties:
 - Firefox (latest)
 - Safari (latest)
 - Mobile browsers (iOS Safari, Chrome for Android)
+- Node.js environments (SSR compatible)
 
 ## Performance
 
@@ -393,3 +455,4 @@ The component can be styled using CSS custom properties:
 - Lazy loading of dependent data
 - Memory leak prevention with proper cleanup
 - Algorithmic optimizations for fast operations
+- Automatic style caching and deduplication

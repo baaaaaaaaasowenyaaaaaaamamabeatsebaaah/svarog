@@ -1,14 +1,18 @@
 // src/components/ProductCard/ProductCard.js
-import './ProductCard.css';
 import {
   createElement,
   validateProps,
   createComponent,
 } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { productCardStyles } from './ProductCard.styles.js';
 import Card from '../Card/Card.js';
 import Button from '../Button/Button.js';
 import Typography from '../Typography/Typography.js';
+
+// Create style injector for ProductCard component
+const injectProductCardStyles = createStyleInjector('ProductCard');
 
 /**
  * Creates the product specifications section
@@ -21,7 +25,6 @@ const createProductDataElement = (productData) => {
     classes: 'product-card__data',
   });
 
-  // Create a list of product specifications
   const specsList = createElement('ul', {
     classes: 'product-card__specs',
   });
@@ -65,7 +68,6 @@ const createActionsElement = (price, currency, buttonText, onClick) => {
     classes: 'product-card__actions',
   });
 
-  // Create price element
   const priceElement = Typography({
     children: `${currency}${price}`,
     className: 'product-card__price',
@@ -73,7 +75,6 @@ const createActionsElement = (price, currency, buttonText, onClick) => {
     as: 'div',
   }).getElement();
 
-  // Create reserve button
   const reserveButton = Button({
     text: buttonText,
     onClick,
@@ -119,6 +120,9 @@ const migrateLegacyProps = (props) => {
  * @returns {Object} ProductCard component API
  */
 const createProductCard = (props) => {
+  // Inject styles on first render (automatically cached)
+  injectProductCardStyles(productCardStyles);
+
   // Migrate legacy props
   const normalizedProps = migrateLegacyProps(props);
 
@@ -141,7 +145,6 @@ const createProductCard = (props) => {
     className = '',
   } = normalizedProps;
 
-  // Combine class names
   const classNames = ['product-card'];
   if (className) {
     classNames.push(className);
@@ -152,11 +155,9 @@ const createProductCard = (props) => {
     classes: 'product-card__content-container',
   });
 
-  // Add product data section
   const productDataElement = createProductDataElement(productData);
   contentContainer.appendChild(productDataElement);
 
-  // Add price and actions section
   const actionsElement = createActionsElement(
     price,
     currency,
@@ -173,12 +174,10 @@ const createProductCard = (props) => {
     className: classNames.join(' '),
   });
 
-  // Keep reference to child components for later cleanup
   const components = {
     card,
   };
 
-  // Return the component API
   return {
     /**
      * Gets the product card element
@@ -194,13 +193,11 @@ const createProductCard = (props) => {
      * @returns {Object} Updated component
      */
     update(newProps) {
-      // Create a new component with merged props
       const updatedComponent = createProductCard({
         ...normalizedProps,
         ...newProps,
       });
 
-      // Replace the old element if it's in the DOM
       const element = this.getElement();
       if (element.parentNode) {
         element.parentNode.replaceChild(updatedComponent.getElement(), element);
@@ -213,7 +210,6 @@ const createProductCard = (props) => {
      * Clean up resources
      */
     destroy() {
-      // Clean up nested components
       if (components.card) {
         components.card.destroy();
       }
@@ -240,5 +236,4 @@ const ProductCard = withThemeAwareness(
   createComponent('ProductCard', createProductCard)
 );
 
-// Export as a factory function
 export default ProductCard;

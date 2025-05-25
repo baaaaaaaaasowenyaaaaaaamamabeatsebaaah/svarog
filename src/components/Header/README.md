@@ -1,6 +1,14 @@
 # Header Component
 
-The Header component provides a consistent page header with support for site name, logo, and navigation.
+The Header component provides a consistent page header with support for site name, logo, and navigation. Styles are automatically injected when the component is used.
+
+## Features
+
+✅ **Zero Configuration** - Styles inject automatically, no CSS imports needed  
+✅ **SSR Safe** - Works in server-side rendering environments  
+✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Responsive Design** - Adapts to different screen sizes  
+✅ **Theme Support** - Uses CSS variables for theming
 
 ## Usage
 
@@ -108,6 +116,27 @@ Header styles can be customized using CSS variables:
 }
 ```
 
+### Custom Styling
+
+Apply custom styles by adding a className:
+
+```javascript
+const customHeader = Header({
+  siteName: 'Styled Website',
+  className: 'dark-theme-header',
+});
+```
+
+Then define your custom CSS:
+
+```css
+.dark-theme-header {
+  --header-bg: #222222;
+  --color-text: #ffffff;
+  --color-border: #444444;
+}
+```
+
 ## Responsive Behavior
 
 The Header component includes responsive behavior:
@@ -172,29 +201,6 @@ const minimalHeader = Header({
 });
 ```
 
-### Header with Custom Styling
-
-```javascript
-const customHeader = Header({
-  siteName: 'Styled Website',
-  logo: '/path/to/logo.svg',
-  className: 'dark-theme-header',
-  navigation: {
-    items: [
-      { id: 'home', label: 'Home', href: '/' },
-      { id: 'about', label: 'About', href: '/about' },
-    ],
-  },
-});
-
-// In CSS:
-// .dark-theme-header {
-//   --header-bg: #222222;
-//   --color-text: #ffffff;
-//   --color-border: #444444;
-// }
-```
-
 ## Accessibility
 
 The Header component follows best practices for accessibility:
@@ -203,3 +209,25 @@ The Header component follows best practices for accessibility:
 - Provides proper navigation structure
 - Supports keyboard navigation through the Navigation component
 - Maintains appropriate color contrast ratios using theme variables
+
+## Migration from CSS Import
+
+If you were previously importing CSS files, no changes are needed in your component usage. Simply:
+
+1. Remove any `import './Header.css'` statements if present
+2. Update to the latest version of the component
+3. Styles will automatically inject when the component is used
+
+## Browser Support
+
+- All modern browsers (Chrome, Firefox, Safari, Edge)
+- Internet Explorer 11+ (with polyfills)
+- Server-side rendering environments
+- Node.js environments (styles skip injection safely)
+
+## Performance Notes
+
+- Styles are injected only once per page load
+- Multiple Header instances share the same style injection
+- No performance impact from unused styles
+- Automatic cleanup prevents memory leaks

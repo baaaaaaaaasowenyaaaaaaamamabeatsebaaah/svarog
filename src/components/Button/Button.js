@@ -1,5 +1,4 @@
 // src/components/Button/Button.js
-import './Button.css';
 import {
   createElement,
   validateProps,
@@ -8,6 +7,13 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import { debounce } from '../../utils/performance.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { buttonStyles } from './Button.styles.js';
+
+// Create style injector for Button component (memoized)
+const injectButtonStyles = createStyleInjector('Button');
 
 /**
  * Validates button-specific props
@@ -42,6 +48,9 @@ const validateButtonProps = (props) => {
  * @returns {HTMLElement} - Button element
  */
 const renderButton = (state) => {
+  // Inject styles on render (automatically cached)
+  injectButtonStyles(buttonStyles);
+
   // Build CSS class list
   const classNames = [
     'btn',

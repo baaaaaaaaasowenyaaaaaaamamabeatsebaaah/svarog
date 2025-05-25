@@ -1,8 +1,12 @@
 // src/components/Tabs/Tabs.js
-import './Tabs.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import { validateRequiredProps } from '../../utils/validation.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { tabsStyles } from './Tabs.styles.js';
+
+// Create style injector for Tabs component (cached automatically)
+const injectTabsStyles = createStyleInjector('Tabs');
 
 /**
  * Creates a Tabs component
@@ -18,6 +22,9 @@ import { validateRequiredProps } from '../../utils/validation.js';
  * @returns {Object} Tabs component
  */
 const createTabs = (props) => {
+  // Inject styles on component creation
+  injectTabsStyles(tabsStyles);
+
   // Migrate legacy props to new standard props
   const normalizedProps = migrateLegacyProps(props);
 

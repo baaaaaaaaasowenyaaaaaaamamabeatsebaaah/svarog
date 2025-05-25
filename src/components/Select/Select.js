@@ -1,5 +1,4 @@
 // src/components/Select/Select.js
-import './Select.css';
 import { createElement, appendChildren } from '../../utils/componentFactory.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import {
@@ -7,6 +6,13 @@ import {
   validateRequiredProps,
 } from '../../utils/validation.js';
 import { debounce } from '../../utils/performance.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { selectStyles } from './Select.styles.js';
+
+// Create style injector for Select component
+const injectSelectStyles = createStyleInjector('Select');
 
 // Debug helper
 const debugLog = (message, data = null) => {
@@ -28,6 +34,9 @@ const debugLog = (message, data = null) => {
  * @returns {Object} Select component API
  */
 const createSelect = (props = {}) => {
+  // Inject styles on first render
+  injectSelectStyles(selectStyles);
+
   debugLog('createSelect called', {
     propsKeys: Object.keys(props),
     disabled: props.disabled,

@@ -1,6 +1,6 @@
 # Page Component
 
-The Page component provides a complete page management solution with SEO optimization, loading states, error handling, and integration capabilities for CMS systems like Storyblok.
+The Page component provides a complete page management solution with SEO optimization, loading states, error handling, and integration capabilities for CMS systems like Storyblok. **Now features CSS injection for zero-configuration styling across all environments.**
 
 ## Features
 
@@ -11,13 +11,15 @@ The Page component provides a complete page management solution with SEO optimiz
 - **CMS Integration** - Designed for easy integration with headless CMS systems
 - **Performance Optimization** - Lazy loading, preloading, and efficient updates
 - **Responsive Design** - Mobile-first responsive layout
+- **🆕 CSS Injection** - Automatic style injection that works in Node.js, browsers, and bundlers
+- **🆕 Zero Configuration** - No CSS imports needed, styles load automatically
 
 ## Basic Usage
 
 ```javascript
 import { Page } from '@your-library/components';
 
-// Create a basic page
+// Create a basic page - styles inject automatically
 const page = Page({
   id: 'home-page',
   seo: {
@@ -30,9 +32,32 @@ const page = Page({
   },
 });
 
-// Append to DOM
+// Append to DOM - works everywhere (Node.js, browsers, bundlers)
 document.body.appendChild(page.getElement());
 ```
+
+## CSS Injection Architecture
+
+The Page component now uses an advanced CSS injection system that:
+
+✅ **Eliminates CSS Import Errors** - Works in Node.js environments without CSS parsing issues  
+✅ **Zero Configuration Required** - No separate CSS imports or build configuration needed  
+✅ **SSR Compatible** - Safely handles server-side rendering scenarios  
+✅ **Automatic Deduplication** - Styles are injected once and cached efficiently  
+✅ **Performance Optimized** - Only injects styles when components are actually used
+
+### How It Works
+
+```javascript
+// OLD WAY (caused Node.js errors):
+// import './Page.css'; // ❌ Would fail in Node.js
+
+// NEW WAY (works everywhere):
+import { Page } from '@your-library/components';
+// ✅ Styles automatically inject when component renders
+```
+
+The component automatically injects its styles into the document head on first render, using a sophisticated caching system to prevent duplicate style injection.
 
 ## Props
 
@@ -232,6 +257,23 @@ For components rendered within the Page component, use these standardized event 
 - `onSubmit` for form submissions
 - `onBlur` and `onFocus` for focus events
 
+## Node.js Compatibility
+
+The Page component now works seamlessly in Node.js environments:
+
+```javascript
+// This works in Node.js without CSS errors
+const { Page } = require('@your-library/components');
+
+const page = Page({
+  id: 'server-rendered-page',
+  content: { text: 'Server-side content' },
+});
+
+// Safe to call - styles only inject in browser
+const html = page.getElement().outerHTML;
+```
+
 ## Storyblok Integration
 
 For Storyblok CMS integration, use the StoryblokPageManager:
@@ -375,6 +417,32 @@ const landingPage = Page({
 });
 ```
 
+## Migration from CSS Imports
+
+If you're migrating from the old CSS import system:
+
+### Before (Old System)
+
+```javascript
+// This would cause Node.js errors
+import './Page.css'; // ❌ Problematic
+import { Page } from '@your-library/components';
+```
+
+### After (New CSS Injection System)
+
+```javascript
+// Clean and works everywhere
+import { Page } from '@your-library/components'; // ✅ Styles auto-inject
+```
+
+### Testing in Node.js
+
+```bash
+# This now works without CSS errors
+node -e "import('@your-library/components').then(m => console.log('✅ Page component loaded successfully!'))"
+```
+
 ## Best Practices
 
 ### SEO Optimization
@@ -423,9 +491,19 @@ Follow these standardized props for child components:
 - `onClick` for primary click handlers
 - `onChange` for value change events
 
+### CSS Injection Best Practices
+
+- **No Manual CSS Imports**: Never import CSS files manually when using components
+- **Automatic Loading**: Trust the injection system to handle styling automatically
+- **Environment Agnostic**: Component works identically in Node.js, browsers, and bundlers
+- **Style Isolation**: Each component manages its own styles independently
+- **Performance Optimized**: Styles are deduplicated and cached automatically
+
 ## Browser Support
 
 - **Modern Browsers**: Chrome 88+, Firefox 85+, Safari 14+, Edge 88+
+- **Node.js**: v14+ (full compatibility with CSS injection)
+- **SSR Frameworks**: Next.js, Nuxt.js, SvelteKit, etc.
 - **Accessibility**: WCAG 2.1 AA compliant
 - **Performance**: Core Web Vitals optimized
 - **Mobile**: Responsive design with touch support
@@ -436,3 +514,31 @@ Follow these standardized props for child components:
 - Base component utilities
 - Performance utilities (debounce, throttle)
 - Component factory utilities
+- **🆕 Style injection utilities** (automatic CSS management)
+
+## Architecture Benefits
+
+The CSS injection architecture provides several key advantages:
+
+### Development Experience
+
+- **No Configuration**: Works out of the box in any environment
+- **No Build Setup**: No webpack, rollup, or vite configuration needed for CSS
+- **Error Prevention**: Eliminates Node.js CSS import errors completely
+- **Consistent Behavior**: Same API across all JavaScript environments
+
+### Performance
+
+- **Tree Shaking**: Only loads styles for components actually used
+- **Automatic Deduplication**: Prevents duplicate style injection
+- **Lazy Loading**: Styles load only when components render
+- **Memory Efficient**: Optimal style caching and cleanup
+
+### Maintainability
+
+- **Co-located Styles**: Styles live alongside component code
+- **Version Consistency**: Styles and component logic always in sync
+- **Modular Architecture**: Each component owns its styling completely
+- **Zero Breaking Changes**: Maintains full backward compatibility
+
+This approach follows modern best practices used by libraries like Chakra UI, Mantine, and other CSS-in-JS solutions, while maintaining the simplicity and performance of vanilla JavaScript.

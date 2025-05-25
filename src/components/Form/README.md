@@ -1,6 +1,15 @@
 # Form Component
 
-The Form component provides a comprehensive, accessible form solution with built-in validation, field management, and data handling capabilities.
+The Form component provides a comprehensive, accessible form solution with built-in validation, field management, and data handling capabilities. **This component now uses CSS injection for zero-configuration styling.**
+
+## Features
+
+✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere  
+✅ **Zero Configuration** - Users just import and use components  
+✅ **SSR Compatible** - Styles inject safely in browser only  
+✅ **Tree Shakeable** - Only loads styles for used components  
+✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Developer Experience** - No separate CSS imports to remember
 
 ## Usage
 
@@ -47,7 +56,7 @@ const formActions = FormActions({
   children: submitButton,
 });
 
-// Create form
+// Create form - styles are automatically injected!
 const form = Form({
   children: [nameGroup, emailGroup, formActions],
   onSubmit: (event, data, isValid) => {
@@ -59,6 +68,34 @@ const form = Form({
 // Add to the DOM
 document.querySelector('#form-container').appendChild(form.getElement());
 ```
+
+## Migration from CSS Imports
+
+**Before (with CSS imports):**
+
+```javascript
+import './Form.css'; // ❌ Remove this
+import './FormGroup.css'; // ❌ Remove this
+import './FormValidation.css'; // ❌ Remove this
+import Form from './Form.js';
+```
+
+**After (with CSS injection):**
+
+```javascript
+import Form from './Form.js'; // ✅ Styles auto-inject!
+```
+
+## Component Architecture
+
+The Form component system now uses modular CSS injection:
+
+- **Form.js** - Injects `formStyles` and `formValidationStyles`
+- **FormGroup.js** - Injects `formGroupStyles` and `formValidationStyles`
+- **FormActions.js** - Injects `formStyles` (for `.form-actions` classes)
+- **FormSection.js** - Injects `formStyles` (for `.form-section` classes)
+
+All styles are automatically cached and deduped - multiple components using the same styles won't create duplicate `<style>` tags.
 
 ## Form Component Props
 
@@ -247,7 +284,7 @@ const form = Form({
 
 ## CSS Customization
 
-Form styles can be customized using CSS variables:
+Form styles can be customized using CSS variables. Styles are automatically injected, but you can override them:
 
 ```css
 :root {
@@ -272,8 +309,51 @@ Form styles can be customized using CSS variables:
   --form-section-description-font-size: 16px;
   --form-section-description-color: #6c757d;
   --form-section-description-margin-bottom: 12px;
+
+  /* Validation styling */
+  --validation-font-size: var(--font-size-sm);
+  --validation-color: var(--color-danger-light);
+  --validation-error-color: var(--color-danger-light);
+  --validation-success-color: var(--color-success-light);
+  --validation-margin-top: var(--space-1);
 }
 ```
+
+## File Structure
+
+```
+src/components/Form/
+├── Form.js                    # Main form component with CSS injection
+├── Form.styles.js             # Form-specific styles
+├── FormGroup.js               # Form group component with CSS injection
+├── FormGroup.styles.js        # Form group-specific styles
+├── FormSection.js             # Form section component
+├── FormActions.js             # Form actions component
+├── FormValidation.styles.js   # Shared validation styles
+├── Form.test.js               # Component tests
+├── FormGroup.test.js          # FormGroup tests
+├── Form.stories.js            # Storybook stories
+├── README.md                  # This documentation
+└── index.js                   # Exports
+```
+
+## CSS Injection Details
+
+### How It Works
+
+1. **Automatic Injection**: When you create a Form component, styles are automatically injected into the document head
+2. **Deduplication**: Multiple instances won't create duplicate styles - each style set is injected only once
+3. **SSR Safe**: No errors in Node.js environments - injection only happens in browser
+4. **Performance**: Styles are cached and use efficient DOM insertion
+
+### Style Dependencies
+
+- **Form** component injects: `formStyles` + `formValidationStyles`
+- **FormGroup** component injects: `formGroupStyles` + `formValidationStyles`
+- **FormActions** component injects: `formStyles` (for actions classes)
+- **FormSection** component injects: `formStyles` (for section classes)
+
+The system is smart about dependencies - if multiple components need the same styles, they're only injected once.
 
 ## Accessibility
 
@@ -283,6 +363,7 @@ The Form component follows accessibility best practices:
 - Uses appropriate ARIA attributes
 - Provides validation feedback
 - Supports keyboard navigation
+- Implements proper focus management
 
 ## Form Examples
 
@@ -374,6 +455,32 @@ const form = Form({
 form.registerField(emailInput);
 ```
 
+## Performance Benefits
+
+### Before (with CSS imports)
+
+- Required separate CSS bundle configuration
+- Risk of CSS import errors in Node.js
+- Manual management of CSS dependencies
+- Larger initial bundle size
+
+### After (with CSS injection)
+
+- Zero configuration required
+- No CSS import errors anywhere
+- Automatic dependency management
+- Tree-shakeable styles (only used components load styles)
+- Optimized for repeated use (styles cached)
+
+## Migration Checklist
+
+- [ ] Remove all CSS import statements (`import './Form.css'`, etc.)
+- [ ] Update component imports (no changes needed - same API)
+- [ ] Test in Node.js environment (should work without errors)
+- [ ] Test in browser (styles should appear automatically)
+- [ ] Verify no duplicate styles in document head
+- [ ] Update build configuration (remove CSS handling if desired)
+
 ## Prop Standardization Note
 
 This component follows the organization's prop standardization guidelines. Some props have standardized aliases for consistency across the component library:
@@ -382,3 +489,26 @@ This component follows the organization's prop standardization guidelines. Some 
 - `FormActions`: `alignment` can be used as an alias for `align`
 
 For new development, always use the standard prop names (`labelPosition` and `align`).
+
+## Browser Support
+
+CSS injection works in all modern browsers. The component gracefully handles environments where `document` is not available (Node.js, SSR).
+
+## Troubleshooting
+
+**Issue: Styles not appearing**
+
+- Check browser dev tools for injected `<style>` tags with `data-svarog` attributes
+- Verify components are being created (style injection happens on creation)
+- Ensure you're running in a browser environment
+
+**Issue: Duplicate styles**
+
+- This shouldn't happen - styles are automatically deduped by component name
+- Check for multiple versions of the component library
+
+**Issue: Styling conflicts**
+
+- CSS injection uses normal specificity - your custom CSS can override
+- Use browser dev tools to inspect style injection order
+- Consider using `!important` for critical overrides

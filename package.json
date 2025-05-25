@@ -8,8 +8,7 @@
   "exports": {
     ".": {
       "import": "./src/index.js",
-      "require": "./dist/bundle.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/bundle.js"
     },
     "./dist/styles.css": "./dist/styles.css",
     "./styles": "./dist/styles.css",

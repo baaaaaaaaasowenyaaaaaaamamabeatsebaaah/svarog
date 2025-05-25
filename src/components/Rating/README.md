@@ -1,6 +1,13 @@
 # Rating Component
 
-The Rating component displays user ratings from various sources (Google, Facebook, Trustpilot) with star visualization and optional reviewer profile images.
+The Rating component displays user ratings from various sources (Google, Facebook, Trustpilot) with star visualization and optional reviewer profile images. **This component uses CSS injection for styling - no separate CSS imports are required.**
+
+## Key Features
+
+✅ **Zero Configuration** - Just import and use, styles are injected automatically  
+✅ **SSR Compatible** - Styles inject safely in browser only  
+✅ **Tree Shakeable** - Only loads styles when component is used  
+✅ **Performance Optimized** - Styles are cached and deduped automatically
 
 ## Usage
 
@@ -96,6 +103,47 @@ Rating styles can be customized using CSS variables:
 }
 ```
 
+## Architecture
+
+### CSS Injection System
+
+The component uses a modern CSS injection approach:
+
+- **No CSS imports required** - Styles are automatically injected when the component is used
+- **SSR safe** - Style injection only happens in the browser
+- **Performance optimized** - Styles are cached and deduplicated
+- **Tree shakeable** - Only loads styles for components actually used
+
+### File Structure
+
+```
+src/components/Rating/
+├── Rating.js           # Main component with CSS injection
+├── Rating.styles.js    # Component-specific styles
+├── Rating.test.js      # Test suite
+├── Rating.stories.js   # Storybook stories
+├── README.md          # This documentation
+└── index.js           # Export with theme awareness
+```
+
+### Style Injection Implementation
+
+```javascript
+// Rating.js
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { ratingStyles } from './Rating.styles.js';
+
+// Create style injector for Rating component
+const injectRatingStyles = createStyleInjector('Rating');
+
+const renderRating = (state) => {
+  // Inject styles on first render (automatically cached)
+  injectRatingStyles(ratingStyles);
+
+  // ... component logic unchanged ...
+};
+```
+
 ## Examples
 
 ### Google Rating
@@ -184,6 +232,32 @@ The Rating component uses the Image component internally to handle reviewer prof
 - Fallback image support
 - Consistent image behavior across the application
 
+## Legacy Props Migration
+
+The component automatically handles legacy prop migration:
+
+```javascript
+// Deprecated (still works with warning)
+const rating = Rating({
+  source: 'google',
+  score: 4.5,
+  totalRatings: 1000,
+  options: {
+    fallbackImageSrc: '/fallback.jpg', // Deprecated
+  },
+});
+
+// Recommended
+const rating = Rating({
+  source: 'google',
+  score: 4.5,
+  totalRatings: 1000,
+  options: {
+    fallbackImageUrl: '/fallback.jpg', // Current standard
+  },
+});
+```
+
 ## Accessibility
 
 The Rating component follows best practices for accessibility:
@@ -211,3 +285,54 @@ The component is compatible with all modern browsers:
 - Only updates changed portions of the UI
 - Properly cleans up resources when destroyed
 - Uses component composition for better code organization
+- **Automatic style caching** - Styles are injected once and reused
+- **Tree-shakeable** - Only loads when component is actually used
+
+## Development Notes
+
+### Following Modern JavaScript Principles
+
+This implementation follows the Unified Vanilla JavaScript Development Principles:
+
+1. **Algorithmic Elegance** - Efficient DOM manipulation and state management
+2. **Code Organization** - Clear separation of concerns with CSS injection
+3. **Performance** - Styles cached and injected only once per component type
+4. **Modern JavaScript** - Uses ES modules, template literals, modern APIs
+5. **Clean Architecture** - Maintains component API consistency
+6. **Developer Experience** - Zero configuration, works everywhere
+
+### Testing with CSS Injection
+
+The component's test suite validates both functionality and style injection:
+
+```javascript
+// Tests verify style injection works correctly
+it('should inject styles on first render', () => {
+  const rating = Rating({ source: 'google', score: 4.5, totalRatings: 100 });
+  rating.getElement();
+
+  // Check if styles were injected
+  const injectedStyle = document.querySelector('[data-svarog="rating"]');
+  expect(injectedStyle).toBeTruthy();
+});
+```
+
+## Migration from CSS Imports
+
+If migrating from a version that used CSS imports:
+
+### Before (CSS Import)
+
+```javascript
+import './Rating.css'; // Remove this line
+import createRating from './Rating.js';
+```
+
+### After (CSS Injection)
+
+```javascript
+// No CSS import needed!
+import createRating from './Rating.js';
+```
+
+The component now handles all styling automatically through CSS injection.

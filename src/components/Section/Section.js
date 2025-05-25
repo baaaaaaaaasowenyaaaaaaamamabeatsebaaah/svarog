@@ -1,8 +1,14 @@
 // src/components/Section/Section.js
-import './Section.css';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement, appendChildren } from '../../utils/componentFactory.js';
 import Typography from '../Typography/Typography.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { sectionStyles } from './Section.styles.js';
+
+// Create style injector for Section component
+const injectSectionStyles = createStyleInjector('Section');
 
 /**
  * Creates a Section component for defining page sections
@@ -44,6 +50,9 @@ const createSection = (props) => {
    * @returns {HTMLElement} Section element
    */
   const renderSection = (state) => {
+    // Inject styles on render
+    injectSectionStyles(sectionStyles);
+
     // Build class names
     const classNames = ['section'];
 

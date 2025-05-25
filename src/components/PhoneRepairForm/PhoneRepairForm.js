@@ -1,5 +1,4 @@
 // src/components/PhoneRepairForm/PhoneRepairForm.js
-import './PhoneRepairForm.css';
 import {
   createElement,
   validateProps,
@@ -7,10 +6,15 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { phoneRepairFormStyles } from './PhoneRepairForm.styles.js';
 import Button from '../Button/Button.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
+
+// Create style injector for PhoneRepairForm component
+const injectPhoneRepairFormStyles = createStyleInjector('PhoneRepairForm');
 
 /**
  * ALGORITHMIC OPTIMIZATION: O(1) Lookup Maps
@@ -138,6 +142,9 @@ const canSchedule = (state) => {
  * @returns {HTMLElement} - Phone repair form element
  */
 const renderPhoneRepairForm = (state) => {
+  // Inject styles on render (automatically cached)
+  injectPhoneRepairFormStyles(phoneRepairFormStyles);
+
   const classNames = [
     'phone-repair-form',
     state.className,
@@ -648,7 +655,9 @@ const createPhoneRepairForm = (props) => {
 
   phoneRepairForm.onThemeChange = (theme, previousTheme) => {
     // Component can react to theme changes if needed
-    console.log(`Select component theme changed: ${previousTheme} -> ${theme}`);
+    console.log(
+      `PhoneRepairForm component theme changed: ${previousTheme} -> ${theme}`
+    );
   };
 
   // Initialize element state reference

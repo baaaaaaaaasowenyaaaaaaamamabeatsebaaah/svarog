@@ -1,6 +1,4 @@
 // src/components/Form/Form.js
-import './Form.css';
-import './FormValidation.css';
 import {
   createComponent,
   createElement,
@@ -10,12 +8,25 @@ import { createBaseComponent } from '../../utils/baseComponent.js';
 import { validateRequiredProps } from '../../utils/validation.js';
 import { debounce } from '../../utils/performance.js';
 
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { formStyles } from './Form.styles.js';
+import { formValidationStyles } from './FormValidation.styles.js';
+
+// Create style injectors for Form component
+const injectFormStyles = createStyleInjector('Form');
+const injectFormValidationStyles = createStyleInjector('FormValidation');
+
 /**
  * Creates a Form component for handling form functionality
  * @param {Object} props - Form properties
  * @returns {Object} Form component API
  */
 const createForm = (props) => {
+  // Inject styles on component creation
+  injectFormStyles(formStyles);
+  injectFormValidationStyles(formValidationStyles);
+
   // Migrate legacy props to standardized props
   const migrateLegacyProps = (props) => {
     const migrated = { ...props };

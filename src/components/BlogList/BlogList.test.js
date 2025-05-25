@@ -1,5 +1,6 @@
 // src/components/BlogList/BlogList.test.js
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { removeStyles } from '../../utils/styleInjection.js';
 import BlogList from './BlogList.js';
 
 describe('BlogList', () => {
@@ -27,9 +28,19 @@ describe('BlogList', () => {
     };
   });
 
-  it('should render correctly with posts', () => {
+  afterEach(() => {
+    // Clean up injected styles after each test
+    removeStyles('bloglist');
+  });
+
+  it('should inject styles and render correctly with posts', () => {
     const list = BlogList(defaultProps);
     const element = list.getElement();
+
+    // Check if styles were injected
+    const injectedStyle = document.querySelector('[data-svarog="bloglist"]');
+    expect(injectedStyle).toBeTruthy();
+    expect(injectedStyle.textContent).toContain('.blog-list');
 
     expect(element).toBeInstanceOf(HTMLElement);
     expect(element.classList.contains('blog-list')).toBe(true);
@@ -137,5 +148,29 @@ describe('BlogList', () => {
 
     // The updated component should exist and have columns
     expect(updatedElement.querySelectorAll('.column').length).toBe(2);
+  });
+
+  it('should handle legacy featuredImage prop migration', () => {
+    const postsWithLegacyProps = [
+      {
+        title: 'Legacy Post',
+        slug: 'legacy-post',
+        excerpt: 'Legacy post excerpt',
+        featuredImage: 'https://example.com/legacy-image.jpg', // Legacy prop
+        author: 'Legacy Author',
+        publishedDate: '2024-01-01',
+      },
+    ];
+
+    const list = BlogList({
+      posts: postsWithLegacyProps,
+      title: 'Legacy Posts',
+    });
+    const element = list.getElement();
+
+    // Should still render the blog card with the migrated image
+    const cardTitles = element.querySelectorAll('.blog-card__title');
+    expect(cardTitles.length).toBe(1);
+    expect(cardTitles[0].textContent).toBe('Legacy Post');
   });
 });

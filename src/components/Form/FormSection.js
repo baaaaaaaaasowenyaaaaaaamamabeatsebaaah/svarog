@@ -7,12 +7,22 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { validateRequiredProps } from '../../utils/validation.js';
 
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { formStyles } from './Form.styles.js';
+
+// Create style injector for FormSection component (uses form styles)
+const injectFormStyles = createStyleInjector('Form');
+
 /**
  * Creates a FormSection component for grouping related form fields
  * @param {Object} props - FormSection properties
  * @returns {Object} FormSection component API
  */
 const createFormSection = (props) => {
+  // Inject styles on component creation
+  injectFormStyles(formStyles);
+
   // Migrate legacy props to standardized props
   const migrateLegacyProps = (props) => {
     const migrated = { ...props };

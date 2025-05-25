@@ -1,6 +1,14 @@
 # PriceDisplay Component
 
-The PriceDisplay component displays price information with various states such as loading, error, and highlighted.
+The PriceDisplay component displays price information with various states such as loading, error, and highlighted. This component uses CSS injection for styling, eliminating the need for separate CSS imports.
+
+## Features
+
+✅ **Zero CSS Import Errors** - Styles are automatically injected  
+✅ **SSR Compatible** - Safe for server-side rendering  
+✅ **Tree Shakeable** - Only loads when component is used  
+✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Modern Architecture** - Uses CSS injection pattern
 
 ## Usage
 
@@ -158,7 +166,7 @@ setTimeout(() => {
 
 ## CSS Customization
 
-Price display styles can be customized using CSS variables:
+Price display styles are automatically injected and can be customized using CSS variables:
 
 ```css
 :root {
@@ -177,3 +185,62 @@ Price display styles can be customized using CSS variables:
   --color-brand-secondary-light: #4a90e2;
 }
 ```
+
+## Architecture
+
+This component follows the Unified Vanilla JavaScript Development Principles:
+
+- **CSS Injection**: Styles are automatically injected when the component is used
+- **Factory Pattern**: Component created via factory function
+- **Prop Normalization**: Handles both new and legacy prop names
+- **Performance Optimized**: Efficient DOM updates with partial rendering
+- **Theme Aware**: Responds to theme changes
+- **Memory Safe**: Proper cleanup on destroy
+
+## Migration from CSS Imports
+
+If upgrading from a version that used CSS imports:
+
+1. **Remove CSS import**: No need to import `PriceDisplay.css` anymore
+2. **No API changes**: All component methods and props remain the same
+3. **Automatic styling**: Styles are now injected automatically
+
+```javascript
+// OLD (no longer needed)
+import './PriceDisplay.css';
+import { PriceDisplay } from '@svarog-ui/core';
+
+// NEW (styles auto-injected)
+import { PriceDisplay } from '@svarog-ui/core';
+```
+
+## Browser Compatibility
+
+- Modern browsers supporting ES2024+ features
+- SSR environments (Node.js)
+- Bundle environments (Webpack, Vite, etc.)
+- No external dependencies required
+
+## Performance Notes
+
+- Styles are injected once per component type (not per instance)
+- Automatic deduplication prevents style conflicts
+- Minimal DOM manipulation with efficient partial updates
+- Memory usage optimized with proper cleanup
+
+## Troubleshooting
+
+**Issue: Styles not appearing**
+
+- Styles are automatically injected - no additional setup required
+- Check browser dev tools for `<style>` tags with `data-svarog="pricedisplay"`
+
+**Issue: Legacy prop warnings**
+
+- Update `isLoading` to `loading` prop to remove deprecation warnings
+- Both props are supported for backward compatibility
+
+**Issue: Theme not applying**
+
+- Ensure CSS variables are defined in your theme
+- Check that theme is properly initialized before component creation

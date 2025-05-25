@@ -1,6 +1,6 @@
 # ContactInfo Component
 
-The ContactInfo component provides a structured, interactive way to display contact information with location, phone, and email details.
+The ContactInfo component provides a structured, interactive way to display contact information with location, phone, and email details. Styles are automatically injected when the component is used - no separate CSS imports needed.
 
 ## Usage
 
@@ -141,7 +141,7 @@ const contactInfo = ContactInfo({
 
 ## CSS Customization
 
-ContactInfo styles can be customized using CSS variables:
+ContactInfo styles are automatically injected when the component is used. You can customize the appearance using CSS variables:
 
 ```css
 :root {
@@ -159,6 +159,14 @@ ContactInfo styles can be customized using CSS variables:
   --contact-info-icon-size: 18px;
 }
 ```
+
+### Style Injection Benefits
+
+- **Zero Configuration**: No need to import CSS files separately
+- **Tree Shakeable**: Only loads styles when component is used
+- **SSR Compatible**: Styles inject safely in browser environments
+- **Automatic Deduplication**: Multiple instances share the same styles
+- **Theme Integration**: Works seamlessly with theme CSS variables
 
 ## Examples
 
@@ -220,3 +228,38 @@ const headerContactInfo = ContactInfo({
 
 document.querySelector('header').appendChild(headerContactInfo.getElement());
 ```
+
+### Working with Different Themes
+
+The component automatically adapts to your theme system via CSS variables:
+
+```javascript
+// Component works with any theme
+import { themeManager } from '@svarog-ui/core';
+
+// Switch themes - component styles adapt automatically
+themeManager.switchTheme('dark');
+themeManager.switchTheme('light');
+```
+
+## Migration from CSS Imports
+
+If migrating from a version that required CSS imports:
+
+```javascript
+// OLD - Required separate CSS import
+import './ContactInfo.css';
+import ContactInfo from './ContactInfo.js';
+
+// NEW - Styles automatically injected
+import ContactInfo from './ContactInfo.js';
+```
+
+No other changes are needed - the component API remains exactly the same.
+
+## Performance Notes
+
+- Styles are injected once per component type (not per instance)
+- Style injection is cached and deduped automatically
+- Minimal performance impact - styles are inserted during component creation
+- Works efficiently with server-side rendering (browser-only injection)

@@ -1,6 +1,4 @@
 // src/components/Form/FormGroup.js
-import './FormGroup.css';
-import './FormValidation.css';
 import {
   createComponent,
   createElement,
@@ -9,12 +7,25 @@ import { createBaseComponent } from '../../utils/baseComponent.js';
 import { validateRequiredProps } from '../../utils/validation.js';
 import Typography from '../Typography/Typography.js';
 
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { formGroupStyles } from './FormGroup.styles.js';
+import { formValidationStyles } from './FormValidation.styles.js';
+
+// Create style injectors for FormGroup component
+const injectFormGroupStyles = createStyleInjector('FormGroup');
+const injectFormValidationStyles = createStyleInjector('FormValidation');
+
 /**
  * Creates a FormGroup component for grouping form controls with labels
  * @param {Object} props - FormGroup properties
  * @returns {Object} FormGroup component API
  */
 const createFormGroup = (props) => {
+  // Inject styles on component creation
+  injectFormGroupStyles(formGroupStyles);
+  injectFormValidationStyles(formValidationStyles);
+
   // Migrate legacy props to standardized props
   const migrateLegacyProps = (props) => {
     const migrated = { ...props };
