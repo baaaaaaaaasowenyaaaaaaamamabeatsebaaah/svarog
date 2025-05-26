@@ -1,3 +1,4 @@
+// scripts/build-theme.mjs
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -27,16 +28,28 @@ try {
   );
   const themeCss = readFileSync(themeCssPath, 'utf-8');
 
-  // Extract just the CSS variables and styles (remove the wrapper class if it exists)
-  const cleanedCss = themeCss
-    .replace(/\.[\w-]+-theme\s*{/, '') // Remove opening .theme-name {
-    .replace(/}\s*$/, '') // Remove closing }
-    .trim();
+  // Extract all theme blocks and combine their content
+  const themeBlocks = [];
+  const regex = /\.[\w-]+-theme\s*{([^{}]*(?:{[^{}]*}[^{}]*)*)}/g;
+  let match;
+
+  while ((match = regex.exec(themeCss)) !== null) {
+    // Clean up the content - remove extra whitespace but keep structure
+    const content = match[1]
+      .trim()
+      .split('\n')
+      .map((line) => '  ' + line.trim()) // Indent each line
+      .join('\n');
+    themeBlocks.push(content);
+  }
+
+  // Combine all theme blocks with proper formatting
+  const combinedCss = themeBlocks.join('\n\n');
 
   // Create the theme module
   const themeModule = `// Auto-generated theme module for ${themeName}
 const themeStyles = \`.${themeName}-theme {
-${cleanedCss}
+${combinedCss}
 }\`;
 
 const ${themeName}Theme = {
@@ -86,7 +99,7 @@ export { ${themeName}Theme };
   );
   writeFileSync(outputPath, themeModule);
 
-  // Also create the source index.js that will be used during development
+  // Also update the source index.js
   const srcIndex = `// Theme package for ${themeName}
 // This file is used during development. The dist/index.js is auto-generated.
 
@@ -98,10 +111,15 @@ const ${themeName}Theme = {
   },
   remove() {
     console.log('Remove ${themeName} theme - this is the development version');
+  },
+  getStyles() {
+    // Return empty string in development
+    return '';
   }
 };
 
 export default ${themeName}Theme;
+export { ${themeName}Theme };
 `;
 
   writeFileSync(
