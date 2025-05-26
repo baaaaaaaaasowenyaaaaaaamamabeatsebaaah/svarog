@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-default@1.1.0...@svarog-ui/theme-default@1.1.1) (2025-05-26)
+
+### Bug Fixes
+
+- update build scripts to use .mjs extension and add LICENSE ([567f129](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/567f129c9f2c8f722ec578d0a76d8736531368d3))
+
 # 1.1.0 (2025-05-26)
 
 ### Features
