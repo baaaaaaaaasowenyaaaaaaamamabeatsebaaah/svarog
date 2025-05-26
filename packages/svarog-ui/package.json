@@ -11,6 +11,9 @@
       "require": "./dist/index.js"
     }
   },
+  "scripts": {
+    "build": "node ../../scripts/build-main.mjs"
+  },
   "dependencies": {
     "svarog-ui-core": "^1.0.0",
     "@svarog-ui/theme-default": "^1.0.0"

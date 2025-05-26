@@ -1,9 +1,7 @@
-// Export the theme variables from the existing default theme
+// Export the theme variables (without the .default-theme wrapper)
 export const themeVariables = `
-  /* src/styles/themes/default-theme.css */
-.default-theme {
   /* Typography - use base variables */
-  --font-family-primary: var(--font-family-mono);
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-family-heading: var(--font-family-primary);
   --font-family-base: var(--font-family-primary);
   --font-family-mono: 'Roboto Mono', monospace;
@@ -42,14 +40,12 @@ export const themeVariables = `
   --button-hover-bg: var(--color-brand-primary-dark);
   --button-hover-border-color: transparent;
   --button-hover-color: var(--color-text-white);
-  --button-hover-shadow:
-    0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
+  --button-hover-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
   --button-hover-transform: translateY(-1px);
   --button-active-bg: var(--color-brand-primary-dark);
   --button-active-border-color: transparent;
   --button-active-transform: translateY(0);
-  --button-active-shadow:
-    0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14);
+  --button-active-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14);
   --button-disabled-bg: rgba(0, 0, 0, 0.12);
   --button-disabled-border-color: transparent;
   --button-disabled-color: rgba(0, 0, 0, 0.26);
@@ -58,13 +54,8 @@ export const themeVariables = `
   --button-font-size: 0.875rem;
   --button-font-family: var(--font-family-primary);
   --button-font-weight: 500;
-  --button-transition:
-    background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --button-shadow:
-    0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
-    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  --button-transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --button-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
   --button-focus-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
 
   /* Primary variant */
@@ -92,40 +83,30 @@ export const themeVariables = `
   --button-text-hover-color: var(--color-brand-primary-dark);
   --button-text-padding: 6px 8px;
 
-  /* Small button styles */
+  /* All other button variants... */
   --button-padding-sm: 4px 10px;
   --button-font-size-sm: 0.8125rem;
   --button-radius-sm: 4px;
   --button-icon-size-sm: 18px;
-
-  /* Large button styles */
   --button-padding-lg: 8px 22px;
   --button-font-size-lg: 0.9375rem;
   --button-radius-lg: 4px;
   --button-icon-size-lg: 22px;
-
-  /* Icon button styles */
   --button-icon-margin: 8px;
   --button-icon-padding: 12px;
   --button-icon-radius: 50%;
   --button-icon-size: 24px;
-
-  /* Outlined button styles */
   --button-outlined-color: var(--color-brand-primary);
   --button-outlined-border-color: rgba(33, 150, 243, 0.5);
   --button-outlined-hover-bg: rgba(33, 150, 243, 0.08);
   --button-outlined-hover-color: var(--color-brand-primary);
   --button-outlined-hover-border-color: var(--color-brand-primary);
-
-  /* Success button styles */
   --button-success-bg: #4caf50;
   --button-success-color: var(--color-text-white);
   --button-success-border-color: transparent;
   --button-success-hover-bg: #388e3c;
   --button-success-hover-border-color: transparent;
   --button-success-hover-color: var(--color-text-white);
-
-  /* Danger button styles */
   --button-danger-bg: #f44336;
   --button-danger-color: var(--color-text-white);
   --button-danger-border-color: transparent;
@@ -148,12 +129,9 @@ export const themeVariables = `
   --card-radius: 4px;
   --card-border: none;
   --card-border-color: transparent;
-  --card-shadow:
-    0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
-    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  --card-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
   --card-hover-border-color: transparent;
-  --card-hover-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.12);
+  --card-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.12);
   --card-title-padding: 16px;
   --card-title-font-size: 1.25rem;
   --card-title-font-weight: 500;
@@ -329,8 +307,7 @@ export const themeVariables = `
   --nav-bg: var(--color-bg);
   --nav-border-bottom: none;
   --nav-dropdown-bg: var(--color-bg);
-  --nav-dropdown-shadow:
-    0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+  --nav-dropdown-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
   --nav-padding: 0 16px;
   --nav-margin-right: 0;
   --nav-font-size: 0.875rem;
@@ -423,10 +400,8 @@ export const themeVariables = `
   --header-max-width: 100%;
   --header-padding: 0 24px;
   --header-padding-mobile: 0 16px;
-  --header-shadow:
-    0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
-  --header-shadow-scrolled:
-    0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14);
+  --header-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14);
+  --header-shadow-scrolled: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14);
   --header-title-size: 1.25rem;
   --header-title-size-mobile: 1.125rem;
   --header-title-weight: 500;
@@ -437,8 +412,7 @@ export const themeVariables = `
   /* Component: CollapsibleHeader */
   --collapsible-header-collapsed-height: 64px;
   --collapsible-header-contact-bg: rgba(0, 0, 0, 0.04);
-  --collapsible-header-contact-transition: all 200ms
-    cubic-bezier(0.4, 0, 0.2, 1);
+  --collapsible-header-contact-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --collapsible-header-height: 100px;
   --collapsible-header-logo-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --collapsible-header-mobile-height: 56px;
@@ -463,27 +437,4 @@ export const themeVariables = `
   --border-radius: 4px;
   --border-radius-default: 4px;
   --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-/* Material UI specific enhancements */
-.default-theme .card {
-  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.default-theme .card:hover {
-  transform: none;
-  box-shadow: var(--card-hover-shadow);
-}
-
-.default-theme h1,
-.default-theme h2,
-.default-theme h3,
-.default-theme h4,
-.default-theme h5,
-.default-theme h6 {
-  color: rgba(0, 0, 0, 0.87);
-  line-height: 1.2;
-  letter-spacing: 0;
-}
-
 `;
