@@ -1,0 +1,35 @@
+{
+  "name": "@svarog-ui/theme-default",
+  "version": "1.0.0",
+  "description": "Default theme for Svarog UI components",
+  "main": "dist/index.js",
+  "module": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "require": "./dist/index.js"
+    },
+    "./css": "./src/theme.css"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build-theme.js default",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "svarog-ui",
+    "theme",
+    "default",
+    "material"
+  ],
+  "author": "Sebastian Huber",
+  "license": "ISC",
+  "peerDependencies": {
+    "svarog-ui-core": "^1.0.0"
+  }
+}

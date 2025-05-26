@@ -1,0 +1,16 @@
+{
+  "name": "@svarog-ui/create-theme",
+  "version": "1.0.0",
+  "description": "Theme creation utilities for Svarog UI",
+  "main": "dist/index.js",
+  "module": "src/index.js",
+  "type": "module",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "svarog-ui-core": "^1.0.0"
+  }
+}

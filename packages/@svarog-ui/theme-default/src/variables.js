@@ -1,4 +1,6 @@
-/* src/styles/themes/default-theme.css */
+// Export the theme variables from the existing default theme
+export const themeVariables = `
+  /* src/styles/themes/default-theme.css */
 .default-theme {
   /* Typography - use base variables */
   --font-family-primary: var(--font-family-mono);
@@ -483,3 +485,5 @@
   line-height: 1.2;
   letter-spacing: 0;
 }
+
+`;
