@@ -13,7 +13,7 @@ const defaultTheme = {
   getStyles() {
     // Return empty string in development
     return '';
-  }
+  },
 };
 
 export default defaultTheme;

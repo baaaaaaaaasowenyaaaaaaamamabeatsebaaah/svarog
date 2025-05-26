@@ -13,7 +13,7 @@ const cabalouTheme = {
   getStyles() {
     // Return empty string in development
     return '';
-  }
+  },
 };
 
 export default cabalouTheme;

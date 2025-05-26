@@ -115,7 +115,7 @@ const ${themeName}Theme = {
   getStyles() {
     // Return empty string in development
     return '';
-  }
+  },
 };
 
 export default ${themeName}Theme;

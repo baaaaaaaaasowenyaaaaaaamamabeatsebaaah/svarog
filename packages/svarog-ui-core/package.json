@@ -14,7 +14,8 @@
       "require": "./dist/index.js"
     },
     "./utils/styleInjection": "./src/utils/styleInjection.js",
-    "./utils/themeManager": "./src/utils/themeManager.js"
+    "./utils/themeManager": "./src/utils/themeManager.js",
+    "./components/*": "./src/components/*"
   },
   "files": [
     "dist",
@@ -22,8 +23,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "node ../../scripts/build-core.mjs",
-    "prepublishOnly": "npm run build"
+    "build": "echo 'Build is handled by monorepo root'",
+    "prepublishOnly": "cd ../.. && npm run build:core"
   },
   "keywords": [
     "svarog-ui",
@@ -39,5 +40,6 @@
     "url": "git+https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog.git",
     "directory": "packages/svarog-ui-core"
   },
+  "sideEffects": false,
   "gitHead": "849700738cb6e8ba21400df607c575da6d581621"
 }

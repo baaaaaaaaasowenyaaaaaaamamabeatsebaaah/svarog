@@ -87,3 +87,12 @@ packages/@svarog-ui/*/node_modules/
 # Log files in packages
 packages/*/*.log
 packages/@svarog-ui/*/*.log
+
+# Ignore copied source files (they're generated during build)
+src/components/
+src/utils/
+!src/utils/themeManager.js
+!src/utils/styleInjection.js
+
+# Keep the index file
+!src/index.js

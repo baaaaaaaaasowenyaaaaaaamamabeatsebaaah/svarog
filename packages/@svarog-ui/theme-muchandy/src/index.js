@@ -13,7 +13,7 @@ const muchandyTheme = {
   getStyles() {
     // Return empty string in development
     return '';
-  }
+  },
 };
 
 export default muchandyTheme;
