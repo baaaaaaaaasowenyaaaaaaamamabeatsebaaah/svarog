@@ -75,3 +75,15 @@ coverage/
 
 # Script archive files
 scripts/archive/
+
+# Build outputs in each package
+packages/*/dist/
+packages/@svarog-ui/*/dist/
+
+# Node modules in each package
+packages/*/node_modules/
+packages/@svarog-ui/*/node_modules/
+
+# Log files in packages
+packages/*/*.log
+packages/@svarog-ui/*/*.log
