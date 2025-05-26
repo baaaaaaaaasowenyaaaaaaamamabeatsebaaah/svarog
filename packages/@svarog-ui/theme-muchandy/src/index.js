@@ -9,7 +9,12 @@ const muchandyTheme = {
   },
   remove() {
     console.log('Remove muchandy theme - this is the development version');
+  },
+  getStyles() {
+    // Return empty string in development
+    return '';
   }
 };
 
 export default muchandyTheme;
+export { muchandyTheme };
