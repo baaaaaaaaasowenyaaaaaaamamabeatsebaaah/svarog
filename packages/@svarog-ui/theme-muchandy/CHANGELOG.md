@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-muchandy@1.0.3...@svarog-ui/theme-muchandy@1.1.0) (2025-05-26)
+
+### Features
+
+- fix building ([df71ae7](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/df71ae79af43b7f08730cb63d0fc5d0d83fa69cd))
+
 ## [1.0.3](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-muchandy@1.0.2...@svarog-ui/theme-muchandy@1.0.3) (2025-05-26)
 
 **Note:** Version bump only for package @svarog-ui/theme-muchandy
