@@ -5,6 +5,9 @@
   "main": "dist/index.js",
   "module": "src/index.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist",
     "src",
@@ -13,5 +16,5 @@
   "peerDependencies": {
     "svarog-ui-core": "^1.0.0"
   },
-  "gitHead": "c2a260a6e5b1c8ae98a91f29da4f125a77d81d6f"
+  "gitHead": "31251de27331128d6e55692c5a17d410151c7ab3"
 }
