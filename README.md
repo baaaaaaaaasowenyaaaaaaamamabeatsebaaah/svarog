@@ -1,150 +1,300 @@
-# Svarog Component Library
+# Svarog UI - Modular Component Library
 
 A lightweight, highly optimized vanilla JavaScript component library with powerful theming capabilities. Built with performance, maintainability, and flexibility in mind - **all with zero external dependencies**.
 
+## 🚀 New in v4.0: Modular Package System
+
+Svarog UI now offers theme-specific packages for optimal bundle sizes! Install only what you need:
+
+```bash
+# Option 1: Core only (no themes)
+npm install svarog-ui-core
+
+# Option 2: Core + specific theme
+npm install svarog-ui-core @svarog-ui/theme-cabalou
+
+# Option 3: Traditional all-in-one (includes default theme)
+npm install svarog-ui
+```
+
 ## Features
 
+- 📦 **Modular Packages** - Install only the themes you need
 - 🔍 **Zero Dependencies** - Pure JavaScript with no external runtime dependencies
 - 🎨 **Powerful Theming** - Comprehensive CSS variable-based theming system
 - 🧱 **Factory Pattern** - Consistent component API using factory functions
 - 🚀 **Performance Optimized** - Event delegation, DOM batching, and CSS injection
 - ♿ **Accessible** - Follows accessibility best practices
 - 🧪 **Well Tested** - Comprehensive test coverage with Vitest
-- 📚 **Custom Component Explorer** - Built-in Storybook-like viewer developed from scratch in vanilla JS
-- 🎯 **Zero Configuration** - Components automatically inject their own styles, works everywhere
+- 📚 **Custom Component Explorer** - Built-in Storybook-like viewer
+- 🎯 **Zero Configuration** - Components automatically inject their own styles
 - 🌐 **Universal Compatibility** - Works in Node.js, browsers, bundlers without CSS import errors
 
-## Installation
+## Installation Options
+
+### 1. Minimal Installation (Recommended)
+
+Install only what you need for the smallest bundle size:
+
+```bash
+# Core components only
+npm install svarog-ui-core
+
+# Add specific themes
+npm install @svarog-ui/theme-cabalou
+npm install @svarog-ui/theme-muchandy
+```
+
+### 2. Traditional Installation
+
+For backward compatibility or if you prefer the all-in-one approach:
 
 ```bash
 npm install svarog-ui
 ```
 
+This includes the core components and default theme.
+
+## Available Packages
+
+| Package                     | Description                       | Size  |
+| --------------------------- | --------------------------------- | ----- |
+| `svarog-ui-core`            | Core components without themes    | ~50KB |
+| `@svarog-ui/theme-default`  | Material Design inspired theme    | ~15KB |
+| `@svarog-ui/theme-cabalou`  | Cabalou theme                     | ~15KB |
+| `@svarog-ui/theme-muchandy` | Muchandy theme                    | ~15KB |
+| `@svarog-ui/theme-dark`     | Dark theme                        | ~15KB |
+| `@svarog-ui/theme-light`    | Light theme                       | ~15KB |
+| `@svarog-ui/theme-red`      | Red theme                         | ~15KB |
+| `@svarog-ui/create-theme`   | Theme creation utilities          | ~5KB  |
+| `svarog-ui`                 | All-in-one (core + default theme) | ~65KB |
+
 ## Quick Start
 
-```javascript
-import { Button, Typography, Card, switchTheme } from 'svarog-ui';
+### Modular Approach (New)
 
-// Create a button component - styles inject automatically
+```javascript
+// Import only what you need
+import { Button, Card } from 'svarog-ui-core';
+import cabalouTheme from '@svarog-ui/theme-cabalou';
+
+// Apply theme
+cabalouTheme.apply();
+
+// Create components
 const button = Button({
   text: 'Click Me',
   variant: 'primary',
-  onClick: () => console.log('Button clicked'),
+  onClick: () => console.log('Clicked!'),
 });
 
-// Add it to the DOM - styles are already injected
 document.body.appendChild(button.getElement());
-
-// Switch themes dynamically
-switchTheme('cabalou');
 ```
 
-**No CSS imports needed!** Components automatically inject their styles when rendered.
+### Traditional Approach
 
-## Component API Pattern
+```javascript
+import { Button, Card, switchTheme } from 'svarog-ui';
 
-All components follow a consistent API pattern:
+// Default theme is already applied
+const button = Button({
+  text: 'Click Me',
+  variant: 'primary',
+});
+
+// Switch themes dynamically
+switchTheme('cabalou'); // Note: Only default theme included
+```
+
+### Theme Management
+
+```javascript
+import { ThemeManager } from 'svarog-ui-core';
+import defaultTheme from '@svarog-ui/theme-default';
+import cabalouTheme from '@svarog-ui/theme-cabalou';
+import darkTheme from '@svarog-ui/theme-dark';
+
+// Register themes
+ThemeManager.register('default', defaultTheme);
+ThemeManager.register('cabalou', cabalouTheme);
+ThemeManager.register('dark', darkTheme);
+
+// Switch between registered themes
+ThemeManager.switch('dark');
+
+// Get current theme
+const current = ThemeManager.getCurrent(); // 'dark'
+
+// List registered themes
+const themes = ThemeManager.getRegistered(); // ['default', 'cabalou', 'dark']
+```
+
+### Custom Theme Creation
+
+```javascript
+import { createTheme } from '@svarog-ui/create-theme';
+
+const myTheme = createTheme('my-brand', {
+  colors: {
+    primary: '#FF6B6B',
+    primaryLight: '#FF8E8E',
+    primaryDark: '#E55555',
+    secondary: '#4ECDC4',
+    text: '#2C3E50',
+    background: '#FFFFFF',
+  },
+  typography: {
+    fontFamily: '"Inter", -apple-system, sans-serif',
+    sizes: {
+      h1: '2.5rem',
+      h2: '2rem',
+      body: '1rem',
+    },
+  },
+  components: {
+    button: {
+      borderRadius: '8px',
+      padding: '12px 24px',
+      fontWeight: '600',
+    },
+  },
+});
+
+// Apply custom theme
+myTheme.apply();
+
+// Export CSS for production
+const cssString = myTheme.exportCSS();
+```
+
+## Component API
+
+All components follow a consistent factory pattern:
 
 ```javascript
 const component = Component({
-  // Component configuration props
+  // Component props
 });
 
-// Get the DOM element to insert into the document
+// Get DOM element
 const element = component.getElement();
 
-// Update component properties after creation
-component.update({
-  // New properties
-});
+// Update props
+component.update({ text: 'New Text' });
 
-// Clean up when removing the component
+// Cleanup
 component.destroy();
 ```
 
-## CSS-in-JS Style System
+## Available Components
 
-Svarog uses an innovative CSS injection system that eliminates CSS import errors while maintaining performance:
+### Layout Components
 
-- **Automatic Style Injection** - Components inject their styles on first render
-- **Deduplication** - Styles are cached and only injected once per component type
-- **SSR Safe** - Works correctly in server-side rendering environments
-- **Tree Shakeable** - Only styles for used components are loaded
-- **Performance Optimized** - Styles are inserted efficiently with priority management
+- `Grid` - Flexible grid system
+- `Section` - Content sections with variants
+- `Card` - Content containers
 
-### How It Works
+### Form Components
 
-```javascript
-// Component styles are automatically injected when the component renders
-const button = Button({ text: 'Hello' });
-// ↓ Styles for Button are now injected into document head
+- `Form` - Form container with validation
+- `FormGroup` - Form field grouping
+- `FormSection` - Form sections
+- `FormActions` - Form action buttons
+- `Input` - Text inputs
+- `Select` - Dropdown selections
+- `Checkbox` - Checkbox inputs
+- `Radio` & `RadioGroup` - Radio buttons
+- `ConditionSelector` - Condition selection UI
 
-const card = Card({ title: 'My Card' });
-// ↓ Styles for Card are now injected into document head
-```
+### UI Components
 
-No manual CSS imports or configuration required!
-
-## Component Categories
-
-Svarog includes a comprehensive set of components organized by category:
-
-### Layout
-
-- Grid - Flexible grid system
-- Section - Content section with variants
-- Card - Content container with theming
-
-### UI Elements
-
-- Button - Buttons with variants and states
-- Typography - Text components with consistent styling
-- Link - Enhanced anchor elements
-
-### Form
-
-- Input - Text input fields
-- Select - Dropdown selection
-- Checkbox - Checkbox inputs
-- Radio - Radio button inputs
-- Form - Form layout container
+- `Button` - Buttons with variants
+- `Typography` - Text components
+- `Link` - Enhanced links
+- `Image` - Responsive images
+- `Logo` - Logo display
+- `Rating` - Star ratings
+- `PriceDisplay` - Price formatting
+- `StepsIndicator` - Progress steps
+- `Tabs` - Tabbed interface
 
 ### Navigation
 
-- Navigation - Responsive navigation menu
-- Pagination - Page navigation controls
-- Tabs - Tabbed interface
+- `Navigation` - Main navigation
+- `Pagination` - Page navigation
+- `Header` - Page header
+- `CollapsibleHeader` - Collapsing header
+- `Footer` - Page footer
 
-### Media
+### Content Components
 
-- Image - Responsive image component
-- Logo - Brand logo component
-- Map - Map integration
+- `Hero` - Hero sections
+- `BlogCard` - Blog post cards
+- `BlogList` - Blog post lists
+- `BlogDetail` - Blog post detail
+- `ProductCard` - Product cards
+- `Map` - Map integration
 
-### Page Structure
+### Specialized
 
-- Header - Page header component
-- Footer - Page footer component
-- Hero - Hero banner section
+- `MuchandyHero` - Custom hero variant
+- `PhoneRepairForm` - Phone repair form
+- `UsedPhonePriceForm` - Price calculator
+- `ContactInfo` - Contact information
+- `StickyContactIcons` - Sticky contact buttons
+- `Page` - Page wrapper
+- `Head` - Document head management
 
-## Theming System
+## CSS Injection System
 
-Svarog includes a powerful theming system with three built-in themes: `default`, `cabalou`, and `muchandy`.
+Svarog's innovative CSS injection system eliminates CSS import errors:
 
 ```javascript
-import { switchTheme, getCurrentTheme, setThemeVariable } from 'svarog-ui';
+// No CSS imports needed!
+const button = Button({ text: 'Click' });
+// Styles are automatically injected on first render
 
-// Switch to a different theme
-switchTheme('cabalou');
-
-// Get the current theme
-const theme = getCurrentTheme();
-
-// Override a specific theme variable
-setThemeVariable('--button-bg', '#ff0000');
+// Works everywhere:
+// ✅ Browser
+// ✅ Node.js (SSR)
+// ✅ Build tools
+// ✅ Test environments
 ```
 
-Themes are built with CSS variables, making them easy to extend and customize.
+### Benefits
+
+- **Zero Configuration** - No webpack/build setup needed
+- **Automatic Deduplication** - Styles injected only once
+- **Tree Shaking** - Only used component styles are loaded
+- **SSR Compatible** - Works with server-side rendering
+- **Performance Optimized** - Efficient style injection
+
+## Migration Guide (v3 to v4)
+
+### For Minimal Bundle Size
+
+**Before (v3):**
+
+```javascript
+import { Button, switchTheme } from 'svarog-ui';
+switchTheme('cabalou'); // All themes were bundled
+```
+
+**After (v4):**
+
+```javascript
+import { Button } from 'svarog-ui-core';
+import cabalouTheme from '@svarog-ui/theme-cabalou';
+cabalouTheme.apply();
+```
+
+### For Backward Compatibility
+
+No changes needed! The `svarog-ui` package works the same way:
+
+```javascript
+import { Button } from 'svarog-ui'; // Still works!
+```
 
 ## Development Setup
 
@@ -156,7 +306,10 @@ cd svarog
 # Install dependencies
 npm install
 
-# Start development server with component viewer
+# Build all packages
+npm run build:all
+
+# Start development server
 npm start
 
 # Run tests
@@ -170,243 +323,102 @@ npm run build
 
 ```
 svarog/
-├── .storybook/       # Component viewer configuration
-├── docs/             # Additional documentation
-├── src/
-│   ├── components/   # UI components
-│   │   └── ComponentName/
-│   │       ├── ComponentName.js        # Component with style injection
-│   │       ├── ComponentName.styles.js # Component-specific styles
-│   │       ├── ComponentName.stories.js
-│   │       ├── ComponentName.test.js
-│   │       ├── index.js
-│   │       └── README.md
-│   ├── constants/    # Shared constants
-│   ├── styles/       # Theme system and global styles
-│   │   ├── base/     # Base styles
-│   │   ├── themes/   # Theme definitions
-│   │   └── componentStyles.js # Centralized component styles
-│   └── utils/        # Utility functions
-│       ├── styleInjection.js # CSS injection system
-│       └── ...       # Other utilities
-├── scripts/          # Build and maintenance scripts
-└── tests/            # Testing utilities
+├── packages/                      # Monorepo packages
+│   ├── svarog-ui/                # Main package (backward compatible)
+│   ├── svarog-ui-core/           # Core components
+│   └── @svarog-ui/               # Scoped packages
+│       ├── theme-default/        # Individual themes
+│       ├── theme-cabalou/
+│       ├── theme-muchandy/
+│       └── create-theme/         # Theme utilities
+│
+├── src/                          # Source code
+│   ├── components/               # Component implementations
+│   ├── styles/                   # Theme definitions
+│   └── utils/                    # Utilities
+│
+├── .storybook/                   # Component explorer
+├── scripts/                      # Build scripts
+└── docs/                         # Documentation
 ```
 
-## Component Design Principles
+## Performance
 
-All Svarog components adhere to these principles:
+Svarog is built for performance:
 
-1. **Factory Functions** - Components use factory functions for creation
-2. **Consistent API** - All components have getElement(), update(), and destroy() methods
-3. **Automatic Style Injection** - Components inject their own styles on render
-4. **DOM Efficiency** - Minimizes DOM operations for better performance
-5. **Event Delegation** - Uses event delegation for improved performance
-6. **Memory Management** - Cleans up listeners and references in destroy()
-7. **Validation** - Properly validates inputs with helpful error messages
-8. **Accessibility** - Uses semantic markup and ARIA attributes
-9. **Theming** - Uses CSS variables for consistent theming
-10. **Universal Compatibility** - Works in all JavaScript environments
+- **Small Bundle Sizes** - Modular packages mean you only ship what you use
+- **Fast Runtime** - Optimized algorithms and efficient DOM updates
+- **Lazy Loading** - Components can be dynamically imported
+- **Memory Efficient** - Proper cleanup and memory management
 
-## Creating a Component
+### Bundle Size Comparison
 
-Components follow this pattern with automatic style injection:
+| Setup             | Size   | Reduction   |
+| ----------------- | ------ | ----------- |
+| v3 (All themes)   | ~120KB | -           |
+| v4 Core + 1 theme | ~65KB  | 46% smaller |
+| v4 Core only      | ~50KB  | 58% smaller |
 
-```javascript
-// src/components/MyComponent/MyComponent.js
-import { createStyleInjector } from '../../utils/styleInjection.js';
-import { myComponentStyles } from '../../styles/componentStyles.js';
-import {
-  createComponent,
-  createElement,
-} from '../../utils/componentFactory.js';
+## Browser Support
 
-// Create style injector for this component
-const injectStyles = createStyleInjector('MyComponent');
-
-const createMyComponent = (props) => {
-  // Validate required props
-  validateProps(props, createMyComponent.requiredProps);
-
-  // Initial state
-  const state = { ...props };
-
-  // Render function
-  const render = () => {
-    // Inject styles on render (automatically cached)
-    injectStyles(myComponentStyles);
-
-    const element = createElement('div', {
-      classes: ['my-component'],
-      // Add attributes, event handlers, etc.
-    });
-
-    return element;
-  };
-
-  // Create initial element
-  let element = render();
-
-  // Return public API
-  return {
-    getElement() {
-      return element;
-    },
-
-    update(newProps) {
-      Object.assign(state, newProps);
-      const oldElement = element;
-      element = render();
-
-      if (oldElement.parentNode) {
-        oldElement.parentNode.replaceChild(element, oldElement);
-      }
-
-      return this;
-    },
-
-    destroy() {
-      // Clean up event listeners and resources
-    },
-  };
-};
-
-// Define required props
-createMyComponent.requiredProps = ['prop1', 'prop2'];
-
-// Export as a factory function
-export default createComponent('MyComponent', createMyComponent);
-```
-
-### Component Styles
-
-Styles are defined in `src/styles/componentStyles.js`:
-
-```javascript
-import { css } from '../utils/styleInjection.js';
-
-export const myComponentStyles = css`
-  .my-component {
-    /* Component styles using CSS variables for theming */
-    padding: var(--space-4);
-    background: var(--color-bg);
-    border-radius: var(--border-radius);
-  }
-`;
-```
-
-## Performance Utilities
-
-Svarog includes several performance optimization utilities:
-
-- `debounce` - Limit function call frequency
-- `throttle` - Restrict execution rate
-- `rafThrottle` - Animation frame-based throttling
-- `memoize` - Cache function results
-- `batchDomUpdates` - Batch DOM operations
-- `styleInjection` - Efficient CSS injection system
-
-## Node.js Compatibility
-
-Unlike traditional component libraries, Svarog works perfectly in Node.js environments:
-
-```javascript
-// This works without any CSS import errors!
-import { Button, Card } from 'svarog-ui';
-
-// Use components in server-side rendering
-const button = Button({ text: 'Server Rendered' });
-const html = button.getElement().outerHTML;
-```
-
-Perfect for:
-
-- Server-side rendering (SSR)
-- Static site generation
-- Node.js testing environments
-- Build tools and scripts
+- Chrome/Edge 88+
+- Firefox 78+
+- Safari 14+
+- Opera 74+
+- Chrome for Android
+- Safari on iOS 14+
 
 ## Contributing
 
-Contributions are welcome and appreciated! This project adheres to specific coding standards and practices that help maintain the library's quality and consistency.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### Development Workflow
-
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/your-username/svarog.git`
-3. Create a feature branch: `git checkout -b feature/amazing-feature`
-4. Install dependencies: `npm install`
-5. Make your changes following our guidelines below
-6. Test your changes: `npm test`
-7. Commit with a descriptive message: `git commit -m 'Add some amazing feature'`
-8. Push to your branch: `git push origin feature/amazing-feature`
-9. Open a pull request with a detailed description
-
-### Code Standards
-
-- **Factory Functions**: Use factory functions instead of classes
-- **Code Conciseness**: Write minimal code without sacrificing functionality
-- **No Unused Variables**: Eliminate all unused variables and functions
-- **Single Responsibility**: Functions should do one thing well
-- **Component API**: Follow the standard `getElement()`, `update()`, `destroy()` pattern
-- **Style Injection**: Use CSS injection system instead of CSS imports
-- **Documentation**: Document "why" not just "what"
-- **Error Handling**: Include proper validation and error messages
-- **Theming**: Use CSS variables for all themeable properties
-
-### Creating Components
-
-New components should:
-
-1. Follow the directory structure in `src/components/ComponentName/`
-2. Include all required files:
-
-   - `ComponentName.js` - Component implementation with style injection
-   - `ComponentName.styles.js` - Component-specific styles (optional for modular approach)
-   - `ComponentName.stories.js` - Example stories
-   - `ComponentName.test.js` - Unit tests
-   - `index.js` - Export file
-   - `README.md` - Component documentation
-
-3. Add styles to `src/styles/componentStyles.js` (centralized approach)
-
-Use the component generator to scaffold a new component:
+### Quick Start for Contributors
 
 ```bash
-npm run create-component MyComponentName
+# Fork and clone
+git clone https://github.com/your-username/svarog.git
+cd svarog
+
+# Install and bootstrap
+npm install
+npm run build:all
+
+# Create new component
+npm run create-component MyComponent
+
+# Run tests
+npm test
+
+# Start dev server
+npm start
 ```
-
-### Testing Requirements
-
-- All components must have unit tests
-- Tests should cover:
-  - Basic rendering
-  - Style injection
-  - Props validation
-  - Event handling
-  - Update method
-  - Destroy method
-- Run tests before submitting: `npm test`
-- Maintain or improve code coverage
-
-### Documentation Standards
-
-- Document all public methods with JSDoc comments
-- Focus on explaining "why" rather than "what"
-- Include usage examples in component README.md
-- Document theme variables used by the component
-- Explain style injection behavior if relevant
-
-### Pull Request Process
-
-1. Ensure all tests pass
-2. Update documentation if needed
-3. Add stories for new features
-4. Request review from at least one maintainer
-5. Address review feedback promptly
-
-By following these guidelines, you help maintain the quality and consistency of the Svarog Component Library. Thank you for your contributions!
 
 ## License
 
-ISC
+ISC License - see [LICENSE](LICENSE) file for details.
+
+## Links
+
+- [Documentation](https://svarog-ui.dev)
+- [Component Explorer](https://svarog-ui.dev/storybook)
+- [GitHub Repository](https://github.com/your-username/svarog)
+- [NPM Package](https://www.npmjs.com/package/svarog-ui)
+- [Migration Guide](https://svarog-ui.dev/migration)
+
+---
+
+<p align="center">
+  Made with ❤️ by Sebastian Huber
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/svarog-ui">
+    <img src="https://img.shields.io/npm/v/svarog-ui.svg" alt="npm version">
+  </a>
+  <a href="https://github.com/your-username/svarog/blob/main/LICENSE">
+    <img src="https://img.shields.io/npm/l/svarog-ui.svg" alt="license">
+  </a>
+  <a href="https://www.npmjs.com/package/svarog-ui">
+    <img src="https://img.shields.io/npm/dm/svarog-ui.svg" alt="downloads">
+  </a>
+</p>

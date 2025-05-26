@@ -1,28 +1,21 @@
 {
-  "name": "svarog-ui",
-  "version": "3.0.1",
-  "description": "A lightweight, vanilla JavaScript component library with theme support",
-  "main": "dist/bundle.js",
-  "module": "src/index.js",
+  "name": "svarog-ui-monorepo",
+  "private": true,
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./src/index.js",
-      "require": "./dist/bundle.js"
-    },
-    "./dist/styles.css": "./dist/styles.css",
-    "./styles": "./dist/styles.css",
-    "./css": "./dist/styles.css",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist",
-    "src",
-    "README.md",
-    "LICENSE"
+  "workspaces": [
+    "packages/*",
+    "packages/@svarog-ui/*"
   ],
   "scripts": {
+    "install:all": "npm install --workspaces --include-workspace-root",
     "build": "webpack --config webpack.config.js --mode production",
+    "build:all": "npm run build:core && npm run build:themes && npm run build:main",
+    "build:core": "cd packages/svarog-ui-core && npm run build",
+    "build:themes": "npm run build:theme-default && npm run build:theme-cabalou && npm run build:theme-muchandy",
+    "build:theme-default": "node scripts/build-theme.mjs default",
+    "build:theme-cabalou": "node scripts/build-theme.mjs cabalou",
+    "build:theme-muchandy": "node scripts/build-theme.mjs muchandy",
+    "build:main": "cd packages/svarog-ui && npm run build",
     "build:storybook": "webpack --config .storybook/webpack.config.js --mode production",
     "dev": "webpack serve --config .storybook/webpack.config.js --mode development",
     "start": "npm run dev",
@@ -41,7 +34,9 @@
     "test:size": "npm run build && ls -lh dist/bundle.js",
     "pack:test": "npm pack && tar -tf svarog-ui-*.tgz",
     "size": "npm run build && ls -lh dist/",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist && rm -rf packages/*/dist && rm -rf packages/@svarog-ui/*/dist",
+    "publish:all": "lerna publish",
+    "link:local": "npm run build:all && cd packages/svarog-ui-core && npm link && cd ../svarog-ui && npm link && cd ../@svarog-ui/theme-default && npm link"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
@@ -52,6 +47,7 @@
     "css": "^3.0.0",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
+    "esbuild": "^0.19.0",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.2.3",
@@ -59,6 +55,7 @@
     "express": "^4.18.2",
     "html-webpack-plugin": "^5.6.0",
     "husky": "^9.0.11",
+    "lerna": "^8.0.0",
     "lint-staged": "^16.0.0",
     "mini-css-extract-plugin": "^2.9.2",
     "prettier": "^3.5.3",
@@ -86,7 +83,8 @@
     "theme",
     "css",
     "javascript",
-    "web-components"
+    "web-components",
+    "monorepo"
   ],
   "author": "Sebastian Huber",
   "license": "ISC",
@@ -94,10 +92,6 @@
     "url": "https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/issues"
   },
   "homepage": "https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog#readme",
-  "sideEffects": [
-    "**/*.css",
-    "src/styles/index.js"
-  ],
   "engines": {
     "node": ">=18.0.0"
   }
