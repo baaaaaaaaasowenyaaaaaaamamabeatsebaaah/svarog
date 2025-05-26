@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.0.1...@svarog-ui/theme-cabalou@1.0.2) (2025-05-26)
+
+### Bug Fixes
+
+- add public access config to scoped packages ([93053fb](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/93053fb8f7ab6f97728609c5551e2f2cf84dbc6c))
+
 ## [1.0.1](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.1.0...@svarog-ui/theme-cabalou@1.0.1) (2025-05-26)
 
 ### Bug Fixes
