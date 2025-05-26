@@ -9,7 +9,7 @@ const cabalouTheme = {
   },
   remove() {
     console.log('Remove cabalou theme - this is the development version');
-  },
+  }
 };
 
 export default cabalouTheme;

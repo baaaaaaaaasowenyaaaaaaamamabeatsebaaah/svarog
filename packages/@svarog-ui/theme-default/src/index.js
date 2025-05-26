@@ -9,7 +9,7 @@ const defaultTheme = {
   },
   remove() {
     console.log('Remove default theme - this is the development version');
-  },
+  }
 };
 
 export default defaultTheme;
