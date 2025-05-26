@@ -17,5 +17,6 @@
   "dependencies": {
     "@svarog-ui/theme-default": "^1.1.0",
     "svarog-ui-core": "^1.1.0"
-  }
+  },
+  "gitHead": "c2a260a6e5b1c8ae98a91f29da4f125a77d81d6f"
 }

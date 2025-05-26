@@ -1,6 +1,6 @@
 {
   "name": "@svarog-ui/theme-muchandy",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "description": "Muchandy theme for Svarog UI components",
   "main": "dist/index.js",
   "module": "src/index.js",
@@ -11,7 +11,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "node ../../../scripts/build-theme.js muchandy",
+    "build": "node ../../../scripts/build-theme.mjs muchandy",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

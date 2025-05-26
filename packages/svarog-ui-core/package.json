@@ -35,5 +35,6 @@
     "type": "git",
     "url": "git+https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog.git",
     "directory": "packages/svarog-ui-core"
-  }
+  },
+  "gitHead": "c2a260a6e5b1c8ae98a91f29da4f125a77d81d6f"
 }
