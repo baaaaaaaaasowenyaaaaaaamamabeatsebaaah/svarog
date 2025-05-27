@@ -11,7 +11,7 @@
     "version": {
       "allowBranch": ["main", "master"],
       "conventionalCommits": true,
-      "exact": true // This ensures exact versions in dependencies
+      "exact": true
     }
   },
   "packages": ["packages/*", "packages/@svarog-ui/*"]

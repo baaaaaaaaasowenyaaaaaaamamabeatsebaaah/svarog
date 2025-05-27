@@ -1,18 +1,46 @@
-// Theme package for muchandy
-// This file is used during development. The dist/index.js is auto-generated.
+import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
+import { themeVariables } from './variables.js';
+import { componentStyles } from './components.js';
 
 const muchandyTheme = {
   name: 'muchandy',
+
   apply() {
-    console.log('Apply muchandy theme - this is the development version');
-    // In development, the theme CSS is loaded via imports
+    this.remove();
+
+    injectStyles(
+      'theme-muchandy',
+      css`
+        :root {
+          ${themeVariables}
+        }
+        .muchandy-theme {
+          ${themeVariables}
+        }
+        ${componentStyles}
+      `,
+      { priority: 'high' }
+    );
+
+    document.documentElement.classList.add('muchandy-theme');
+    document.body.classList.add('muchandy-theme');
   },
+
   remove() {
-    console.log('Remove muchandy theme - this is the development version');
+    document.documentElement.classList.remove('muchandy-theme');
+    document.body.classList.remove('muchandy-theme');
   },
+
   getStyles() {
-    // Return empty string in development
-    return '';
+    return css`
+      :root {
+        ${themeVariables}
+      }
+      .muchandy-theme {
+        ${themeVariables}
+      }
+      ${componentStyles}
+    `;
   },
 };
 

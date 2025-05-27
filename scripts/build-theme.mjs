@@ -28,63 +28,96 @@ try {
   );
   const themeCss = readFileSync(themeCssPath, 'utf-8');
 
-  // Extract all theme blocks and combine their content
-  const themeBlocks = [];
-  const regex = /\.[\w-]+-theme\s*{([^{}]*(?:{[^{}]*}[^{}]*)*)}/g;
-  let match;
+  // Extract theme variables (CSS custom properties)
+  const variableRegex = /--([\w-]+):\s*([^;]+);/g;
+  const variables = [];
+  let varMatch;
 
-  while ((match = regex.exec(themeCss)) !== null) {
-    // Clean up the content - remove extra whitespace but keep structure
-    const content = match[1]
-      .trim()
-      .split('\n')
-      .map((line) => '  ' + line.trim()) // Indent each line
-      .join('\n');
-    themeBlocks.push(content);
+  // Extract all theme blocks
+  const themeBlocks = [];
+  const blockRegex = /\.[\w-]+-theme\s*{([^{}]*(?:{[^{}]*}[^{}]*)*)}/g;
+  let blockMatch;
+
+  while ((blockMatch = blockRegex.exec(themeCss)) !== null) {
+    const content = blockMatch[1];
+
+    // Extract variables from this block
+    while ((varMatch = variableRegex.exec(content)) !== null) {
+      variables.push(`--${varMatch[1]}: ${varMatch[2]};`);
+    }
+
+    // Store the entire block content for component styles
+    themeBlocks.push(content.trim());
   }
 
-  // Combine all theme blocks with proper formatting
-  const combinedCss = themeBlocks.join('\n\n');
+  // Remove duplicate variables
+  const uniqueVariables = [...new Set(variables)];
+  const themeVariables = uniqueVariables.join('\n  ');
 
-  // Create the theme module
+  // Extract component-specific styles (everything that's not just variables)
+  const componentStyleRegex = /\.[\w-]+-theme\s+\.[\w-]+\s*{[^}]+}/g;
+  const componentStyles = [];
+  let compMatch;
+
+  while ((compMatch = componentStyleRegex.exec(themeCss)) !== null) {
+    componentStyles.push(compMatch[0]);
+  }
+
+  // Create variables.js file
+  const variablesModule = `// Auto-generated theme variables for ${themeName}
+export const themeVariables = \`
+  ${themeVariables}
+\`;
+`;
+
+  // Create components.js file
+  const componentsModule = `// Auto-generated component styles for ${themeName}
+export const componentStyles = \`
+${componentStyles.join('\n')}
+\`;
+`;
+
+  // Create the main theme module
   const themeModule = `// Auto-generated theme module for ${themeName}
-const themeStyles = \`.${themeName}-theme {
-${combinedCss}
-}\`;
+import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
+import { themeVariables } from './variables.js';
+import { componentStyles } from './components.js';
 
 const ${themeName}Theme = {
   name: '${themeName}',
   
   apply() {
-    // Create style element
-    let styleEl = document.getElementById('svarog-theme-${themeName}');
-    if (!styleEl) {
-      styleEl = document.createElement('style');
-      styleEl.id = 'svarog-theme-${themeName}';
-      styleEl.setAttribute('data-svarog', 'theme-${themeName}');
-      document.head.appendChild(styleEl);
-    }
-    styleEl.textContent = themeStyles;
+    this.remove();
     
-    // Add theme classes
+    injectStyles('theme-${themeName}', css\`
+      :root {
+        \${themeVariables}
+      }
+      .${themeName}-theme {
+        \${themeVariables}
+      }
+      \${componentStyles}
+    \`, { priority: 'high' });
+    
     document.documentElement.classList.add('${themeName}-theme');
     document.body.classList.add('${themeName}-theme');
   },
   
   remove() {
-    // Remove theme classes
     document.documentElement.classList.remove('${themeName}-theme');
     document.body.classList.remove('${themeName}-theme');
-    
-    // Remove style element
-    const styleEl = document.getElementById('svarog-theme-${themeName}');
-    if (styleEl) {
-      styleEl.remove();
-    }
   },
   
   getStyles() {
-    return themeStyles;
+    return css\`
+      :root {
+        \${themeVariables}
+      }
+      .${themeName}-theme {
+        \${themeVariables}
+      }
+      \${componentStyles}
+    \`;
   }
 };
 
@@ -92,45 +125,57 @@ export default ${themeName}Theme;
 export { ${themeName}Theme };
 `;
 
-  // Write the generated module
-  const outputPath = resolve(
+  // Write all the generated files
+  const distPath = resolve(
     __dirname,
-    `../packages/@svarog-ui/theme-${themeName}/dist/index.js`
+    `../packages/@svarog-ui/theme-${themeName}/dist`
   );
-  writeFileSync(outputPath, themeModule);
 
-  // Also update the source index.js
-  const srcIndex = `// Theme package for ${themeName}
-// This file is used during development. The dist/index.js is auto-generated.
+  writeFileSync(resolve(distPath, 'index.js'), themeModule);
+  writeFileSync(resolve(distPath, 'variables.js'), variablesModule);
+  writeFileSync(resolve(distPath, 'components.js'), componentsModule);
+
+  // Also create a development version in src
+  const srcPath = resolve(
+    __dirname,
+    `../packages/@svarog-ui/theme-${themeName}/src`
+  );
+
+  mkdirSync(srcPath, { recursive: true });
+
+  const devIndex = `// Theme package for ${themeName}
+// This file is used during development. The dist files are auto-generated.
+
+import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
 
 const ${themeName}Theme = {
   name: '${themeName}',
+  
   apply() {
-    console.log('Apply ${themeName} theme - this is the development version');
-    // In development, the theme CSS is loaded via imports
+    console.log('Apply ${themeName} theme - development version');
+    // In development, you can import the actual CSS or define styles here
   },
+  
   remove() {
-    console.log('Remove ${themeName} theme - this is the development version');
+    console.log('Remove ${themeName} theme - development version');
   },
+  
   getStyles() {
-    // Return empty string in development
     return '';
-  },
+  }
 };
 
 export default ${themeName}Theme;
 export { ${themeName}Theme };
 `;
 
-  writeFileSync(
-    resolve(
-      __dirname,
-      `../packages/@svarog-ui/theme-${themeName}/src/index.js`
-    ),
-    srcIndex
-  );
+  writeFileSync(resolve(srcPath, 'index.js'), devIndex);
 
   console.log(`✅ Theme "${themeName}" built successfully`);
+  console.log(`   Generated files:`);
+  console.log(`   - dist/index.js`);
+  console.log(`   - dist/variables.js`);
+  console.log(`   - dist/components.js`);
 } catch (error) {
   console.error(`❌ Failed to build theme "${themeName}":`, error.message);
   process.exit(1);

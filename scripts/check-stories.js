@@ -83,7 +83,7 @@ async function findStoryFiles() {
         if (storyExports.length > 0) {
           componentStories.set(componentName, storyExports);
         }
-      } catch (error) {
+      } catch (_error) {
         // Story file doesn't exist or can't be accessed
         console.log(`No story file found for ${componentName}`);
       }
