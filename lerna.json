@@ -10,7 +10,8 @@
     },
     "version": {
       "allowBranch": ["main", "master"],
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "exact": true // This ensures exact versions in dependencies
     }
   },
   "packages": ["packages/*", "packages/@svarog-ui/*"]
