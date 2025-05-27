@@ -1,23 +1,19 @@
-// Theme package for cabalou
-// This file is used during development. The dist files are auto-generated.
-
-import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
+// Development placeholder for cabalou theme
+// The actual theme is in the dist directory
 
 const cabalouTheme = {
   name: 'cabalou',
-  
   apply() {
-    console.log('Apply cabalou theme - development version');
-    // In development, you can import the actual CSS or define styles here
+    console.warn(
+      'Using development placeholder for cabalou theme. Run build-theme script to generate the actual theme.'
+    );
   },
-  
   remove() {
-    console.log('Remove cabalou theme - development version');
+    // Development placeholder
   },
-  
   getStyles() {
     return '';
-  }
+  },
 };
 
 export default cabalouTheme;

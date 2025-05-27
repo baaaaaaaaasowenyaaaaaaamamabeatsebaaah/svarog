@@ -1,23 +1,19 @@
-// Theme package for default
-// This file is used during development. The dist files are auto-generated.
-
-import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
+// Development placeholder for default theme
+// The actual theme is in the dist directory
 
 const defaultTheme = {
   name: 'default',
-  
   apply() {
-    console.log('Apply default theme - development version');
-    // In development, you can import the actual CSS or define styles here
+    console.warn(
+      'Using development placeholder for default theme. Run build-theme script to generate the actual theme.'
+    );
   },
-  
   remove() {
-    console.log('Remove default theme - development version');
+    // Development placeholder
   },
-  
   getStyles() {
     return '';
-  }
+  },
 };
 
 export default defaultTheme;

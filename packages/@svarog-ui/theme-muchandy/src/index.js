@@ -1,23 +1,19 @@
-// Theme package for muchandy
-// This file is used during development. The dist files are auto-generated.
-
-import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
+// Development placeholder for muchandy theme
+// The actual theme is in the dist directory
 
 const muchandyTheme = {
   name: 'muchandy',
-  
   apply() {
-    console.log('Apply muchandy theme - development version');
-    // In development, you can import the actual CSS or define styles here
+    console.warn(
+      'Using development placeholder for muchandy theme. Run build-theme script to generate the actual theme.'
+    );
   },
-  
   remove() {
-    console.log('Remove muchandy theme - development version');
+    // Development placeholder
   },
-  
   getStyles() {
     return '';
-  }
+  },
 };
 
 export default muchandyTheme;
