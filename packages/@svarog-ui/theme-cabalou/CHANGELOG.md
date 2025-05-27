@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.4](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.3.3...@svarog-ui/theme-cabalou@1.3.4) (2025-05-27)
+
+**Note:** Version bump only for package @svarog-ui/theme-cabalou
+
 ## [1.3.3](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.3.2...@svarog-ui/theme-cabalou@1.3.3) (2025-05-27)
 
 **Note:** Version bump only for package @svarog-ui/theme-cabalou
