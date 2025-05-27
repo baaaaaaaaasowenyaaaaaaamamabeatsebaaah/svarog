@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.2](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-default@1.2.0...@svarog-ui/theme-default@1.2.2) (2025-05-27)
+
+### Features
+
+- fix theme injection ([71a5c1b](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/71a5c1beef79a201583a0d08e9872d5bc900eea2))
+
 ## [1.2.1](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-default@1.2.1...@svarog-ui/theme-default@1.2.1) (2025-05-27)
 
 **Note:** Version bump only for package @svarog-ui/theme-default
