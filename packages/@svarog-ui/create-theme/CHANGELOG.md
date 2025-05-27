@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.4](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/create-theme@1.1.3...@svarog-ui/create-theme@1.1.4) (2025-05-27)
+
+**Note:** Version bump only for package @svarog-ui/create-theme
+
 ## [1.1.3](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/create-theme@1.1.2...@svarog-ui/create-theme@1.1.3) (2025-05-26)
 
 **Note:** Version bump only for package @svarog-ui/create-theme

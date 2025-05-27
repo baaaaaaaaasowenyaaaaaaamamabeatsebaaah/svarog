@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.0.3...@svarog-ui/theme-cabalou@1.1.1) (2025-05-27)
+
+### Features
+
+- fix building ([df71ae7](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/df71ae79af43b7f08730cb63d0fc5d0d83fa69cd))
+- fix theme injection ([71a5c1b](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/71a5c1beef79a201583a0d08e9872d5bc900eea2))
+
 # [1.1.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.0.3...@svarog-ui/theme-cabalou@1.1.0) (2025-05-26)
 
 ### Features

@@ -1,6 +1,6 @@
 {
   "name": "@svarog-ui/theme-default",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Default theme for Svarog UI components",
   "main": "dist/index.js",
   "module": "src/index.js",
