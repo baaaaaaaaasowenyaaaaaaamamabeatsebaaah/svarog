@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.11](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui@4.1.10...svarog-ui@4.1.11) (2025-05-27)
+
+**Note:** Version bump only for package svarog-ui
+
 ## [4.1.10](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui@4.1.9...svarog-ui@4.1.10) (2025-05-27)
 
 **Note:** Version bump only for package svarog-ui
