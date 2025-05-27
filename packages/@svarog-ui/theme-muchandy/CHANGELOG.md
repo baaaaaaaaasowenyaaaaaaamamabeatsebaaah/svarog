@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-muchandy@1.1.3...@svarog-ui/theme-muchandy@1.2.0) (2025-05-27)
+
+### Features
+
+- update lerna config, fix build-theme ([9232898](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/9232898988069e7246cec2757068fc8952b1d3a4))
+
 ## [1.1.3](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-muchandy@1.1.2...@svarog-ui/theme-muchandy@1.1.3) (2025-05-27)
 
 **Note:** Version bump only for package @svarog-ui/theme-muchandy
