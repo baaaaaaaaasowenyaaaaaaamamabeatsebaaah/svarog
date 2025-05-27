@@ -1,18 +1,46 @@
-// Theme package for cabalou
-// This file is used during development. The dist/index.js is auto-generated.
+import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
+import { themeVariables } from './variables.js';
+import { componentStyles } from './components.js';
 
 const cabalouTheme = {
   name: 'cabalou',
+
   apply() {
-    console.log('Apply cabalou theme - this is the development version');
-    // In development, the theme CSS is loaded via imports
+    this.remove();
+
+    injectStyles(
+      'theme-cabalou',
+      css`
+        :root {
+          ${themeVariables}
+        }
+        .cabalou-theme {
+          ${themeVariables}
+        }
+        ${componentStyles}
+      `,
+      { priority: 'high' }
+    );
+
+    document.documentElement.classList.add('cabalou-theme');
+    document.body.classList.add('cabalou-theme');
   },
+
   remove() {
-    console.log('Remove cabalou theme - this is the development version');
+    document.documentElement.classList.remove('cabalou-theme');
+    document.body.classList.remove('cabalou-theme');
   },
+
   getStyles() {
-    // Return empty string in development
-    return '';
+    return css`
+      :root {
+        ${themeVariables}
+      }
+      .cabalou-theme {
+        ${themeVariables}
+      }
+      ${componentStyles}
+    `;
   },
 };
 
