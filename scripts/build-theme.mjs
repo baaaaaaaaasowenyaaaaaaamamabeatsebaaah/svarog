@@ -96,7 +96,7 @@ export const componentStyles = \`
 
   // Create the main theme module (DIST version - this is the real one)
   const distThemeModule = `// Auto-generated theme module for ${themeName}
-import { injectStyles, css } from 'svarog-ui-core/dist/index.js';
+import { injectStyles, css } from '../../../svarog-ui-core/dist/index.js';
 import { themeVariables } from './variables.js';
 import { componentStyles } from './components.js';
 

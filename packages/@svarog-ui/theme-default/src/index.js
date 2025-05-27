@@ -4,16 +4,14 @@
 const defaultTheme = {
   name: 'default',
   apply() {
-    console.warn(
-      'Using development placeholder for default theme. Run build-theme script to generate the actual theme.'
-    );
+    console.warn('Using development placeholder for default theme. Run build-theme script to generate the actual theme.');
   },
   remove() {
     // Development placeholder
   },
   getStyles() {
     return '';
-  },
+  }
 };
 
 export default defaultTheme;
