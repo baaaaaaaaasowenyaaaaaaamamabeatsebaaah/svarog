@@ -1,7 +1,8 @@
 import { build } from 'esbuild';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs';
+import { mkdirSync, statSync } from 'fs';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -9,73 +10,52 @@ const __dirname = dirname(__filename);
 async function buildCore() {
   console.log('🔨 Building svarog-ui-core package...\n');
 
+  // First, prepare the core package with all files
+  console.log('📋 Step 1: Preparing core package files...');
+  execSync('node scripts/prepare-core-package.mjs', {
+    stdio: 'inherit',
+    cwd: resolve(__dirname, '..'),
+  });
+
+  // Ensure dist directory exists
   const distDir = resolve(__dirname, '../packages/svarog-ui-core/dist');
   mkdirSync(distDir, { recursive: true });
 
-  // Read all base style files
-  const baseStylesDir = resolve(__dirname, '../src/styles/base');
-  const baseStyleFiles = readdirSync(baseStylesDir)
-    .filter((file) => file.endsWith('.css'))
-    .sort(); // Ensure they're loaded in order (00, 01, 02, etc.)
-
-  console.log('📚 Including base styles:');
-  baseStyleFiles.forEach((file) => console.log(`  - ${file}`));
-
-  // Combine all base styles
-  const baseStylesContent = baseStyleFiles
-    .map((file) => {
-      const content = readFileSync(resolve(baseStylesDir, file), 'utf-8');
-      return `/* ${file} */\n${content}`;
-    })
-    .join('\n\n');
-
-  // Create a temporary entry point that includes base styles
-  const tempEntryContent = `
-// Auto-generated entry point for svarog-ui-core build
-import { injectStyles, css } from '../../../src/utils/styleInjection.js';
-
-// Base styles from src/styles/base/
-const baseStyles = css\`
-${baseStylesContent}
-\`;
-
-// Inject base styles on first import (with high priority so themes can override)
-if (typeof document !== 'undefined') {
-  injectStyles('svarog-base-styles', baseStyles, { priority: 'high' });
-}
-
-// Export all components and utilities
-export * from '../../../packages/svarog-ui-core/src/index.js';
-`;
-
-  const tempEntryPath = resolve(__dirname, '../.temp-core-entry.js');
-  writeFileSync(tempEntryPath, tempEntryContent);
+  console.log('\n📦 Step 2: Building distribution bundle...');
 
   try {
+    // Build the core package bundle
     await build({
-      entryPoints: [tempEntryPath],
+      entryPoints: [
+        resolve(__dirname, '../packages/svarog-ui-core/src/index.js'),
+      ],
       bundle: true,
       outfile: resolve(distDir, 'index.js'),
       format: 'esm',
       platform: 'browser',
       target: 'es2020',
+      // External packages that users need to install separately
       external: ['@svarog-ui/*'],
       minify: true,
       sourcemap: false,
-      alias: {
-        // Map package imports to source files
-        './components': resolve(__dirname, '../src/components'),
-        './utils': resolve(__dirname, '../src/utils'),
+      // Preserve CSS imports for style injection
+      loader: {
+        '.css': 'text',
       },
+      // Tree-shaking optimizations
+      treeShaking: true,
+      metafile: true,
     });
 
     console.log('\n✅ Core package built successfully!');
+    console.log(`📁 Output: ${resolve(distDir, 'index.js')}`);
 
-    // Clean up temp file
-    const { unlinkSync } = await import('fs');
-    unlinkSync(tempEntryPath);
+    // Show bundle size
+    const stats = statSync(resolve(distDir, 'index.js'));
+    const fileSizeInKB = (stats.size / 1024).toFixed(2);
+    console.log(`📊 Bundle size: ${fileSizeInKB} KB`);
   } catch (error) {
-    console.error('❌ Core build failed:', error);
+    console.error('\n❌ Core build failed:', error);
     process.exit(1);
   }
 }
