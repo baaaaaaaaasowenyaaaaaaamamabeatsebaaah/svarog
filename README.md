@@ -40,7 +40,8 @@ Install only what you need for the smallest bundle size:
 # Core components only
 npm install svarog-ui-core
 
-# Add specific themes
+# Add specific themes as needed
+npm install @svarog-ui/theme-default
 npm install @svarog-ui/theme-cabalou
 npm install @svarog-ui/theme-muchandy
 ```
@@ -53,7 +54,7 @@ For backward compatibility or if you prefer the all-in-one approach:
 npm install svarog-ui
 ```
 
-This includes the core components and default theme.
+This includes the core components and default theme pre-applied.
 
 ## Available Packages
 
@@ -63,10 +64,6 @@ This includes the core components and default theme.
 | `@svarog-ui/theme-default`  | Material Design inspired theme    | ~15KB |
 | `@svarog-ui/theme-cabalou`  | Cabalou theme                     | ~15KB |
 | `@svarog-ui/theme-muchandy` | Muchandy theme                    | ~15KB |
-| `@svarog-ui/theme-dark`     | Dark theme                        | ~15KB |
-| `@svarog-ui/theme-light`    | Light theme                       | ~15KB |
-| `@svarog-ui/theme-red`      | Red theme                         | ~15KB |
-| `@svarog-ui/create-theme`   | Theme creation utilities          | ~5KB  |
 | `svarog-ui`                 | All-in-one (core + default theme) | ~65KB |
 
 ## Quick Start
@@ -94,7 +91,7 @@ document.body.appendChild(button.getElement());
 ### Traditional Approach
 
 ```javascript
-import { Button, Card, switchTheme } from 'svarog-ui';
+import { Button, Card } from 'svarog-ui';
 
 // Default theme is already applied
 const button = Button({
@@ -102,69 +99,81 @@ const button = Button({
   variant: 'primary',
 });
 
-// Switch themes dynamically
-switchTheme('cabalou'); // Note: Only default theme included
+document.body.appendChild(button.getElement());
 ```
 
 ### Theme Management
 
+Each theme package exports an object with these methods:
+
 ```javascript
-import { ThemeManager } from 'svarog-ui-core';
 import defaultTheme from '@svarog-ui/theme-default';
 import cabalouTheme from '@svarog-ui/theme-cabalou';
-import darkTheme from '@svarog-ui/theme-dark';
+import muchandyTheme from '@svarog-ui/theme-muchandy';
 
-// Register themes
-ThemeManager.register('default', defaultTheme);
-ThemeManager.register('cabalou', cabalouTheme);
-ThemeManager.register('dark', darkTheme);
+// Apply a theme
+defaultTheme.apply();
 
-// Switch between registered themes
-ThemeManager.switch('dark');
+// Remove current theme
+defaultTheme.remove();
 
-// Get current theme
-const current = ThemeManager.getCurrent(); // 'dark'
+// Get theme CSS string
+const css = defaultTheme.getStyles();
 
-// List registered themes
-const themes = ThemeManager.getRegistered(); // ['default', 'cabalou', 'dark']
+// Switch themes
+function switchTheme(newTheme) {
+  // Remove any existing theme
+  document
+    .querySelectorAll('[data-svarog*="theme"]')
+    .forEach((el) => el.remove());
+
+  // Apply new theme
+  newTheme.apply();
+}
+
+// Usage
+switchTheme(cabalouTheme);
 ```
 
 ### Custom Theme Creation
 
+Currently, custom themes can be created by following the pattern of existing theme packages. A dedicated theme creation utility is planned for a future release.
+
 ```javascript
-import { createTheme } from '@svarog-ui/create-theme';
+// Example custom theme structure
+const myCustomTheme = {
+  name: 'custom',
 
-const myTheme = createTheme('my-brand', {
-  colors: {
-    primary: '#FF6B6B',
-    primaryLight: '#FF8E8E',
-    primaryDark: '#E55555',
-    secondary: '#4ECDC4',
-    text: '#2C3E50',
-    background: '#FFFFFF',
-  },
-  typography: {
-    fontFamily: '"Inter", -apple-system, sans-serif',
-    sizes: {
-      h1: '2.5rem',
-      h2: '2rem',
-      body: '1rem',
-    },
-  },
-  components: {
-    button: {
-      borderRadius: '8px',
-      padding: '12px 24px',
-      fontWeight: '600',
-    },
-  },
-});
+  apply() {
+    const styles = `.custom-theme {
+      --color-primary: #FF6B6B;
+      --color-primary-light: #FF8E8E;
+      --color-primary-dark: #E55555;
+      /* ... more variables ... */
+    }`;
 
-// Apply custom theme
-myTheme.apply();
+    const styleEl = document.createElement('style');
+    styleEl.id = 'svarog-theme-custom';
+    styleEl.setAttribute('data-svarog', 'theme-custom');
+    styleEl.textContent = styles;
+    document.head.appendChild(styleEl);
 
-// Export CSS for production
-const cssString = myTheme.exportCSS();
+    document.documentElement.classList.add('custom-theme');
+    document.body.classList.add('custom-theme');
+  },
+
+  remove() {
+    document.documentElement.classList.remove('custom-theme');
+    document.body.classList.remove('custom-theme');
+
+    const styleEl = document.getElementById('svarog-theme-custom');
+    if (styleEl) styleEl.remove();
+  },
+
+  getStyles() {
+    return '/* theme CSS */';
+  },
+};
 ```
 
 ## Component API
@@ -269,15 +278,45 @@ const button = Button({ text: 'Click' });
 - **SSR Compatible** - Works with server-side rendering
 - **Performance Optimized** - Efficient style injection
 
+## Package Contents
+
+### svarog-ui-core
+
+- All component JavaScript files
+- Component CSS for style injection
+- Utility functions (except theme-specific utilities)
+- No themes included
+
+### Theme Packages
+
+Each theme package (`@svarog-ui/theme-*`) includes:
+
+- JavaScript module with `apply()`, `remove()`, and `getStyles()` methods
+- Embedded CSS variables and styles
+- No external dependencies
+
+### svarog-ui (Main Package)
+
+- Re-exports all core components
+- Includes default theme pre-applied
+- Convenience package for quick setup
+
 ## Migration Guide (v3 to v4)
+
+### What's Changed
+
+- Themes are now separate packages for optimal bundle size
+- Core can be used without any theme
+- Three themes currently available: default, cabalou, muchandy
+- Backward compatibility maintained through the main `svarog-ui` package
 
 ### For Minimal Bundle Size
 
 **Before (v3):**
 
 ```javascript
-import { Button, switchTheme } from 'svarog-ui';
-switchTheme('cabalou'); // All themes were bundled
+import { Button } from 'svarog-ui';
+// All themes were bundled (~120KB)
 ```
 
 **After (v4):**
@@ -286,6 +325,7 @@ switchTheme('cabalou'); // All themes were bundled
 import { Button } from 'svarog-ui-core';
 import cabalouTheme from '@svarog-ui/theme-cabalou';
 cabalouTheme.apply();
+// Only what you need (~65KB)
 ```
 
 ### For Backward Compatibility
@@ -327,10 +367,9 @@ svarog/
 │   ├── svarog-ui/                # Main package (backward compatible)
 │   ├── svarog-ui-core/           # Core components
 │   └── @svarog-ui/               # Scoped packages
-│       ├── theme-default/        # Individual themes
-│       ├── theme-cabalou/
-│       ├── theme-muchandy/
-│       └── create-theme/         # Theme utilities
+│       ├── theme-default/        # Default theme
+│       ├── theme-cabalou/        # Cabalou theme
+│       └── theme-muchandy/       # Muchandy theme
 │
 ├── src/                          # Source code
 │   ├── components/               # Component implementations
@@ -353,11 +392,11 @@ Svarog is built for performance:
 
 ### Bundle Size Comparison
 
-| Setup             | Size   | Reduction   |
-| ----------------- | ------ | ----------- |
-| v3 (All themes)   | ~120KB | -           |
-| v4 Core + 1 theme | ~65KB  | 46% smaller |
-| v4 Core only      | ~50KB  | 58% smaller |
+| Setup                   | Size   | Reduction   |
+| ----------------------- | ------ | ----------- |
+| v3 (All themes bundled) | ~120KB | -           |
+| v4 Core + 1 theme       | ~65KB  | 46% smaller |
+| v4 Core only            | ~50KB  | 58% smaller |
 
 ## Browser Support
 
@@ -392,6 +431,18 @@ npm test
 # Start dev server
 npm start
 ```
+
+## Roadmap
+
+Planned features and packages for future releases:
+
+- `@svarog-ui/theme-dark` - Dark mode theme
+- `@svarog-ui/theme-light` - Light mode theme
+- `@svarog-ui/theme-red` - Red accent theme
+- `@svarog-ui/create-theme` - Theme creation utilities
+- TypeScript declarations
+- React/Vue adapters
+- Additional components based on community feedback
 
 ## License
 
