@@ -3,21 +3,18 @@
   "version": "1.4.3",
   "description": "Default theme for Svarog UI components",
   "main": "dist/index.js",
-  "module": "src/index.js",
+  "module": "dist/index.js",
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "exports": {
-    ".": {
-      "import": "./src/index.js",
-      "require": "./dist/index.js"
-    },
-    "./css": "./src/theme.css"
+    ".": "./dist/index.js",
+    "./variables": "./dist/variables.js",
+    "./components": "./dist/components.js"
   },
   "files": [
     "dist",
-    "src",
     "README.md"
   ],
   "scripts": {
@@ -34,6 +31,5 @@
   "license": "ISC",
   "peerDependencies": {
     "svarog-ui-core": "^1.0.0"
-  },
-  "gitHead": "849700738cb6e8ba21400df607c575da6d581621"
+  }
 }
