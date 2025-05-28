@@ -1,17 +1,19 @@
 # Cookie Consent Component
 
-A fully GDPR-compliant cookie consent component for German websites. This component meets all legal requirements of the General Data Protection Regulation (GDPR) and provides user-friendly cookie settings management.
+A fully GDPR-compliant cookie consent component for German websites built on top of the Svarog Modal component. This component meets all legal requirements of the General Data Protection Regulation (GDPR) and provides user-friendly cookie settings management.
 
 ## 🎯 Features
 
 - ✅ **GDPR Compliant**: Meets all German data protection requirements
+- 🏗️ **Modal-Based**: Built on the reliable Svarog Modal component
 - 🎨 **Flexible Design**: Banner or modal, various positions
 - 🍪 **Granular Control**: Detailed cookie categories
-- ♿ **Accessible**: Full keyboard navigation and screen reader support
+- ♿ **Accessible**: Full keyboard navigation and screen reader support (inherited from Modal)
 - 📱 **Responsive**: Optimized for all screen sizes
 - 🔒 **Secure**: Safe storage of consent
 - 🎭 **Themeable**: Automatic theme integration
 - 🚀 **Performant**: Minimal impact on website performance
+- 🔧 **Focus Management**: Automatic focus handling via Modal
 
 ## 📋 GDPR Compliance
 
@@ -78,12 +80,12 @@ const showSettingsButton = Button({
 | ------------------ | ------- | ------------------------ | ----------------------------------------- |
 | `autoShow`         | boolean | `true`                   | Automatic display when consent is missing |
 | `mode`             | string  | `'simple'`               | Display mode: `'simple'` or `'detailed'`  |
-| `position`         | string  | `'bottom'`               | Position: `'top'`, `'bottom'`, `'center'` |
+| `position`         | string  | `'bottom'`               | Banner position: `'top'`, `'bottom'`      |
 | `modal`            | boolean | `false`                  | Display as modal with backdrop            |
-| `title`            | string  | `'Cookie-Einstellungen'` | Banner title                              |
+| `title`            | string  | `'Cookie-Einstellungen'` | Modal/Banner title                        |
 | `description`      | string  | Default text             | HTML description of cookie usage          |
-| `showCloseButton`  | boolean | `false`                  | Show X button to close                    |
-| `closeOnBackdrop`  | boolean | `false`                  | Close when clicking backdrop              |
+| `showCloseButton`  | boolean | `false`                  | Show X button to close (modal only)       |
+| `closeOnBackdrop`  | boolean | `false`                  | Close when clicking backdrop (modal only) |
 | `closeOnEscape`    | boolean | `true`                   | Close with ESC key                        |
 | `privacyPolicyUrl` | string  | -                        | Link to privacy policy                    |
 | `imprintUrl`       | string  | -                        | Link to imprint                           |
@@ -141,21 +143,21 @@ const categories = {
     name: 'Funktionale Cookies',
     description: 'Diese Cookies ermöglichen verbesserte Funktionalitäten.',
     required: false,
-    enabled: false,
+    enabled: false, // GDPR: Explicit consent required
   },
   analytics: {
     id: 'analytics',
     name: 'Analytische Cookies',
     description: 'Diese Cookies helfen uns, die Website zu verbessern.',
     required: false,
-    enabled: false,
+    enabled: false, // GDPR: Explicit consent required
   },
   marketing: {
     id: 'marketing',
     name: 'Marketing Cookies',
     description: 'Diese Cookies werden für Werbezwecke verwendet.',
     required: false,
-    enabled: false,
+    enabled: false, // GDPR: Explicit consent required
   },
 };
 ```
@@ -193,49 +195,34 @@ const cookieConsent = CookieConsent({
 });
 ```
 
-## 🎨 Styling and Themes
+## 🎨 Display Modes
 
-### CSS Classes
+### Banner Mode (Default)
 
-```css
-.cookie-consent                          /* Main container */
-.cookie-consent--modal                   /* Modal mode */
-.cookie-consent--banner                  /* Banner mode */
-.cookie-consent--visible                 /* Visibility status */
+```javascript
+// Bottom banner (default)
+const bannerConsent = CookieConsent({
+  position: 'bottom', // or 'top'
+  modal: false,
+});
 
-.cookie-consent__banner                  /* Banner element */
-.cookie-consent__banner--top             /* Top position */
-.cookie-consent__banner--bottom          /* Bottom position */
-.cookie-consent__banner--center          /* Center position */
-.cookie-consent__banner--detailed        /* Detailed view */
+// Top banner
+const topBannerConsent = CookieConsent({
+  position: 'top',
+  modal: false,
+});
+```
 
-.cookie-consent__content                 /* Content container */
-.cookie-consent__header                  /* Header area */
-.cookie-consent__title                   /* Title */
-.cookie-consent__close                   /* Close button */
-.cookie-consent__description             /* Description text */
+### Modal Mode
 
-.cookie-consent__categories              /* Categories container */
-.cookie-consent__category                /* Individual category */
-.cookie-consent__category--required      /* Required category */
-.cookie-consent__category-header         /* Category header */
-.cookie-consent__category-label          /* Category label */
-.cookie-consent__category-checkbox       /* Category checkbox */
-.cookie-consent__category-name           /* Category name */
-.cookie-consent__required-badge          /* "Required" badge */
-.cookie-consent__category-description    /* Category description */
-
-.cookie-consent__actions                 /* Button container */
-.cookie-consent__button                  /* Base button */
-.cookie-consent__button--reject          /* "Necessary only" button */
-.cookie-consent__button--details         /* "Settings" button */
-.cookie-consent__button--accept-selected /* "Save selection" button */
-.cookie-consent__button--accept-all      /* "Accept all" button */
-
-.cookie-consent__legal                   /* Legal links container */
-.cookie-consent__legal-link              /* Individual legal link */
-
-.cookie-consent__backdrop                /* Modal backdrop */
+```javascript
+// Full modal with backdrop
+const modalConsent = CookieConsent({
+  modal: true,
+  showCloseButton: true,
+  closeOnBackdrop: true,
+  closeOnEscape: true,
+});
 ```
 
 ## 💡 Usage Examples
@@ -413,49 +400,34 @@ const setupFacebookPixel = (preferences) => {
 };
 ```
 
-## 🔒 Security & Privacy
+## 🎨 Styling and Themes
 
-### Secure Cookie Storage
+The component inherits Modal styling and adds cookie-specific classes:
 
-```javascript
-// Automatic encryption of sensitive data
-const encryptConsent = (consentData) => {
-  // Base64 encoding for simple obfuscation
-  return btoa(JSON.stringify(consentData));
-};
+### CSS Classes
 
-// Set cookie with secure attributes
-const setSecureCookie = (name, value) => {
-  document.cookie = `${name}=${value}; path=/; SameSite=Lax; Secure`;
-};
-```
+```css
+/* Extends Modal classes with cookie-specific styles */
+.cookie-consent--banner          /* Banner mode modifier */
+.cookie-consent--modal           /* Modal mode modifier */
+.cookie-consent--top             /* Top position banner */
+.cookie-consent--bottom          /* Bottom position banner */
 
-### GDPR-compliant Data Processing
+.cookie-consent__content         /* Content container */
+.cookie-consent__description     /* Description text */
 
-```javascript
-const processCookieConsent = (preferences) => {
-  // Documentation of legal basis
-  const legalBasis = {
-    necessary: 'Article 6(1)(f) GDPR - Legitimate Interest',
-    functional: 'Article 6(1)(a) GDPR - Consent',
-    analytics: 'Article 6(1)(a) GDPR - Consent',
-    marketing: 'Article 6(1)(a) GDPR - Consent',
-  };
+.cookie-consent__categories      /* Categories container */
+.cookie-consent__category        /* Individual category */
+.cookie-consent__category--required /* Required category */
+.cookie-consent__category-header /* Category header */
+.cookie-consent__category-label  /* Category label */
+.cookie-consent__category-checkbox /* Category checkbox */
+.cookie-consent__category-name   /* Category name */
+.cookie-consent__required-badge  /* "Required" badge */
+.cookie-consent__category-description /* Category description */
 
-  // Create audit log
-  const auditLog = {
-    timestamp: new Date().toISOString(),
-    userAgent: navigator.userAgent,
-    ipHash: 'hashed_ip_address', // IP should be hashed
-    preferences,
-    legalBasis: Object.keys(preferences)
-      .filter((key) => preferences[key])
-      .reduce((obj, key) => ({ ...obj, [key]: legalBasis[key] }), {}),
-  };
-
-  // Send to compliance system
-  sendToComplianceSystem(auditLog);
-};
+.cookie-consent__legal           /* Legal links container */
+.cookie-consent__legal-link      /* Individual legal link */
 ```
 
 ## 🧪 Testing
@@ -483,7 +455,8 @@ describe('CookieConsent GDPR Compliance', () => {
     const consent = CookieConsent({ autoShow: false });
     consent.show();
 
-    document.querySelector('.cookie-consent__button--accept-all').click();
+    const acceptButton = document.querySelector('[data-action="accept-all"]');
+    acceptButton.click();
 
     const storedConsent = CookieConsent.getConsent();
     expect(storedConsent.version).toBe('1.0');
@@ -510,23 +483,6 @@ const loadCookieConsent = async () => {
 document.addEventListener('DOMContentLoaded', loadCookieConsent);
 ```
 
-### Minimal Performance Impact
-
-```javascript
-// Maintain performance budget
-const measurePerformance = () => {
-  const start = performance.now();
-
-  const consent = CookieConsent();
-
-  const end = performance.now();
-  console.log(`Cookie Consent Init: ${end - start}ms`);
-
-  // Should stay under 50ms
-  expect(end - start).toBeLessThan(50);
-};
-```
-
 ## 📱 Browser Support
 
 - Chrome/Edge 88+
@@ -535,9 +491,19 @@ const measurePerformance = () => {
 - Mobile browsers (iOS Safari, Chrome Mobile)
 - Internet Explorer 11 (with polyfills)
 
+## 🏗️ Architecture
+
+The CookieConsent component is built on top of the Svarog Modal component, providing:
+
+- **Reliability**: Uses the battle-tested Modal component as foundation
+- **Consistency**: Inherits Modal's accessibility and keyboard navigation
+- **Maintainability**: Reduces code duplication and complexity
+- **Focus Management**: Automatic focus handling via Modal's implementation
+- **Animation System**: Smooth transitions handled by Modal
+
 ## 🔗 Related Components
 
-- [Modal](../Modal/README.md) - Base for modal mode
+- [Modal](../Modal/README.md) - Base component for cookie consent modal
 - [Button](../Button/README.md) - For action buttons
 - [Form](../Form/README.md) - For extended settings
 
@@ -563,3 +529,14 @@ Contributions to improve GDPR compliance are welcome:
 5. Create a pull request
 
 For legal requirements, please include appropriate documentation.
+
+## 🆕 Migration from v3
+
+If upgrading from Svarog v3:
+
+- API remains largely compatible
+- Now built on Modal component (more reliable)
+- Better accessibility and keyboard navigation
+- Improved focus management
+- Enhanced animations and transitions
+- Same GDPR compliance features

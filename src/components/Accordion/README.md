@@ -1,11 +1,13 @@
 # Accordion Component
 
-The Accordion component provides a collapsible content panel system with smooth animations, full accessibility support, and multiple display variants. It uses modern CSS injection for zero-configuration styling.
+The Accordion component provides a collapsible content panel system with smooth animations, full accessibility support, **flexible icon designs**, and multiple display variants. It uses modern CSS injection for zero-configuration styling.
 
 ## Features
 
 ✅ **Zero CSS Import Errors** - Styles inject automatically, works everywhere  
 ✅ **Multiple or Single Mode** - Allow multiple or single panels open  
+✅ **Flexible Icon Types** - Content, CSS arrow, chevron, plus/minus, caret, or no icon  
+✅ **Exact Select Arrow Match** - CSS arrow with identical styling to Select component  
 ✅ **Smooth Animations** - CSS transitions with reduced motion support  
 ✅ **Full Accessibility** - ARIA attributes, keyboard navigation  
 ✅ **Flexible Content** - Supports text, HTML, or components  
@@ -18,7 +20,7 @@ The Accordion component provides a collapsible content panel system with smooth 
 ```javascript
 import { Accordion } from '@svarog-ui/core';
 
-// Basic accordion
+// Basic accordion with default content icon
 const accordion = Accordion({
   items: [
     {
@@ -34,20 +36,27 @@ const accordion = Accordion({
   ],
 });
 
+// Accordion with CSS arrow (Select-style)
+const arrowAccordion = Accordion({
+  items: items,
+  iconType: 'arrow', // Clean CSS arrow
+});
+
 document.body.appendChild(accordion.getElement());
 ```
 
 ## Props
 
-| Prop            | Type     | Default     | Description                                       |
-| --------------- | -------- | ----------- | ------------------------------------------------- |
-| items           | Array    | required    | Array of accordion items (must have id and title) |
-| multiple        | boolean  | true        | Whether multiple items can be expanded            |
-| defaultExpanded | Array    | []          | Array of item IDs to expand by default            |
-| variant         | string   | ""          | Visual variant ("bordered", "minimal", "flush")   |
-| className       | string   | ""          | Additional CSS classes                            |
-| ariaLabel       | string   | "Accordion" | Accessible label for the accordion                |
-| onChange        | Function | null        | Callback when expanded items change               |
+| Prop            | Type     | Default     | Description                                                                      |
+| --------------- | -------- | ----------- | -------------------------------------------------------------------------------- |
+| items           | Array    | required    | Array of accordion items (must have id and title)                                |
+| multiple        | boolean  | true        | Whether multiple items can be expanded                                           |
+| defaultExpanded | Array    | []          | Array of item IDs to expand by default                                           |
+| variant         | string   | ""          | Visual variant ("bordered", "minimal", "flush")                                  |
+| **iconType**    | string   | "content"   | **Icon style ("content", "arrow", "chevron", "plus-minus", "caret", "no-icon")** |
+| className       | string   | ""          | Additional CSS classes                                                           |
+| ariaLabel       | string   | "Accordion" | Accessible label for the accordion                                               |
+| onChange        | Function | null        | Callback when expanded items change                                              |
 
 ### Item Structure
 
@@ -58,6 +67,76 @@ Each item in the `items` array must have:
 | id       | string                                   | Yes      | Unique identifier for the item   |
 | title    | string                                   | Yes      | Header text for the item         |
 | content  | string\|HTMLElement\|Function\|Component | Yes      | Content to display when expanded |
+
+## Icon Types
+
+The accordion supports multiple icon styles that can be easily switched:
+
+### Content Icon (Default)
+
+Traditional dropdown arrow using CSS content - fully backward compatible.
+
+```javascript
+Accordion({
+  items: items,
+  iconType: 'content', // or omit (default)
+});
+```
+
+### CSS Arrow (Select-Style)
+
+Clean, modern CSS arrow with **exact same styling as the Select component** - rotates smoothly and provides consistent design language across your application.
+
+```javascript
+Accordion({
+  items: items,
+  iconType: 'arrow', // Identical to Select component arrow
+});
+```
+
+### Chevron
+
+Right-pointing chevron that rotates to point down when expanded.
+
+```javascript
+Accordion({
+  items: items,
+  iconType: 'chevron',
+});
+```
+
+### Plus/Minus
+
+Plus sign that changes to minus when expanded - perfect for FAQ sections.
+
+```javascript
+Accordion({
+  items: items,
+  iconType: 'plus-minus',
+});
+```
+
+### Caret
+
+Small triangular caret that rotates - subtle and clean.
+
+```javascript
+Accordion({
+  items: items,
+  iconType: 'caret',
+});
+```
+
+### No Icon
+
+Clean accordion with no expand/collapse indicator - minimal design.
+
+```javascript
+Accordion({
+  items: items,
+  iconType: 'no-icon',
+});
+```
 
 ## Methods
 
@@ -101,6 +180,15 @@ Collapses all items.
 accordion.collapseAll();
 ```
 
+### **setIconType(iconType)**
+
+**Changes the icon type dynamically.**
+
+```javascript
+accordion.setIconType('arrow'); // Switch to CSS arrow
+accordion.setIconType('plus-minus'); // Switch to plus/minus
+```
+
 ### getExpandedItems()
 
 Returns an array of currently expanded item IDs.
@@ -118,6 +206,7 @@ Updates accordion properties.
 accordion.update({
   items: newItems,
   variant: 'bordered',
+  iconType: 'arrow', // Change icon type
 });
 ```
 
@@ -211,6 +300,7 @@ Each item appears as a separate card with spacing.
 Accordion({
   items,
   variant: 'bordered',
+  iconType: 'arrow', // Looks great with CSS arrow
 });
 ```
 
@@ -222,6 +312,7 @@ Clean design with minimal visual elements.
 Accordion({
   items,
   variant: 'minimal',
+  iconType: 'chevron', // Subtle chevron works well
 });
 ```
 
@@ -233,83 +324,85 @@ No border radius, extends to container edges.
 Accordion({
   items,
   variant: 'flush',
+  iconType: 'plus-minus', // Clear plus/minus indication
 });
 ```
 
 ## Examples
 
-### Single Expansion Mode
+### Modern FAQ Design
 
 ```javascript
 const faqAccordion = Accordion({
   items: faqItems,
-  multiple: false, // Only one item can be open
+  multiple: false, // Only one FAQ open at a time
+  iconType: 'plus-minus', // Clear expand/collapse indication
+  variant: 'bordered', // Card-like appearance
   onChange: (expanded) => {
-    console.log('Open item:', expanded[0]);
+    console.log('Open FAQ:', expanded[0]);
   },
 });
 ```
 
-### With Default Expanded Items
+### Clean Navigation Accordion
+
+```javascript
+const navAccordion = Accordion({
+  items: navigationItems,
+  iconType: 'chevron', // Subtle navigation indicator
+  variant: 'minimal', // Clean, minimal design
+});
+```
+
+### Consistent Design Language
+
+```javascript
+// Both components use identical arrow styling
+const select = Select({
+  options: options,
+  placeholder: 'Choose option',
+});
+
+const accordion = Accordion({
+  items: items,
+  iconType: 'arrow', // Same arrow as Select
+});
+
+// Perfect visual consistency across your UI
+```
+
+### Dynamic Icon Switching
 
 ```javascript
 const accordion = Accordion({
   items: items,
-  defaultExpanded: ['item-1', 'item-3'],
-  onChange: (expanded) => {
-    console.log('Expanded items:', expanded);
-  },
+  iconType: 'content',
 });
+
+// Switch to different icon types based on context
+if (isMobile) {
+  accordion.setIconType('plus-minus'); // Clear on mobile
+} else {
+  accordion.setIconType('arrow'); // Elegant on desktop
+}
 ```
 
 ### Programmatic Control
 
 ```javascript
-const accordion = Accordion({ items });
+const accordion = Accordion({
+  items,
+  iconType: 'arrow',
+});
 
 // Control buttons
 button1.onclick = () => accordion.expandAll();
 button2.onclick = () => accordion.collapseAll();
 button3.onclick = () => accordion.toggle('item-1');
+button4.onclick = () => accordion.setIconType('plus-minus');
 
 // Check state
 const isFirstExpanded = accordion.getExpandedItems().includes('item-1');
-```
-
-### Dynamic Content Updates
-
-```javascript
-const accordion = Accordion({ items: initialItems });
-
-// Update items later
-fetchNewItems().then((newItems) => {
-  accordion.update({ items: newItems });
-});
-```
-
-### With Form Elements
-
-```javascript
-const formAccordion = Accordion({
-  items: [
-    {
-      id: 'personal',
-      title: 'Personal Information',
-      content: () => createPersonalInfoForm(),
-    },
-    {
-      id: 'address',
-      title: 'Address Details',
-      content: () => createAddressForm(),
-    },
-    {
-      id: 'preferences',
-      title: 'Preferences',
-      content: () => createPreferencesForm(),
-    },
-  ],
-  variant: 'bordered',
-});
 ```
 
 ## Styling & Theming
@@ -341,23 +434,43 @@ Customize the accordion appearance with CSS variables:
   --accordion-font-size: 1rem;
   --accordion-font-weight: 500;
 
-  /* Icon - Text-based (default) */
+  /* Icon Container */
   --accordion-icon-size: 1.5rem;
+  --accordion-icon-color: #666;
+
+  /* Content Icons */
   --accordion-icon-content: '▼';
   --accordion-icon-font-size: 0.75rem;
-  --accordion-icon-color: #666;
+  --accordion-icon-display: block;
   --accordion-icon-transition: transform 0.3s ease;
   --accordion-icon-expanded-transform: rotate(180deg);
-  --accordion-icon-display: block; /* Set to 'none' when using arrow */
 
-  /* Icon - CSS Arrow (optional) */
-  --accordion-arrow-display: none; /* Set to 'block' to use arrow */
-  --accordion-arrow-width: 8px;
-  --accordion-arrow-height: 8px;
+  /* CSS Arrow (exact match with Select component) */
+  --accordion-arrow-size: 6px;
+  --accordion-arrow-right: 0px;
   --accordion-arrow-border: 2px solid currentColor;
-  --accordion-arrow-transform: rotate(45deg);
-  --accordion-arrow-expanded-transform: rotate(-135deg);
-  --accordion-arrow-transition: transform 0.3s ease;
+  --accordion-arrow-display: none; /* Set to 'block' when using arrow type */
+  --accordion-arrow-transform: translateY(-75%) rotate(45deg);
+  --accordion-arrow-expanded-transform: translateY(-25%) rotate(-135deg);
+  --accordion-arrow-transition: transform 0.2s ease;
+
+  /* Chevron Icons */
+  --accordion-chevron-content: '›';
+  --accordion-chevron-font-size: 1rem;
+  --accordion-chevron-transform: rotate(0deg);
+  --accordion-chevron-expanded-transform: rotate(90deg);
+
+  /* Plus/Minus Icons */
+  --accordion-plus-content: '+';
+  --accordion-minus-content: '−';
+  --accordion-plus-font-size: 1.25rem;
+  --accordion-plus-font-weight: 300;
+
+  /* Caret Icons */
+  --accordion-caret-content: '▸';
+  --accordion-caret-font-size: 0.875rem;
+  --accordion-caret-transform: rotate(0deg);
+  --accordion-caret-expanded-transform: rotate(90deg);
 
   /* Content */
   --accordion-content-padding: 1rem;
@@ -383,63 +496,51 @@ Customize the accordion appearance with CSS variables:
   --accordion-header-padding-mobile: 0.75rem;
   --accordion-font-size-mobile: 0.875rem;
   --accordion-content-padding-mobile: 0.75rem;
+  --accordion-icon-size-mobile: 1.25rem;
 }
 ```
 
-### Custom Icons
+### Custom Icon Styling
 
-The accordion supports two icon approaches: text-based icons and CSS-drawn arrows.
+You can customize any icon type using CSS variables:
 
-#### Text-based Icons (Default)
-
-```css
-/* Plus/Minus Icons */
-.custom-plus-minus {
-  --accordion-icon-content: '+';
-  --accordion-icon-font-size: 1.25rem;
-  --accordion-icon-expanded-transform: none;
-}
-
-.custom-plus-minus .accordion__item--expanded .accordion__icon::before {
-  content: '−';
-}
-
-/* Chevron Icons */
-.custom-chevron {
-  --accordion-icon-content: '›';
-  --accordion-icon-font-size: 1rem;
-  --accordion-icon-expanded-transform: rotate(90deg);
-}
-```
-
-#### CSS Arrow Icons
-
-For more flexibility, use CSS-drawn arrows:
+#### Modern Arrow (Exact Select Match)
 
 ```css
-/* Modern Arrow Style */
-.modern-arrow {
-  /* Hide text icon */
-  --accordion-icon-display: none;
-
-  /* Show and style arrow */
-  --accordion-arrow-display: block;
-  --accordion-arrow-width: 8px;
-  --accordion-arrow-height: 8px;
+/* Default settings match Select component exactly */
+.my-accordion {
+  --accordion-arrow-size: 6px;
   --accordion-arrow-border: 2px solid currentColor;
-  --accordion-arrow-transform: rotate(45deg);
-  --accordion-arrow-expanded-transform: rotate(-135deg);
+  --accordion-arrow-transition: transform 0.2s ease;
+  --accordion-icon-color: #666;
 }
 
-/* Thin Arrow Style */
-.thin-arrow {
-  --accordion-icon-display: none;
-  --accordion-arrow-display: block;
-  --accordion-arrow-width: 6px;
-  --accordion-arrow-height: 6px;
-  --accordion-arrow-border: 1.5px solid currentColor;
-  --accordion-arrow-transform: translateY(-25%) rotate(45deg);
-  --accordion-arrow-expanded-transform: translateY(25%) rotate(-135deg);
+/* Customize while maintaining consistency */
+.custom-arrow {
+  --accordion-arrow-size: 8px; /* Slightly larger */
+  --accordion-arrow-border: 1.5px solid currentColor; /* Thinner */
+  --accordion-icon-color: #0066ff; /* Brand color */
+}
+```
+
+#### Custom Plus/Minus
+
+```css
+/* Rounded plus/minus */
+.rounded-plus-minus {
+  --accordion-plus-content: '⊕';
+  --accordion-minus-content: '⊖';
+  --accordion-plus-font-size: 1rem;
+}
+```
+
+#### Custom Content Icons
+
+```css
+/* Custom symbols */
+.custom-symbols {
+  --accordion-icon-content: '◢';
+  --accordion-icon-expanded-transform: rotate(45deg);
 }
 ```
 
@@ -452,6 +553,7 @@ The Accordion component implements comprehensive accessibility features:
 - **Screen Reader Support**: Clear announcements of state changes
 - **Focus Management**: Visible focus indicators
 - **Reduced Motion**: Respects `prefers-reduced-motion` preference
+- **Icon Accessibility**: All icons have `aria-hidden="true"` as they're decorative
 
 ## Performance
 
@@ -459,6 +561,7 @@ The Accordion component implements comprehensive accessibility features:
 - **Lazy Rendering**: Content only renders when needed
 - **Event Delegation**: Efficient event handling
 - **Memory Management**: Proper cleanup on destroy
+- **Flexible Icons**: CSS-only icons for best performance
 
 ## Browser Support
 
@@ -469,25 +572,52 @@ The Accordion component implements comprehensive accessibility features:
 
 ## Migration Guide
 
-If migrating from another accordion library:
+### From Previous Version
+
+The component is fully backward compatible. Existing code works without changes:
 
 ```javascript
-// Old accordion
-$('.accordion').accordion({
-  collapsible: true,
-  active: false,
-});
-
-// New Svarog accordion
+// ✅ This still works exactly as before
 const accordion = Accordion({
   items: items,
-  multiple: true,
-  defaultExpanded: [],
+  variant: 'bordered',
 });
+```
+
+### New Icon Features
+
+To use the new icon types with **exact Select component consistency**, simply add the `iconType` prop:
+
+```javascript
+// ✨ Exact Select component arrow match
+const accordion = Accordion({
+  items: items,
+  iconType: 'arrow', // Identical styling to Select
+});
+
+// ✨ Or any other icon type
+accordion.setIconType('plus-minus'); // Switch dynamically
+```
+
+### CSS Migration
+
+If you were overriding icon styles with custom CSS:
+
+```css
+/* Old way - still works */
+.accordion__icon::before {
+  content: '→';
+}
+
+/* New way - use icon types */
+.my-accordion {
+  /* Use iconType: 'chevron' instead */
+}
 ```
 
 ## Related Components
 
+- **Select**: Shares the same elegant CSS arrow design
 - **Tabs**: For horizontal content organization
 - **Card**: Can contain accordions for collapsible cards
 - **Navigation**: Accordions work well for mobile menus

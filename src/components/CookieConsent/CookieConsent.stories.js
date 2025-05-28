@@ -41,7 +41,6 @@ export const ModalMode = () => {
 
   const cookieConsent = CookieConsent({
     modal: true,
-    position: 'center',
     showCloseButton: true,
     closeOnBackdrop: true,
     autoShow: false,
@@ -183,45 +182,50 @@ export const ECommerceSetup = () => {
   const cookieConsent = CookieConsent({
     autoShow: false,
     modal: true,
-    position: 'center',
+    title: 'Cookie-Einstellungen für Ihren Einkauf',
+    description: `
+      <p><strong>Für das beste Einkaufserlebnis</strong> verwenden wir verschiedene Cookies.</p>
+      <p>Technisch notwendige Cookies ermöglichen Ihren Warenkorb und den Checkout. Analyse-Cookies helfen uns, beliebte Produkte zu identifizieren und unser Sortiment zu verbessern.</p>
+      <p>Marketing-Cookies zeigen Ihnen relevante Produktempfehlungen und Angebote, die Sie interessieren könnten.</p>
+    `,
     customCategories: {
       necessary: {
         id: 'necessary',
-        name: 'Technisch notwendige Cookies',
+        name: 'Shop-Funktionen',
         description:
-          'Diese Cookies sind für den Warenkorb, Anmeldung und Zahlungsabwicklung erforderlich.',
+          'Warenkorb, Checkout, Benutzeranmeldung, Zahlungsabwicklung und Bestellverfolgung. Diese Cookies sind für Ihren Einkauf unerlässlich.',
         required: true,
         enabled: true,
       },
       functional: {
         id: 'functional',
-        name: 'Komfort-Cookies',
+        name: 'Komfort-Features',
         description:
-          'Speichern Ihre Einstellungen wie Sprache, Währung und zuletzt angesehene Produkte.',
+          'Speichern Ihre Präferenzen wie Sprache, Währung, Größenangaben und zuletzt angesehene Produkte für ein personalisiertes Einkaufserlebnis.',
         required: false,
         enabled: false,
       },
       analytics: {
         id: 'analytics',
-        name: 'Analyse-Cookies',
+        name: 'Shop-Optimierung',
         description:
-          'Google Analytics, Facebook Analytics - helfen uns, unser Angebot zu verbessern.',
+          'Google Analytics E-Commerce, Hotjar Heatmaps - helfen uns zu verstehen, welche Produkte beliebt sind und wie wir den Shop verbessern können.',
         required: false,
         enabled: false,
       },
       marketing: {
         id: 'marketing',
-        name: 'Marketing-Cookies',
+        name: 'Personalisierte Werbung',
         description:
-          'Facebook Pixel, Google Ads, Remarketing - für personalisierte Werbung.',
+          'Facebook Pixel, Google Ads, Criteo - ermöglichen personalisierte Produktempfehlungen und Retargeting-Anzeigen basierend auf Ihren Interessen.',
         required: false,
         enabled: false,
       },
-      social: {
-        id: 'social',
-        name: 'Social Media Cookies',
+      recommendations: {
+        id: 'recommendations',
+        name: 'Produktempfehlungen',
         description:
-          'Ermöglichen das Teilen von Inhalten auf sozialen Netzwerken.',
+          'KI-basierte Empfehlungen für "Kunden kauften auch" und personalisierte Produktvorschläge basierend auf Ihrem Browsing-Verhalten.',
         required: false,
         enabled: false,
       },
@@ -233,16 +237,22 @@ export const ECommerceSetup = () => {
 
       // Simulate tracking setup based on preferences
       if (preferences.analytics) {
-        console.log('🔍 Setting up Google Analytics...');
+        console.log('🔍 Google Analytics E-Commerce wird aktiviert...');
+        console.log('📊 Hotjar Heatmap-Tracking wird aktiviert...');
       }
       if (preferences.marketing) {
-        console.log('📈 Setting up Facebook Pixel...');
+        console.log('📈 Facebook Pixel wird aktiviert...');
+        console.log('🎯 Google Ads Conversion-Tracking wird aktiviert...');
+        console.log('🔄 Criteo Retargeting wird aktiviert...');
       }
-      if (preferences.social) {
-        console.log('📱 Setting up Social Media tracking...');
+      if (preferences.recommendations) {
+        console.log('🤖 KI-Produktempfehlungen werden aktiviert...');
       }
 
-      showMessage('E-Commerce Tracking konfiguriert!', 'success');
+      showMessage(
+        'E-Commerce Tracking wurde entsprechend Ihren Präferenzen konfiguriert!',
+        'success'
+      );
     },
   });
 
@@ -262,19 +272,20 @@ export const CorporateSetup = () => {
 
   const cookieConsent = CookieConsent({
     autoShow: false,
-    title: 'Cookie-Richtlinie',
+    title: 'Datenschutz-Einstellungen',
     description: `
       <p><strong>Transparenz bei der Datenverarbeitung</strong></p>
-      <p>Als Unternehmen sind wir verpflichtet, Sie über die Verwendung von Cookies auf unserer Website zu informieren. 
+      <p>Als verantwortungsvolles Unternehmen informieren wir Sie umfassend über unsere Datenverarbeitung. 
       Wir halten uns strikt an die DSGVO und geben Ihnen die volle Kontrolle über Ihre Daten.</p>
-      <p>Bitte wählen Sie, welche Cookie-Kategorien Sie akzeptieren möchten:</p>
+      <p>Sie können jederzeit Ihre Einstellungen ändern oder Ihre Einwilligung widerrufen. 
+      Detaillierte Informationen zu den verwendeten Cookies finden Sie in unserer Datenschutzerklärung.</p>
     `,
     customCategories: {
       necessary: {
         id: 'necessary',
         name: 'Technisch erforderliche Cookies',
         description:
-          'Session-Management, Sicherheit, grundlegende Website-Funktionen. Diese können nicht deaktiviert werden.',
+          'Session-Management, CSRF-Schutz, Load-Balancing und grundlegende Sicherheitsfunktionen. Diese Cookies sind für den sicheren Betrieb unserer Website unerlässlich.',
         required: true,
         enabled: true,
       },
@@ -282,15 +293,15 @@ export const CorporateSetup = () => {
         id: 'performance',
         name: 'Performance-Cookies',
         description:
-          'Messen die Website-Performance und helfen bei der Optimierung der Ladezeiten.',
+          'Messen Website-Geschwindigkeit, Server-Response-Zeiten und Ladezeiten verschiedener Bereiche zur kontinuierlichen Optimierung der Nutzererfahrung.',
         required: false,
         enabled: false,
       },
       analytics: {
         id: 'analytics',
-        name: 'Analyse-Cookies',
+        name: 'Webanalyse-Cookies',
         description:
-          'Anonymisierte Nutzungsstatistiken zur Verbesserung unseres Angebots (Google Analytics).',
+          'Anonymisierte Erfassung von Seitenaufrufen, Verweildauer und Navigationspfaden mittels Google Analytics zur statistischen Auswertung des Nutzerverhaltens.',
         required: false,
         enabled: false,
       },
@@ -298,7 +309,7 @@ export const CorporateSetup = () => {
         id: 'marketing',
         name: 'Marketing-Cookies',
         description:
-          'Personalisierte Inhalte und zielgerichtete Werbung basierend auf Ihren Interessen.',
+          'LinkedIn Insight Tag, Google Ads Conversion-Tracking und andere B2B-Marketing-Tools zur Erfolgsmessung unserer Unternehmenskommunikation.',
         required: false,
         enabled: false,
       },
@@ -308,7 +319,22 @@ export const CorporateSetup = () => {
     className: 'corporate-theme',
     onAccept: (preferences) => {
       console.log('Corporate preferences:', preferences);
-      showMessage('Corporate Cookie-Einstellungen gespeichert!', 'info');
+
+      if (preferences.performance) {
+        console.log('⚡ Performance-Monitoring wird aktiviert...');
+      }
+      if (preferences.analytics) {
+        console.log('📊 Google Analytics (anonymisiert) wird aktiviert...');
+      }
+      if (preferences.marketing) {
+        console.log('💼 LinkedIn Insight Tag wird aktiviert...');
+        console.log('🎯 B2B Conversion-Tracking wird aktiviert...');
+      }
+
+      showMessage(
+        'Corporate Datenschutz-Einstellungen wurden gespeichert!',
+        'info'
+      );
     },
   });
 
@@ -421,7 +447,7 @@ export const AutoShowDemo = () => {
     </div>
   `;
 
-  // Create auto-showing consent - store reference for potential cleanup
+  // Create auto-showing consent
   CookieConsent({
     autoShow: true,
     onAccept: (preferences) => {
@@ -470,6 +496,235 @@ export const AllPositions = () => {
 
     container.appendChild(button.getElement());
   });
+
+  return container;
+};
+
+// News/Blog website setup
+export const NewsWebsiteSetup = () => {
+  const triggerButton = Button({
+    text: 'News Website Cookies',
+    variant: 'primary',
+  });
+
+  const cookieConsent = CookieConsent({
+    autoShow: false,
+    position: 'top',
+    title: 'Cookie-Hinweis',
+    description: `
+      <p><strong>Qualitätsjournalismus braucht Ihre Unterstützung.</strong></p>
+      <p>Wir verwenden Cookies, um Ihnen die besten Inhalte zu liefern und unsere Berichterstattung zu verbessern.</p>
+      <p>Analyse-Cookies helfen uns zu verstehen, welche Artikel Sie interessieren. 
+      Social-Media-Cookies ermöglichen das Teilen wichtiger Nachrichten.</p>
+    `,
+    customCategories: {
+      necessary: {
+        id: 'necessary',
+        name: 'Website-Grundfunktionen',
+        description:
+          'Artikel-Zugriff, Newsletter-Anmeldung, Kommentar-System und Anti-Spam-Schutz. Unverzichtbar für die Nutzung unseres Nachrichtenportals.',
+        required: true,
+        enabled: true,
+      },
+      personalization: {
+        id: 'personalization',
+        name: 'Inhalts-Personalisierung',
+        description:
+          'Speichern Ihre Lesevorlieben, bevorzugte Themenbereiche und Artikel-Empfehlungen für eine personalisierte Nachrichten-Experience.',
+        required: false,
+        enabled: false,
+      },
+      analytics: {
+        id: 'analytics',
+        name: 'Leseranalyse',
+        description:
+          'Google Analytics, Chartbeat - verstehen welche Artikel gelesen werden, Verweildauer und Leser-Engagement zur Verbesserung unseres Journalismus.',
+        required: false,
+        enabled: false,
+      },
+      social: {
+        id: 'social',
+        name: 'Social Media',
+        description:
+          'Facebook, Twitter, WhatsApp Share-Buttons und Social Login. Ermöglichen das einfache Teilen wichtiger Nachrichten mit Ihrem Netzwerk.',
+        required: false,
+        enabled: false,
+      },
+      advertising: {
+        id: 'advertising',
+        name: 'Werbung & Refinanzierung',
+        description:
+          'Google AdSense, Amazon Affiliate Links - helfen uns, kostenlosen Qualitätsjournalismus zu finanzieren durch relevante, nicht-aufdringliche Werbung.',
+        required: false,
+        enabled: false,
+      },
+    },
+    privacyPolicyUrl: '/datenschutz',
+    imprintUrl: '/impressum',
+    onAccept: (preferences) => {
+      console.log('News website preferences:', preferences);
+
+      if (preferences.personalization) {
+        console.log('📰 Artikel-Personalisierung wird aktiviert...');
+      }
+      if (preferences.analytics) {
+        console.log('📊 Leser-Analytics wird aktiviert...');
+        console.log('📈 Chartbeat Real-Time Analytics wird aktiviert...');
+      }
+      if (preferences.social) {
+        console.log('📱 Social Media Sharing wird aktiviert...');
+      }
+      if (preferences.advertising) {
+        console.log('💰 Werbe-Monetarisierung wird aktiviert...');
+        console.log('🔗 Affiliate-Marketing wird aktiviert...');
+      }
+
+      showMessage(
+        'Ihre Präferenzen unterstützen unseren Journalismus!',
+        'success'
+      );
+    },
+  });
+
+  triggerButton.getElement().addEventListener('click', () => {
+    cookieConsent.show();
+  });
+
+  return triggerButton.getElement();
+};
+
+// Restaurant/Local Business setup
+export const RestaurantSetup = () => {
+  const triggerButton = Button({
+    text: 'Restaurant Website',
+    variant: 'secondary',
+  });
+
+  const cookieConsent = CookieConsent({
+    autoShow: false,
+    title: 'Cookie-Hinweis',
+    description: `
+      <p><strong>Willkommen in unserem Restaurant!</strong></p>
+      <p>Wir verwenden Cookies, um Ihnen den besten Service zu bieten - online wie offline.</p>
+      <p>Funktionale Cookies ermöglichen Tischreservierungen und Bestellungen. 
+      Analytics helfen uns, beliebte Gerichte zu identifizieren.</p>
+    `,
+    customCategories: {
+      necessary: {
+        id: 'necessary',
+        name: 'Restaurant-Grundfunktionen',
+        description:
+          'Tischreservierung, Online-Bestellungen, Speisekarte und Kontaktformular. Notwendig für alle Restaurant-Services.',
+        required: true,
+        enabled: true,
+      },
+      functional: {
+        id: 'functional',
+        name: 'Komfort-Features',
+        description:
+          'Speichern Ihrer Lieblingsgerichte, Allergiehinweise, bevorzugte Tischzeiten und Lieferadresse für ein besseres Gastoerlebnis.',
+        required: false,
+        enabled: false,
+      },
+      analytics: {
+        id: 'analytics',
+        name: 'Gäste-Feedback',
+        description:
+          'Verstehen, welche Gerichte beliebt sind, Stoßzeiten analysieren und unser Angebot entsprechend anpassen.',
+        required: false,
+        enabled: false,
+      },
+      maps: {
+        id: 'maps',
+        name: 'Standort-Services',
+        description:
+          'Google Maps Integration für Anfahrt, Lieferbereich-Anzeige und Standort-basierte Services.',
+        required: false,
+        enabled: false,
+      },
+    },
+    privacyPolicyUrl: '/datenschutz',
+    imprintUrl: '/impressum',
+    onAccept: (preferences) => {
+      console.log('Restaurant preferences:', preferences);
+
+      if (preferences.functional) {
+        console.log('🍽️ Gäste-Personalisierung wird aktiviert...');
+      }
+      if (preferences.analytics) {
+        console.log('📊 Speisekarten-Analytics wird aktiviert...');
+      }
+      if (preferences.maps) {
+        console.log('🗺️ Google Maps Integration wird aktiviert...');
+      }
+
+      showMessage('Danke! Ihre Einstellungen wurden gespeichert.', 'success');
+    },
+  });
+
+  triggerButton.getElement().addEventListener('click', () => {
+    cookieConsent.show();
+  });
+
+  return triggerButton.getElement();
+};
+
+// Simple vs Detailed comparison with realistic content
+export const SimpleVsDetailed = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.gap = '16px';
+
+  // Simple mode button
+  const simpleButton = Button({
+    text: 'Simple Mode',
+    variant: 'primary',
+  });
+
+  const simpleCookieConsent = CookieConsent({
+    autoShow: false,
+    mode: 'simple',
+    title: 'Cookie-Einstellungen',
+    description: `
+      <p><strong>Ihre Privatsphäre ist uns wichtig.</strong></p>
+      <p>Wir verwenden Cookies für eine bessere Nutzererfahrung. Sie können alle akzeptieren oder nur die notwendigen Cookies zulassen.</p>
+    `,
+    onAccept: (preferences) => {
+      console.log('Simple mode preferences:', preferences);
+      showMessage('Einfache Einstellungen gespeichert!', 'success');
+    },
+  });
+
+  simpleButton.getElement().addEventListener('click', () => {
+    simpleCookieConsent.show();
+  });
+
+  // Detailed mode button
+  const detailedButton = Button({
+    text: 'Detailed Mode',
+    variant: 'secondary',
+  });
+
+  const detailedCookieConsent = CookieConsent({
+    autoShow: false,
+    mode: 'detailed',
+    title: 'Detaillierte Cookie-Einstellungen',
+    description: `
+      <p><strong>Volle Kontrolle über Ihre Daten.</strong></p>
+      <p>Hier können Sie genau auswählen, welche Cookie-Kategorien Sie zulassen möchten. Jede Kategorie hat einen spezifischen Zweck.</p>
+    `,
+    onAccept: (preferences) => {
+      console.log('Detailed mode preferences:', preferences);
+      showMessage('Detaillierte Einstellungen gespeichert!', 'info');
+    },
+  });
+
+  detailedButton.getElement().addEventListener('click', () => {
+    detailedCookieConsent.show();
+  });
+
+  container.appendChild(simpleButton.getElement());
+  container.appendChild(detailedButton.getElement());
 
   return container;
 };

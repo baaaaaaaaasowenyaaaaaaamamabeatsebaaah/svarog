@@ -67,7 +67,7 @@ export const textareaStyles = css`
     font-family: var(--textarea-font-family, var(--font-family-primary));
     background-color: var(--textarea-bg, var(--color-bg));
     border: var(--textarea-border, 1px solid var(--color-border-medium));
-    border-radius: var(--textarea-radius, var(--border-radius-md));
+    border-radius: var(--textarea-radius, 0);
     box-shadow: var(--textarea-shadow, var(--shadow-sm));
     transition: var(--textarea-transition, var(--transition-normal));
     box-sizing: border-box;

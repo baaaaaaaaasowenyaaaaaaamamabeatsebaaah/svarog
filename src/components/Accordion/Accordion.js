@@ -19,6 +19,7 @@ const injectAccordionStyles = createStyleInjector('Accordion');
  * @param {Object} item - Accordion item data
  * @param {boolean} isExpanded - Whether item is expanded
  * @param {Function} onToggle - Toggle handler
+ * @param {string} iconType - Icon type for styling
  * @returns {HTMLElement} Accordion item element
  */
 const renderAccordionItem = (item, isExpanded, onToggle) => {
@@ -57,19 +58,20 @@ const renderAccordionItem = (item, isExpanded, onToggle) => {
     text: item.title,
   });
 
-  // Icon
+  // Icon container - always create both elements for maximum flexibility
   const icon = createElement('span', {
     classes: ['accordion__icon'],
     attributes: {
       'aria-hidden': 'true',
     },
-    children: [
-      createElement('span', {
-        classes: ['accordion__icon-arrow'],
-      }),
-    ],
   });
 
+  // Always create the arrow element (CSS controls visibility)
+  const iconArrow = createElement('span', {
+    classes: ['accordion__icon-arrow'],
+  });
+
+  icon.appendChild(iconArrow);
   header.appendChild(headerContent);
   header.appendChild(icon);
 
@@ -121,6 +123,9 @@ const renderAccordion = (state) => {
   const classNames = [
     'accordion',
     state.variant && `accordion--${state.variant}`,
+    state.iconType &&
+      state.iconType !== 'content' &&
+      `accordion--${state.iconType}`,
     state.className,
   ].filter(Boolean);
 
@@ -141,7 +146,8 @@ const renderAccordion = (state) => {
     const itemElement = renderAccordionItem(
       item,
       isExpanded,
-      accordion._onToggle
+      accordion._onToggle,
+      state.iconType
     );
     accordion.appendChild(itemElement);
   });
@@ -170,6 +176,24 @@ const createAccordion = (props) => {
           );
         },
       },
+      iconType: {
+        required: false,
+        type: 'string',
+        validator: (iconType) => {
+          const validTypes = [
+            'content',
+            'arrow',
+            'chevron',
+            'plus-minus',
+            'caret',
+            'no-icon',
+          ];
+          return (
+            validTypes.includes(iconType) ||
+            `iconType must be one of: ${validTypes.join(', ')}`
+          );
+        },
+      },
     },
     'Accordion'
   );
@@ -180,6 +204,7 @@ const createAccordion = (props) => {
     expandedItems: props.defaultExpanded || [],
     multiple: props.multiple !== false, // Default to true
     variant: props.variant || '',
+    iconType: props.iconType || 'content', // Default to content-based icons
     className: props.className || '',
     ariaLabel: props.ariaLabel || '',
     onChange: props.onChange || null,
@@ -262,6 +287,27 @@ const createAccordion = (props) => {
     return [...state.expandedItems];
   };
 
+  accordionComponent.setIconType = function (iconType) {
+    const validTypes = [
+      'content',
+      'arrow',
+      'chevron',
+      'plus-minus',
+      'caret',
+      'no-icon',
+    ];
+    if (!validTypes.includes(iconType)) {
+      console.warn(
+        `Invalid iconType: ${iconType}. Valid types: ${validTypes.join(', ')}`
+      );
+      return this;
+    }
+
+    state.iconType = iconType;
+    this.update({ iconType });
+    return this;
+  };
+
   // Override update to handle special cases
   const originalUpdate = accordionComponent.update;
   accordionComponent.update = function (newProps) {
@@ -284,6 +330,16 @@ const createAccordion = (props) => {
     // Update onChange if provided
     if (newProps.onChange !== undefined) {
       state.onChange = newProps.onChange;
+    }
+
+    // Update iconType if provided
+    if (newProps.iconType !== undefined) {
+      state.iconType = newProps.iconType;
+    }
+
+    // Update variant if provided
+    if (newProps.variant !== undefined) {
+      state.variant = newProps.variant;
     }
 
     return originalUpdate.call(this, newProps);

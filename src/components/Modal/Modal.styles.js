@@ -103,29 +103,49 @@ export const modalStyles = css`
     line-height: 1.2;
   }
 
+  /* Close button - Fixed styling */
   .modal__close {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal, 0.2s ease);
+    color: var(--color-text, #333);
+    font-size: 0; /* Hide the &times; character */
+    flex-shrink: 0;
+  }
 
-    &:after,
-    &:before {
-      content: '';
-      height: 20px;
-      width: 20px;
-      border-top: 1px solid #000;
-      position: absolute;
-      top: 7px;
-      right: -8px;
-      transform: rotate(-45deg);
-    }
+  .modal__close:hover {
+    color: var(--color-text-light, #666);
+  }
 
-    &:before {
-      right: 6px;
-      transform: rotate(45deg);
-    }
+  .modal__close:focus {
+    outline: 2px solid var(--color-primary, #007bff);
+    outline-offset: 2px;
+  }
 
-    &:hover {
-      transform: opacity(0.3);
-    }
+  /* Create X using pseudo-elements */
+  .modal__close::before,
+  .modal__close::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background-color: currentColor;
+    transition: background-color var(--transition-normal, 0.2s ease);
+  }
+
+  .modal__close::before {
+    transform: rotate(45deg);
+  }
+
+  .modal__close::after {
+    transform: rotate(-45deg);
   }
 
   /* Content */
@@ -222,6 +242,16 @@ export const modalStyles = css`
     .modal__footer {
       padding: var(--space-3);
     }
+
+    .modal__close {
+      width: 28px;
+      height: 28px;
+    }
+
+    .modal__close::before,
+    .modal__close::after {
+      width: 14px;
+    }
   }
 
   /* Focus visible */
@@ -234,6 +264,17 @@ export const modalStyles = css`
     .modal__backdrop,
     .modal__dialog {
       transition: none;
+    }
+
+    .modal__close {
+      transition: none;
+    }
+  }
+
+  /* Dark theme support */
+  @media (prefers-color-scheme: dark) {
+    .modal__close:hover {
+      background-color: var(--color-bg-hover, rgba(255, 255, 255, 0.1));
     }
   }
 `;

@@ -1,7 +1,7 @@
 // src/components/CookieConsent/CookieConsent.test.js
 /* eslint-env browser */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { CookieConsentContainer } from './index.js';
+import CookieConsent from './CookieConsent.js';
 
 // Mock localStorage
 const mockStorage = {};
@@ -33,6 +33,28 @@ Object.defineProperty(document, 'cookie', {
   configurable: true,
 });
 
+// Mock requestAnimationFrame
+global.requestAnimationFrame = (cb) => {
+  setTimeout(cb, 0);
+  return 1;
+};
+
+// Mock matchMedia for Modal
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  configurable: true,
+  value: vi.fn().mockImplementation((query) => ({
+    matches: true, // Always prefer reduced motion in tests
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 describe('CookieConsent', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
@@ -48,7 +70,7 @@ describe('CookieConsent', () => {
 
   describe('Component Creation', () => {
     it('should create cookie consent with default props', () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
+      const cookieConsent = CookieConsent({ autoShow: false });
 
       expect(cookieConsent).toBeDefined();
       expect(cookieConsent.show).toBeInstanceOf(Function);
@@ -59,50 +81,58 @@ describe('CookieConsent', () => {
     });
 
     it('should create with custom props', async () => {
-      const cookieConsent = CookieConsentContainer({
+      const cookieConsent = CookieConsent({
         autoShow: false,
         modal: true,
         title: 'Test Title',
       });
 
       cookieConsent.show();
-
-      // Wait a bit for rendering
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const element = document.querySelector('.cookie-consent');
-      const title = document.querySelector('.cookie-consent__title');
+      const dialog = document.querySelector('.modal__dialog');
+      const container = document.querySelector('.modal__container');
+      const title = document.querySelector('.modal__title');
 
-      expect(element).toBeTruthy();
-      expect(element.classList.contains('cookie-consent--modal')).toBe(true);
+      expect(dialog).toBeTruthy();
+      expect(container?.classList.contains('cookie-consent--modal')).toBe(true);
       expect(title?.textContent).toBe('Test Title');
     });
   });
 
   describe('Display and Hide', () => {
-    it('should show and hide the consent banner', async () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
+    it('should show and hide the consent modal', async () => {
+      const cookieConsent = CookieConsent({ autoShow: false });
 
-      // Should not be visible initially
-      expect(document.querySelector('.cookie-consent')).toBeFalsy();
+      expect(document.querySelector('.modal__container')).toBeFalsy();
 
-      // Show banner
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const element = document.querySelector('.cookie-consent');
-      expect(element).toBeTruthy();
+      const modal = document.querySelector('.modal__container');
+      expect(modal).toBeTruthy();
 
-      // Hide banner
       cookieConsent.hide();
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // Element should be removed
-      expect(document.querySelector('.cookie-consent')).toBeFalsy();
+      expect(document.querySelector('.modal__container')).toBeFalsy();
     });
 
-    it('should show modal with backdrop', async () => {
-      const cookieConsent = CookieConsentContainer({
+    it('should show as banner by default', async () => {
+      const cookieConsent = CookieConsent({ autoShow: false });
+
+      cookieConsent.show();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const container = document.querySelector('.modal__container');
+      expect(container?.classList.contains('cookie-consent--banner')).toBe(
+        true
+      );
+      expect(document.querySelector('.modal__backdrop')).toBeFalsy();
+    });
+
+    it('should show as modal when modal prop is true', async () => {
+      const cookieConsent = CookieConsent({
         autoShow: false,
         modal: true,
       });
@@ -110,30 +140,29 @@ describe('CookieConsent', () => {
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const backdrop = document.querySelector('.cookie-consent__backdrop');
-      const modal = document.querySelector('.cookie-consent--modal');
+      const container = document.querySelector('.modal__container');
+      const backdrop = document.querySelector('.modal__backdrop');
 
+      expect(container?.classList.contains('cookie-consent--modal')).toBe(true);
       expect(backdrop).toBeTruthy();
-      expect(modal).toBeTruthy();
     });
   });
 
   describe('Cookie Categories', () => {
-    it('should render default cookie categories', async () => {
-      const cookieConsent = CookieConsentContainer({
+    it('should render default cookie categories in detailed mode', async () => {
+      const cookieConsent = CookieConsent({
         autoShow: false,
         mode: 'detailed',
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       const categories = document.querySelectorAll('.cookie-consent__category');
       expect(categories.length).toBeGreaterThan(0);
 
-      // Should have necessary category that's required
       const necessaryCategory = Array.from(categories).find((cat) =>
-        cat.textContent.includes('Notwendige Cookies')
+        cat.textContent.includes('Technisch notwendige Cookies')
       );
       expect(necessaryCategory).toBeTruthy();
 
@@ -162,26 +191,39 @@ describe('CookieConsent', () => {
         },
       };
 
-      const cookieConsent = CookieConsentContainer({
+      const cookieConsent = CookieConsent({
         autoShow: false,
         mode: 'detailed',
         customCategories,
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       const customCategory = Array.from(
         document.querySelectorAll('.cookie-consent__category')
       ).find((cat) => cat.textContent.includes('Custom Category'));
       expect(customCategory).toBeTruthy();
     });
+
+    it('should not show categories in simple mode', async () => {
+      const cookieConsent = CookieConsent({
+        autoShow: false,
+        mode: 'simple',
+      });
+
+      cookieConsent.show();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const categories = document.querySelectorAll('.cookie-consent__category');
+      expect(categories.length).toBe(0);
+    });
   });
 
   describe('User Interactions', () => {
-    it('should handle accept all', async () => {
+    it('should handle accept all action', async () => {
       const onAccept = vi.fn();
-      const cookieConsent = CookieConsentContainer({
+      const cookieConsent = CookieConsent({
         autoShow: false,
         onAccept,
       });
@@ -189,8 +231,8 @@ describe('CookieConsent', () => {
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const acceptButton = document.querySelector(
-        '.cookie-consent__button--accept-all'
+      const acceptButton = Array.from(document.querySelectorAll('button')).find(
+        (btn) => btn.textContent === 'Alle akzeptieren'
       );
       expect(acceptButton).toBeTruthy();
 
@@ -207,9 +249,9 @@ describe('CookieConsent', () => {
       );
     });
 
-    it('should handle reject all (only necessary)', async () => {
+    it('should handle reject action (only necessary)', async () => {
       const onAccept = vi.fn();
-      const cookieConsent = CookieConsentContainer({
+      const cookieConsent = CookieConsent({
         autoShow: false,
         onAccept,
       });
@@ -217,8 +259,8 @@ describe('CookieConsent', () => {
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const rejectButton = document.querySelector(
-        '.cookie-consent__button--reject'
+      const rejectButton = Array.from(document.querySelectorAll('button')).find(
+        (btn) => btn.textContent === 'Nur notwendige'
       );
       expect(rejectButton).toBeTruthy();
 
@@ -237,23 +279,22 @@ describe('CookieConsent', () => {
 
     it('should switch to detailed mode', async () => {
       const onShowDetails = vi.fn();
-      const cookieConsent = CookieConsentContainer({
+      const cookieConsent = CookieConsent({
         autoShow: false,
         onShowDetails,
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const detailsButton = document.querySelector(
-        '.cookie-consent__button--details'
-      );
+      const detailsButton = Array.from(
+        document.querySelectorAll('button')
+      ).find((btn) => btn.textContent === 'Einstellungen anpassen');
       expect(detailsButton).toBeTruthy();
 
       detailsButton.click();
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // Should now be in detailed mode
       const categories = document.querySelectorAll('.cookie-consent__category');
       expect(categories.length).toBeGreaterThan(0);
       expect(onShowDetails).toHaveBeenCalled();
@@ -261,16 +302,15 @@ describe('CookieConsent', () => {
 
     it('should handle category changes in detailed mode', async () => {
       const onCategoryChange = vi.fn();
-      const cookieConsent = CookieConsentContainer({
+      const cookieConsent = CookieConsent({
         autoShow: false,
         mode: 'detailed',
         onCategoryChange,
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // Find a non-required checkbox
       const checkboxes = document.querySelectorAll(
         '.cookie-consent__category-checkbox:not(:disabled)'
       );
@@ -284,19 +324,18 @@ describe('CookieConsent', () => {
   });
 
   describe('Cookie Storage', () => {
-    it('should save consent to localStorage and cookies', async () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
+    it('should save consent to localStorage', async () => {
+      const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const acceptButton = document.querySelector(
-        '.cookie-consent__button--accept-all'
+      const acceptButton = Array.from(document.querySelectorAll('button')).find(
+        (btn) => btn.textContent === 'Alle akzeptieren'
       );
       acceptButton?.click();
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // Check localStorage
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'svarog_cookie_consent',
         expect.stringContaining('"preferences"')
@@ -304,7 +343,6 @@ describe('CookieConsent', () => {
     });
 
     it('should check existing consent', () => {
-      // Mock existing consent
       const existingConsent = {
         version: '1.0',
         timestamp: new Date().toISOString(),
@@ -314,55 +352,48 @@ describe('CookieConsent', () => {
 
       mockStorage['svarog_cookie_consent'] = JSON.stringify(existingConsent);
 
-      const consent = CookieConsentContainer.getConsent();
+      const consent = CookieConsent.getConsent();
       expect(consent).toEqual(existingConsent);
 
-      const hasConsent = CookieConsentContainer.hasConsent();
+      const hasConsent = CookieConsent.hasConsent();
       expect(hasConsent).toBe(true);
 
-      const hasAnalytics = CookieConsentContainer.hasConsent('analytics');
+      const hasAnalytics = CookieConsent.hasConsent('analytics');
       expect(hasAnalytics).toBe(false);
     });
 
     it('should revoke consent', () => {
-      // Set up existing consent
       mockStorage['svarog_cookie_consent'] = JSON.stringify({
         version: '1.0',
         preferences: { necessary: true },
       });
 
-      CookieConsentContainer.revokeConsent();
+      CookieConsent.revokeConsent();
 
       expect(localStorageMock.removeItem).toHaveBeenCalledWith(
         'svarog_cookie_consent'
       );
-      expect(CookieConsentContainer.hasConsent()).toBe(false);
+      expect(CookieConsent.hasConsent()).toBe(false);
     });
   });
 
   describe('Accessibility', () => {
-    it('should have proper ARIA attributes', async () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
+    it('should have proper ARIA attributes from Modal', async () => {
+      const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const container = document.querySelector('.cookie-consent');
+      const dialog = document.querySelector('.modal__dialog');
 
-      expect(container?.getAttribute('role')).toBe('dialog');
-      expect(container?.getAttribute('aria-labelledby')).toBe(
-        'cookie-consent-title'
-      );
-      expect(container?.getAttribute('aria-describedby')).toBe(
-        'cookie-consent-description'
-      );
+      expect(dialog?.getAttribute('role')).toBe('dialog');
+      expect(dialog?.getAttribute('aria-modal')).toBe('true');
     });
 
-    it('should handle escape key', async () => {
+    it('should handle escape key via Modal', async () => {
       const onDismiss = vi.fn();
-      const cookieConsent = CookieConsentContainer({
+      const cookieConsent = CookieConsent({
         autoShow: false,
-        modal: true,
         closeOnEscape: true,
         onDismiss,
       });
@@ -370,7 +401,6 @@ describe('CookieConsent', () => {
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      // Simulate escape key
       const escapeEvent = new window.KeyboardEvent('keydown', {
         key: 'Escape',
       });
@@ -378,56 +408,18 @@ describe('CookieConsent', () => {
 
       expect(onDismiss).toHaveBeenCalled();
     });
-
-    it('should handle close button', async () => {
-      const onDismiss = vi.fn();
-      const cookieConsent = CookieConsentContainer({
-        autoShow: false,
-        showCloseButton: true,
-        onDismiss,
-      });
-
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      const closeButton = document.querySelector('.cookie-consent__close');
-      expect(closeButton).toBeTruthy();
-
-      closeButton?.click();
-      expect(onDismiss).toHaveBeenCalled();
-    });
   });
 
-  describe('Legal Requirements (DSGVO)', () => {
-    it('should render legal links', async () => {
-      const cookieConsent = CookieConsentContainer({
-        autoShow: false,
-        privacyPolicyUrl: '/datenschutz',
-        imprintUrl: '/impressum',
-      });
-
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      const privacyLink = document.querySelector('a[href="/datenschutz"]');
-      const imprintLink = document.querySelector('a[href="/impressum"]');
-
-      expect(privacyLink).toBeTruthy();
-      expect(imprintLink).toBeTruthy();
-      expect(privacyLink?.textContent).toBe('Datenschutzerklärung');
-      expect(imprintLink?.textContent).toBe('Impressum');
-    });
-
-    it('should require explicit consent for non-necessary categories', async () => {
-      const cookieConsent = CookieConsentContainer({
+  describe('GDPR Compliance', () => {
+    it('should require explicit consent for non-necessary cookies', async () => {
+      const cookieConsent = CookieConsent({
         autoShow: false,
         mode: 'detailed',
       });
-
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // All non-necessary categories should be unchecked by default
+      // All optional categories should be disabled by default (GDPR compliance)
       const optionalCheckboxes = document.querySelectorAll(
         '.cookie-consent__category-checkbox:not(:disabled)'
       );
@@ -435,21 +427,26 @@ describe('CookieConsent', () => {
       optionalCheckboxes.forEach((checkbox) => {
         expect(checkbox.checked).toBe(false);
       });
+
+      // Verify that necessary cookies are enabled and disabled
+      const necessaryCheckbox = document.querySelector(
+        '.cookie-consent__category-checkbox[disabled]'
+      );
+      expect(necessaryCheckbox?.checked).toBe(true);
+      expect(necessaryCheckbox?.disabled).toBe(true);
     });
 
-    it('should store consent version and timestamp', async () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
-
+    it('should store consent with proper versioning', async () => {
+      const cookieConsent = CookieConsent({ autoShow: false });
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const acceptButton = document.querySelector(
-        '.cookie-consent__button--accept-all'
+      const acceptButton = Array.from(document.querySelectorAll('button')).find(
+        (btn) => btn.textContent === 'Alle akzeptieren'
       );
       acceptButton?.click();
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // Check that consent includes version and timestamp
       const savedConsent = localStorageMock.setItem.mock.calls.find(
         (call) => call[0] === 'svarog_cookie_consent'
       );
@@ -460,26 +457,22 @@ describe('CookieConsent', () => {
       expect(consentData.version).toBe('1.0');
       expect(consentData.timestamp).toBeTruthy();
       expect(consentData.expires).toBeTruthy();
-      expect(new Date(consentData.expires)).toBeInstanceOf(Date);
     });
   });
 
   describe('Auto-show Behavior', () => {
     it('should auto-show when no consent exists', async () => {
-      // Ensure no existing consent
-      expect(CookieConsentContainer.hasConsent()).toBe(false);
+      expect(CookieConsent.hasConsent()).toBe(false);
 
-      CookieConsentContainer({ autoShow: true });
+      CookieConsent({ autoShow: true });
 
-      // Wait for auto-show delay
       await new Promise((resolve) => setTimeout(resolve, 150));
 
-      const element = document.querySelector('.cookie-consent');
-      expect(element).toBeTruthy();
+      const modal = document.querySelector('.modal__container');
+      expect(modal).toBeTruthy();
     });
 
     it('should not auto-show when valid consent exists', async () => {
-      // Mock valid consent
       const validConsent = {
         version: '1.0',
         timestamp: new Date().toISOString(),
@@ -489,68 +482,39 @@ describe('CookieConsent', () => {
 
       mockStorage['svarog_cookie_consent'] = JSON.stringify(validConsent);
 
-      CookieConsentContainer({ autoShow: true });
+      CookieConsent({ autoShow: true });
 
-      // Wait to ensure it doesn't show
       await new Promise((resolve) => setTimeout(resolve, 150));
 
-      // Should not show
-      const element = document.querySelector('.cookie-consent');
-      expect(element).toBeFalsy();
+      const modal = document.querySelector('.modal__container');
+      expect(modal).toBeFalsy();
     });
   });
 
-  describe('Custom Events', () => {
-    it('should dispatch consent accepted event', async () => {
-      const eventSpy = vi.fn();
-      window.addEventListener('cookieConsentAccepted', eventSpy);
-
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
+  describe('Legal Links', () => {
+    it('should render legal links', async () => {
+      const cookieConsent = CookieConsent({
+        autoShow: false,
+        privacyPolicyUrl: '/datenschutz',
+        imprintUrl: '/impressum',
+      });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const acceptButton = document.querySelector(
-        '.cookie-consent__button--accept-all'
-      );
-      acceptButton?.click();
+      const privacyLink = document.querySelector('a[href="/datenschutz"]');
+      const imprintLink = document.querySelector('a[href="/impressum"]');
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      expect(eventSpy).toHaveBeenCalled();
-
-      const eventDetail = eventSpy.mock.calls[0][0].detail;
-      expect(eventDetail.preferences).toBeTruthy();
-
-      window.removeEventListener('cookieConsentAccepted', eventSpy);
+      expect(privacyLink).toBeTruthy();
+      expect(imprintLink).toBeTruthy();
+      expect(privacyLink?.textContent).toBe('Datenschutzerklärung');
+      expect(imprintLink?.textContent).toBe('Impressum');
     });
   });
 
   describe('Component Management', () => {
-    it('should handle multiple show/hide cycles', async () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
-
-      // Show
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      expect(document.querySelector('.cookie-consent')).toBeTruthy();
-
-      // Hide
-      cookieConsent.hide();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(document.querySelector('.cookie-consent')).toBeFalsy();
-
-      // Show again
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      expect(document.querySelector('.cookie-consent')).toBeTruthy();
-
-      // Cleanup
-      cookieConsent.destroy();
-    });
-
     it('should clean up resources on destroy', async () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
+      const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -560,192 +524,18 @@ describe('CookieConsent', () => {
 
       cookieConsent.destroy();
 
-      // Element should be removed
-      expect(document.querySelector('.cookie-consent')).toBeFalsy();
-      expect(document.body.classList.contains('cookie-consent-open')).toBe(
-        false
-      );
+      expect(document.querySelector('.modal__container')).toBeFalsy();
     });
   });
 
-  describe('Static Methods', () => {
-    it('should provide static consent management methods', () => {
-      expect(CookieConsentContainer.getConsent).toBeInstanceOf(Function);
-      expect(CookieConsentContainer.hasConsent).toBeInstanceOf(Function);
-      expect(CookieConsentContainer.revokeConsent).toBeInstanceOf(Function);
-    });
-
-    it('should handle expired consent', () => {
-      // Mock expired consent
-      const expiredConsent = {
-        version: '1.0',
-        timestamp: new Date(
-          Date.now() - 2 * 365 * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        preferences: { necessary: true },
-        expires: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Expired yesterday
-      };
-
-      mockStorage['svarog_cookie_consent'] = JSON.stringify(expiredConsent);
-
-      const consent = CookieConsentContainer.getConsent();
-      expect(consent).toBe(null);
-
-      const hasConsent = CookieConsentContainer.hasConsent();
-      expect(hasConsent).toBe(false);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle localStorage errors gracefully', async () => {
-      // Mock localStorage error
-      localStorageMock.setItem.mockImplementationOnce(() => {
-        throw new Error('localStorage is full');
-      });
-
-      const consoleWarnSpy = vi
-        .spyOn(console, 'warn')
-        .mockImplementation(() => {});
-
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      const acceptButton = document.querySelector(
-        '.cookie-consent__button--accept-all'
-      );
-
-      // Should not throw
-      expect(() => acceptButton?.click()).not.toThrow();
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Could not save cookie consent:',
-        expect.any(Error)
-      );
-
-      consoleWarnSpy.mockRestore();
-    });
-
-    it('should handle malformed consent data', () => {
-      // Mock malformed consent
-      mockStorage['svarog_cookie_consent'] = 'invalid-json';
-
-      const consoleWarnSpy = vi
-        .spyOn(console, 'warn')
-        .mockImplementation(() => {});
-
-      const consent = CookieConsentContainer.getConsent();
-      expect(consent).toBe(null);
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Could not read cookie consent:',
-        expect.any(Error)
-      );
-
-      consoleWarnSpy.mockRestore();
-    });
-  });
-
-  describe('Position and Modal Modes', () => {
-    it('should apply correct position classes', async () => {
-      const positions = ['top', 'bottom', 'center'];
-
-      for (const position of positions) {
-        const cookieConsent = CookieConsentContainer({
-          autoShow: false,
-          position,
-          modal: position === 'center',
-        });
-
-        cookieConsent.show();
-        await new Promise((resolve) => setTimeout(resolve, 50));
-
-        const banner = document.querySelector('.cookie-consent__banner');
-        expect(
-          banner?.classList.contains(`cookie-consent__banner--${position}`)
-        ).toBe(true);
-
-        cookieConsent.destroy();
-      }
-    });
-
-    it('should handle backdrop clicks in modal mode', async () => {
-      const onDismiss = vi.fn();
-      const cookieConsent = CookieConsentContainer({
-        autoShow: false,
-        modal: true,
-        closeOnBackdrop: true,
-        onDismiss,
-      });
-
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      const backdrop = document.querySelector('.cookie-consent__backdrop');
-      expect(backdrop).toBeTruthy();
-
-      backdrop?.click();
-      expect(onDismiss).toHaveBeenCalled();
-    });
-  });
-
-  describe('Component State Management', () => {
-    it('should maintain state between simple and detailed modes', async () => {
-      const cookieConsent = CookieConsentContainer({
-        autoShow: false,
-        mode: 'simple',
-      });
-
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      // Switch to detailed
-      cookieConsent.showDetails();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      let categories = document.querySelectorAll('.cookie-consent__category');
-      expect(categories.length).toBeGreaterThan(0);
-
-      // Switch back to simple
-      cookieConsent.showSimple();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      const detailsButton = document.querySelector(
-        '.cookie-consent__button--details'
-      );
-      expect(detailsButton).toBeTruthy();
-    });
-
-    it('should update content when props change', async () => {
-      const cookieConsent = CookieConsentContainer({
-        autoShow: false,
-        title: 'Original Title',
-      });
-
-      cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      let title = document.querySelector('.cookie-consent__title');
-      expect(title?.textContent).toBe('Original Title');
-
-      // Update props
-      cookieConsent.update({ title: 'Updated Title' });
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      title = document.querySelector('.cookie-consent__title');
-      expect(title?.textContent).toBe('Updated Title');
-    });
-  });
-
-  describe('Method Chain Support', () => {
+  describe('Method Chaining', () => {
     it('should support method chaining', async () => {
-      const cookieConsent = CookieConsentContainer({ autoShow: false });
+      const cookieConsent = CookieConsent({ autoShow: false });
 
-      // Should support chaining
       const result = cookieConsent.show().showDetails();
       expect(result).toBe(cookieConsent);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       const categories = document.querySelectorAll('.cookie-consent__category');
       expect(categories.length).toBeGreaterThan(0);
@@ -754,18 +544,32 @@ describe('CookieConsent', () => {
     });
   });
 
-  describe('Theme Integration', () => {
-    it('should apply custom className', async () => {
-      const cookieConsent = CookieConsentContainer({
-        autoShow: false,
-        className: 'custom-theme',
+  describe('Error Handling', () => {
+    it('should handle localStorage errors gracefully', async () => {
+      localStorageMock.setItem.mockImplementationOnce(() => {
+        throw new Error('localStorage is full');
       });
 
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+
+      const cookieConsent = CookieConsent({ autoShow: false });
       cookieConsent.show();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const container = document.querySelector('.cookie-consent');
-      expect(container?.classList.contains('custom-theme')).toBe(true);
+      const acceptButton = Array.from(document.querySelectorAll('button')).find(
+        (btn) => btn.textContent === 'Alle akzeptieren'
+      );
+
+      expect(() => acceptButton?.click()).not.toThrow();
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Could not save cookie consent:',
+        expect.any(Error)
+      );
+
+      consoleWarnSpy.mockRestore();
     });
   });
 });

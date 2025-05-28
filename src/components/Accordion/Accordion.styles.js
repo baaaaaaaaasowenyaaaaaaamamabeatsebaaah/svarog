@@ -6,7 +6,7 @@ export const accordionStyles = css`
     /* Base styles */
     width: 100%;
     border: var(--accordion-border, 1px solid var(--color-border-light));
-    border-radius: var(--accordion-radius, var(--border-radius-md));
+    border-radius: var(--accordion-radius, 0);
     background: var(--accordion-bg, var(--color-bg));
     overflow: hidden;
   }
@@ -71,7 +71,7 @@ export const accordionStyles = css`
     text-align: inherit;
   }
 
-  /* Icon Container */
+  /* Icon Container - Enhanced for flexible designs */
   .accordion__icon {
     flex-shrink: 0;
     width: var(--accordion-icon-size, 1.5rem);
@@ -80,37 +80,120 @@ export const accordionStyles = css`
     align-items: center;
     justify-content: center;
     position: relative;
+    color: var(--accordion-icon-color, var(--color-text-light));
   }
 
-  /* Default icon using ::before (for backward compatibility) */
+  /* Content-based icons (default - backward compatible) */
   .accordion__icon::before {
     content: var(--accordion-icon-content, '▼');
     font-size: var(--accordion-icon-font-size, 0.75rem);
-    color: var(--accordion-icon-color, var(--color-text-light));
+    color: inherit;
     transition: var(--accordion-icon-transition, transform 0.3s ease);
     display: var(--accordion-icon-display, block);
+    transform-origin: center;
   }
 
   .accordion__item--expanded .accordion__icon::before {
     transform: var(--accordion-icon-expanded-transform, rotate(180deg));
   }
 
-  /* Arrow-based icon (new flexible approach) */
+  /* CSS Arrow Design (exact match with Select component) */
   .accordion__icon-arrow {
     position: absolute;
-    width: var(--accordion-arrow-width, 8px);
-    height: var(--accordion-arrow-height, 8px);
+    top: 50%;
+    right: var(--accordion-arrow-right, 0);
+    left: auto;
+    width: var(--accordion-arrow-size, 12px);
+    height: var(--accordion-arrow-size, 12px);
     border-right: var(--accordion-arrow-border, 2px solid currentColor);
     border-bottom: var(--accordion-arrow-border, 2px solid currentColor);
-    transform: var(--accordion-arrow-transform, rotate(45deg));
+    transform: var(--accordion-arrow-transform, translateY(-75%) rotate(45deg));
     transform-origin: center;
-    transition: var(--accordion-arrow-transition, transform 0.3s ease);
-    color: var(--accordion-icon-color, var(--color-text-light));
+    transition: var(--accordion-arrow-transition, transform 0.2s ease);
     display: var(--accordion-arrow-display, none);
+    pointer-events: none;
   }
 
   .accordion__item--expanded .accordion__icon-arrow {
-    transform: var(--accordion-arrow-expanded-transform, rotate(-135deg));
+    transform: var(
+      --accordion-arrow-expanded-transform,
+      translateY(-25%) rotate(-135deg)
+    );
+  }
+
+  /* Icon type variants for easy switching */
+
+  /* Arrow variant - shows CSS arrow, hides content icon */
+  .accordion--arrow .accordion__icon::before {
+    display: none;
+  }
+
+  .accordion--arrow .accordion__icon-arrow {
+    display: block;
+  }
+
+  /* Content variant - explicit content icon (default behavior) */
+  .accordion--content .accordion__icon::before {
+    display: block;
+  }
+
+  .accordion--content .accordion__icon-arrow {
+    display: none;
+  }
+
+  /* None variant - no icon */
+  .accordion--no-icon .accordion__icon {
+    display: none;
+  }
+
+  /* Chevron variant - right-pointing chevron that rotates down */
+  .accordion--chevron .accordion__icon::before {
+    content: var(--accordion-chevron-content, '›');
+    font-size: var(--accordion-chevron-font-size, 1rem);
+    display: block;
+    transform: var(--accordion-chevron-transform, rotate(0deg));
+  }
+
+  .accordion--chevron .accordion__icon-arrow {
+    display: none;
+  }
+
+  .accordion--chevron .accordion__item--expanded .accordion__icon::before {
+    transform: var(--accordion-chevron-expanded-transform, rotate(90deg));
+  }
+
+  /* Plus/Minus variant */
+  .accordion--plus-minus .accordion__icon::before {
+    content: var(--accordion-plus-content, '+');
+    font-size: var(--accordion-plus-font-size, 1.25rem);
+    font-weight: var(--accordion-plus-font-weight, 300);
+    display: block;
+    transform: none;
+  }
+
+  .accordion--plus-minus .accordion__icon-arrow {
+    display: none;
+  }
+
+  .accordion--plus-minus .accordion__item--expanded .accordion__icon::before {
+    content: var(--accordion-minus-content, '−');
+    transform: none;
+  }
+
+  /* Caret variant - small triangular caret */
+  .accordion--caret .accordion__icon::before {
+    content: var(--accordion-caret-content, '▸');
+    font-size: var(--accordion-caret-font-size, 0.875rem);
+    display: block;
+    transform: var(--accordion-caret-transform, rotate(0deg));
+  }
+
+  .accordion--caret .accordion__icon-arrow {
+    display: none;
+  }
+
+  .accordion--caret .accordion__item--expanded .accordion__icon::before {
+    transform: var(--accordion-caret-expanded-transform, rotate(90deg));
   }
 
   /* Panel/Content */
@@ -134,7 +217,7 @@ export const accordionStyles = css`
     );
   }
 
-  /* Variants */
+  /* Layout Variants */
 
   /* Bordered variant */
   .accordion--bordered {
@@ -146,7 +229,7 @@ export const accordionStyles = css`
       --accordion-bordered-item-border,
       1px solid var(--color-border-light)
     );
-    border-radius: var(--accordion-bordered-radius, var(--border-radius-md));
+    border-radius: var(--accordion-bordered-radius, 0);
     margin-bottom: var(--accordion-bordered-gap, var(--space-2));
   }
 
@@ -196,6 +279,8 @@ export const accordionStyles = css`
   /* Animation optimization */
   @media (prefers-reduced-motion: reduce) {
     .accordion__icon,
+    .accordion__icon::before,
+    .accordion__icon-arrow,
     .accordion__panel,
     .accordion__header,
     .accordion__item {
@@ -212,6 +297,11 @@ export const accordionStyles = css`
 
     .accordion__content {
       padding: var(--accordion-content-padding-mobile, var(--space-3));
+    }
+
+    .accordion__icon {
+      width: var(--accordion-icon-size-mobile, 1.25rem);
+      height: var(--accordion-icon-size-mobile, 1.25rem);
     }
   }
 `;

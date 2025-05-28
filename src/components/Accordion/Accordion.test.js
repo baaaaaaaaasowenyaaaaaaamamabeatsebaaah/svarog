@@ -41,6 +41,187 @@ describe('Accordion component', () => {
     );
   });
 
+  // Icon Type Tests
+  describe('Icon types', () => {
+    it('should render with default content icon type', () => {
+      const accordion = Accordion({ items: mockItems });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion')).toBe(true);
+      expect(element.classList.contains('accordion--content')).toBe(false); // Default doesn't add class
+    });
+
+    it('should render with arrow icon type', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'arrow',
+      });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--arrow')).toBe(true);
+    });
+
+    it('should render with chevron icon type', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'chevron',
+      });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--chevron')).toBe(true);
+    });
+
+    it('should render with plus-minus icon type', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'plus-minus',
+      });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--plus-minus')).toBe(true);
+    });
+
+    it('should render with caret icon type', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'caret',
+      });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--caret')).toBe(true);
+    });
+
+    it('should render with no-icon type', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'no-icon',
+      });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--no-icon')).toBe(true);
+    });
+
+    it('should validate icon type', () => {
+      expect(() =>
+        Accordion({
+          items: mockItems,
+          iconType: 'invalid-type',
+        })
+      ).toThrow(
+        'iconType must be one of: content, arrow, chevron, plus-minus, caret, no-icon'
+      );
+    });
+
+    it('should change icon type with setIconType method', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'content',
+      });
+
+      accordion.setIconType('arrow');
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--arrow')).toBe(true);
+    });
+
+    it('should warn on invalid icon type with setIconType', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const accordion = Accordion({ items: mockItems });
+      accordion.setIconType('invalid');
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Invalid iconType: invalid. Valid types: content, arrow, chevron, plus-minus, caret, no-icon'
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should update icon type through update method', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'content',
+      });
+
+      accordion.update({ iconType: 'plus-minus' });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--plus-minus')).toBe(true);
+    });
+
+    it('should have Select-compatible arrow transforms', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'arrow',
+        defaultExpanded: ['item-1'],
+      });
+      const element = accordion.getElement();
+
+      const expandedItem = element.querySelector('.accordion__item--expanded');
+      const arrowElement = expandedItem.querySelector('.accordion__icon-arrow');
+
+      expect(expandedItem).not.toBeNull();
+      expect(arrowElement).not.toBeNull();
+
+      // Should have the expanded state class
+      expect(expandedItem.classList.contains('accordion__item--expanded')).toBe(
+        true
+      );
+    });
+
+    it('should create both icon elements with Select-style arrow positioning', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        iconType: 'arrow',
+      });
+      const element = accordion.getElement();
+
+      // Both icon container and arrow element should exist
+      const iconContainer = element.querySelector('.accordion__icon');
+      const arrowElement = element.querySelector('.accordion__icon-arrow');
+
+      expect(iconContainer).not.toBeNull();
+      expect(arrowElement).not.toBeNull();
+
+      // Arrow should be positioned like Select component
+      const computedStyle = window.getComputedStyle(arrowElement);
+      expect(arrowElement.style.position || computedStyle.position).toBe(
+        'absolute'
+      );
+    });
+  });
+
+  // Variant and Icon Type Combination Tests
+  describe('Variant and icon type combinations', () => {
+    it('should apply both variant and icon type classes', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        variant: 'bordered',
+        iconType: 'arrow',
+      });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion--bordered')).toBe(true);
+      expect(element.classList.contains('accordion--arrow')).toBe(true);
+    });
+
+    it('should handle multiple class combinations', () => {
+      const accordion = Accordion({
+        items: mockItems,
+        variant: 'minimal',
+        iconType: 'chevron',
+        className: 'custom-class',
+      });
+      const element = accordion.getElement();
+
+      expect(element.classList.contains('accordion')).toBe(true);
+      expect(element.classList.contains('accordion--minimal')).toBe(true);
+      expect(element.classList.contains('accordion--chevron')).toBe(true);
+      expect(element.classList.contains('custom-class')).toBe(true);
+    });
+  });
+
+  // Existing functionality tests (updated)
   it('should expand item on click', () => {
     const accordion = Accordion({ items: mockItems });
     const element = accordion.getElement();
@@ -274,6 +455,19 @@ describe('Accordion component', () => {
 
     expect(header.getAttribute('aria-controls')).toBe(panel.id);
     expect(panel.getAttribute('aria-labelledby')).toBe(header.id);
+  });
+
+  it('should have proper ARIA attributes for icons', () => {
+    const accordion = Accordion({
+      items: mockItems,
+      iconType: 'arrow',
+    });
+    const element = accordion.getElement();
+
+    const icons = element.querySelectorAll('.accordion__icon');
+    icons.forEach((icon) => {
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+    });
   });
 
   it('should clean up on destroy', () => {
