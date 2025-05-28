@@ -1,36 +1,21 @@
 // vitest.setup.js
-// Global setup for vitest tests
+import { expect } from 'vitest';
 
-import { vi, beforeEach, expect } from 'vitest';
+// Store the original expect methods BEFORE any global assignments
+const originalObjectContaining = expect.objectContaining;
+const originalArrayContaining = expect.arrayContaining;
+const originalStringContaining = expect.stringContaining;
+const originalAny = expect.any;
 
-// Store the original vitest expect to prevent infinite recursion
-const originalExpect = expect;
+// Now set up global expect without causing recursion
+global.expect = expect;
 
-// Match some Jest globals with Vitest equivalents
-global.expect.stringContaining = (value) =>
-  expect.stringMatching(
-    new RegExp(String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-  );
+// Assign the original methods directly to avoid recursion
+global.expect.objectContaining = originalObjectContaining;
+global.expect.arrayContaining = originalArrayContaining;
+global.expect.stringContaining = originalStringContaining;
+global.expect.any = originalAny;
 
-// FIXED: Prevent infinite recursion by using original expect reference
-// The problem was that global.expect.objectContaining was calling itself
-global.expect.objectContaining = (expected) =>
-  originalExpect.objectContaining(expected);
-global.expect.arrayContaining = (expected) =>
-  originalExpect.arrayContaining(expected);
-
-// Add fetch mock helper functions to match jest functionality
-global.mockFetch = (data, status = 200, ok = true) => {
-  global.fetch = vi.fn();
-  global.fetch.mockResolvedValue({
-    ok,
-    status,
-    json: () => Promise.resolve(data),
-  });
-  return global.fetch;
-};
-
-// Add reset for each test
-beforeEach(() => {
-  vi.resetAllMocks();
-});
+// Add other methods if needed
+global.expect.anything = expect.anything;
+global.expect.stringMatching = expect.stringMatching;

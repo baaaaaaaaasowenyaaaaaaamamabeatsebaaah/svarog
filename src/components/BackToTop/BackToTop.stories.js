@@ -132,6 +132,211 @@ export const Default = () => {
   return container;
 };
 
+// Presentational stories for static documentation
+export const PresentationalDefault = () => {
+  cleanupStory();
+
+  const container = createScrollableContainer('300px');
+  const content = createElement('div', {
+    style: {
+      height: '600px',
+      padding: '2rem',
+      background: 'linear-gradient(to bottom, #f8f9fa, #e9ecef)',
+    },
+    children: [
+      createElement('h3', {
+        text: 'Default BackToTop Button',
+        style: { margin: '0 0 1rem 0' },
+      }),
+      createElement('p', {
+        text: 'A simple back-to-top button with default styling. Scroll down to see it appear.',
+        style: { margin: '0 0 2rem 0' },
+      }),
+      createElement('div', {
+        style: { marginTop: '200px', textAlign: 'center' },
+        children: [
+          createElement('p', {
+            text: 'Scroll down more...',
+            style: { margin: '0' },
+          }),
+        ],
+      }),
+      createElement('div', {
+        style: { marginTop: '200px', textAlign: 'center' },
+        children: [
+          createElement('p', {
+            text: 'The button should be visible now!',
+            style: { margin: '0', fontWeight: 'bold' },
+          }),
+        ],
+      }),
+    ],
+  });
+
+  container.appendChild(content);
+
+  const backToTop = registerComponent(
+    BackToTop({
+      scrollTarget: container,
+      showAfter: 50,
+    })
+  );
+
+  container.appendChild(backToTop.getElement());
+  return container;
+};
+
+export const PresentationalVariants = () => {
+  cleanupStory();
+
+  const mainContainer = createElement('div', {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+      gap: '1.5rem',
+      padding: '1rem',
+    },
+  });
+
+  const variants = [
+    { icon: '↑', label: 'Default Arrow', color: '#007bff' },
+    { icon: '⬆️', label: 'Emoji Arrow', color: '#28a745' },
+    { icon: '🔝', label: 'TOP Emoji', color: '#ffc107' },
+    { icon: '🚀', label: 'Rocket', color: '#dc3545' },
+    { icon: '⤴️', label: 'Curved Arrow', color: '#6f42c1' },
+    { icon: '☝️', label: 'Finger Point', color: '#fd7e14' },
+  ];
+
+  variants.forEach(({ icon, label, color }) => {
+    const container = createElement('div', {
+      style: {
+        border: `2px solid ${color}`,
+        borderRadius: '8px',
+        overflow: 'hidden',
+      },
+    });
+
+    const header = createElement('div', {
+      style: {
+        padding: '0.75rem',
+        background: color,
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: '0.875rem',
+      },
+      children: [createElement('span', { text: label })],
+    });
+
+    const scrollArea = createElement('div', {
+      style: {
+        height: '200px',
+        overflow: 'auto',
+        position: 'relative',
+      },
+    });
+
+    const content = createElement('div', {
+      style: {
+        height: '400px',
+        padding: '1rem',
+        background: 'linear-gradient(to bottom, #f8f9fa, #e9ecef)',
+      },
+      children: [
+        createElement('p', {
+          text: `Scroll to see the ${label} button`,
+          style: { margin: '0 0 1rem 0', fontSize: '0.875rem' },
+        }),
+        createElement('div', {
+          style: { marginTop: '150px', textAlign: 'center' },
+          children: [
+            createElement('p', {
+              text: 'Button visible!',
+              style: { margin: '0', fontSize: '0.75rem' },
+            }),
+          ],
+        }),
+      ],
+    });
+
+    scrollArea.appendChild(content);
+
+    const backToTop = registerComponent(
+      BackToTop({
+        scrollTarget: scrollArea,
+        showAfter: 30,
+        icon,
+      })
+    );
+
+    scrollArea.appendChild(backToTop.getElement());
+
+    container.appendChild(header);
+    container.appendChild(scrollArea);
+    mainContainer.appendChild(container);
+  });
+
+  return mainContainer;
+};
+
+export const PresentationalDisabled = () => {
+  cleanupStory();
+
+  const container = createScrollableContainer('300px');
+  const content = createElement('div', {
+    style: {
+      height: '600px',
+      padding: '2rem',
+      background: 'linear-gradient(to bottom, #f8f9fa, #e9ecef)',
+    },
+    children: [
+      createElement('h3', {
+        text: 'Disabled BackToTop Button',
+        style: { margin: '0 0 1rem 0' },
+      }),
+      createElement('p', {
+        text: 'This button is disabled and will not respond to clicks. Notice the reduced opacity.',
+        style: { margin: '0 0 2rem 0' },
+      }),
+      createElement('div', {
+        style: {
+          marginTop: '200px',
+          textAlign: 'center',
+          padding: '1rem',
+          background: 'rgba(220, 53, 69, 0.1)',
+          borderRadius: '8px',
+          border: '1px solid rgba(220, 53, 69, 0.2)',
+        },
+        children: [
+          createElement('p', {
+            text: '⚠️ Button is disabled',
+            style: { margin: '0', color: '#dc3545', fontWeight: 'bold' },
+          }),
+          createElement('p', {
+            text: 'Clicking will have no effect',
+            style: { margin: '0.5rem 0 0 0', fontSize: '0.875rem' },
+          }),
+        ],
+      }),
+    ],
+  });
+
+  container.appendChild(content);
+
+  const backToTop = registerComponent(
+    BackToTop({
+      scrollTarget: container,
+      showAfter: 50,
+      disabled: true,
+    })
+  );
+
+  // Force show the disabled button for demonstration
+  setTimeout(() => backToTop.show(), 100);
+
+  container.appendChild(backToTop.getElement());
+  return container;
+};
+
 // Container scrolling story - demonstrates scrolling within a specific container
 export const ContainerScrolling = () => {
   cleanupStory();
