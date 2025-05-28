@@ -1097,6 +1097,139 @@ export const getComponents = () => {
       ],
     },
 
+    {
+      name: 'Textarea',
+      category: 'Form',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithValue',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithValue
+            ),
+        },
+        {
+          name: 'Required',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Required
+            ),
+        },
+        {
+          name: 'Disabled',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Disabled
+            ),
+        },
+        {
+          name: 'Readonly',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Readonly
+            ),
+        },
+        {
+          name: 'WithRows',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithRows
+            ),
+        },
+        {
+          name: 'WithCharacterCount',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithCharacterCount
+            ),
+        },
+        {
+          name: 'WithMaxLength',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithMaxLength
+            ),
+        },
+        {
+          name: 'AutoResize',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.AutoResize
+            ),
+        },
+        {
+          name: 'NoResize',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.NoResize
+            ),
+        },
+        {
+          name: 'WithValidation',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithValidation
+            ),
+        },
+        {
+          name: 'Loading',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Loading
+            ),
+        },
+        {
+          name: 'ValidState',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.ValidState
+            ),
+        },
+        {
+          name: 'InvalidState',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.InvalidState
+            ),
+        },
+        {
+          name: 'WithCustomStyling',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithCustomStyling
+            ),
+        },
+        {
+          name: 'AllFeatures',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.AllFeatures
+            ),
+        },
+        {
+          name: 'FormIntegration',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.FormIntegration
+            ),
+        },
+        {
+          name: 'DynamicUpdates',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.DynamicUpdates
+            ),
+        },
+      ],
+    },
+
     // =========================================
     // PAGE STRUCTURE COMPONENTS
     // =========================================
@@ -2028,7 +2161,19 @@ export const getComponents = () => {
         },
       ],
     },
-  ];
+  
+  {
+    name: 'Modal',
+    stories: [
+      {
+        name: 'Default',
+        module: () =>
+          import('../components/Modal/Modal.stories.js').then(
+            (m) => m.Default
+          ),
+      },
+    ],
+  },];
 
   return components;
 };

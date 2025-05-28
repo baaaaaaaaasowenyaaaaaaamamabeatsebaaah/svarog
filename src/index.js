@@ -52,6 +52,7 @@ import UsedPhonePriceForm from './components/UsedPhonePriceForm/index.js';
 import PhoneRepairFormContainer from './components/PhoneRepairForm/PhoneRepairFormContainer.js';
 import UsedPhonePriceFormContainer from './components/UsedPhonePriceForm/UsedPhonePriceFormContainer.js';
 import ConditionSelector from './components/ConditionSelector/index.js';
+import Textarea from './components/Textarea/index.js';
 
 // ---- BLOG/CONTENT COMPONENTS ----
 import BlogCard from './components/BlogCard/index.js';
@@ -123,6 +124,7 @@ export {
   UsedPhonePriceForm,
   UsedPhonePriceFormContainer,
   ConditionSelector,
+  Textarea,
 
   // Content Components
   BlogCard,
@@ -158,6 +160,7 @@ export const Layout = {
   CollapsibleHeader,
   Page,
 };
+import Modal from './components/Modal/Modal.js';
 
 export const Nav = {
   Navigation,
@@ -195,6 +198,7 @@ export const Forms = {
   UsedPhonePriceForm,
   UsedPhonePriceFormContainer,
   ConditionSelector,
+  Textarea,
 };
 
 export const Content = {
@@ -215,6 +219,7 @@ export const Utils = {
 // ===============================================
 
 const Svarog = {
+  Modal,
   // Categories
   Layout,
   Nav,
@@ -236,6 +241,7 @@ const Svarog = {
   Navigation,
   Link,
   Tabs,
+  Textarea,
   Pagination,
   StickyContactIcons,
   Button,
