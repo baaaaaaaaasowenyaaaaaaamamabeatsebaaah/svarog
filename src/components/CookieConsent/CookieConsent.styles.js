@@ -94,30 +94,21 @@ export const cookieConsentStyles = css`
     margin-bottom: var(--space-2, 8px);
   }
 
-  .cookie-consent__category-label {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-3, 12px);
-    cursor: pointer;
+  /* Checkbox integration - use full Checkbox component */
+  .cookie-consent__category .checkbox-container {
+    margin-bottom: 0; /* Override default Checkbox margin */
+  }
+
+  .cookie-consent__category .checkbox-wrapper {
+    align-items: flex-start; /* Align to top for better layout */
+  }
+
+  .cookie-consent__category .checkbox-label {
     font-weight: var(--font-weight-medium, 500);
+    line-height: 1.4;
   }
 
-  .cookie-consent__category-checkbox {
-    margin: 0;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .cookie-consent__category-checkbox:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .cookie-consent__category-name {
-    flex: 1;
-    color: var(--color-text, #1a202c);
-  }
-
+  /* Required badge styling */
   .cookie-consent__required-badge {
     background: var(--color-info, #00bcd4);
     color: white;
@@ -125,6 +116,7 @@ export const cookieConsentStyles = css`
     border-radius: var(--border-radius-sm, 2px);
     font-size: var(--font-size-xs, 12px);
     font-weight: var(--font-weight-medium, 500);
+    margin-left: var(--space-2, 8px);
     flex-shrink: 0;
   }
 
@@ -132,7 +124,9 @@ export const cookieConsentStyles = css`
     color: var(--color-text-light, #4a5568);
     font-size: var(--font-size-sm, 14px);
     line-height: 1.4;
-    margin-left: calc(var(--space-3, 12px) + 16px + var(--space-3, 12px));
+    margin-left: calc(
+      var(--checkbox-size, 20px) + var(--checkbox-indicator-margin, 8px)
+    );
   }
 
   /* Legal links */

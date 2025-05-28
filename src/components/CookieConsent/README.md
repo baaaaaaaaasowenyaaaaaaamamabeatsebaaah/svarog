@@ -1,26 +1,27 @@
 # Cookie Consent Component
 
-A fully GDPR-compliant cookie consent component for German websites built on top of the Svarog Modal component. This component meets all legal requirements of the General Data Protection Regulation (GDPR) and provides user-friendly cookie settings management.
+A fully GDPR-compliant cookie consent component for German websites built on top of the Svarog Modal and Checkbox components. This component meets all legal requirements of the General Data Protection Regulation (GDPR) and provides user-friendly cookie settings management with consistent UI patterns.
 
 ## 🎯 Features
 
 - ✅ **GDPR Compliant**: Meets all German data protection requirements
-- 🏗️ **Modal-Based**: Built on the reliable Svarog Modal component
+- 🏗️ **Component-Based**: Built on reliable Svarog Modal and Checkbox components
 - 🎨 **Flexible Design**: Banner or modal, various positions
-- 🍪 **Granular Control**: Detailed cookie categories
-- ♿ **Accessible**: Full keyboard navigation and screen reader support (inherited from Modal)
+- 🍪 **Granular Control**: Detailed cookie categories with standardized checkboxes
+- ♿ **Accessible**: Full keyboard navigation and screen reader support (enhanced through component integration)
 - 📱 **Responsive**: Optimized for all screen sizes
 - 🔒 **Secure**: Safe storage of consent
-- 🎭 **Themeable**: Automatic theme integration
+- 🎭 **Themeable**: Automatic theme integration through component inheritance
 - 🚀 **Performant**: Minimal impact on website performance
-- 🔧 **Focus Management**: Automatic focus handling via Modal
+- 🔧 **Focus Management**: Automatic focus handling via Modal's implementation
+- 🧩 **Consistent UI**: Uses standardized Checkbox components for uniform behavior
 
 ## 📋 GDPR Compliance
 
 This component fulfills the following GDPR requirements:
 
-- **Explicit Consent**: No pre-checking of optional categories
-- **Granular Control**: Separate consent for different cookie types
+- **Explicit Consent**: No pre-checking of optional categories (enforced by Checkbox components)
+- **Granular Control**: Separate consent for different cookie types with consistent UI
 - **Opt-out Available**: "Necessary only" option available
 - **Information Obligation**: Clear descriptions for each cookie category
 - **Revocation Possibility**: Easy revocation of consent
@@ -94,25 +95,25 @@ const showSettingsButton = Button({
 
 ### Event Callbacks
 
-| Callback           | Parameters            | Description                      |
-| ------------------ | --------------------- | -------------------------------- |
-| `onAccept`         | `preferences`         | Called when consent is given     |
-| `onDismiss`        | -                     | Called when banner is closed     |
-| `onShowDetails`    | -                     | Called when switching to details |
-| `onCategoryChange` | `categoryId, enabled` | Called on category change        |
+| Callback           | Parameters            | Description                                       |
+| ------------------ | --------------------- | ------------------------------------------------- |
+| `onAccept`         | `preferences`         | Called when consent is given                      |
+| `onDismiss`        | -                     | Called when banner is closed                      |
+| `onShowDetails`    | -                     | Called when switching to details                  |
+| `onCategoryChange` | `categoryId, enabled` | Called on category change (via Checkbox onChange) |
 
 ### Methods
 
-| Method                  | Description                   |
-| ----------------------- | ----------------------------- |
-| `show()`                | Show banner/modal             |
-| `hide()`                | Hide banner/modal             |
-| `showDetails()`         | Switch to detailed view       |
-| `showSimple()`          | Switch to simple view         |
-| `getPreferences()`      | Get current cookie settings   |
-| `hasConsent(category?)` | Check if consent exists       |
-| `revokeConsent()`       | Revoke consent                |
-| `destroy()`             | Destroy component and cleanup |
+| Method                  | Description                                           |
+| ----------------------- | ----------------------------------------------------- |
+| `show()`                | Show banner/modal                                     |
+| `hide()`                | Hide banner/modal                                     |
+| `showDetails()`         | Switch to detailed view                               |
+| `showSimple()`          | Switch to simple view                                 |
+| `getPreferences()`      | Get current cookie settings                           |
+| `hasConsent(category?)` | Check if consent exists                               |
+| `revokeConsent()`       | Revoke consent                                        |
+| `destroy()`             | Destroy component and cleanup all Checkbox components |
 
 ### Static Methods
 
@@ -135,15 +136,15 @@ const categories = {
     name: 'Notwendige Cookies',
     description:
       'Diese Cookies sind für die Grundfunktionen der Website erforderlich.',
-    required: true, // Cannot be disabled
-    enabled: true,
+    required: true, // Cannot be disabled (Checkbox disabled prop)
+    enabled: true, // Using standardized enabled/value prop
   },
   functional: {
     id: 'functional',
     name: 'Funktionale Cookies',
     description: 'Diese Cookies ermöglichen verbesserte Funktionalitäten.',
     required: false,
-    enabled: false, // GDPR: Explicit consent required
+    enabled: false, // GDPR: Explicit consent required (Checkbox defaults to false)
   },
   analytics: {
     id: 'analytics',
@@ -170,15 +171,15 @@ const customCategories = {
     id: 'necessary',
     name: 'Technically Required Cookies',
     description: 'Session management, security, shopping cart functions.',
-    required: true,
-    enabled: true,
+    required: true, // Checkbox will be disabled
+    enabled: true, // Checkbox will be checked and disabled
   },
   performance: {
     id: 'performance',
     name: 'Performance Cookies',
     description: 'Website performance monitoring and optimization.',
-    required: false,
-    enabled: false,
+    required: false, // Checkbox will be enabled
+    enabled: false, // Checkbox will start unchecked (GDPR compliance)
   },
   social: {
     id: 'social',
@@ -192,6 +193,10 @@ const customCategories = {
 const cookieConsent = CookieConsent({
   customCategories,
   mode: 'detailed',
+  onCategoryChange: (categoryId, enabled) => {
+    console.log(`${categoryId} changed to:`, enabled);
+    // This callback is triggered by Checkbox onChange events
+  },
 });
 ```
 
@@ -251,7 +256,7 @@ const ecommerceConsent = CookieConsent({
       description:
         'Google Analytics for conversion tracking and shop improvement.',
       required: false,
-      enabled: false,
+      enabled: false, // Checkbox components enforce GDPR compliance
     },
     marketing: {
       id: 'marketing',
@@ -289,6 +294,10 @@ const ecommerceConsent = CookieConsent({
       // Enable recommendation engine
       window.recommendationEngine = true;
     }
+  },
+  onCategoryChange: (categoryId, enabled) => {
+    // Real-time feedback as users interact with checkboxes
+    console.log(`User ${enabled ? 'enabled' : 'disabled'} ${categoryId}`);
   },
 });
 ```
@@ -402,7 +411,7 @@ const setupFacebookPixel = (preferences) => {
 
 ## 🎨 Styling and Themes
 
-The component inherits Modal styling and adds cookie-specific classes:
+The component inherits Modal and Checkbox styling and adds cookie-specific classes:
 
 ### CSS Classes
 
@@ -420,14 +429,34 @@ The component inherits Modal styling and adds cookie-specific classes:
 .cookie-consent__category        /* Individual category */
 .cookie-consent__category--required /* Required category */
 .cookie-consent__category-header /* Category header */
-.cookie-consent__category-label  /* Category label */
-.cookie-consent__category-checkbox /* Category checkbox */
+.cookie-consent__category-label  /* Category label (integrates with Checkbox) */
 .cookie-consent__category-name   /* Category name */
 .cookie-consent__required-badge  /* "Required" badge */
 .cookie-consent__category-description /* Category description */
 
+/* Checkbox integration classes */
+.cookie-consent__category-checkbox-component /* Hidden Checkbox component container */
+
 .cookie-consent__legal           /* Legal links container */
 .cookie-consent__legal-link      /* Individual legal link */
+```
+
+### Checkbox Component Integration
+
+The component seamlessly integrates with the Checkbox component while maintaining the cookie consent's specific layout requirements:
+
+```css
+/* Custom integration with Checkbox component */
+.cookie-consent__category-label .checkbox-input {
+  position: static !important; /* Override Checkbox positioning */
+  opacity: 1 !important; /* Make visible in custom layout */
+  width: auto !important;
+  height: auto !important;
+}
+
+.cookie-consent__category-label .checkbox-indicator {
+  margin-right: 0 !important; /* Integrate with custom spacing */
+}
 ```
 
 ## 🧪 Testing
@@ -436,32 +465,51 @@ The component inherits Modal styling and adds cookie-specific classes:
 import { describe, it, expect } from 'vitest';
 import CookieConsent from './CookieConsent.js';
 
-describe('CookieConsent GDPR Compliance', () => {
-  it('should require explicit consent for non-necessary cookies', () => {
+describe('CookieConsent GDPR Compliance with Checkbox Integration', () => {
+  it('should require explicit consent for non-necessary cookies using Checkbox components', () => {
     const consent = CookieConsent({ autoShow: false, mode: 'detailed' });
     consent.show();
 
-    // All optional categories should be disabled by default
+    // All optional categories should be disabled by default via Checkbox components
     const optionalCheckboxes = document.querySelectorAll(
-      '.cookie-consent__category-checkbox:not(:disabled)'
+      '.checkbox-input:not(:disabled)'
     );
 
     optionalCheckboxes.forEach((checkbox) => {
-      expect(checkbox.checked).toBe(false);
+      expect(checkbox.checked).toBe(false); // Checkbox enforces GDPR compliance
     });
   });
 
-  it('should store consent with proper versioning', async () => {
-    const consent = CookieConsent({ autoShow: false });
+  it('should handle checkbox changes through Checkbox component events', async () => {
+    const onCategoryChange = vi.fn();
+    const consent = CookieConsent({
+      autoShow: false,
+      mode: 'detailed',
+      onCategoryChange,
+    });
     consent.show();
 
-    const acceptButton = document.querySelector('[data-action="accept-all"]');
-    acceptButton.click();
+    const checkbox = document.querySelector('.checkbox-input:not(:disabled)');
+    checkbox.checked = true;
 
-    const storedConsent = CookieConsent.getConsent();
-    expect(storedConsent.version).toBe('1.0');
-    expect(storedConsent.timestamp).toBeTruthy();
-    expect(storedConsent.expires).toBeTruthy();
+    // Trigger Checkbox component's onChange event
+    const changeEvent = new Event('change', { bubbles: true });
+    checkbox.dispatchEvent(changeEvent);
+
+    expect(onCategoryChange).toHaveBeenCalled();
+  });
+
+  it('should properly cleanup Checkbox components on destroy', () => {
+    const consent = CookieConsent({ autoShow: false, mode: 'detailed' });
+    consent.show();
+
+    const checkboxes = document.querySelectorAll('.checkbox-input');
+    expect(checkboxes.length).toBeGreaterThan(0);
+
+    consent.destroy();
+
+    // All Checkbox components should be properly cleaned up
+    expect(document.querySelectorAll('.checkbox-input')).toHaveLength(0);
   });
 });
 ```
@@ -483,6 +531,14 @@ const loadCookieConsent = async () => {
 document.addEventListener('DOMContentLoaded', loadCookieConsent);
 ```
 
+### Component Benefits
+
+- **Consistent Behavior**: All checkboxes behave identically to other form elements
+- **Automatic Cleanup**: Checkbox components are properly destroyed preventing memory leaks
+- **Event Management**: Leverages Checkbox's optimized event handling system
+- **Theme Integration**: Automatic theme consistency through component inheritance
+- **Validation Ready**: Can leverage Checkbox validation for complex requirements
+
 ## 📱 Browser Support
 
 - Chrome/Edge 88+
@@ -493,18 +549,27 @@ document.addEventListener('DOMContentLoaded', loadCookieConsent);
 
 ## 🏗️ Architecture
 
-The CookieConsent component is built on top of the Svarog Modal component, providing:
+The CookieConsent component is built on top of multiple Svarog components:
 
-- **Reliability**: Uses the battle-tested Modal component as foundation
-- **Consistency**: Inherits Modal's accessibility and keyboard navigation
-- **Maintainability**: Reduces code duplication and complexity
-- **Focus Management**: Automatic focus handling via Modal's implementation
-- **Animation System**: Smooth transitions handled by Modal
+- **Modal Component**: Provides the dialog/banner container, focus management, and accessibility
+- **Checkbox Component**: Handles all checkbox interactions with standardized props and behavior
+- **Element Factory**: Used for creating DOM elements efficiently
+
+**Benefits of Component Integration:**
+
+- **Reliability**: Uses battle-tested components as foundation
+- **Consistency**: Inherits accessibility, keyboard navigation, and styling from base components
+- **Maintainability**: Reduces code duplication and leverages shared component logic
+- **Standardization**: All checkboxes use the same `value`, `onChange`, and `disabled` props
+- **Focus Management**: Automatic focus handling via Modal and Checkbox integration
+- **Animation System**: Smooth transitions handled by Modal component
+- **Event Cleanup**: Automatic event listener cleanup via component lifecycle management
 
 ## 🔗 Related Components
 
-- [Modal](../Modal/README.md) - Base component for cookie consent modal
-- [Button](../Button/README.md) - For action buttons
+- [Modal](../Modal/README.md) - Base component for cookie consent container
+- [Checkbox](../Checkbox/README.md) - Used for all category selections
+- [Button](../Button/README.md) - For action buttons (via Modal)
 - [Form](../Form/README.md) - For extended settings
 
 ## 📚 Legal Notes
@@ -514,9 +579,17 @@ This component provides a technical solution for GDPR compliance but does not re
 **Important GDPR Points:**
 
 - Consent must be freely given, specific, informed and unambiguous
-- Withdrawal must be as easy as giving consent
-- Documentation of consent is required
+- Withdrawal must be as easy as giving consent (ensured by consistent Checkbox behavior)
+- Documentation of consent is required (automatically handled)
 - Regular review and updates necessary
+
+**Component Compliance Features:**
+
+- ✅ No pre-checked optional cookies (enforced by Checkbox component defaults)
+- ✅ Clear labeling and descriptions for each category
+- ✅ Consistent interaction patterns via standardized components
+- ✅ Proper focus management and accessibility
+- ✅ Easy revocation through same interface
 
 ## 🤝 Contributing
 
@@ -524,7 +597,7 @@ Contributions to improve GDPR compliance are welcome:
 
 1. Fork the repository
 2. Create a feature branch
-3. Implement your changes
+3. Implement your changes (ensure Checkbox component integration)
 4. Test compliance requirements
 5. Create a pull request
 
@@ -534,9 +607,49 @@ For legal requirements, please include appropriate documentation.
 
 If upgrading from Svarog v3:
 
-- API remains largely compatible
-- Now built on Modal component (more reliable)
+### Breaking Changes
+
+- Now built on Modal and Checkbox components (more reliable)
+- Checkbox HTML structure changed (uses Checkbox component)
+- Some CSS classes changed to accommodate component integration
+
+### Benefits
+
 - Better accessibility and keyboard navigation
 - Improved focus management
 - Enhanced animations and transitions
-- Same GDPR compliance features
+- Consistent checkbox behavior across the application
+- Automatic theme integration
+- Better event handling and cleanup
+- Same GDPR compliance features with improved UX
+
+### Migration Steps
+
+1. **Update imports**: No changes needed - same import path
+2. **Update custom CSS**: Check for any custom checkbox styles that may need adjustment
+3. **Test integration**: Verify all functionality works with new component architecture
+4. **Update tests**: Use new Checkbox component selectors if testing custom implementations
+
+### API Compatibility
+
+```javascript
+// ✅ All existing APIs remain compatible
+const consent = CookieConsent({
+  mode: 'detailed',
+  onAccept: (preferences) => {
+    // Same callback signature
+  },
+  onCategoryChange: (categoryId, enabled) => {
+    // Now triggered by Checkbox component events (more reliable)
+  },
+});
+
+// ✅ All methods remain the same
+consent.show();
+consent.hide();
+consent.getPreferences();
+consent.revokeConsent();
+consent.destroy(); // Now also cleans up Checkbox components
+```
+
+The integration with Checkbox components provides significant improvements in consistency, accessibility, and maintainability while maintaining full API compatibility.

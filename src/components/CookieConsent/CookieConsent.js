@@ -1,7 +1,9 @@
 // src/components/CookieConsent/CookieConsent.js
+import { createElement } from '../../utils/componentFactory.js';
 import { createStyleInjector } from '../../utils/styleInjection.js';
 import { cookieConsentStyles } from './CookieConsent.styles.js';
 import Modal from '../Modal/index.js';
+import Checkbox from '../Checkbox/index.js';
 
 const injectCookieConsentStyles = createStyleInjector('CookieConsent');
 
@@ -127,7 +129,7 @@ class CookieManager {
 }
 
 /**
- * Creates a CookieConsent component using Modal as string-based content
+ * Creates a CookieConsent component using Modal and Checkbox components
  */
 const createCookieConsent = (props = {}) => {
   const state = {
@@ -145,6 +147,7 @@ const createCookieConsent = (props = {}) => {
   };
 
   let currentModal = null;
+  let categoryCheckboxes = new Map(); // Store checkbox component references
 
   // Get merged categories with GDPR compliance
   const getCategories = () => {
@@ -166,90 +169,145 @@ const createCookieConsent = (props = {}) => {
     return categories;
   };
 
-  // Create HTML content as string
-  const createContentHTML = () => {
-    injectCookieConsentStyles(cookieConsentStyles);
+  /**
+   * Creates the categories section using Checkbox components
+   */
+  const createCategoriesSection = (categories) => {
+    // Clear existing checkbox references
+    categoryCheckboxes.clear();
 
-    const categories = getCategories();
-    let html = `<div class="cookie-consent__content">`;
+    let html = '<div class="cookie-consent__categories">';
 
-    // Description
-    html += `<div class="cookie-consent__description">`;
-    html +=
-      state.description ||
-      `
+    Object.values(categories).forEach((category) => {
+      const requiredClass = category.required
+        ? ' cookie-consent__category--required'
+        : '';
+
+      html += `
+        <div class="cookie-consent__category${requiredClass}">
+          <div class="cookie-consent__category-header">
+            <div class="cookie-consent__category-checkbox-container" data-category="${category.id}">
+              <!-- Checkbox will be inserted here -->
+            </div>
+          </div>
+          <div class="cookie-consent__category-description">${category.description}</div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    return html;
+  };
+
+  /**
+   * Setup checkboxes after content is rendered
+   */
+  const setupCategoryCheckboxes = (categories, onCategoryChange) => {
+    // Clear existing checkbox references
+    categoryCheckboxes.forEach((checkbox) => {
+      checkbox.destroy();
+    });
+    categoryCheckboxes.clear();
+
+    Object.values(categories).forEach((category) => {
+      const container = document.querySelector(
+        `[data-category="${category.id}"]`
+      );
+      if (!container) return;
+
+      // Create checkbox using Checkbox component
+      const checkbox = Checkbox({
+        id: `cookie-category-${category.id}`,
+        label: category.name,
+        checked: category.enabled, // Using standard checked prop
+        disabled: category.required,
+        showValidation: false, // No validation messages in cookie consent
+        onChange: (event, checked) => {
+          // Update category state
+          category.enabled = checked;
+          onCategoryChange?.(category.id, checked);
+        },
+      });
+
+      // Store checkbox reference for cleanup
+      categoryCheckboxes.set(category.id, checkbox);
+
+      // Add required badge if needed
+      const checkboxElement = checkbox.getElement();
+      if (category.required) {
+        const badge = createElement('span', {
+          className: 'cookie-consent__required-badge',
+          textContent: 'Erforderlich',
+        });
+        checkboxElement.appendChild(badge);
+      }
+
+      // Replace container content with checkbox
+      container.replaceWith(checkboxElement);
+    });
+  };
+
+  /**
+   * Creates the description section
+   */
+  const createDescriptionSection = () => {
+    const defaultDescription = `
       <p><strong>Ihre Privatsphäre ist uns wichtig.</strong></p>
       <p>Wir verwenden Cookies und ähnliche Technologien, um Ihnen die bestmögliche Nutzererfahrung zu bieten, den Traffic zu analysieren und Inhalte zu personalisieren.</p>
       <p>Sie können selbst entscheiden, welche Cookie-Kategorien Sie zulassen möchten. Bitte beachten Sie, dass aufgrund Ihrer Einstellungen möglicherweise nicht alle Funktionen der Website verfügbar sind.</p>
       <p>Weitere Informationen finden Sie in unserer Datenschutzerklärung.</p>
     `;
-    html += `</div>`;
 
-    // Categories for detailed mode
-    if (state.mode === 'detailed') {
-      html += `<div class="cookie-consent__categories">`;
+    return `<div class="cookie-consent__description">${state.description || defaultDescription}</div>`;
+  };
 
-      Object.values(categories).forEach((category) => {
-        const requiredClass = category.required
-          ? ' cookie-consent__category--required'
-          : '';
-        const checkedAttr = category.enabled ? ' checked' : '';
-        const disabledAttr = category.required ? ' disabled' : '';
-
-        html += `
-          <div class="cookie-consent__category${requiredClass}">
-            <div class="cookie-consent__category-header">
-              <label class="cookie-consent__category-label">
-                <input 
-                  type="checkbox" 
-                  class="cookie-consent__category-checkbox"
-                  data-category="${category.id}"
-                  ${checkedAttr}${disabledAttr}
-                />
-                <span class="cookie-consent__category-name">${category.name}</span>
-                ${category.required ? '<span class="cookie-consent__required-badge">Erforderlich</span>' : ''}
-              </label>
-            </div>
-            <div class="cookie-consent__category-description">${category.description}</div>
-          </div>
-        `;
-      });
-
-      html += `</div>`;
+  /**
+   * Creates the legal links section
+   */
+  const createLegalLinksSection = () => {
+    if (!state.privacyPolicyUrl && !state.imprintUrl) {
+      return '';
     }
 
-    // Legal links
-    if (state.privacyPolicyUrl || state.imprintUrl) {
-      html += `<div class="cookie-consent__legal">`;
+    let html = '<div class="cookie-consent__legal">';
 
-      if (state.privacyPolicyUrl) {
-        html += `<a href="${state.privacyPolicyUrl}" target="_blank" rel="noopener noreferrer" class="cookie-consent__legal-link">Datenschutzerklärung</a>`;
-      }
-
-      if (state.imprintUrl) {
-        html += `<a href="${state.imprintUrl}" target="_blank" rel="noopener noreferrer" class="cookie-consent__legal-link">Impressum</a>`;
-      }
-
-      html += `</div>`;
+    if (state.privacyPolicyUrl) {
+      html += `<a href="${state.privacyPolicyUrl}" target="_blank" rel="noopener noreferrer" class="cookie-consent__legal-link">Datenschutzerklärung</a>`;
     }
 
-    html += `</div>`;
+    if (state.imprintUrl) {
+      html += `<a href="${state.imprintUrl}" target="_blank" rel="noopener noreferrer" class="cookie-consent__legal-link">Impressum</a>`;
+    }
+
+    html += '</div>';
     return html;
   };
 
-  // Setup event handlers after modal content is inserted
-  const setupEventHandlers = () => {
+  /**
+   * Creates the main content as HTML string
+   */
+  const createContentHTML = () => {
+    // Inject styles on render
+    injectCookieConsentStyles(cookieConsentStyles);
+
+    const categories = getCategories();
+    let html = '<div class="cookie-consent__content">';
+
+    // Add description
+    html += createDescriptionSection();
+
+    // Add categories for detailed mode
     if (state.mode === 'detailed') {
-      const checkboxes = document.querySelectorAll(
-        '.cookie-consent__category-checkbox:not(:disabled)'
-      );
-      checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener('change', (e) => {
-          const categoryId = e.target.dataset.category;
-          props.onCategoryChange?.(categoryId, e.target.checked);
-        });
+      html += createCategoriesSection(categories, (categoryId, enabled) => {
+        props.onCategoryChange?.(categoryId, enabled);
       });
     }
+
+    // Add legal links
+    html += createLegalLinksSection();
+
+    html += '</div>';
+    return html;
   };
 
   const getActions = () => {
@@ -311,17 +369,14 @@ const createCookieConsent = (props = {}) => {
 
       case 'accept-selected': {
         const selectedPreferences = {};
-        const checkboxes = document.querySelectorAll(
-          '.cookie-consent__category-checkbox'
-        );
 
-        if (checkboxes.length > 0) {
-          checkboxes.forEach((checkbox) => {
-            const categoryId = checkbox.dataset.category;
-            selectedPreferences[categoryId] = checkbox.checked;
-          });
-        } else {
-          // Fallback: use categories from state
+        // Get preferences from checkbox components
+        categoryCheckboxes.forEach((checkbox, categoryId) => {
+          selectedPreferences[categoryId] = checkbox.getValue();
+        });
+
+        // Fallback: use categories from state if no checkboxes
+        if (Object.keys(selectedPreferences).length === 0) {
           Object.keys(categories).forEach((key) => {
             selectedPreferences[key] = categories[key].enabled;
           });
@@ -363,20 +418,27 @@ const createCookieConsent = (props = {}) => {
     if (!currentModal) return;
 
     const wasOpen = currentModal.isOpen();
+
+    // Clean up existing checkboxes
+    categoryCheckboxes.forEach((checkbox) => {
+      checkbox.destroy();
+    });
+    categoryCheckboxes.clear();
+
     currentModal.destroy();
     currentModal = createModal();
 
     if (wasOpen) {
       currentModal.open();
-      // Setup event handlers after modal is open and content is rendered
-      setTimeout(setupEventHandlers, 0);
     }
   };
 
   const createModal = () => {
+    const categories = getCategories();
+
     const modalConfig = {
       title: state.title,
-      content: createContentHTML(),
+      content: createContentHTML(), // Use HTML string instead of DOM element
       variant: 'minimal',
       size: state.mode === 'detailed' ? 'large' : 'medium',
       showCloseButton: state.modal || state.showCloseButton,
@@ -391,8 +453,14 @@ const createCookieConsent = (props = {}) => {
         props.onDismiss?.();
       },
       onOpen: () => {
-        // Setup event handlers after modal opens
-        setTimeout(setupEventHandlers, 0);
+        // Setup checkbox components after modal opens and content is rendered
+        if (state.mode === 'detailed') {
+          setTimeout(() => {
+            setupCategoryCheckboxes(categories, (categoryId, enabled) => {
+              props.onCategoryChange?.(categoryId, enabled);
+            });
+          }, 0);
+        }
       },
     };
 
@@ -444,6 +512,12 @@ const createCookieConsent = (props = {}) => {
     },
 
     destroy() {
+      // Clean up checkbox components
+      categoryCheckboxes.forEach((checkbox) => {
+        checkbox.destroy();
+      });
+      categoryCheckboxes.clear();
+
       if (currentModal) {
         currentModal.destroy();
         currentModal = null;
