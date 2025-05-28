@@ -1,44 +1,163 @@
 // src/components/Modal/Modal.js
 import { createElement } from '../../utils/componentFactory.js';
+import { createBaseComponent } from '../../utils/baseComponent.js';
+import { withThemeAwareness } from '../../utils/composition.js';
 import { createStyleInjector } from '../../utils/styleInjection.js';
-import Button from '../Button/index.js';
 import { modalStyles } from './Modal.styles.js';
+import Button from '../Button/index.js';
 
-const injectStyles = createStyleInjector('modal');
+// Create style injector for Modal component
+const injectModalStyles = createStyleInjector('Modal');
 
 /**
- * Creates a Modal component
- * @param {Object} props - Component properties
- * @param {string} [props.title] - Modal title
- * @param {string|HTMLElement|Object} [props.content] - Modal content
- * @param {string} [props.variant='default'] - Style variant
- * @param {string} [props.size='medium'] - Modal size
- * @param {boolean} [props.showCloseButton=true] - Show close button
- * @param {boolean} [props.closeOnBackdrop=true] - Close on backdrop click
- * @param {boolean} [props.closeOnEscape=true] - Close on ESC key
- * @param {boolean} [props.showBackdrop=true] - Show backdrop
- * @param {boolean} [props.lockBodyScroll=true] - Lock body scroll
- * @param {boolean} [props.autoFocus=true] - Auto-focus first element
- * @param {boolean} [props.restoreFocus=true] - Restore focus on close
- * @param {string} [props.ariaLabel] - Accessibility label
- * @param {string} [props.ariaDescribedBy] - Describing element ID
- * @param {string} [props.className] - Additional CSS classes
- * @param {Array} [props.actions] - Action buttons configuration
- * @param {Function} [props.onOpen] - Open callback
- * @param {Function} [props.onClose] - Close callback
- * @param {Function} [props.onAction] - Action button callback
- * @returns {Object} Modal component API
+ * Creates modal DOM structure
+ * @param {Object} state - Modal state
+ * @returns {HTMLElement} Modal element
+ */
+const renderModal = (state) => {
+  // Inject styles on render
+  injectModalStyles(modalStyles);
+
+  // Create backdrop
+  const backdrop = state.showBackdrop
+    ? createElement('div', {
+        classes: ['modal__backdrop'],
+        attributes: {
+          'aria-hidden': 'true',
+        },
+      })
+    : null;
+
+  // Create title
+  const titleElement = state.title
+    ? createElement('h2', {
+        classes: ['modal__title'],
+        text: state.title,
+        attributes: { id: 'modal-title' },
+      })
+    : null;
+
+  // Create close button
+  const closeButton = state.showCloseButton
+    ? createElement('button', {
+        classes: ['modal__close'],
+        attributes: {
+          type: 'button',
+          'aria-label': 'Close modal',
+        },
+        innerHTML: '&times;',
+        events: {
+          click: (e) => {
+            e.preventDefault();
+            if (state.onClose) {
+              state.onClose();
+            }
+          },
+        },
+      })
+    : null;
+
+  // Create header
+  const header =
+    titleElement || closeButton
+      ? createElement('div', {
+          classes: ['modal__header'],
+          children: [titleElement, closeButton].filter(Boolean),
+        })
+      : null;
+
+  // Create content
+  const content = createElement('div', {
+    classes: ['modal__content'],
+    attributes: { id: 'modal-content' },
+  });
+
+  // Set content based on type
+  if (typeof state.content === 'string') {
+    content.innerHTML = state.content;
+  } else if (state.content instanceof HTMLElement) {
+    content.appendChild(state.content.cloneNode(true));
+  } else if (state.content && typeof state.content.getElement === 'function') {
+    content.appendChild(state.content.getElement());
+  }
+
+  // Create footer with actions
+  const footer = state.actions?.length
+    ? createElement('div', {
+        classes: ['modal__footer'],
+        children: [
+          createElement('div', {
+            classes: ['modal__actions'],
+            children: state.actions.map((action) => {
+              const button = Button({
+                text: action.text,
+                variant: action.variant || 'secondary',
+                onClick: () => {
+                  if (state.onAction) {
+                    state.onAction(action.action || action.text);
+                  }
+                },
+              });
+              return button.getElement();
+            }),
+          }),
+        ],
+      })
+    : null;
+
+  // Create dialog
+  const dialog = createElement('div', {
+    classes: [
+      'modal__dialog',
+      `modal__dialog--${state.size}`,
+      state.variant !== 'default' && `modal--${state.variant}`,
+    ].filter(Boolean),
+    attributes: {
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-labelledby': state.title ? 'modal-title' : null,
+      'aria-label': state.ariaLabel || (!state.title ? 'Modal dialog' : null),
+      'aria-describedby': state.ariaDescribedBy || 'modal-content',
+      tabindex: '-1',
+    },
+    children: [header, content, footer].filter(Boolean),
+  });
+
+  // Create container
+  const container = createElement('div', {
+    classes: ['modal__container', state.className].filter(Boolean),
+    children: [dialog],
+    events: {
+      click: (e) => {
+        if (state.closeOnBackdrop && e.target === container) {
+          if (state.onClose) {
+            state.onClose();
+          }
+        }
+      },
+    },
+  });
+
+  // Store references for event handling
+  container._backdrop = backdrop;
+  container._dialog = dialog;
+  container._content = content;
+  container._titleElement = titleElement;
+
+  return container;
+};
+
+/**
+ * Create a Modal component
+ * @param {Object} props - Modal properties
+ * @returns {Object} Modal component
  */
 const createModal = (props = {}) => {
-  // Inject styles on first render
-  injectStyles(modalStyles);
-
-  // State
+  // Initial state
   const state = {
     isOpen: false,
     mounted: false,
     previousActiveElement: null,
-    ...props,
     variant: props.variant || 'default',
     size: props.size || 'medium',
     showCloseButton: props.showCloseButton !== false,
@@ -48,149 +167,18 @@ const createModal = (props = {}) => {
     lockBodyScroll: props.lockBodyScroll !== false,
     autoFocus: props.autoFocus !== false,
     restoreFocus: props.restoreFocus !== false,
+    ...props,
   };
 
-  // Elements
-  let backdropElement = null;
-  let containerElement = null;
-  let dialogElement = null;
-  let contentElement = null;
+  // Focus management
   let focusableElements = [];
   let firstFocusableElement = null;
   let lastFocusableElement = null;
 
-  // Create modal structure
-  const render = () => {
-    // Backdrop
-    if (state.showBackdrop) {
-      backdropElement = createElement('div', {
-        className: 'modal__backdrop',
-        attributes: {
-          'aria-hidden': 'true',
-        },
-      });
-    }
-
-    // Header
-    const headerElement =
-      state.title || state.showCloseButton
-        ? createElement('div', {
-            className: 'modal__header',
-            children: [
-              state.title &&
-                createElement('h2', {
-                  className: 'modal__title',
-                  textContent: state.title,
-                  attributes: { id: 'modal-title' },
-                }),
-              state.showCloseButton &&
-                createElement('button', {
-                  className: 'modal__close',
-                  attributes: {
-                    type: 'button',
-                    'aria-label': 'Close modal',
-                  },
-                  innerHTML: '&times;',
-                }),
-            ].filter(Boolean),
-          })
-        : null;
-
-    // Content
-    contentElement = createElement('div', {
-      className: 'modal__content',
-      attributes: { id: 'modal-content' },
-    });
-
-    // Handle different content types
-    if (typeof state.content === 'string') {
-      contentElement.innerHTML = state.content;
-    } else if (state.content instanceof HTMLElement) {
-      contentElement.appendChild(state.content);
-    } else if (
-      state.content &&
-      typeof state.content.getElement === 'function'
-    ) {
-      contentElement.appendChild(state.content.getElement());
-    }
-
-    // Footer with actions
-    const footerElement = state.actions?.length
-      ? createElement('div', {
-          className: 'modal__footer',
-          children: [
-            createElement('div', {
-              className: 'modal__actions',
-              children: state.actions.map((action) =>
-                Button({
-                  text: action.text,
-                  variant: action.variant || 'secondary',
-                  onClick: () => handleAction(action.action || action.text),
-                }).getElement()
-              ),
-            }),
-          ],
-        })
-      : null;
-
-    // Dialog
-    dialogElement = createElement('div', {
-      className: `modal__dialog modal__dialog--${state.size}`,
-      attributes: {
-        role: 'dialog',
-        'aria-modal': 'true',
-        'aria-labelledby': state.title ? 'modal-title' : undefined,
-        'aria-label':
-          state.ariaLabel || (state.title ? undefined : 'Modal dialog'),
-        'aria-describedby': state.ariaDescribedBy || 'modal-content',
-        tabindex: '-1',
-      },
-      children: [headerElement, contentElement, footerElement].filter(Boolean),
-    });
-
-    // Apply variant class
-    if (state.variant !== 'default') {
-      dialogElement.classList.add(`modal--${state.variant}`);
-    }
-
-    // Container
-    containerElement = createElement('div', {
-      className: 'modal__container',
-      children: [dialogElement],
-    });
-
-    // Add custom class
-    if (state.className) {
-      containerElement.classList.add(state.className);
-    }
-
-    // Add event listeners
-    addEventListeners();
-  };
-
-  // Public API (define early for event handlers)
-  const api = {};
-
-  // Event handling
-  const handleBackdropClick = (e) => {
-    if (state.closeOnBackdrop && e.target === containerElement) {
-      api.close();
-    }
-  };
-
+  // Event handlers
   const handleEscapeKey = (e) => {
     if (state.closeOnEscape && e.key === 'Escape' && state.isOpen) {
-      api.close();
-    }
-  };
-
-  const handleCloseClick = () => {
-    api.close();
-  };
-
-  const handleAction = (action) => {
-    if (state.onAction) {
-      state.onAction(action);
+      modalComponent.close();
     }
   };
 
@@ -201,19 +189,24 @@ const createModal = (props = {}) => {
       if (e.shiftKey) {
         if (document.activeElement === firstFocusableElement) {
           e.preventDefault();
-          lastFocusableElement.focus();
+          lastFocusableElement?.focus();
         }
       } else {
         if (document.activeElement === lastFocusableElement) {
           e.preventDefault();
-          firstFocusableElement.focus();
+          firstFocusableElement?.focus();
         }
       }
     }
   };
 
-  // Focus management
   const updateFocusableElements = () => {
+    const element = modalComponent.getElement();
+    if (!element) return;
+
+    const dialog = element._dialog;
+    if (!dialog) return;
+
     const selector = [
       'button:not([disabled])',
       '[href]',
@@ -223,225 +216,249 @@ const createModal = (props = {}) => {
       '[tabindex]:not([tabindex="-1"])',
     ].join(',');
 
-    focusableElements = Array.from(dialogElement.querySelectorAll(selector));
+    focusableElements = Array.from(dialog.querySelectorAll(selector));
+
+    // Prioritize content area elements over modal controls
+    const contentElements = focusableElements.filter(
+      (el) => element._content && element._content.contains(el)
+    );
+    const controlElements = focusableElements.filter(
+      (el) => !element._content || !element._content.contains(el)
+    );
+
+    // Reorder: content elements first, then control elements
+    focusableElements = [...contentElements, ...controlElements];
+
     firstFocusableElement = focusableElements[0];
     lastFocusableElement = focusableElements[focusableElements.length - 1];
   };
 
-  const addEventListeners = () => {
-    if (containerElement) {
-      containerElement.addEventListener('click', handleBackdropClick);
-    }
-
-    const closeButton = dialogElement?.querySelector('.modal__close');
-    if (closeButton) {
-      closeButton.addEventListener('click', handleCloseClick);
-    }
-
-    document.addEventListener('keydown', handleEscapeKey);
-    document.addEventListener('keydown', handleTabKey);
+  // Set onClose handler that updates the component
+  state.onClose = () => {
+    modalComponent.close();
   };
 
-  const removeEventListeners = () => {
-    if (containerElement) {
-      containerElement.removeEventListener('click', handleBackdropClick);
+  // Create base component
+  const modalComponent = createBaseComponent(renderModal)(state);
+
+  // Add public methods
+  modalComponent.open = function () {
+    if (state.isOpen) return this;
+
+    // Store current focus
+    if (state.restoreFocus) {
+      state.previousActiveElement = document.activeElement;
     }
 
-    document.removeEventListener('keydown', handleEscapeKey);
-    document.removeEventListener('keydown', handleTabKey);
+    // Mount to DOM if not already mounted
+    if (!state.mounted) {
+      const element = this.getElement();
+
+      // Add backdrop to body if it exists
+      if (element._backdrop) {
+        document.body.appendChild(element._backdrop);
+      }
+
+      // Add container to body
+      document.body.appendChild(element);
+
+      // Add global event listeners
+      document.addEventListener('keydown', handleEscapeKey);
+      document.addEventListener('keydown', handleTabKey);
+
+      state.mounted = true;
+    }
+
+    // Set state
+    state.isOpen = true;
+
+    // Lock body scroll
+    if (state.lockBodyScroll) {
+      document.body.classList.add('modal-open');
+    }
+
+    const element = this.getElement();
+
+    // Add visible classes
+    requestAnimationFrame(() => {
+      if (element._backdrop) {
+        element._backdrop.classList.add('modal__backdrop--visible');
+      }
+      element.classList.add('modal__container--open');
+      element._dialog.classList.add('modal__dialog--visible');
+
+      // Update focusable elements and focus
+      updateFocusableElements();
+
+      if (state.autoFocus && firstFocusableElement) {
+        firstFocusableElement.focus();
+      } else if (state.autoFocus) {
+        element._dialog.focus();
+      }
+
+      // Callback
+      if (props.onOpen) {
+        props.onOpen();
+      }
+    });
+
+    return this;
   };
 
-  // Lifecycle methods
-  const mount = () => {
-    if (state.mounted) return;
+  modalComponent.close = function () {
+    if (!state.isOpen) return this;
 
-    render();
+    state.isOpen = false;
 
-    if (backdropElement) {
-      document.body.appendChild(backdropElement);
+    const element = this.getElement();
+    if (!element) return this;
+
+    // Remove visible classes
+    if (element._backdrop) {
+      element._backdrop.classList.remove('modal__backdrop--visible');
     }
-    document.body.appendChild(containerElement);
+    element.classList.remove('modal__container--open');
+    element._dialog.classList.remove('modal__dialog--visible');
 
-    state.mounted = true;
-  };
-
-  const unmount = () => {
-    if (!state.mounted) return;
-
-    removeEventListeners();
-
-    if (backdropElement && backdropElement.parentNode) {
-      backdropElement.parentNode.removeChild(backdropElement);
-    }
-    if (containerElement && containerElement.parentNode) {
-      containerElement.parentNode.removeChild(containerElement);
+    // Unlock body scroll
+    if (state.lockBodyScroll) {
+      document.body.classList.remove('modal-open');
     }
 
-    state.mounted = false;
-  };
-
-  // Public API methods
-  Object.assign(api, {
-    /**
-     * Opens the modal
-     */
-    open() {
-      if (state.isOpen) return;
-
-      // Store current focus
-      if (state.restoreFocus) {
-        state.previousActiveElement = document.activeElement;
-      }
-
-      // Mount if needed
-      if (!state.mounted) {
-        mount();
-      }
-
-      // Force reflow
-      void containerElement.offsetHeight;
-
-      // Add visible classes
-      requestAnimationFrame(() => {
-        if (backdropElement) {
-          backdropElement.classList.add('modal__backdrop--visible');
+    const handleCloseComplete = () => {
+      if (state.mounted) {
+        // Remove from DOM
+        if (element._backdrop?.parentNode) {
+          element._backdrop.parentNode.removeChild(element._backdrop);
         }
-        containerElement.classList.add('modal__container--open');
-        dialogElement.classList.add('modal__dialog--visible');
-
-        // Lock body scroll
-        if (state.lockBodyScroll) {
-          document.body.classList.add('modal-open');
+        if (element.parentNode) {
+          element.parentNode.removeChild(element);
         }
 
-        // Update focusable elements and focus
-        updateFocusableElements();
+        // Remove global event listeners
+        document.removeEventListener('keydown', handleEscapeKey);
+        document.removeEventListener('keydown', handleTabKey);
 
-        if (state.autoFocus) {
-          if (firstFocusableElement) {
-            firstFocusableElement.focus();
-          } else {
-            dialogElement.focus();
-          }
-        }
-
-        state.isOpen = true;
-
-        // Callback
-        if (state.onOpen) {
-          state.onOpen();
-        }
-      });
-    },
-
-    /**
-     * Closes the modal
-     */
-    close() {
-      if (!state.isOpen) return;
-
-      // Remove visible classes
-      if (backdropElement) {
-        backdropElement.classList.remove('modal__backdrop--visible');
-      }
-      containerElement.classList.remove('modal__container--open');
-      dialogElement.classList.remove('modal__dialog--visible');
-
-      // Unlock body scroll
-      if (state.lockBodyScroll) {
-        document.body.classList.remove('modal-open');
-      }
-
-      // Wait for animation
-      const handleTransitionEnd = () => {
-        unmount();
+        state.mounted = false;
 
         // Restore focus
         if (state.restoreFocus && state.previousActiveElement) {
           state.previousActiveElement.focus();
         }
 
-        state.isOpen = false;
-
         // Callback
-        if (state.onClose) {
-          state.onClose();
+        if (props.onClose) {
+          props.onClose();
+        }
+      }
+    };
+
+    // Check for reduced motion preference
+    const prefersReducedMotion =
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      // Immediate close for reduced motion (tests use this)
+      handleCloseComplete();
+    } else {
+      // Wait for animation to complete
+      const handleTransitionEnd = (e) => {
+        if (e.target === element._dialog) {
+          element._dialog.removeEventListener(
+            'transitionend',
+            handleTransitionEnd
+          );
+          handleCloseComplete();
         }
       };
 
-      // Use transition end if animations are enabled
-      const prefersReducedMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)'
-      ).matches;
-      if (prefersReducedMotion) {
-        handleTransitionEnd();
-      } else {
-        dialogElement.addEventListener('transitionend', handleTransitionEnd, {
-          once: true,
-        });
+      element._dialog.addEventListener('transitionend', handleTransitionEnd);
+
+      // Fallback timeout
+      setTimeout(handleCloseComplete, 300);
+    }
+
+    return this;
+  };
+
+  modalComponent.isOpen = function () {
+    return state.isOpen;
+  };
+
+  modalComponent.toggle = function () {
+    return state.isOpen ? this.close() : this.open();
+  };
+
+  // Override update to handle special cases
+  const originalUpdate = modalComponent.update;
+  modalComponent.update = function (newProps) {
+    // Update internal state
+    Object.assign(state, newProps);
+
+    if (state.mounted) {
+      const element = this.getElement();
+
+      // Update title
+      if (element._titleElement && 'title' in newProps) {
+        element._titleElement.textContent = state.title || '';
       }
-    },
 
-    /**
-     * Checks if modal is open
-     * @returns {boolean}
-     */
-    isOpen() {
-      return state.isOpen;
-    },
-
-    /**
-     * Updates modal props
-     * @param {Object} newProps
-     */
-    update(newProps) {
-      Object.assign(state, newProps);
-
-      if (state.mounted) {
-        // Update title
-        const titleElement = dialogElement.querySelector('.modal__title');
-        if (titleElement && state.title) {
-          titleElement.textContent = state.title;
-        }
-
-        // Update content
-        if (contentElement && state.content) {
-          contentElement.innerHTML = '';
-          if (typeof state.content === 'string') {
-            contentElement.innerHTML = state.content;
-          } else if (state.content instanceof HTMLElement) {
-            contentElement.appendChild(state.content);
-          } else if (
-            state.content &&
-            typeof state.content.getElement === 'function'
-          ) {
-            contentElement.appendChild(state.content.getElement());
-          }
+      // Update content
+      if ('content' in newProps && element._content) {
+        element._content.innerHTML = '';
+        if (typeof state.content === 'string') {
+          element._content.innerHTML = state.content;
+        } else if (state.content instanceof HTMLElement) {
+          element._content.appendChild(state.content.cloneNode(true));
+        } else if (
+          state.content &&
+          typeof state.content.getElement === 'function'
+        ) {
+          element._content.appendChild(state.content.getElement());
         }
       }
-    },
+    }
 
-    /**
-     * Destroys the modal
-     */
-    destroy() {
-      if (state.isOpen) {
-        api.close();
-      } else {
-        unmount();
+    return originalUpdate.call(this, newProps);
+  };
+
+  // Override destroy to handle cleanup
+  const originalDestroy = modalComponent.destroy;
+  modalComponent.destroy = function () {
+    if (state.isOpen) {
+      state.isOpen = false;
+      if (state.lockBodyScroll) {
+        document.body.classList.remove('modal-open');
       }
-    },
+    }
 
-    /**
-     * Gets the modal element
-     * @returns {HTMLElement}
-     */
-    getElement() {
-      return containerElement;
-    },
-  });
+    if (state.mounted) {
+      const element = this.getElement();
 
-  return api;
+      // Remove from DOM
+      if (element._backdrop?.parentNode) {
+        element._backdrop.parentNode.removeChild(element._backdrop);
+      }
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+
+      // Remove global event listeners
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.removeEventListener('keydown', handleTabKey);
+
+      state.mounted = false;
+    }
+
+    return originalDestroy.call(this);
+  };
+
+  return modalComponent;
 };
 
-export default createModal;
+// Create the component with theme awareness
+const ModalComponent = withThemeAwareness(createModal);
+
+// Export as factory function
+export default ModalComponent;

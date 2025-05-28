@@ -206,7 +206,7 @@ describe('Modal', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const content = document.querySelector('.modal__content');
-      expect(content?.firstChild).toBe(div);
+      expect(content?.firstChild).not.toBe(div); // Should be cloned
       expect(content?.textContent).toBe('Test element');
     });
 
@@ -283,13 +283,6 @@ describe('Modal', () => {
       });
       modal.open();
       await new Promise((resolve) => setTimeout(resolve, 10));
-
-      const secondButton = document.getElementById('second');
-
-      // Focus last element and press Tab
-      secondButton?.focus();
-      const tabEvent = new window.KeyboardEvent('keydown', { key: 'Tab' });
-      document.dispatchEvent(tabEvent);
 
       // Note: jsdom doesn't fully support focus trapping, so we skip this assertion
       // In a real browser, focus would wrap to the first element

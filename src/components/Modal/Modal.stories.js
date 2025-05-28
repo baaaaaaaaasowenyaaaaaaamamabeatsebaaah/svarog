@@ -1,9 +1,6 @@
 // src/components/Modal/Modal.stories.js
 import Modal from './Modal.js';
 import Button from '../Button/index.js';
-import Form from '../Form/index.js';
-import Input from '../Input/index.js';
-import Select from '../Select/index.js';
 
 export default {
   title: 'Components/Modal',
@@ -125,77 +122,127 @@ export const SuccessNotification = () => {
   return button.getElement();
 };
 
-// Form modal
+// Form modal with manual form creation (no Form component dependency)
 export const FormModal = () => {
   const button = Button({
     text: 'Open Contact Form',
     variant: 'primary',
   });
 
-  const modal = Modal({
-    title: 'Contact Us',
-    size: 'medium',
-    onClose: () => console.log('Form modal closed'),
-  });
+  // Create form manually to avoid Form component issues
+  const createContactForm = () => {
+    const form = document.createElement('form');
+    form.style.display = 'flex';
+    form.style.flexDirection = 'column';
+    form.style.gap = '1rem';
 
-  // Create form inputs
-  const nameInput = Input({
-    label: 'Name',
-    placeholder: 'Enter your name',
-    required: true,
-  });
+    // Name field
+    const nameGroup = document.createElement('div');
+    const nameLabel = document.createElement('label');
+    nameLabel.textContent = 'Name';
+    nameLabel.style.marginBottom = '0.5rem';
+    nameLabel.style.display = 'block';
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Enter your name';
+    nameInput.required = true;
+    nameInput.style.padding = '0.5rem';
+    nameInput.style.border = '1px solid #ccc';
+    nameInput.style.borderRadius = '4px';
+    nameGroup.appendChild(nameLabel);
+    nameGroup.appendChild(nameInput);
 
-  const emailInput = Input({
-    label: 'Email',
-    type: 'email',
-    placeholder: 'email@example.com',
-    required: true,
-  });
+    // Email field
+    const emailGroup = document.createElement('div');
+    const emailLabel = document.createElement('label');
+    emailLabel.textContent = 'Email';
+    emailLabel.style.marginBottom = '0.5rem';
+    emailLabel.style.display = 'block';
+    const emailInput = document.createElement('input');
+    emailInput.type = 'email';
+    emailInput.placeholder = 'email@example.com';
+    emailInput.required = true;
+    emailInput.style.padding = '0.5rem';
+    emailInput.style.border = '1px solid #ccc';
+    emailInput.style.borderRadius = '4px';
+    emailGroup.appendChild(emailLabel);
+    emailGroup.appendChild(emailInput);
 
-  const subjectSelect = Select({
-    label: 'Subject',
-    placeholder: 'Select a subject',
-    options: [
+    // Subject field
+    const subjectGroup = document.createElement('div');
+    const subjectLabel = document.createElement('label');
+    subjectLabel.textContent = 'Subject';
+    subjectLabel.style.marginBottom = '0.5rem';
+    subjectLabel.style.display = 'block';
+    const subjectSelect = document.createElement('select');
+    subjectSelect.style.padding = '0.5rem';
+    subjectSelect.style.border = '1px solid #ccc';
+    subjectSelect.style.borderRadius = '4px';
+
+    const subjects = [
+      { value: '', label: 'Select a subject' },
       { value: 'general', label: 'General Inquiry' },
       { value: 'support', label: 'Technical Support' },
       { value: 'billing', label: 'Billing Question' },
       { value: 'feedback', label: 'Feedback' },
-    ],
-  });
+    ];
 
-  const messageInput = Input({
-    label: 'Message',
-    placeholder: 'Enter your message',
-    required: true,
-  });
+    subjects.forEach((subject) => {
+      const option = document.createElement('option');
+      option.value = subject.value;
+      option.textContent = subject.label;
+      subjectSelect.appendChild(option);
+    });
 
-  // Create form
-  const form = Form({
-    onSubmit: (e) => {
+    subjectGroup.appendChild(subjectLabel);
+    subjectGroup.appendChild(subjectSelect);
+
+    // Message field
+    const messageGroup = document.createElement('div');
+    const messageLabel = document.createElement('label');
+    messageLabel.textContent = 'Message';
+    messageLabel.style.marginBottom = '0.5rem';
+    messageLabel.style.display = 'block';
+    const messageTextarea = document.createElement('textarea');
+    messageTextarea.placeholder = 'Enter your message';
+    messageTextarea.required = true;
+    messageTextarea.rows = 4;
+    messageTextarea.style.padding = '0.5rem';
+    messageTextarea.style.border = '1px solid #ccc';
+    messageTextarea.style.borderRadius = '4px';
+    messageTextarea.style.resize = 'vertical';
+    messageGroup.appendChild(messageLabel);
+    messageGroup.appendChild(messageTextarea);
+
+    // Submit button
+    const submitButton = Button({
+      text: 'Send Message',
+      variant: 'primary',
+      type: 'submit',
+    });
+
+    form.appendChild(nameGroup);
+    form.appendChild(emailGroup);
+    form.appendChild(subjectGroup);
+    form.appendChild(messageGroup);
+    form.appendChild(submitButton.getElement());
+
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
       console.log('Form submitted');
       showToast('Message sent successfully!', 'success');
       modal.close();
-    },
+    });
+
+    return form;
+  };
+
+  const modal = Modal({
+    title: 'Contact Us',
+    content: createContactForm(),
+    size: 'medium',
+    onClose: () => console.log('Form modal closed'),
   });
-
-  // Add fields to form
-  const formElement = form.getElement();
-  formElement.appendChild(nameInput.getElement());
-  formElement.appendChild(emailInput.getElement());
-  formElement.appendChild(subjectSelect.getElement());
-  formElement.appendChild(messageInput.getElement());
-
-  // Add submit button
-  const submitButton = Button({
-    text: 'Send Message',
-    variant: 'primary',
-    type: 'submit',
-  });
-  formElement.appendChild(submitButton.getElement());
-
-  // Set form as modal content
-  modal.update({ content: formElement });
 
   button.getElement().addEventListener('click', () => modal.open());
 
@@ -277,11 +324,11 @@ export const InfoModal = () => {
   return button.getElement();
 };
 
-// Warning modal
+// Warning modal (using 'secondary' instead of 'warning' for button)
 export const WarningModal = () => {
   const button = Button({
     text: 'Show Warning',
-    variant: 'warning',
+    variant: 'secondary', // Changed from 'warning' to avoid button variant error
   });
 
   const modal = Modal({
@@ -390,7 +437,7 @@ export const MultipleModals = () => {
   return button.getElement();
 };
 
-// All variants
+// All variants (fix button variants)
 export const AllVariants = () => {
   const container = document.createElement('div');
   container.style.display = 'flex';
@@ -398,24 +445,24 @@ export const AllVariants = () => {
   container.style.gap = '10px';
 
   const variants = [
-    'default',
-    'info',
-    'success',
-    'warning',
-    'danger',
-    'minimal',
+    { name: 'default', buttonVariant: 'secondary' },
+    { name: 'info', buttonVariant: 'primary' },
+    { name: 'success', buttonVariant: 'primary' },
+    { name: 'warning', buttonVariant: 'secondary' },
+    { name: 'danger', buttonVariant: 'danger' },
+    { name: 'minimal', buttonVariant: 'secondary' },
   ];
 
-  variants.forEach((variant) => {
+  variants.forEach(({ name, buttonVariant }) => {
     const button = Button({
-      text: `${variant.charAt(0).toUpperCase() + variant.slice(1)} Modal`,
-      variant: variant === 'default' ? 'secondary' : variant,
+      text: `${name.charAt(0).toUpperCase() + name.slice(1)} Modal`,
+      variant: buttonVariant,
     });
 
     const modal = Modal({
-      title: `${variant.charAt(0).toUpperCase() + variant.slice(1)} Modal`,
-      content: `This is a ${variant} modal. Notice the styled header and overall appearance.`,
-      variant: variant,
+      title: `${name.charAt(0).toUpperCase() + name.slice(1)} Modal`,
+      content: `This is a ${name} modal. Notice the styled header and overall appearance.`,
+      variant: name,
       actions: [{ text: 'Close', variant: 'primary', action: 'close' }],
       onAction: () => modal.close(),
     });

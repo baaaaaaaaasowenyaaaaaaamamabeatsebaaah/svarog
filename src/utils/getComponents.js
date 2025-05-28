@@ -1830,6 +1830,179 @@ export const getComponents = () => {
       ],
     },
     {
+      name: 'BackToTop',
+      category: 'UI Elements',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'CustomIcon',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.CustomIcon
+            ),
+        },
+        {
+          name: 'CustomPosition',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.CustomPosition
+            ),
+        },
+        {
+          name: 'WithCallbacks',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.WithCallbacks
+            ),
+        },
+        {
+          name: 'FastScroll',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.FastScroll
+            ),
+        },
+        {
+          name: 'SlowScroll',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.SlowScroll
+            ),
+        },
+        {
+          name: 'CustomScrollContainer',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.CustomScrollContainer
+            ),
+        },
+        {
+          name: 'Disabled',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.Disabled
+            ),
+        },
+        {
+          name: 'MultipleButtons',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.MultipleButtons
+            ),
+        },
+        {
+          name: 'InteractiveDemo',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.InteractiveDemo
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.AllVariants
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Modal',
+      category: 'UI Elements',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'CookieConsent',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.CookieConsent
+            ),
+        },
+        {
+          name: 'ConfirmationDialog',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.ConfirmationDialog
+            ),
+        },
+        {
+          name: 'SuccessNotification',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.SuccessNotification
+            ),
+        },
+        {
+          name: 'FormModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.FormModal
+            ),
+        },
+        {
+          name: 'LoadingModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.LoadingModal
+            ),
+        },
+        {
+          name: 'InfoModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.InfoModal
+            ),
+        },
+        {
+          name: 'WarningModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.WarningModal
+            ),
+        },
+        {
+          name: 'FullscreenModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.FullscreenModal
+            ),
+        },
+        {
+          name: 'NoBackdropModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.NoBackdropModal
+            ),
+        },
+        {
+          name: 'MultipleModals',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.MultipleModals
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.AllVariants
+            ),
+        },
+      ],
+    },
+    {
       name: 'StepsIndicator',
       category: 'UI Elements',
       stories: [
@@ -2161,19 +2334,7 @@ export const getComponents = () => {
         },
       ],
     },
-  
-  {
-    name: 'Modal',
-    stories: [
-      {
-        name: 'Default',
-        module: () =>
-          import('../components/Modal/Modal.stories.js').then(
-            (m) => m.Default
-          ),
-      },
-    ],
-  },];
+  ];
 
   return components;
 };

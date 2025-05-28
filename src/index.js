@@ -34,6 +34,8 @@ import PriceDisplay from './components/PriceDisplay/index.js';
 import ContactInfo from './components/ContactInfo/index.js';
 import ProductCard from './components/ProductCard/index.js';
 import Image from './components/Image/index.js';
+import Modal from './components/Modal/index.js';
+import BackToTop from './components/BackToTop/index.js';
 
 // ---- FORM COMPONENTS ----
 import Input from './components/Input/index.js';
@@ -108,6 +110,8 @@ export {
   ContactInfo,
   ProductCard,
   Image,
+  Modal,
+  BackToTop,
 
   // Form Components
   Input,
@@ -160,7 +164,6 @@ export const Layout = {
   CollapsibleHeader,
   Page,
 };
-import Modal from './components/Modal/Modal.js';
 
 export const Nav = {
   Navigation,
@@ -181,6 +184,8 @@ export const UI = {
   ContactInfo,
   ProductCard,
   Image,
+  Modal,
+  BackToTop,
 };
 
 export const Forms = {
@@ -219,7 +224,6 @@ export const Utils = {
 // ===============================================
 
 const Svarog = {
-  Modal,
   // Categories
   Layout,
   Nav,
@@ -230,6 +234,8 @@ const Svarog = {
 
   // Individual components (for backward compatibility)
   Accordion,
+  BackToTop,
+  Modal,
   Grid,
   Section,
   Header,
