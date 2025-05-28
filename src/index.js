@@ -36,6 +36,7 @@ import ProductCard from './components/ProductCard/index.js';
 import Image from './components/Image/index.js';
 import Modal from './components/Modal/index.js';
 import BackToTop from './components/BackToTop/index.js';
+import CookieConsent from './components/CookieConsent/index.js';
 
 // ---- FORM COMPONENTS ----
 import Input from './components/Input/index.js';
@@ -112,6 +113,7 @@ export {
   Image,
   Modal,
   BackToTop,
+  CookieConsent,
 
   // Form Components
   Input,
@@ -164,7 +166,6 @@ export const Layout = {
   CollapsibleHeader,
   Page,
 };
-import CookieConsent from './components/CookieConsent/CookieConsent.js';
 
 export const Nav = {
   Navigation,
@@ -187,6 +188,7 @@ export const UI = {
   Image,
   Modal,
   BackToTop,
+  CookieConsent,
 };
 
 export const Forms = {
@@ -225,7 +227,6 @@ export const Utils = {
 // ===============================================
 
 const Svarog = {
-  CookieConsent,
   // Categories
   Layout,
   Nav,
@@ -237,6 +238,7 @@ const Svarog = {
   // Individual components (for backward compatibility)
   Accordion,
   BackToTop,
+  CookieConsent,
   Modal,
   Grid,
   Section,

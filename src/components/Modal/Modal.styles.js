@@ -45,7 +45,7 @@ export const modalStyles = css`
     max-width: var(--modal-max-width, 500px);
     max-height: calc(100vh - var(--space-8));
     background: var(--modal-bg, var(--color-bg));
-    border-radius: var(--modal-radius, var(--border-radius-lg));
+    border-radius: var(--modal-radius, 0);
     box-shadow: var(--modal-shadow, var(--shadow-2xl));
     transform: scale(0.9) translateY(20px);
     opacity: 0;
@@ -83,6 +83,7 @@ export const modalStyles = css`
 
   /* Header */
   .modal__header {
+    position: relative;
     padding: var(--modal-header-padding, var(--space-4));
     border-bottom: var(
       --modal-header-border,
@@ -103,29 +104,28 @@ export const modalStyles = css`
   }
 
   .modal__close {
-    background: none;
-    border: none;
-    padding: var(--space-2);
     cursor: pointer;
-    color: var(--modal-close-color, var(--color-text-light));
-    font-size: var(--modal-close-size, var(--font-size-2xl));
-    line-height: 1;
-    transition: var(--transition-fast);
-    border-radius: var(--border-radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: var(--space-3);
-  }
 
-  .modal__close:hover {
-    color: var(--modal-close-hover-color, var(--color-text));
-    background: var(--modal-close-hover-bg, var(--color-gray-100));
-  }
+    &:after,
+    &:before {
+      content: '';
+      height: 20px;
+      width: 20px;
+      border-top: 1px solid #000;
+      position: absolute;
+      top: 7px;
+      right: -8px;
+      transform: rotate(-45deg);
+    }
 
-  .modal__close:focus {
-    outline: none;
-    box-shadow: var(--focus-ring);
+    &:before {
+      right: 6px;
+      transform: rotate(45deg);
+    }
+
+    &:hover {
+      transform: opacity(0.3);
+    }
   }
 
   /* Content */

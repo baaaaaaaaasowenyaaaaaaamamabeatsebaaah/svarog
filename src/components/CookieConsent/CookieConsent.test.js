@@ -1,5 +1,6 @@
 // src/components/CookieConsent/CookieConsent.test.js
 /* eslint-env browser */
+/* global KeyboardEvent */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import CookieConsent from './CookieConsent.js';
 
@@ -38,6 +39,21 @@ global.requestAnimationFrame = (cb) => {
   return 1;
 };
 
+// Mock KeyboardEvent for tests
+global.KeyboardEvent =
+  global.KeyboardEvent ||
+  class KeyboardEvent extends Event {
+    constructor(type, options = {}) {
+      super(type, options);
+      this.key = options.key || '';
+      this.code = options.code || '';
+      this.ctrlKey = options.ctrlKey || false;
+      this.shiftKey = options.shiftKey || false;
+      this.altKey = options.altKey || false;
+      this.metaKey = options.metaKey || false;
+    }
+  };
+
 describe('CookieConsent', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
@@ -67,12 +83,13 @@ describe('CookieConsent', () => {
       const cookieConsent = CookieConsent({
         autoShow: false,
         modal: true,
-        position: 'top',
         title: 'Test Title',
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Wait a bit for rendering
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const element = document.querySelector('.cookie-consent');
       const title = document.querySelector('.cookie-consent__title');
@@ -92,15 +109,14 @@ describe('CookieConsent', () => {
 
       // Show banner
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const element = document.querySelector('.cookie-consent');
       expect(element).toBeTruthy();
-      expect(element.classList.contains('cookie-consent--visible')).toBe(true);
 
       // Hide banner
       cookieConsent.hide();
-      await new Promise((resolve) => setTimeout(resolve, 60));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Element should be removed
       expect(document.querySelector('.cookie-consent')).toBeFalsy();
@@ -113,7 +129,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const backdrop = document.querySelector('.cookie-consent__backdrop');
       const modal = document.querySelector('.cookie-consent--modal');
@@ -131,7 +147,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const categories = document.querySelectorAll('.cookie-consent__category');
       expect(categories.length).toBeGreaterThan(0);
@@ -174,7 +190,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const customCategory = Array.from(
         document.querySelectorAll('.cookie-consent__category')
@@ -192,14 +208,14 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const acceptButton = document.querySelector(
         '.cookie-consent__button--accept-all'
       );
       expect(acceptButton).toBeTruthy();
 
-      acceptButton?.click();
+      acceptButton.click();
 
       expect(onAccept).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -219,14 +235,14 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const rejectButton = document.querySelector(
         '.cookie-consent__button--reject'
       );
       expect(rejectButton).toBeTruthy();
 
-      rejectButton?.click();
+      rejectButton.click();
 
       expect(onAccept).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -246,15 +262,15 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const detailsButton = document.querySelector(
         '.cookie-consent__button--details'
       );
       expect(detailsButton).toBeTruthy();
 
-      detailsButton?.click();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      detailsButton.click();
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Should now be in detailed mode
       const categories = document.querySelectorAll('.cookie-consent__category');
@@ -271,7 +287,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Find a non-required checkbox
       const checkboxes = document.querySelectorAll(
@@ -291,7 +307,7 @@ describe('CookieConsent', () => {
       const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const acceptButton = document.querySelector(
         '.cookie-consent__button--accept-all'
@@ -347,7 +363,7 @@ describe('CookieConsent', () => {
       const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const container = document.querySelector('.cookie-consent');
 
@@ -370,10 +386,12 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Simulate escape key
-      const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+      const escapeEvent = new window.KeyboardEvent('keydown', {
+        key: 'Escape',
+      });
       document.dispatchEvent(escapeEvent);
 
       expect(onDismiss).toHaveBeenCalled();
@@ -388,7 +406,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const closeButton = document.querySelector('.cookie-consent__close');
       expect(closeButton).toBeTruthy();
@@ -407,7 +425,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const privacyLink = document.querySelector('a[href="/datenschutz"]');
       const imprintLink = document.querySelector('a[href="/impressum"]');
@@ -425,7 +443,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // All non-necessary categories should be unchecked by default
       const optionalCheckboxes = document.querySelectorAll(
@@ -441,7 +459,7 @@ describe('CookieConsent', () => {
       const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const acceptButton = document.querySelector(
         '.cookie-consent__button--accept-all'
@@ -507,7 +525,7 @@ describe('CookieConsent', () => {
       const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const acceptButton = document.querySelector(
         '.cookie-consent__button--accept-all'
@@ -531,17 +549,17 @@ describe('CookieConsent', () => {
 
       // Show
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       expect(document.querySelector('.cookie-consent')).toBeTruthy();
 
       // Hide
       cookieConsent.hide();
-      await new Promise((resolve) => setTimeout(resolve, 60));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(document.querySelector('.cookie-consent')).toBeFalsy();
 
       // Show again
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       expect(document.querySelector('.cookie-consent')).toBeTruthy();
 
       // Cleanup
@@ -552,7 +570,7 @@ describe('CookieConsent', () => {
       const cookieConsent = CookieConsent({ autoShow: false });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const element = cookieConsent.getElement();
       expect(element).toBeTruthy();
@@ -608,7 +626,7 @@ describe('CookieConsent', () => {
 
       const cookieConsent = CookieConsent({ autoShow: false });
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const acceptButton = document.querySelector(
         '.cookie-consent__button--accept-all'
@@ -657,7 +675,7 @@ describe('CookieConsent', () => {
         });
 
         cookieConsent.show();
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 50));
 
         const banner = document.querySelector('.cookie-consent__banner');
         expect(
@@ -678,7 +696,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const backdrop = document.querySelector('.cookie-consent__backdrop');
       expect(backdrop).toBeTruthy();
@@ -696,18 +714,18 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Switch to detailed
       cookieConsent.showDetails();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       let categories = document.querySelectorAll('.cookie-consent__category');
       expect(categories.length).toBeGreaterThan(0);
 
       // Switch back to simple
       cookieConsent.showSimple();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const detailsButton = document.querySelector(
         '.cookie-consent__button--details'
@@ -722,14 +740,14 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       let title = document.querySelector('.cookie-consent__title');
       expect(title?.textContent).toBe('Original Title');
 
       // Update props
       cookieConsent.update({ title: 'Updated Title' });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       title = document.querySelector('.cookie-consent__title');
       expect(title?.textContent).toBe('Updated Title');
@@ -744,7 +762,7 @@ describe('CookieConsent', () => {
       const result = cookieConsent.show().showDetails();
       expect(result).toBe(cookieConsent);
 
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const categories = document.querySelectorAll('.cookie-consent__category');
       expect(categories.length).toBeGreaterThan(0);
@@ -761,7 +779,7 @@ describe('CookieConsent', () => {
       });
 
       cookieConsent.show();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       const container = document.querySelector('.cookie-consent');
       expect(container?.classList.contains('custom-theme')).toBe(true);

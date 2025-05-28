@@ -15,10 +15,6 @@ import { backToTopStyles } from './BackToTop.styles.js';
 // Create style injector for BackToTop component
 const injectBackToTopStyles = createStyleInjector('backtotop');
 
-// Shared scroll listener to avoid multiple instances
-let globalScrollListener = null;
-let componentInstances = new Set();
-
 /**
  * Create icon element
  * @param {string|HTMLElement} icon - Icon content
@@ -69,26 +65,79 @@ const updatePosition = (element, position) => {
 const getScrollPosition = (scrollTarget) => {
   if (!scrollTarget) return 0;
 
-  if (scrollTarget === window) {
-    return (
-      window.pageYOffset ||
-      window.scrollY ||
-      document.documentElement.scrollTop ||
-      0
+  // Window object detection (including iframe windows)
+  if (
+    scrollTarget === window ||
+    (scrollTarget.window && scrollTarget.window === scrollTarget)
+  ) {
+    return Math.max(
+      scrollTarget.pageYOffset || 0,
+      scrollTarget.scrollY || 0,
+      scrollTarget.document?.documentElement?.scrollTop || 0,
+      scrollTarget.document?.body?.scrollTop || 0
     );
   }
 
-  // Handle iframe or other window objects
-  if (scrollTarget.window === scrollTarget) {
-    return scrollTarget.pageYOffset || scrollTarget.scrollY || 0;
-  }
-
-  // Handle regular DOM elements
-  if (scrollTarget.scrollTop !== undefined) {
+  // DOM element
+  if (scrollTarget && typeof scrollTarget.scrollTop === 'number') {
     return scrollTarget.scrollTop;
   }
 
   return 0;
+};
+
+/**
+ * Detect the actual scrolling container in current environment
+ * @returns {Element|Window} The scrolling container
+ */
+const detectScrollContainer = () => {
+  // In iframe (like Storybook), check parent window first
+  if (window.parent !== window) {
+    try {
+      // Check if parent window is accessible
+      if (window.parent.document) {
+        const parentScrollable =
+          window.parent.document.scrollingElement ||
+          window.parent.document.documentElement ||
+          window.parent.document.body;
+
+        if (parentScrollable && getScrollPosition(parentScrollable) >= 0) {
+          return parentScrollable;
+        }
+      }
+    } catch (_e) {
+      // Cross-origin restriction, continue with current window
+    }
+  }
+
+  // Check current window/document
+  const candidates = [
+    document.scrollingElement,
+    document.documentElement,
+    document.body,
+    window,
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+
+    if (candidate === window) {
+      return candidate;
+    }
+
+    const style = window.getComputedStyle(candidate);
+    const hasScroll =
+      style.overflow === 'auto' ||
+      style.overflow === 'scroll' ||
+      style.overflowY === 'auto' ||
+      style.overflowY === 'scroll';
+
+    if (hasScroll || candidate.scrollHeight > candidate.clientHeight) {
+      return candidate;
+    }
+  }
+
+  return window;
 };
 
 /**
@@ -99,8 +148,12 @@ const getScrollPosition = (scrollTarget) => {
  */
 const smoothScrollToTop = (scrollTarget, scrollDuration, onComplete) => {
   const startPosition = getScrollPosition(scrollTarget);
-  const startTime = performance.now();
+  if (startPosition <= 0) {
+    onComplete?.();
+    return;
+  }
 
+  const startTime = performance.now();
   const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
   const animateScroll = (currentTime) => {
@@ -110,9 +163,10 @@ const smoothScrollToTop = (scrollTarget, scrollDuration, onComplete) => {
     const scrollPosition = startPosition * (1 - easeProgress);
 
     // Scroll to the calculated position
-    if (scrollTarget === window) {
-      window.scrollTo(0, scrollPosition);
-    } else if (scrollTarget.window === scrollTarget) {
+    if (
+      scrollTarget === window ||
+      (scrollTarget.window && scrollTarget.window === scrollTarget)
+    ) {
       scrollTarget.scrollTo(0, scrollPosition);
     } else {
       scrollTarget.scrollTop = scrollPosition;
@@ -120,23 +174,12 @@ const smoothScrollToTop = (scrollTarget, scrollDuration, onComplete) => {
 
     if (progress < 1) {
       requestAnimationFrame(animateScroll);
-    } else if (onComplete) {
-      onComplete();
+    } else {
+      onComplete?.();
     }
   };
 
   requestAnimationFrame(animateScroll);
-};
-
-/**
- * Global scroll handler for all instances
- */
-const handleGlobalScroll = () => {
-  componentInstances.forEach((instance) => {
-    if (instance.checkVisibility) {
-      instance.checkVisibility();
-    }
-  });
 };
 
 /**
@@ -188,9 +231,7 @@ const createBackToTop = (props = {}) => {
       scrollTarget: {
         validator: (value) => {
           return (
-            !value ||
-            value === window ||
-            (value && typeof value === 'object' && 'scrollTop' in value)
+            !value || value === window || (value && typeof value === 'object')
           );
         },
       },
@@ -214,12 +255,16 @@ const createBackToTop = (props = {}) => {
     'BackToTop'
   );
 
+  // Auto-detect scroll target if not provided
+  const autoScrollTarget =
+    props.scrollTarget ||
+    (typeof window !== 'undefined' ? detectScrollContainer() : null);
+
   // Initial state
   const state = {
     showAfter: props.showAfter || 300,
     scrollDuration: props.scrollDuration || 500,
-    scrollTarget:
-      props.scrollTarget || (typeof window !== 'undefined' ? window : null),
+    scrollTarget: autoScrollTarget,
     icon: props.icon || '↑',
     ariaLabel: props.ariaLabel || 'Back to top',
     position: props.position || { bottom: '2rem', right: '2rem' },
@@ -235,12 +280,14 @@ const createBackToTop = (props = {}) => {
   // Create base component
   const backToTopComponent = createBaseComponent(renderBackToTop)(state);
 
-  // Instance-specific methods and handlers
+  // Instance-specific properties
   let currentElement = null;
+  let scrollListener = null;
+  let destroyed = false;
 
   // Check visibility based on scroll position
-  backToTopComponent.checkVisibility = function () {
-    if (!state.scrollTarget || state.disabled) return;
+  const checkVisibility = () => {
+    if (destroyed || !state.scrollTarget || state.disabled) return;
 
     const scrollPosition = getScrollPosition(state.scrollTarget);
     const shouldShow = scrollPosition > state.showAfter;
@@ -248,7 +295,6 @@ const createBackToTop = (props = {}) => {
     if (shouldShow !== state.isVisible) {
       state.isVisible = shouldShow;
 
-      currentElement = this.getElement();
       if (currentElement) {
         currentElement.classList.toggle('back-to-top--visible', shouldShow);
         currentElement.setAttribute('aria-hidden', (!shouldShow).toString());
@@ -263,9 +309,14 @@ const createBackToTop = (props = {}) => {
     }
   };
 
+  // Throttled scroll handler
+  const createScrollHandler = () => {
+    return throttle(checkVisibility, 16); // 60fps
+  };
+
   // Handle click and keyboard events
   const handleInteraction = (event) => {
-    if (state.disabled || state.isScrolling) return;
+    if (destroyed || state.disabled || state.isScrolling) return;
 
     event.preventDefault();
 
@@ -283,34 +334,57 @@ const createBackToTop = (props = {}) => {
     }
   };
 
+  // Setup scroll listener
+  const setupScrollListener = () => {
+    if (!state.scrollTarget || destroyed) return;
+
+    // Remove existing listener
+    if (scrollListener) {
+      state.scrollTarget.removeEventListener('scroll', scrollListener);
+    }
+
+    // Create new throttled listener
+    scrollListener = createScrollHandler();
+
+    // Add passive listener for better performance
+    state.scrollTarget.addEventListener('scroll', scrollListener, {
+      passive: true,
+    });
+
+    // Initial visibility check
+    setTimeout(checkVisibility, 0);
+  };
+
   // Override getElement to set up event listeners
   const originalGetElement = backToTopComponent.getElement;
   backToTopComponent.getElement = function () {
+    if (destroyed) return null;
+
     if (!currentElement) {
       currentElement = originalGetElement.call(this);
 
-      // Attach click handler
+      // Attach interaction handlers
       currentElement.addEventListener('click', handleInteraction);
-
-      // Attach keyboard handler
       currentElement.addEventListener('keydown', (event) => {
-        if (state.disabled) return;
+        if (destroyed || state.disabled) return;
 
         if (event.key === 'Enter' || event.key === ' ') {
           handleInteraction(event);
         }
       });
 
-      currentElement._backToTopHandlersAdded = true;
+      // Setup scroll monitoring
+      setupScrollListener();
     }
 
     return currentElement;
   };
 
-  // Add public methods
+  // Public methods
   backToTopComponent.show = function () {
+    if (destroyed) return this;
+
     state.isVisible = true;
-    currentElement = this.getElement();
     if (currentElement) {
       currentElement.classList.add('back-to-top--visible');
       currentElement.setAttribute('aria-hidden', 'false');
@@ -320,8 +394,9 @@ const createBackToTop = (props = {}) => {
   };
 
   backToTopComponent.hide = function () {
+    if (destroyed) return this;
+
     state.isVisible = false;
-    currentElement = this.getElement();
     if (currentElement) {
       currentElement.classList.remove('back-to-top--visible');
       currentElement.setAttribute('aria-hidden', 'true');
@@ -331,26 +406,36 @@ const createBackToTop = (props = {}) => {
   };
 
   backToTopComponent.scrollToTop = function () {
-    if (state.scrollTarget && !state.isScrolling) {
-      state.isScrolling = true;
-      smoothScrollToTop(state.scrollTarget, state.scrollDuration, () => {
+    if (destroyed || !state.scrollTarget || state.isScrolling) return this;
+
+    state.isScrolling = true;
+    smoothScrollToTop(state.scrollTarget, state.scrollDuration, () => {
+      if (!destroyed) {
         state.isScrolling = false;
-      });
-    }
+      }
+    });
     return this;
   };
 
   // Override update to handle special cases
   const originalUpdate = backToTopComponent.update;
   backToTopComponent.update = function (newProps) {
-    // Prevent updates if component is destroyed
-    if (this._destroyed) {
-      console.warn('Attempted to update destroyed component');
+    if (destroyed) {
+      console.warn('Attempted to update destroyed BackToTop component');
       return this;
     }
 
-    // Update internal state
+    // Handle scroll target change
+    const oldScrollTarget = state.scrollTarget;
     Object.assign(state, newProps);
+
+    // If scroll target changed, update listener
+    if (
+      newProps.scrollTarget !== undefined &&
+      state.scrollTarget !== oldScrollTarget
+    ) {
+      setupScrollListener();
+    }
 
     // Update element attributes if it exists
     if (currentElement) {
@@ -383,45 +468,33 @@ const createBackToTop = (props = {}) => {
     return originalUpdate.call(this, newProps);
   };
 
-  // Override destroy to clean up
+  // Override destroy to clean up properly
   const originalDestroy = backToTopComponent.destroy;
   backToTopComponent.destroy = function () {
-    // Mark as destroyed
-    this._destroyed = true;
+    if (destroyed) return this;
 
-    // Remove from global instances
-    componentInstances.delete(this);
+    destroyed = true;
 
-    // Clean up global scroll listener if no instances left
-    if (componentInstances.size === 0 && globalScrollListener) {
-      if (state.scrollTarget) {
-        state.scrollTarget.removeEventListener('scroll', globalScrollListener);
-      }
-      globalScrollListener = null;
+    // Remove scroll listener
+    if (scrollListener && state.scrollTarget) {
+      state.scrollTarget.removeEventListener('scroll', scrollListener);
+      scrollListener = null;
     }
 
     // Remove element from DOM
     if (currentElement && currentElement.parentNode) {
       currentElement.parentNode.removeChild(currentElement);
     }
+    currentElement = null;
 
     return originalDestroy.call(this);
   };
 
-  // Add to global instances and set up scroll listener
-  componentInstances.add(backToTopComponent);
+  // Add a method to check if component is destroyed
+  backToTopComponent.isDestroyed = () => destroyed;
 
-  if (state.scrollTarget && !globalScrollListener) {
-    globalScrollListener = throttle(handleGlobalScroll, 16); // 60fps
-    state.scrollTarget.addEventListener('scroll', globalScrollListener, {
-      passive: true,
-    });
-  }
-
-  // Initial visibility check
-  if (typeof window !== 'undefined') {
-    setTimeout(() => backToTopComponent.checkVisibility(), 0);
-  }
+  // Expose checkVisibility for manual triggering
+  backToTopComponent.checkVisibility = checkVisibility;
 
   return backToTopComponent;
 };

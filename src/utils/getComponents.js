@@ -1913,6 +1913,82 @@ export const getComponents = () => {
       ],
     },
     {
+      name: 'CookieConsent',
+      category: 'UI Elements', // oder 'Legal' - je nach deiner Präferenz
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'ModalMode',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.ModalMode
+            ),
+        },
+        {
+          name: 'TopBanner',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.TopBanner
+            ),
+        },
+        {
+          name: 'DetailedView',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.DetailedView
+            ),
+        },
+        {
+          name: 'WithLegalLinks',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.WithLegalLinks
+            ),
+        },
+        {
+          name: 'ECommerceSetup',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.ECommerceSetup
+            ),
+        },
+        {
+          name: 'CorporateSetup',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.CorporateSetup
+            ),
+        },
+        {
+          name: 'ManagementFunctions',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.ManagementFunctions
+            ),
+        },
+        {
+          name: 'AutoShowDemo',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.AutoShowDemo
+            ),
+        },
+        {
+          name: 'AllPositions',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.AllPositions
+            ),
+        },
+      ],
+    },
+    {
       name: 'Modal',
       category: 'UI Elements',
       stories: [
