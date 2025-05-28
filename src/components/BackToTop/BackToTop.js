@@ -62,77 +62,6 @@ const updatePosition = (element, position) => {
 };
 
 /**
- * Get the default scroll target for the environment
- * @returns {HTMLElement|Window} Default scroll target
- */
-const getDefaultScrollTarget = () => {
-  if (typeof window === 'undefined') return null;
-
-  // In some environments (like Storybook), the main content might be in an iframe
-  try {
-    // Check if we're in an iframe
-    if (window.parent !== window) {
-      // Look for Storybook's iframe content or similar containers
-      const storyRoot = document.querySelector(
-        '#storybook-root, #root, .sb-show-main'
-      );
-      if (storyRoot) {
-        const scrollableParent = findScrollableParent(storyRoot);
-        if (scrollableParent) return scrollableParent;
-      }
-    }
-
-    // Check for common scroll containers
-    const commonContainers = [
-      '#__next', // Next.js
-      '#root', // React
-      '.app', // Common class
-      'main', // Semantic HTML
-      '.main-content',
-    ];
-
-    for (const selector of commonContainers) {
-      const container = document.querySelector(selector);
-      if (container) {
-        const scrollableParent = findScrollableParent(container);
-        if (scrollableParent) return scrollableParent;
-      }
-    }
-
-    return window;
-  } catch (_error) {
-    return window;
-  }
-};
-
-/**
- * Find the nearest scrollable parent element
- * @param {HTMLElement} element - Starting element
- * @returns {HTMLElement|Window|null} Scrollable parent or null
- */
-const findScrollableParent = (element) => {
-  if (!element) return null;
-
-  let parent = element.parentElement;
-  while (parent && parent !== document.body) {
-    const overflow = window.getComputedStyle(parent).overflow;
-    const overflowY = window.getComputedStyle(parent).overflowY;
-
-    if (
-      overflow === 'auto' ||
-      overflow === 'scroll' ||
-      overflowY === 'auto' ||
-      overflowY === 'scroll'
-    ) {
-      return parent;
-    }
-    parent = parent.parentElement;
-  }
-
-  return window;
-};
-
-/**
  * Get scroll position from various scroll targets
  * @param {HTMLElement|Window} scrollTarget - Scroll target
  * @returns {number} Current scroll position
@@ -159,18 +88,7 @@ const getScrollPosition = (scrollTarget) => {
     return scrollTarget.scrollTop;
   }
 
-  // Try to find the nearest scrollable ancestor
-  let parent = scrollTarget.parentElement;
-  while (parent) {
-    const overflow = window.getComputedStyle(parent).overflow;
-    if (overflow === 'auto' || overflow === 'scroll') {
-      return parent.scrollTop;
-    }
-    parent = parent.parentElement;
-  }
-
-  // Fall back to document scroll
-  return document.documentElement.scrollTop || document.body.scrollTop || 0;
+  return 0;
 };
 
 /**
@@ -300,7 +218,8 @@ const createBackToTop = (props = {}) => {
   const state = {
     showAfter: props.showAfter || 300,
     scrollDuration: props.scrollDuration || 500,
-    scrollTarget: props.scrollTarget || getDefaultScrollTarget(),
+    scrollTarget:
+      props.scrollTarget || (typeof window !== 'undefined' ? window : null),
     icon: props.icon || '↑',
     ariaLabel: props.ariaLabel || 'Back to top',
     position: props.position || { bottom: '2rem', right: '2rem' },

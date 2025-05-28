@@ -1,4 +1,3 @@
-// src/components/CookieConsent/CookieConsent.js
 import { createElement } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
@@ -7,9 +6,7 @@ import { cookieConsentStyles } from './CookieConsent.styles.js';
 
 const injectCookieConsentStyles = createStyleInjector('CookieConsent');
 
-/**
- * Cookie categories with German descriptions as per DSGVO requirements
- */
+// Default cookie categories
 const DEFAULT_COOKIE_CATEGORIES = {
   necessary: {
     id: 'necessary',
@@ -45,9 +42,7 @@ const DEFAULT_COOKIE_CATEGORIES = {
   },
 };
 
-/**
- * Cookie storage manager
- */
+// Cookie storage manager
 class CookieManager {
   static CONSENT_KEY = 'svarog_cookie_consent';
   static VERSION = '1.0';
@@ -132,9 +127,7 @@ class CookieManager {
   }
 }
 
-/**
- * Renders the cookie consent banner
- */
+// Render cookie consent component
 const renderCookieConsent = (state) => {
   injectCookieConsentStyles(cookieConsentStyles);
 
@@ -143,36 +136,33 @@ const renderCookieConsent = (state) => {
     ...state.customCategories,
   };
 
-  // Create title
+  // Create elements
   const title = createElement('h2', {
-    classes: 'cookie-consent__title',
-    attributes: { id: 'cookie-consent-title' },
-    text: state.title || 'Cookie-Einstellungen',
+    className: 'cookie-consent__title',
+    id: 'cookie-consent-title',
+    textContent: state.title || 'Cookie-Einstellungen',
   });
 
-  // Create close button if needed
   const closeButton = state.showCloseButton
     ? createElement('button', {
-        classes: 'cookie-consent__close',
+        className: 'cookie-consent__close',
         attributes: { 'aria-label': 'Schließen' },
-        html: '&times;',
-        events: {
+        innerHTML: '&times;',
+        eventListeners: {
           click: () => state.onDismiss?.(),
         },
       })
     : null;
 
-  // Create header
   const header = createElement('div', {
-    classes: 'cookie-consent__header',
+    className: 'cookie-consent__header',
     children: [title, closeButton].filter(Boolean),
   });
 
-  // Create description
   const description = createElement('div', {
-    classes: 'cookie-consent__description',
-    attributes: { id: 'cookie-consent-description' },
-    html:
+    className: 'cookie-consent__description',
+    id: 'cookie-consent-description',
+    innerHTML:
       state.description ||
       `
       <p>Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung auf unserer Website zu bieten. 
@@ -183,11 +173,11 @@ const renderCookieConsent = (state) => {
     `,
   });
 
-  // Create categories (detailed view only)
+  // Create categories for detailed mode
   const categoriesContainer =
     state.mode === 'detailed'
       ? createElement('div', {
-          classes: 'cookie-consent__categories',
+          className: 'cookie-consent__categories',
           children: Object.values(categories).map((category) => {
             const checkbox = createElement('input', {
               attributes: {
@@ -195,8 +185,8 @@ const renderCookieConsent = (state) => {
                 checked: category.enabled,
                 disabled: category.required,
               },
-              classes: 'cookie-consent__category-checkbox',
-              events: {
+              className: 'cookie-consent__category-checkbox',
+              eventListeners: {
                 change: (e) => {
                   category.enabled = e.target.checked;
                   state.onCategoryChange?.(category.id, e.target.checked);
@@ -205,46 +195,52 @@ const renderCookieConsent = (state) => {
             });
 
             const categoryName = createElement('span', {
-              classes: 'cookie-consent__category-name',
-              text: category.name,
+              className: 'cookie-consent__category-name',
+              textContent: category.name,
             });
 
             const requiredBadge = category.required
               ? createElement('span', {
-                  classes: 'cookie-consent__required-badge',
-                  text: 'Erforderlich',
+                  className: 'cookie-consent__required-badge',
+                  textContent: 'Erforderlich',
                 })
               : null;
 
             const categoryLabel = createElement('label', {
-              classes: 'cookie-consent__category-label',
+              className: 'cookie-consent__category-label',
               children: [checkbox, categoryName, requiredBadge].filter(Boolean),
             });
 
             const categoryHeader = createElement('div', {
-              classes: 'cookie-consent__category-header',
+              className: 'cookie-consent__category-header',
               children: [categoryLabel],
             });
 
             const categoryDesc = createElement('div', {
-              classes: 'cookie-consent__category-description',
-              text: category.description,
+              className: 'cookie-consent__category-description',
+              textContent: category.description,
             });
 
-            return createElement('div', {
-              classes:
+            const categoryEl = createElement('div', {
+              className:
                 `cookie-consent__category ${category.required ? 'cookie-consent__category--required' : ''}`.trim(),
               children: [categoryHeader, categoryDesc],
             });
+
+            // Store reference to checkbox and category
+            categoryEl._checkbox = checkbox;
+            categoryEl._category = category;
+
+            return categoryEl;
           }),
         })
       : null;
 
   // Create buttons
   const rejectButton = createElement('button', {
-    classes: 'cookie-consent__button cookie-consent__button--reject',
-    text: 'Nur notwendige',
-    events: {
+    className: 'cookie-consent__button cookie-consent__button--reject',
+    textContent: 'Nur notwendige',
+    eventListeners: {
       click: () => {
         const preferences = {};
         Object.keys(categories).forEach((key) => {
@@ -258,9 +254,9 @@ const renderCookieConsent = (state) => {
   const detailsButton =
     state.mode === 'simple'
       ? createElement('button', {
-          classes: 'cookie-consent__button cookie-consent__button--details',
-          text: 'Einstellungen anpassen',
-          events: {
+          className: 'cookie-consent__button cookie-consent__button--details',
+          textContent: 'Einstellungen anpassen',
+          eventListeners: {
             click: () => state.onShowDetails?.(),
           },
         })
@@ -269,15 +265,19 @@ const renderCookieConsent = (state) => {
   const acceptSelectedButton =
     state.mode === 'detailed'
       ? createElement('button', {
-          classes:
+          className:
             'cookie-consent__button cookie-consent__button--accept-selected',
-          text: 'Auswahl speichern',
-          events: {
+          textContent: 'Auswahl speichern',
+          eventListeners: {
             click: () => {
               const preferences = {};
-              Object.keys(categories).forEach((key) => {
-                preferences[key] = categories[key].enabled;
-              });
+              categoriesContainer
+                .querySelectorAll('.cookie-consent__category')
+                .forEach((catEl) => {
+                  const category = catEl._category;
+                  const checkbox = catEl._checkbox;
+                  preferences[category.id] = checkbox.checked;
+                });
               state.onAccept?.(preferences);
             },
           },
@@ -285,9 +285,9 @@ const renderCookieConsent = (state) => {
       : null;
 
   const acceptAllButton = createElement('button', {
-    classes: 'cookie-consent__button cookie-consent__button--accept-all',
-    text: 'Alle akzeptieren',
-    events: {
+    className: 'cookie-consent__button cookie-consent__button--accept-all',
+    textContent: 'Alle akzeptieren',
+    eventListeners: {
       click: () => {
         const preferences = {};
         Object.keys(categories).forEach((key) => {
@@ -298,9 +298,8 @@ const renderCookieConsent = (state) => {
     },
   });
 
-  // Create actions container
   const actions = createElement('div', {
-    classes: 'cookie-consent__actions',
+    className: 'cookie-consent__actions',
     children: [
       rejectButton,
       detailsButton,
@@ -313,7 +312,7 @@ const renderCookieConsent = (state) => {
   const legal =
     state.privacyPolicyUrl || state.imprintUrl
       ? createElement('div', {
-          classes: 'cookie-consent__legal',
+          className: 'cookie-consent__legal',
           children: [
             state.privacyPolicyUrl
               ? createElement('a', {
@@ -322,8 +321,8 @@ const renderCookieConsent = (state) => {
                     target: '_blank',
                     rel: 'noopener noreferrer',
                   },
-                  classes: 'cookie-consent__legal-link',
-                  text: 'Datenschutzerklärung',
+                  className: 'cookie-consent__legal-link',
+                  textContent: 'Datenschutzerklärung',
                 })
               : null,
             state.imprintUrl
@@ -333,61 +332,41 @@ const renderCookieConsent = (state) => {
                     target: '_blank',
                     rel: 'noopener noreferrer',
                   },
-                  classes: 'cookie-consent__legal-link',
-                  text: 'Impressum',
+                  className: 'cookie-consent__legal-link',
+                  textContent: 'Impressum',
                 })
               : null,
           ].filter(Boolean),
         })
       : null;
 
-  // Create content container
   const content = createElement('div', {
-    classes: 'cookie-consent__content',
+    className: 'cookie-consent__content',
     children: [header, description, categoriesContainer, actions, legal].filter(
       Boolean
     ),
   });
 
-  // Create banner with proper class handling
-  const bannerClasses = [
-    'cookie-consent__banner',
-    `cookie-consent__banner--${state.position || 'bottom'}`,
-    state.mode === 'detailed' ? 'cookie-consent__banner--detailed' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   const banner = createElement('div', {
-    classes: bannerClasses,
+    className: `cookie-consent__banner cookie-consent__banner--${state.position || 'bottom'}${state.mode === 'detailed' ? ' cookie-consent__banner--detailed' : ''}`,
     children: [content],
   });
 
-  // Create backdrop for modal mode
   const backdrop = state.modal
     ? createElement('div', {
-        classes: 'cookie-consent__backdrop',
-        events: {
-          click: (e) => {
-            if (e.target === e.currentTarget && state.closeOnBackdrop) {
-              state.onDismiss?.();
+        className: 'cookie-consent__backdrop',
+        eventListeners: state.closeOnBackdrop
+          ? {
+              click: (e) => {
+                if (e.target === e.currentTarget) state.onDismiss?.();
+              },
             }
-          },
-        },
+          : {},
       })
     : null;
 
-  // Create main container with proper class handling
-  const containerClasses = [
-    'cookie-consent',
-    state.modal ? 'cookie-consent--modal' : 'cookie-consent--banner',
-    state.className || '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   const container = createElement('div', {
-    classes: containerClasses,
+    className: `cookie-consent${state.modal ? ' cookie-consent--modal' : ' cookie-consent--banner'}${state.className ? ' ' + state.className : ''}`,
     attributes: {
       role: 'dialog',
       'aria-modal': state.modal ? 'true' : 'false',
@@ -397,28 +376,17 @@ const renderCookieConsent = (state) => {
     children: [backdrop, banner].filter(Boolean),
   });
 
-  // Keyboard handling
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape' && state.closeOnEscape) {
-      state.onDismiss?.();
-    }
-  };
-
-  document.addEventListener('keydown', handleKeyDown);
-  container._cleanup = () => {
-    document.removeEventListener('keydown', handleKeyDown);
-  };
+  // Store categories reference
+  container._categories = categories;
 
   return container;
 };
 
-/**
- * Creates a Cookie Consent component
- */
+// Create cookie consent component
 const createCookieConsent = (props = {}) => {
   const state = {
-    mode: 'simple', // 'simple' | 'detailed'
-    position: 'bottom', // 'top' | 'bottom' | 'center'
+    mode: 'simple',
+    position: 'bottom',
     modal: false,
     showCloseButton: false,
     closeOnBackdrop: false,
@@ -429,119 +397,157 @@ const createCookieConsent = (props = {}) => {
   };
 
   let isVisible = false;
+  let element = null;
+  let keydownHandler = null;
 
-  const component = createBaseComponent(renderCookieConsent)(state);
+  const baseComponent = createBaseComponent(renderCookieConsent)(state);
 
-  // Check if consent is needed and auto-show
-  const checkAndShow = () => {
-    if (state.autoShow && !CookieManager.hasValidConsent()) {
-      component.show();
-    }
-  };
+  // Create component wrapper
+  const component = {
+    ...baseComponent,
 
-  // Enhanced show method
-  component.show = function () {
-    if (isVisible) return this;
+    show() {
+      if (isVisible) return this;
 
-    isVisible = true;
-    const element = this.getElement();
+      isVisible = true;
+      element = this.getElement();
 
-    // Only append if not already in DOM
-    if (!element.parentNode) {
-      document.body.appendChild(element);
-    }
+      // Ensure element is in DOM
+      if (!element.parentNode) {
+        document.body.appendChild(element);
+      }
 
-    // Add body class for modal
-    if (state.modal) {
-      document.body.classList.add('cookie-consent-open');
-    }
+      if (state.modal) {
+        document.body.classList.add('cookie-consent-open');
+      }
 
-    // Trigger animation
-    requestAnimationFrame(() => {
-      element.classList.add('cookie-consent--visible');
-    });
+      // Setup escape key handler
+      if (state.closeOnEscape) {
+        keydownHandler = (e) => {
+          if (e.key === 'Escape') handleDismiss();
+        };
+        document.addEventListener('keydown', keydownHandler);
+      }
 
-    return this;
-  };
+      // Trigger animation
+      requestAnimationFrame(() => {
+        if (element) {
+          element.classList.add('cookie-consent--visible');
+        }
+      });
 
-  // Enhanced hide method with proper cleanup
-  component.hide = function () {
-    if (!isVisible) return this;
+      return this;
+    },
 
-    const element = this.getElement();
-    element.classList.remove('cookie-consent--visible');
+    hide() {
+      if (!isVisible) return this;
 
-    const cleanupAndRemove = () => {
+      element = this.getElement();
+      if (element) {
+        element.classList.remove('cookie-consent--visible');
+      }
+
+      const cleanup = () => {
+        if (element && element.parentNode) {
+          element.parentNode.removeChild(element);
+        }
+        document.body.classList.remove('cookie-consent-open');
+
+        if (keydownHandler) {
+          document.removeEventListener('keydown', keydownHandler);
+          keydownHandler = null;
+        }
+
+        isVisible = false;
+      };
+
+      // Wait for transition
+      if (element) {
+        const handleTransitionEnd = (e) => {
+          if (e.target === element) {
+            element.removeEventListener('transitionend', handleTransitionEnd);
+            cleanup();
+          }
+        };
+
+        element.addEventListener('transitionend', handleTransitionEnd);
+
+        // Fallback cleanup
+        setTimeout(() => {
+          if (element) {
+            element.removeEventListener('transitionend', handleTransitionEnd);
+          }
+          cleanup();
+        }, 50);
+      } else {
+        cleanup();
+      }
+
+      return this;
+    },
+
+    showDetails() {
+      state.mode = 'detailed';
+      this.update({ mode: 'detailed' });
+      return this;
+    },
+
+    showSimple() {
+      state.mode = 'simple';
+      this.update({ mode: 'simple' });
+      return this;
+    },
+
+    getPreferences() {
+      return CookieManager.getConsent()?.preferences || null;
+    },
+
+    hasConsent(category = null) {
+      const consent = CookieManager.getConsent();
+      if (!consent) return false;
+
+      if (category) {
+        return consent.preferences[category] === true;
+      }
+
+      return true;
+    },
+
+    revokeConsent() {
+      CookieManager.clearConsent();
+      if (state.autoShow) {
+        this.show();
+      }
+      return this;
+    },
+
+    destroy() {
+      if (keydownHandler) {
+        document.removeEventListener('keydown', keydownHandler);
+        keydownHandler = null;
+      }
+
+      if (isVisible) {
+        document.body.classList.remove('cookie-consent-open');
+      }
+
+      element = this.getElement();
       if (element && element.parentNode) {
         element.parentNode.removeChild(element);
       }
-      document.body.classList.remove('cookie-consent-open');
+
       isVisible = false;
-    };
 
-    // Listen for transition end
-    const handleTransitionEnd = (e) => {
-      if (e.target === element) {
-        element.removeEventListener('transitionend', handleTransitionEnd);
-        cleanupAndRemove();
-      }
-    };
-
-    element.addEventListener('transitionend', handleTransitionEnd);
-
-    // Fallback cleanup - shorter timeout for tests
-    setTimeout(() => {
-      element.removeEventListener('transitionend', handleTransitionEnd);
-      cleanupAndRemove();
-    }, 50); // Reduced from 300ms to 50ms for faster tests
-
-    return this;
-  };
-
-  // Enhanced update method to trigger re-render
-  component.shouldRerender = () => true; // Always rerender for proper state updates
-
-  component.showDetails = function () {
-    state.mode = 'detailed';
-    this.update({ mode: 'detailed' });
-    return this;
-  };
-
-  component.showSimple = function () {
-    state.mode = 'simple';
-    this.update({ mode: 'simple' });
-    return this;
-  };
-
-  component.getPreferences = function () {
-    return CookieManager.getConsent()?.preferences || null;
-  };
-
-  component.hasConsent = function (category = null) {
-    const consent = CookieManager.getConsent();
-    if (!consent) return false;
-
-    if (category) {
-      return consent.preferences[category] === true;
-    }
-
-    return true;
-  };
-
-  component.revokeConsent = function () {
-    CookieManager.clearConsent();
-    if (state.autoShow) {
-      this.show();
-    }
-    return this;
+      return baseComponent.destroy.call(this);
+    },
   };
 
   // Event handlers
-  state.onAccept = (preferences) => {
+  const handleAccept = (preferences) => {
     CookieManager.saveConsent(preferences);
     component.hide();
 
-    // Trigger custom event
+    // Dispatch event
     window.dispatchEvent(
       new CustomEvent('cookieConsentAccepted', {
         detail: { preferences },
@@ -551,45 +557,27 @@ const createCookieConsent = (props = {}) => {
     props.onAccept?.(preferences);
   };
 
-  state.onDismiss = () => {
+  const handleDismiss = () => {
     component.hide();
     props.onDismiss?.();
   };
 
+  // Setup state callbacks
+  state.onAccept = handleAccept;
+  state.onDismiss = handleDismiss;
   state.onShowDetails = () => {
     component.showDetails();
     props.onShowDetails?.();
   };
+  state.onCategoryChange = props.onCategoryChange;
 
-  state.onCategoryChange = (categoryId, enabled) => {
-    props.onCategoryChange?.(categoryId, enabled);
-  };
-
-  // Enhanced destroy with proper element removal
-  const originalDestroy = component.destroy;
-  component.destroy = function () {
-    if (this.getElement()?._cleanup) {
-      this.getElement()._cleanup();
-    }
-
-    if (isVisible) {
-      document.body.classList.remove('cookie-consent-open');
-    }
-
-    // Force remove element from DOM
-    const element = this.getElement();
-    if (element && element.parentNode) {
-      element.parentNode.removeChild(element);
-    }
-
-    isVisible = false;
-
-    return originalDestroy.call(this);
-  };
-
-  // Auto-check on creation
-  if (typeof document !== 'undefined') {
-    setTimeout(checkAndShow, 100);
+  // Auto-show check
+  if (typeof document !== 'undefined' && state.autoShow) {
+    setTimeout(() => {
+      if (!CookieManager.hasValidConsent()) {
+        component.show();
+      }
+    }, 100);
   }
 
   return component;
