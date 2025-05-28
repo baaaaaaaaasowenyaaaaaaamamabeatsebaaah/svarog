@@ -1,4 +1,4 @@
-// src/components/BackToTop/BackToTop.js
+// src/components/BackToTop/BackToTop.js (Simplified Version)
 import {
   createElement,
   createComponent,
@@ -44,12 +44,10 @@ const createIcon = (icon = '↑') => {
 const updatePosition = (element, position) => {
   if (!element || !position) return;
 
-  // Clear existing position styles first
   ['top', 'right', 'bottom', 'left'].forEach((prop) => {
     element.style[prop] = '';
   });
 
-  // Apply new position styles
   Object.entries(position).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
       element.style[key] = typeof value === 'number' ? `${value}px` : value;
@@ -58,86 +56,18 @@ const updatePosition = (element, position) => {
 };
 
 /**
- * Get scroll position from various scroll targets
+ * Get scroll position from scroll target
  * @param {HTMLElement|Window} scrollTarget - Scroll target
  * @returns {number} Current scroll position
  */
 const getScrollPosition = (scrollTarget) => {
   if (!scrollTarget) return 0;
 
-  // Window object detection (including iframe windows)
-  if (
-    scrollTarget === window ||
-    (scrollTarget.window && scrollTarget.window === scrollTarget)
-  ) {
-    return Math.max(
-      scrollTarget.pageYOffset || 0,
-      scrollTarget.scrollY || 0,
-      scrollTarget.document?.documentElement?.scrollTop || 0,
-      scrollTarget.document?.body?.scrollTop || 0
-    );
+  if (scrollTarget === window) {
+    return window.pageYOffset || document.documentElement.scrollTop || 0;
   }
 
-  // DOM element
-  if (scrollTarget && typeof scrollTarget.scrollTop === 'number') {
-    return scrollTarget.scrollTop;
-  }
-
-  return 0;
-};
-
-/**
- * Detect the actual scrolling container in current environment
- * @returns {Element|Window} The scrolling container
- */
-const detectScrollContainer = () => {
-  // In iframe (like Storybook), check parent window first
-  if (window.parent !== window) {
-    try {
-      // Check if parent window is accessible
-      if (window.parent.document) {
-        const parentScrollable =
-          window.parent.document.scrollingElement ||
-          window.parent.document.documentElement ||
-          window.parent.document.body;
-
-        if (parentScrollable && getScrollPosition(parentScrollable) >= 0) {
-          return parentScrollable;
-        }
-      }
-    } catch (_e) {
-      // Cross-origin restriction, continue with current window
-    }
-  }
-
-  // Check current window/document
-  const candidates = [
-    document.scrollingElement,
-    document.documentElement,
-    document.body,
-    window,
-  ];
-
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-
-    if (candidate === window) {
-      return candidate;
-    }
-
-    const style = window.getComputedStyle(candidate);
-    const hasScroll =
-      style.overflow === 'auto' ||
-      style.overflow === 'scroll' ||
-      style.overflowY === 'auto' ||
-      style.overflowY === 'scroll';
-
-    if (hasScroll || candidate.scrollHeight > candidate.clientHeight) {
-      return candidate;
-    }
-  }
-
-  return window;
+  return scrollTarget.scrollTop || 0;
 };
 
 /**
@@ -162,12 +92,8 @@ const smoothScrollToTop = (scrollTarget, scrollDuration, onComplete) => {
     const easeProgress = easeOutCubic(progress);
     const scrollPosition = startPosition * (1 - easeProgress);
 
-    // Scroll to the calculated position
-    if (
-      scrollTarget === window ||
-      (scrollTarget.window && scrollTarget.window === scrollTarget)
-    ) {
-      scrollTarget.scrollTo(0, scrollPosition);
+    if (scrollTarget === window) {
+      window.scrollTo(0, scrollPosition);
     } else {
       scrollTarget.scrollTop = scrollPosition;
     }
@@ -188,7 +114,6 @@ const smoothScrollToTop = (scrollTarget, scrollDuration, onComplete) => {
  * @returns {HTMLElement} BackToTop element
  */
 const renderBackToTop = (state) => {
-  // Inject styles on render
   injectBackToTopStyles(backToTopStyles);
 
   const iconElement = createIcon(state.icon);
@@ -210,9 +135,7 @@ const renderBackToTop = (state) => {
     children: [iconElement],
   });
 
-  // Apply custom position
   updatePosition(element, state.position);
-
   return element;
 };
 
@@ -222,7 +145,6 @@ const renderBackToTop = (state) => {
  * @returns {Object} BackToTop component
  */
 const createBackToTop = (props = {}) => {
-  // Validate props
   validateRequiredProps(
     props,
     {
@@ -255,16 +177,11 @@ const createBackToTop = (props = {}) => {
     'BackToTop'
   );
 
-  // Auto-detect scroll target if not provided
-  const autoScrollTarget =
-    props.scrollTarget ||
-    (typeof window !== 'undefined' ? detectScrollContainer() : null);
-
   // Initial state
   const state = {
     showAfter: props.showAfter || 300,
     scrollDuration: props.scrollDuration || 500,
-    scrollTarget: autoScrollTarget,
+    scrollTarget: props.scrollTarget || window,
     icon: props.icon || '↑',
     ariaLabel: props.ariaLabel || 'Back to top',
     position: props.position || { bottom: '2rem', right: '2rem' },
@@ -277,10 +194,8 @@ const createBackToTop = (props = {}) => {
     isScrolling: false,
   };
 
-  // Create base component
   const backToTopComponent = createBaseComponent(renderBackToTop)(state);
 
-  // Instance-specific properties
   let currentElement = null;
   let scrollListener = null;
   let destroyed = false;
@@ -300,7 +215,6 @@ const createBackToTop = (props = {}) => {
         currentElement.setAttribute('aria-hidden', (!shouldShow).toString());
       }
 
-      // Call visibility callbacks
       if (shouldShow && state.onShow) {
         state.onShow();
       } else if (!shouldShow && state.onHide) {
@@ -309,50 +223,22 @@ const createBackToTop = (props = {}) => {
     }
   };
 
-  // Throttled scroll handler
-  const createScrollHandler = () => {
-    return throttle(checkVisibility, 16); // 60fps
-  };
-
-  // Handle click and keyboard events
+  // Handle interactions
   const handleInteraction = (event) => {
     if (destroyed || state.disabled || state.isScrolling) return;
 
     event.preventDefault();
 
-    // Call custom click handler if provided
     if (state.onClick) {
       state.onClick(event);
     }
 
-    // Scroll to top
     if (state.scrollTarget) {
       state.isScrolling = true;
       smoothScrollToTop(state.scrollTarget, state.scrollDuration, () => {
         state.isScrolling = false;
       });
     }
-  };
-
-  // Setup scroll listener
-  const setupScrollListener = () => {
-    if (!state.scrollTarget || destroyed) return;
-
-    // Remove existing listener
-    if (scrollListener) {
-      state.scrollTarget.removeEventListener('scroll', scrollListener);
-    }
-
-    // Create new throttled listener
-    scrollListener = createScrollHandler();
-
-    // Add passive listener for better performance
-    state.scrollTarget.addEventListener('scroll', scrollListener, {
-      passive: true,
-    });
-
-    // Initial visibility check
-    setTimeout(checkVisibility, 0);
   };
 
   // Override getElement to set up event listeners
@@ -363,18 +249,25 @@ const createBackToTop = (props = {}) => {
     if (!currentElement) {
       currentElement = originalGetElement.call(this);
 
-      // Attach interaction handlers
+      // Attach event handlers
       currentElement.addEventListener('click', handleInteraction);
       currentElement.addEventListener('keydown', (event) => {
         if (destroyed || state.disabled) return;
-
         if (event.key === 'Enter' || event.key === ' ') {
           handleInteraction(event);
         }
       });
 
-      // Setup scroll monitoring
-      setupScrollListener();
+      // Setup scroll listener
+      if (state.scrollTarget) {
+        scrollListener = throttle(checkVisibility, 16);
+        state.scrollTarget.addEventListener('scroll', scrollListener, {
+          passive: true,
+        });
+      }
+
+      // Initial check
+      setTimeout(checkVisibility, 0);
     }
 
     return currentElement;
@@ -383,7 +276,6 @@ const createBackToTop = (props = {}) => {
   // Public methods
   backToTopComponent.show = function () {
     if (destroyed) return this;
-
     state.isVisible = true;
     if (currentElement) {
       currentElement.classList.add('back-to-top--visible');
@@ -395,7 +287,6 @@ const createBackToTop = (props = {}) => {
 
   backToTopComponent.hide = function () {
     if (destroyed) return this;
-
     state.isVisible = false;
     if (currentElement) {
       currentElement.classList.remove('back-to-top--visible');
@@ -407,7 +298,6 @@ const createBackToTop = (props = {}) => {
 
   backToTopComponent.scrollToTop = function () {
     if (destroyed || !state.scrollTarget || state.isScrolling) return this;
-
     state.isScrolling = true;
     smoothScrollToTop(state.scrollTarget, state.scrollDuration, () => {
       if (!destroyed) {
@@ -417,7 +307,7 @@ const createBackToTop = (props = {}) => {
     return this;
   };
 
-  // Override update to handle special cases
+  // Override update
   const originalUpdate = backToTopComponent.update;
   backToTopComponent.update = function (newProps) {
     if (destroyed) {
@@ -425,19 +315,8 @@ const createBackToTop = (props = {}) => {
       return this;
     }
 
-    // Handle scroll target change
-    const oldScrollTarget = state.scrollTarget;
     Object.assign(state, newProps);
 
-    // If scroll target changed, update listener
-    if (
-      newProps.scrollTarget !== undefined &&
-      state.scrollTarget !== oldScrollTarget
-    ) {
-      setupScrollListener();
-    }
-
-    // Update element attributes if it exists
     if (currentElement) {
       currentElement.className = [
         'back-to-top',
@@ -450,7 +329,6 @@ const createBackToTop = (props = {}) => {
       currentElement.setAttribute('aria-label', state.ariaLabel);
       currentElement.setAttribute('tabindex', state.disabled ? '-1' : '0');
 
-      // Update icon if changed
       if (newProps.icon !== undefined) {
         const newIconElement = createIcon(state.icon);
         const oldIcon = currentElement.querySelector('.back-to-top__icon');
@@ -459,7 +337,6 @@ const createBackToTop = (props = {}) => {
         }
       }
 
-      // Update position if changed
       if (newProps.position) {
         updatePosition(currentElement, state.position);
       }
@@ -468,20 +345,17 @@ const createBackToTop = (props = {}) => {
     return originalUpdate.call(this, newProps);
   };
 
-  // Override destroy to clean up properly
+  // Override destroy
   const originalDestroy = backToTopComponent.destroy;
   backToTopComponent.destroy = function () {
     if (destroyed) return this;
-
     destroyed = true;
 
-    // Remove scroll listener
     if (scrollListener && state.scrollTarget) {
       state.scrollTarget.removeEventListener('scroll', scrollListener);
       scrollListener = null;
     }
 
-    // Remove element from DOM
     if (currentElement && currentElement.parentNode) {
       currentElement.parentNode.removeChild(currentElement);
     }
@@ -489,12 +363,6 @@ const createBackToTop = (props = {}) => {
 
     return originalDestroy.call(this);
   };
-
-  // Add a method to check if component is destroyed
-  backToTopComponent.isDestroyed = () => destroyed;
-
-  // Expose checkVisibility for manual triggering
-  backToTopComponent.checkVisibility = checkVisibility;
 
   return backToTopComponent;
 };
@@ -504,5 +372,4 @@ const BackToTopComponent = withThemeAwareness(
   createComponent('BackToTop', createBackToTop)
 );
 
-// Export as factory function
 export default BackToTopComponent;

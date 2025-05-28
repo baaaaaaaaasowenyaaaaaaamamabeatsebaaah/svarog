@@ -1,7 +1,10 @@
 // vitest.setup.js
 // Global setup for vitest tests
 
-import { vi, beforeEach } from 'vitest';
+import { vi, beforeEach, expect } from 'vitest';
+
+// Store the original vitest expect to prevent infinite recursion
+const originalExpect = expect;
 
 // Match some Jest globals with Vitest equivalents
 global.expect.stringContaining = (value) =>
@@ -9,10 +12,12 @@ global.expect.stringContaining = (value) =>
     new RegExp(String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
   );
 
-// Fix this line - was using objContaining instead of objectContaining
+// FIXED: Prevent infinite recursion by using original expect reference
+// The problem was that global.expect.objectContaining was calling itself
 global.expect.objectContaining = (expected) =>
-  expect.objectContaining(expected);
-global.expect.arrayContaining = (expected) => expect.arrayContaining(expected);
+  originalExpect.objectContaining(expected);
+global.expect.arrayContaining = (expected) =>
+  originalExpect.arrayContaining(expected);
 
 // Add fetch mock helper functions to match jest functionality
 global.mockFetch = (data, status = 200, ok = true) => {

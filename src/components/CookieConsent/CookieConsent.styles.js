@@ -2,7 +2,7 @@
 import { css } from '../../utils/styleInjection.js';
 
 export const cookieConsentStyles = css`
-  /* Base cookie consent styles */
+  /* Base cookie consent styles following our design system */
   .cookie-consent {
     position: fixed;
     z-index: var(--z-index-modal, 10000);
