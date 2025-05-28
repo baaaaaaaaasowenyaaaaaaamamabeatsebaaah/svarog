@@ -2,34 +2,39 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Modal from './Modal.js';
 
-// Mock matchMedia for test environment
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: true, // Always prefer reduced motion in tests
-    media: query,
-    onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
-
-// Mock requestAnimationFrame
-global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+// Mock requestAnimationFrame properly
+global.requestAnimationFrame = (cb) => {
+  setTimeout(cb, 0);
+  return 1;
+};
 
 describe('Modal', () => {
   let container;
 
   beforeEach(() => {
+    // Mock matchMedia
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      configurable: true,
+      value: vi.fn().mockImplementation((query) => ({
+        matches: true, // Always prefer reduced motion in tests
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
     container = document.createElement('div');
     document.body.appendChild(container);
   });
 
   afterEach(() => {
     document.body.innerHTML = '';
+    vi.clearAllMocks();
   });
 
   describe('Component Creation', () => {
@@ -54,19 +59,19 @@ describe('Modal', () => {
 
       modal.open();
 
-      // Wait for requestAnimationFrame
+      // Wait for requestAnimationFrame and DOM updates
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const titleElement = document.querySelector('.modal__title');
       const contentElement = document.querySelector('.modal__content');
       const dialogElement = document.querySelector('.modal__dialog');
 
-      expect(titleElement.textContent).toBe('Test Modal');
-      expect(contentElement.textContent).toBe('Test content');
-      expect(dialogElement.classList.contains('modal__dialog--large')).toBe(
+      expect(titleElement?.textContent).toBe('Test Modal');
+      expect(contentElement?.textContent).toBe('Test content');
+      expect(dialogElement?.classList.contains('modal__dialog--large')).toBe(
         true
       );
-      expect(dialogElement.classList.contains('modal--info')).toBe(true);
+      expect(dialogElement?.classList.contains('modal--info')).toBe(true);
     });
   });
 
@@ -77,7 +82,7 @@ describe('Modal', () => {
       expect(modal.isOpen()).toBe(false);
       modal.open();
 
-      // Wait for requestAnimationFrame
+      // Wait for async operations
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const backdrop = document.querySelector('.modal__backdrop');
@@ -107,18 +112,17 @@ describe('Modal', () => {
       const modal = Modal({ onOpen });
 
       modal.open();
-
-      // Wait for requestAnimationFrame
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(onOpen).toHaveBeenCalled();
     });
 
-    it('should call onClose callback', () => {
+    it('should call onClose callback', async () => {
       const onClose = vi.fn();
       const modal = Modal({ onClose });
 
       modal.open();
+      await new Promise((resolve) => setTimeout(resolve, 10));
       modal.close();
 
       // Since we mock reduced motion, close is immediate
@@ -130,11 +134,10 @@ describe('Modal', () => {
     it('should close on backdrop click when enabled', async () => {
       const modal = Modal({ closeOnBackdrop: true });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const container = document.querySelector('.modal__container');
-      container.click();
+      container?.click();
 
       expect(modal.isOpen()).toBe(false);
     });
@@ -142,11 +145,10 @@ describe('Modal', () => {
     it('should not close on backdrop click when disabled', async () => {
       const modal = Modal({ closeOnBackdrop: false });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const container = document.querySelector('.modal__container');
-      container.click();
+      container?.click();
 
       expect(modal.isOpen()).toBe(true);
     });
@@ -154,7 +156,6 @@ describe('Modal', () => {
     it('should close on ESC key when enabled', async () => {
       const modal = Modal({ closeOnEscape: true });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const event = new window.KeyboardEvent('keydown', { key: 'Escape' });
@@ -166,7 +167,6 @@ describe('Modal', () => {
     it('should not close on ESC key when disabled', async () => {
       const modal = Modal({ closeOnEscape: false });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const event = new window.KeyboardEvent('keydown', { key: 'Escape' });
@@ -178,11 +178,10 @@ describe('Modal', () => {
     it('should close on close button click', async () => {
       const modal = Modal({ title: 'Test', showCloseButton: true });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const closeButton = document.querySelector('.modal__close');
-      closeButton.click();
+      closeButton?.click();
 
       expect(modal.isOpen()).toBe(false);
     });
@@ -192,11 +191,10 @@ describe('Modal', () => {
     it('should render string content', async () => {
       const modal = Modal({ content: 'Test string content' });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const content = document.querySelector('.modal__content');
-      expect(content.innerHTML).toBe('Test string content');
+      expect(content?.innerHTML).toBe('Test string content');
     });
 
     it('should render HTML element content', async () => {
@@ -205,12 +203,11 @@ describe('Modal', () => {
 
       const modal = Modal({ content: div });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const content = document.querySelector('.modal__content');
-      expect(content.firstChild).toBe(div);
-      expect(content.textContent).toBe('Test element');
+      expect(content?.firstChild).toBe(div);
+      expect(content?.textContent).toBe('Test element');
     });
 
     it('should render component content', async () => {
@@ -224,11 +221,10 @@ describe('Modal', () => {
 
       const modal = Modal({ content: mockComponent });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const content = document.querySelector('.modal__content');
-      expect(content.textContent).toBe('Component content');
+      expect(content?.textContent).toBe('Component content');
     });
   });
 
@@ -241,13 +237,12 @@ describe('Modal', () => {
         ],
       });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const buttons = document.querySelectorAll('.modal__actions button');
       expect(buttons.length).toBe(2);
-      expect(buttons[0].textContent).toBe('Cancel');
-      expect(buttons[1].textContent).toBe('Confirm');
+      expect(buttons[0]?.textContent).toBe('Cancel');
+      expect(buttons[1]?.textContent).toBe('Confirm');
     });
 
     it('should call onAction callback', async () => {
@@ -257,11 +252,10 @@ describe('Modal', () => {
         onAction,
       });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const button = document.querySelector('.modal__actions button');
-      button.click();
+      button?.click();
 
       expect(onAction).toHaveBeenCalledWith('test-action');
     });
@@ -274,7 +268,6 @@ describe('Modal', () => {
         autoFocus: true,
       });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const button = document.querySelector('.modal__content button');
@@ -289,13 +282,12 @@ describe('Modal', () => {
         `,
       });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const secondButton = document.getElementById('second');
 
       // Focus last element and press Tab
-      secondButton.focus();
+      secondButton?.focus();
       const tabEvent = new window.KeyboardEvent('keydown', { key: 'Tab' });
       document.dispatchEvent(tabEvent);
 
@@ -310,9 +302,7 @@ describe('Modal', () => {
 
       const modal = Modal({ restoreFocus: true });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
-
       modal.close();
 
       expect(document.activeElement).toBe(button);
@@ -326,11 +316,10 @@ describe('Modal', () => {
       for (const variant of variants) {
         const modal = Modal({ variant });
         modal.open();
-
         await new Promise((resolve) => setTimeout(resolve, 10));
 
         const dialog = document.querySelector('.modal__dialog');
-        expect(dialog.classList.contains(`modal--${variant}`)).toBe(true);
+        expect(dialog?.classList.contains(`modal--${variant}`)).toBe(true);
 
         modal.destroy();
       }
@@ -342,11 +331,10 @@ describe('Modal', () => {
       for (const size of sizes) {
         const modal = Modal({ size });
         modal.open();
-
         await new Promise((resolve) => setTimeout(resolve, 10));
 
         const dialog = document.querySelector('.modal__dialog');
-        expect(dialog.classList.contains(`modal__dialog--${size}`)).toBe(true);
+        expect(dialog?.classList.contains(`modal__dialog--${size}`)).toBe(true);
 
         modal.destroy();
       }
@@ -357,16 +345,17 @@ describe('Modal', () => {
     it('should lock body scroll when enabled', async () => {
       const modal = Modal({ lockBodyScroll: true });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(document.body.classList.contains('modal-open')).toBe(true);
     });
 
     it('should not lock body scroll when disabled', async () => {
+      // Clear any existing modal-open class
+      document.body.classList.remove('modal-open');
+
       const modal = Modal({ lockBodyScroll: false });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(document.body.classList.contains('modal-open')).toBe(false);
@@ -375,9 +364,7 @@ describe('Modal', () => {
     it('should unlock body scroll on close', async () => {
       const modal = Modal({ lockBodyScroll: true });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
-
       modal.close();
 
       expect(document.body.classList.contains('modal-open')).toBe(false);
@@ -388,25 +375,23 @@ describe('Modal', () => {
     it('should update title', async () => {
       const modal = Modal({ title: 'Original' });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       modal.update({ title: 'Updated' });
 
       const title = document.querySelector('.modal__title');
-      expect(title.textContent).toBe('Updated');
+      expect(title?.textContent).toBe('Updated');
     });
 
     it('should update content', async () => {
       const modal = Modal({ content: 'Original' });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       modal.update({ content: 'Updated' });
 
       const content = document.querySelector('.modal__content');
-      expect(content.textContent).toBe('Updated');
+      expect(content?.textContent).toBe('Updated');
     });
   });
 
@@ -418,15 +403,14 @@ describe('Modal', () => {
         ariaDescribedBy: 'custom-id',
       });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const dialog = document.querySelector('.modal__dialog');
 
-      expect(dialog.getAttribute('role')).toBe('dialog');
-      expect(dialog.getAttribute('aria-modal')).toBe('true');
-      expect(dialog.getAttribute('aria-labelledby')).toBe('modal-title');
-      expect(dialog.getAttribute('aria-describedby')).toBe('custom-id');
+      expect(dialog?.getAttribute('role')).toBe('dialog');
+      expect(dialog?.getAttribute('aria-modal')).toBe('true');
+      expect(dialog?.getAttribute('aria-labelledby')).toBe('modal-title');
+      expect(dialog?.getAttribute('aria-describedby')).toBe('custom-id');
     });
 
     it('should use aria-label when no title', async () => {
@@ -435,12 +419,11 @@ describe('Modal', () => {
         ariaLabel: 'Custom modal',
       });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const dialog = document.querySelector('.modal__dialog');
-      expect(dialog.getAttribute('aria-label')).toBe('Custom modal');
-      expect(dialog.getAttribute('aria-labelledby')).toBeFalsy();
+      expect(dialog?.getAttribute('aria-label')).toBe('Custom modal');
+      expect(dialog?.getAttribute('aria-labelledby')).toBeFalsy();
     });
   });
 
@@ -448,7 +431,6 @@ describe('Modal', () => {
     it('should not render backdrop when showBackdrop is false', async () => {
       const modal = Modal({ showBackdrop: false });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const backdrop = document.querySelector('.modal__backdrop');
@@ -460,18 +442,18 @@ describe('Modal', () => {
     it('should apply custom className', async () => {
       const modal = Modal({ className: 'custom-modal' });
       modal.open();
-
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const container = document.querySelector('.modal__container');
-      expect(container.classList.contains('custom-modal')).toBe(true);
+      expect(container?.classList.contains('custom-modal')).toBe(true);
     });
   });
 
   describe('Destroy Method', () => {
-    it('should remove modal from DOM', () => {
+    it('should remove modal from DOM', async () => {
       const modal = Modal({ title: 'Test' });
       modal.open();
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       modal.destroy();
 
@@ -479,9 +461,10 @@ describe('Modal', () => {
       expect(elements.length).toBe(0);
     });
 
-    it('should clean up event listeners', () => {
+    it('should clean up event listeners', async () => {
       const modal = Modal({ title: 'Test' });
       modal.open();
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const spy = vi.spyOn(document, 'removeEventListener');
       modal.destroy();
