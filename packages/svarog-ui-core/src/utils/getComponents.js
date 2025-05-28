@@ -243,6 +243,96 @@ export const getComponents = () => {
     // LAYOUT COMPONENTS
     // =========================================
     {
+      name: 'Accordion',
+      category: 'Layout',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'SingleMode',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.SingleMode
+            ),
+        },
+        {
+          name: 'WithDefaultExpanded',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithDefaultExpanded
+            ),
+        },
+        {
+          name: 'WithHTMLContent',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithHTMLContent
+            ),
+        },
+        {
+          name: 'WithComponents',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithComponents
+            ),
+        },
+        {
+          name: 'BorderedVariant',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.BorderedVariant
+            ),
+        },
+        {
+          name: 'MinimalVariant',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.MinimalVariant
+            ),
+        },
+        {
+          name: 'FlushVariant',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.FlushVariant
+            ),
+        },
+        {
+          name: 'WithCallback',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithCallback
+            ),
+        },
+        {
+          name: 'ProgrammaticControl',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.ProgrammaticControl
+            ),
+        },
+        {
+          name: 'LongContent',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.LongContent
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.AllVariants
+            ),
+        },
+      ],
+    },
+    {
       name: 'Grid',
       category: 'Layout',
       stories: [
@@ -1007,6 +1097,139 @@ export const getComponents = () => {
       ],
     },
 
+    {
+      name: 'Textarea',
+      category: 'Form',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithValue',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithValue
+            ),
+        },
+        {
+          name: 'Required',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Required
+            ),
+        },
+        {
+          name: 'Disabled',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Disabled
+            ),
+        },
+        {
+          name: 'Readonly',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Readonly
+            ),
+        },
+        {
+          name: 'WithRows',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithRows
+            ),
+        },
+        {
+          name: 'WithCharacterCount',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithCharacterCount
+            ),
+        },
+        {
+          name: 'WithMaxLength',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithMaxLength
+            ),
+        },
+        {
+          name: 'AutoResize',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.AutoResize
+            ),
+        },
+        {
+          name: 'NoResize',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.NoResize
+            ),
+        },
+        {
+          name: 'WithValidation',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithValidation
+            ),
+        },
+        {
+          name: 'Loading',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.Loading
+            ),
+        },
+        {
+          name: 'ValidState',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.ValidState
+            ),
+        },
+        {
+          name: 'InvalidState',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.InvalidState
+            ),
+        },
+        {
+          name: 'WithCustomStyling',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.WithCustomStyling
+            ),
+        },
+        {
+          name: 'AllFeatures',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.AllFeatures
+            ),
+        },
+        {
+          name: 'FormIntegration',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.FormIntegration
+            ),
+        },
+        {
+          name: 'DynamicUpdates',
+          module: () =>
+            import('../components/Textarea/Textarea.stories.js').then(
+              (m) => m.DynamicUpdates
+            ),
+        },
+      ],
+    },
+
     // =========================================
     // PAGE STRUCTURE COMPONENTS
     // =========================================
@@ -1603,6 +1826,255 @@ export const getComponents = () => {
             import(
               '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
             ).then((m) => m.Interactive),
+        },
+      ],
+    },
+    {
+      name: 'BackToTop',
+      category: 'UI Elements',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WindowScrolling',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.WindowScrolling
+            ),
+        },
+        {
+          name: 'CustomIcon',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.CustomIcon
+            ),
+        },
+        {
+          name: 'CustomPosition',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.CustomPosition
+            ),
+        },
+        {
+          name: 'WithCallbacks',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.WithCallbacks
+            ),
+        },
+        {
+          name: 'FastScroll',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.FastScroll
+            ),
+        },
+        {
+          name: 'SlowScroll',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.SlowScroll
+            ),
+        },
+        {
+          name: 'PresentationalDefault',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.PresentationalDefault
+            ),
+        },
+        {
+          name: 'PresentationalVariants',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.PresentationalVariants
+            ),
+        },
+        {
+          name: 'PresentationalDisabled',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.PresentationalDisabled
+            ),
+        },
+        {
+          name: 'InteractiveDemo',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.InteractiveDemo
+            ),
+        },
+      ],
+    },
+    {
+      name: 'CookieConsent',
+      category: 'UI Elements', // oder 'Legal' - je nach deiner Präferenz
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'ModalMode',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.ModalMode
+            ),
+        },
+        {
+          name: 'TopBanner',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.TopBanner
+            ),
+        },
+        {
+          name: 'DetailedView',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.DetailedView
+            ),
+        },
+        {
+          name: 'WithLegalLinks',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.WithLegalLinks
+            ),
+        },
+        {
+          name: 'ECommerceSetup',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.ECommerceSetup
+            ),
+        },
+        {
+          name: 'CorporateSetup',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.CorporateSetup
+            ),
+        },
+        {
+          name: 'ManagementFunctions',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.ManagementFunctions
+            ),
+        },
+        {
+          name: 'AutoShowDemo',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.AutoShowDemo
+            ),
+        },
+        {
+          name: 'AllPositions',
+          module: () =>
+            import('../components/CookieConsent/CookieConsent.stories.js').then(
+              (m) => m.AllPositions
+            ),
+        },
+      ],
+    },
+    {
+      name: 'Modal',
+      category: 'UI Elements',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'CookieConsent',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.CookieConsent
+            ),
+        },
+        {
+          name: 'ConfirmationDialog',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.ConfirmationDialog
+            ),
+        },
+        {
+          name: 'SuccessNotification',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.SuccessNotification
+            ),
+        },
+        {
+          name: 'FormModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.FormModal
+            ),
+        },
+        {
+          name: 'LoadingModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.LoadingModal
+            ),
+        },
+        {
+          name: 'InfoModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.InfoModal
+            ),
+        },
+        {
+          name: 'WarningModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.WarningModal
+            ),
+        },
+        {
+          name: 'FullscreenModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.FullscreenModal
+            ),
+        },
+        {
+          name: 'NoBackdropModal',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.NoBackdropModal
+            ),
+        },
+        {
+          name: 'MultipleModals',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.MultipleModals
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Modal/Modal.stories.js').then(
+              (m) => m.AllVariants
+            ),
         },
       ],
     },
