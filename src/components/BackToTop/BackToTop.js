@@ -48,8 +48,16 @@ const createIcon = (icon = '↑') => {
 const updatePosition = (element, position) => {
   if (!element || !position) return;
 
+  // Clear existing position styles first
+  ['top', 'right', 'bottom', 'left'].forEach((prop) => {
+    element.style[prop] = '';
+  });
+
+  // Apply new position styles
   Object.entries(position).forEach(([key, value]) => {
-    element.style[key] = value;
+    if (value !== null && value !== undefined) {
+      element.style[key] = typeof value === 'number' ? `${value}px` : value;
+    }
   });
 };
 

@@ -1841,6 +1841,13 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'WindowScrolling',
+          module: () =>
+            import('../components/BackToTop/BackToTop.stories.js').then(
+              (m) => m.WindowScrolling
+            ),
+        },
+        {
           name: 'CustomIcon',
           module: () =>
             import('../components/BackToTop/BackToTop.stories.js').then(
@@ -1876,24 +1883,24 @@ export const getComponents = () => {
             ),
         },
         {
-          name: 'CustomScrollContainer',
+          name: 'PresentationalDefault',
           module: () =>
             import('../components/BackToTop/BackToTop.stories.js').then(
-              (m) => m.CustomScrollContainer
+              (m) => m.PresentationalDefault
             ),
         },
         {
-          name: 'Disabled',
+          name: 'PresentationalVariants',
           module: () =>
             import('../components/BackToTop/BackToTop.stories.js').then(
-              (m) => m.Disabled
+              (m) => m.PresentationalVariants
             ),
         },
         {
-          name: 'MultipleButtons',
+          name: 'PresentationalDisabled',
           module: () =>
             import('../components/BackToTop/BackToTop.stories.js').then(
-              (m) => m.MultipleButtons
+              (m) => m.PresentationalDisabled
             ),
         },
         {
@@ -1901,13 +1908,6 @@ export const getComponents = () => {
           module: () =>
             import('../components/BackToTop/BackToTop.stories.js').then(
               (m) => m.InteractiveDemo
-            ),
-        },
-        {
-          name: 'AllVariants',
-          module: () =>
-            import('../components/BackToTop/BackToTop.stories.js').then(
-              (m) => m.AllVariants
             ),
         },
       ],
