@@ -88,11 +88,11 @@ packages/@svarog-ui/*/node_modules/
 packages/*/*.log
 packages/@svarog-ui/*/*.log
 
-# Ignore copied source files (they're generated during build)
-src/components/
-src/utils/
-!src/utils/themeManager.js
-!src/utils/styleInjection.js
+# Ignore copied source files in packages (they're generated during build)
+packages/*/src/components/
+packages/*/src/utils/
+!packages/*/src/utils/themeManager.js
+!packages/*/src/utils/styleInjection.js
 
 # Keep the index file
 !src/index.js

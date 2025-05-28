@@ -6,6 +6,7 @@
  */
 
 // ---- LAYOUT COMPONENTS ----
+import Accordion from './components/Accordion/index.js';
 import Grid from './components/Grid/index.js';
 import { Section } from './components/Section/index.js';
 import Header from './components/Header/index.js';
@@ -78,6 +79,7 @@ import {
 
 export {
   // Layout Components
+  Accordion,
   Grid,
   Section,
   Header,
@@ -146,6 +148,7 @@ export {
 // Advanced users can import by category
 
 export const Layout = {
+  Accordion,
   Grid,
   Section,
   Header,
@@ -221,6 +224,7 @@ const Svarog = {
   Utils,
 
   // Individual components (for backward compatibility)
+  Accordion,
   Grid,
   Section,
   Header,

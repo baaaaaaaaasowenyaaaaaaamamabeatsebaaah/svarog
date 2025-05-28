@@ -243,6 +243,96 @@ export const getComponents = () => {
     // LAYOUT COMPONENTS
     // =========================================
     {
+      name: 'Accordion',
+      category: 'Layout',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'SingleMode',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.SingleMode
+            ),
+        },
+        {
+          name: 'WithDefaultExpanded',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithDefaultExpanded
+            ),
+        },
+        {
+          name: 'WithHTMLContent',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithHTMLContent
+            ),
+        },
+        {
+          name: 'WithComponents',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithComponents
+            ),
+        },
+        {
+          name: 'BorderedVariant',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.BorderedVariant
+            ),
+        },
+        {
+          name: 'MinimalVariant',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.MinimalVariant
+            ),
+        },
+        {
+          name: 'FlushVariant',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.FlushVariant
+            ),
+        },
+        {
+          name: 'WithCallback',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.WithCallback
+            ),
+        },
+        {
+          name: 'ProgrammaticControl',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.ProgrammaticControl
+            ),
+        },
+        {
+          name: 'LongContent',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.LongContent
+            ),
+        },
+        {
+          name: 'AllVariants',
+          module: () =>
+            import('../components/Accordion/Accordion.stories.js').then(
+              (m) => m.AllVariants
+            ),
+        },
+      ],
+    },
+    {
       name: 'Grid',
       category: 'Layout',
       stories: [
