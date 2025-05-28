@@ -164,6 +164,7 @@ export const Layout = {
   CollapsibleHeader,
   Page,
 };
+import CookieConsent from './components/CookieConsent/CookieConsent.js';
 
 export const Nav = {
   Navigation,
@@ -224,6 +225,7 @@ export const Utils = {
 // ===============================================
 
 const Svarog = {
+  CookieConsent,
   // Categories
   Layout,
   Nav,

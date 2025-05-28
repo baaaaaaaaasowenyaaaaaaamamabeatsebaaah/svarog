@@ -13,7 +13,7 @@ import { createStyleInjector } from '../../utils/styleInjection.js';
 import { backToTopStyles } from './BackToTop.styles.js';
 
 // Create style injector for BackToTop component
-const injectBackToTopStyles = createStyleInjector('BackToTop');
+const injectBackToTopStyles = createStyleInjector('backtotop');
 
 // Shared scroll listener to avoid multiple instances
 let globalScrollListener = null;
@@ -54,14 +54,125 @@ const updatePosition = (element, position) => {
 };
 
 /**
+ * Get the default scroll target for the environment
+ * @returns {HTMLElement|Window} Default scroll target
+ */
+const getDefaultScrollTarget = () => {
+  if (typeof window === 'undefined') return null;
+
+  // In some environments (like Storybook), the main content might be in an iframe
+  try {
+    // Check if we're in an iframe
+    if (window.parent !== window) {
+      // Look for Storybook's iframe content or similar containers
+      const storyRoot = document.querySelector(
+        '#storybook-root, #root, .sb-show-main'
+      );
+      if (storyRoot) {
+        const scrollableParent = findScrollableParent(storyRoot);
+        if (scrollableParent) return scrollableParent;
+      }
+    }
+
+    // Check for common scroll containers
+    const commonContainers = [
+      '#__next', // Next.js
+      '#root', // React
+      '.app', // Common class
+      'main', // Semantic HTML
+      '.main-content',
+    ];
+
+    for (const selector of commonContainers) {
+      const container = document.querySelector(selector);
+      if (container) {
+        const scrollableParent = findScrollableParent(container);
+        if (scrollableParent) return scrollableParent;
+      }
+    }
+
+    return window;
+  } catch (_error) {
+    return window;
+  }
+};
+
+/**
+ * Find the nearest scrollable parent element
+ * @param {HTMLElement} element - Starting element
+ * @returns {HTMLElement|Window|null} Scrollable parent or null
+ */
+const findScrollableParent = (element) => {
+  if (!element) return null;
+
+  let parent = element.parentElement;
+  while (parent && parent !== document.body) {
+    const overflow = window.getComputedStyle(parent).overflow;
+    const overflowY = window.getComputedStyle(parent).overflowY;
+
+    if (
+      overflow === 'auto' ||
+      overflow === 'scroll' ||
+      overflowY === 'auto' ||
+      overflowY === 'scroll'
+    ) {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+
+  return window;
+};
+
+/**
+ * Get scroll position from various scroll targets
+ * @param {HTMLElement|Window} scrollTarget - Scroll target
+ * @returns {number} Current scroll position
+ */
+const getScrollPosition = (scrollTarget) => {
+  if (!scrollTarget) return 0;
+
+  if (scrollTarget === window) {
+    return (
+      window.pageYOffset ||
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      0
+    );
+  }
+
+  // Handle iframe or other window objects
+  if (scrollTarget.window === scrollTarget) {
+    return scrollTarget.pageYOffset || scrollTarget.scrollY || 0;
+  }
+
+  // Handle regular DOM elements
+  if (scrollTarget.scrollTop !== undefined) {
+    return scrollTarget.scrollTop;
+  }
+
+  // Try to find the nearest scrollable ancestor
+  let parent = scrollTarget.parentElement;
+  while (parent) {
+    const overflow = window.getComputedStyle(parent).overflow;
+    if (overflow === 'auto' || overflow === 'scroll') {
+      return parent.scrollTop;
+    }
+    parent = parent.parentElement;
+  }
+
+  // Fall back to document scroll
+  return document.documentElement.scrollTop || document.body.scrollTop || 0;
+};
+
+/**
  * Smooth scroll to top functionality
  * @param {HTMLElement|Window} scrollTarget - Scroll target
  * @param {number} scrollDuration - Animation duration
  * @param {Function} onComplete - Completion callback
  */
 const smoothScrollToTop = (scrollTarget, scrollDuration, onComplete) => {
-  const startPosition =
-    scrollTarget === window ? window.pageYOffset : scrollTarget.scrollTop;
+  const startPosition = getScrollPosition(scrollTarget);
   const startTime = performance.now();
 
   const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
@@ -72,8 +183,11 @@ const smoothScrollToTop = (scrollTarget, scrollDuration, onComplete) => {
     const easeProgress = easeOutCubic(progress);
     const scrollPosition = startPosition * (1 - easeProgress);
 
+    // Scroll to the calculated position
     if (scrollTarget === window) {
       window.scrollTo(0, scrollPosition);
+    } else if (scrollTarget.window === scrollTarget) {
+      scrollTarget.scrollTo(0, scrollPosition);
     } else {
       scrollTarget.scrollTop = scrollPosition;
     }
@@ -138,7 +252,7 @@ const renderBackToTop = (state) => {
  * @param {Object} props - BackToTop properties
  * @returns {Object} BackToTop component
  */
-const createBackToTop = (props) => {
+const createBackToTop = (props = {}) => {
   // Validate props
   validateRequiredProps(
     props,
@@ -178,8 +292,7 @@ const createBackToTop = (props) => {
   const state = {
     showAfter: props.showAfter || 300,
     scrollDuration: props.scrollDuration || 500,
-    scrollTarget:
-      props.scrollTarget || (typeof window !== 'undefined' ? window : null),
+    scrollTarget: props.scrollTarget || getDefaultScrollTarget(),
     icon: props.icon || '↑',
     ariaLabel: props.ariaLabel || 'Back to top',
     position: props.position || { bottom: '2rem', right: '2rem' },
@@ -202,11 +315,7 @@ const createBackToTop = (props) => {
   backToTopComponent.checkVisibility = function () {
     if (!state.scrollTarget || state.disabled) return;
 
-    const scrollPosition =
-      state.scrollTarget === window
-        ? window.pageYOffset
-        : state.scrollTarget.scrollTop;
-
+    const scrollPosition = getScrollPosition(state.scrollTarget);
     const shouldShow = scrollPosition > state.showAfter;
 
     if (shouldShow !== state.isVisible) {
@@ -227,8 +336,8 @@ const createBackToTop = (props) => {
     }
   };
 
-  // Handle click events
-  const handleClick = (event) => {
+  // Handle click and keyboard events
+  const handleInteraction = (event) => {
     if (state.disabled || state.isScrolling) return;
 
     event.preventDefault();
@@ -247,50 +356,21 @@ const createBackToTop = (props) => {
     }
   };
 
-  // Handle keyboard events
-  const handleKeyDown = (event) => {
-    if (state.disabled) return;
-
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleClick(event);
-    }
-  };
-
   // Override getElement to set up event listeners
   const originalGetElement = backToTopComponent.getElement;
   backToTopComponent.getElement = function () {
-    currentElement = originalGetElement.call(this);
+    if (!currentElement) {
+      currentElement = originalGetElement.call(this);
 
-    if (currentElement && !currentElement._backToTopHandlersAdded) {
       // Attach click handler
-      currentElement.addEventListener('click', (event) => {
-        if (state.disabled || state.isScrolling) return;
-
-        event.preventDefault();
-
-        // Call custom click handler if provided
-        if (state.onClick) {
-          state.onClick(event);
-        }
-
-        // Scroll to top
-        if (state.scrollTarget) {
-          state.isScrolling = true;
-          smoothScrollToTop(state.scrollTarget, state.scrollDuration, () => {
-            state.isScrolling = false;
-          });
-        }
-      });
+      currentElement.addEventListener('click', handleInteraction);
 
       // Attach keyboard handler
       currentElement.addEventListener('keydown', (event) => {
         if (state.disabled) return;
 
         if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          // Trigger same logic as click
-          currentElement.click();
+          handleInteraction(event);
         }
       });
 
@@ -336,11 +416,16 @@ const createBackToTop = (props) => {
   // Override update to handle special cases
   const originalUpdate = backToTopComponent.update;
   backToTopComponent.update = function (newProps) {
+    // Prevent updates if component is destroyed
+    if (this._destroyed) {
+      console.warn('Attempted to update destroyed component');
+      return this;
+    }
+
     // Update internal state
     Object.assign(state, newProps);
 
     // Update element attributes if it exists
-    currentElement = this.getElement();
     if (currentElement) {
       currentElement.className = [
         'back-to-top',
@@ -374,6 +459,9 @@ const createBackToTop = (props) => {
   // Override destroy to clean up
   const originalDestroy = backToTopComponent.destroy;
   backToTopComponent.destroy = function () {
+    // Mark as destroyed
+    this._destroyed = true;
+
     // Remove from global instances
     componentInstances.delete(this);
 
@@ -386,7 +474,6 @@ const createBackToTop = (props) => {
     }
 
     // Remove element from DOM
-    currentElement = this.getElement();
     if (currentElement && currentElement.parentNode) {
       currentElement.parentNode.removeChild(currentElement);
     }

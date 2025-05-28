@@ -35,28 +35,46 @@ const createScrollableContent = (height = '200vh') => {
   });
 };
 
+// Helper to create a scrollable container for Storybook
+const createScrollableContainer = (height = '400px') => {
+  return createElement('div', {
+    style: {
+      height,
+      overflow: 'auto',
+      border: '2px solid #ccc',
+      borderRadius: '8px',
+      position: 'relative',
+    },
+  });
+};
+
 export const Default = () => {
-  const container = createElement('div');
+  const container = createScrollableContainer();
 
   // Add scrollable content
   const content = createScrollableContent();
   container.appendChild(content);
 
-  // Add BackToTop component
-  const backToTop = BackToTop();
+  // Add BackToTop component - it will auto-detect the scrollable container
+  const backToTop = BackToTop({
+    scrollTarget: container, // Explicitly target the container
+    showAfter: 100, // Lower threshold for demo
+  });
+
+  // Mount the button to the container for proper positioning
   container.appendChild(backToTop.getElement());
 
   return container;
 };
 
-export const CustomIcon = () => {
+export const WindowScrolling = () => {
   const container = createElement('div');
 
   const content = createScrollableContent();
   container.appendChild(content);
 
   const backToTop = BackToTop({
-    icon: '⬆️',
+    scrollTarget: window, // Explicitly use window
     showAfter: 200,
   });
   container.appendChild(backToTop.getElement());
@@ -64,15 +82,33 @@ export const CustomIcon = () => {
   return container;
 };
 
-export const CustomPosition = () => {
-  const container = createElement('div');
+export const CustomIcon = () => {
+  const container = createScrollableContainer();
 
   const content = createScrollableContent();
   container.appendChild(content);
 
   const backToTop = BackToTop({
+    scrollTarget: container,
+    icon: '⬆️',
+    showAfter: 100,
+  });
+  container.appendChild(backToTop.getElement());
+
+  return container;
+};
+
+export const CustomPosition = () => {
+  const container = createScrollableContainer();
+
+  const content = createScrollableContent();
+  container.appendChild(content);
+
+  const backToTop = BackToTop({
+    scrollTarget: container,
     position: { bottom: '1rem', left: '1rem' },
     icon: '🔝',
+    showAfter: 100,
   });
   container.appendChild(backToTop.getElement());
 
@@ -80,19 +116,20 @@ export const CustomPosition = () => {
 };
 
 export const WithCallbacks = () => {
-  const container = createElement('div');
+  const container = createScrollableContainer();
 
   // Create status display
   const status = createElement('div', {
     style: {
-      position: 'fixed',
+      position: 'absolute',
       top: '1rem',
       left: '1rem',
       background: '#fff',
-      padding: '1rem',
+      padding: '0.5rem 1rem',
       border: '1px solid #ccc',
       borderRadius: '4px',
-      zIndex: '1000',
+      zIndex: '1001',
+      fontSize: '0.875rem',
     },
     text: 'Button status: hidden',
   });
@@ -102,7 +139,8 @@ export const WithCallbacks = () => {
   container.appendChild(content);
 
   const backToTop = BackToTop({
-    showAfter: 100,
+    scrollTarget: container,
+    showAfter: 50,
     onClick: () => {
       status.textContent = 'Button clicked! Scrolling to top...';
       setTimeout(() => {
@@ -122,14 +160,15 @@ export const WithCallbacks = () => {
 };
 
 export const FastScroll = () => {
-  const container = createElement('div');
+  const container = createScrollableContainer();
 
   const content = createScrollableContent();
   container.appendChild(content);
 
   const backToTop = BackToTop({
+    scrollTarget: container,
     scrollDuration: 200, // Very fast
-    showAfter: 150,
+    showAfter: 100,
   });
   container.appendChild(backToTop.getElement());
 
@@ -137,55 +176,51 @@ export const FastScroll = () => {
 };
 
 export const SlowScroll = () => {
-  const container = createElement('div');
+  const container = createScrollableContainer();
 
   const content = createScrollableContent();
   container.appendChild(content);
 
   const backToTop = BackToTop({
+    scrollTarget: container,
     scrollDuration: 1500, // Very slow
-    showAfter: 200,
+    showAfter: 100,
   });
   container.appendChild(backToTop.getElement());
 
   return container;
 };
 
-export const CustomScrollContainer = () => {
-  const scrollContainer = createElement('div', {
-    style: {
-      height: '400px',
-      overflow: 'auto',
-      border: '2px solid #ccc',
-      margin: '2rem',
-    },
-  });
+export const AlwaysVisible = () => {
+  const container = createScrollableContainer();
 
-  const content = createScrollableContent('150vh');
-  scrollContainer.appendChild(content);
+  const content = createScrollableContent();
+  container.appendChild(content);
 
   const backToTop = BackToTop({
-    scrollTarget: scrollContainer,
-    showAfter: 100,
-    position: { bottom: '1rem', right: '1rem' },
+    scrollTarget: container,
+    showAfter: 0, // Always show
   });
-
-  const container = createElement('div');
-  container.appendChild(scrollContainer);
   container.appendChild(backToTop.getElement());
+
+  // Force show the button
+  setTimeout(() => {
+    backToTop.show();
+  }, 100);
 
   return container;
 };
 
 export const Disabled = () => {
-  const container = createElement('div');
+  const container = createScrollableContainer();
 
   const content = createScrollableContent();
   container.appendChild(content);
 
   const backToTop = BackToTop({
+    scrollTarget: container,
     disabled: true,
-    showAfter: 100,
+    showAfter: 50,
   });
   container.appendChild(backToTop.getElement());
 
@@ -198,25 +233,27 @@ export const Disabled = () => {
 };
 
 export const MultipleButtons = () => {
-  const container = createElement('div');
+  const container = createScrollableContainer('600px');
 
   const content = createScrollableContent('300vh');
   container.appendChild(content);
 
   // Default button
   const defaultButton = BackToTop({
-    showAfter: 200,
+    scrollTarget: container,
+    showAfter: 100,
   });
   container.appendChild(defaultButton.getElement());
 
   // Custom button on the left
   const leftButton = BackToTop({
+    scrollTarget: container,
     position: { bottom: '2rem', left: '2rem' },
     icon: '⬅️',
     ariaLabel: 'Scroll to left',
-    showAfter: 300,
+    showAfter: 150,
     onClick: () => {
-      window.scrollTo({ left: 0, behavior: 'smooth' });
+      container.scrollTo({ left: 0, behavior: 'smooth' });
     },
   });
   container.appendChild(leftButton.getElement());
@@ -225,48 +262,54 @@ export const MultipleButtons = () => {
 };
 
 export const InteractiveDemo = () => {
-  const container = createElement('div');
+  const mainContainer = createElement('div', {
+    style: { position: 'relative' },
+  });
+
+  const container = createScrollableContainer();
 
   // Control panel
   const controls = createElement('div', {
     style: {
-      position: 'fixed',
+      position: 'absolute',
       top: '1rem',
       left: '1rem',
       background: '#fff',
       padding: '1rem',
       border: '1px solid #ccc',
       borderRadius: '4px',
-      zIndex: '1000',
+      zIndex: '1001',
       minWidth: '200px',
     },
   });
 
   const showButton = createElement('button', {
     text: 'Force Show',
-    style: { marginRight: '0.5rem' },
+    style: { marginRight: '0.5rem', padding: '0.25rem 0.5rem' },
   });
 
   const hideButton = createElement('button', {
     text: 'Force Hide',
-    style: { marginRight: '0.5rem' },
+    style: { marginRight: '0.5rem', padding: '0.25rem 0.5rem' },
   });
 
   const scrollButton = createElement('button', {
     text: 'Scroll to Top',
+    style: { padding: '0.25rem 0.5rem' },
   });
 
   controls.appendChild(showButton);
   controls.appendChild(hideButton);
   controls.appendChild(scrollButton);
 
-  container.appendChild(controls);
+  mainContainer.appendChild(controls);
 
   const content = createScrollableContent();
   container.appendChild(content);
 
   const backToTop = BackToTop({
-    showAfter: 250,
+    scrollTarget: container,
+    showAfter: 150,
     icon: '🚀',
   });
   container.appendChild(backToTop.getElement());
@@ -276,11 +319,13 @@ export const InteractiveDemo = () => {
   hideButton.addEventListener('click', () => backToTop.hide());
   scrollButton.addEventListener('click', () => backToTop.scrollToTop());
 
-  return container;
+  mainContainer.appendChild(container);
+
+  return mainContainer;
 };
 
 export const AllVariants = () => {
-  const container = createElement('div');
+  const container = createScrollableContainer('500px');
 
   const content = createScrollableContent('400vh');
   container.appendChild(content);
@@ -292,7 +337,11 @@ export const AllVariants = () => {
       icon: '↑',
       label: 'Default',
     },
-    { position: { bottom: '6rem', right: '2rem' }, icon: '⬆️', label: 'Emoji' },
+    {
+      position: { bottom: '6rem', right: '2rem' },
+      icon: '⬆️',
+      label: 'Emoji',
+    },
     {
       position: { bottom: '10rem', right: '2rem' },
       icon: '🔝',
@@ -307,13 +356,29 @@ export const AllVariants = () => {
 
   variants.forEach(({ position, icon, label }) => {
     const backToTop = BackToTop({
+      scrollTarget: container,
       position,
       icon,
       ariaLabel: `${label} - Back to top`,
-      showAfter: 150,
+      showAfter: 100,
     });
     container.appendChild(backToTop.getElement());
   });
 
   return container;
+};
+
+// Export metadata
+export default {
+  title: 'Components/BackToTop',
+  component: BackToTop,
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'A floating button that provides smooth scroll-to-top functionality with intelligent visibility control.',
+      },
+    },
+  },
 };
