@@ -30,6 +30,6 @@
   "author": "Sebastian Huber",
   "license": "ISC",
   "peerDependencies": {
-    "svarog-ui-core": "^1.0.0"
+    "svarog-ui-core": "latest"
   }
 }
