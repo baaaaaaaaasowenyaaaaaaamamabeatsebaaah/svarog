@@ -1,6 +1,6 @@
 /**
  * Core Theme Manager - handles theme registration and switching
- * @module themeManager
+ * Works with external theme packages
  */
 
 class CoreThemeManager {
@@ -11,7 +11,7 @@ class CoreThemeManager {
   }
 
   /**
-   * Register a theme
+   * Register a theme from an external package
    * @param {string} name - Theme name
    * @param {Object} theme - Theme object with apply() method
    */
@@ -19,12 +19,23 @@ class CoreThemeManager {
     if (!theme || typeof theme.apply !== 'function') {
       throw new Error(`Theme "${name}" must have an apply() method`);
     }
+
     this.themes.set(name, theme);
-    
-    // Auto-apply first theme
+
+    // If this is the first theme, apply it
     if (this.themes.size === 1 && !this.currentTheme) {
       this.switch(name);
     }
+  }
+
+  /**
+   * Register multiple themes at once
+   * @param {Object} themes - Object with theme names as keys
+   */
+  registerAll(themes) {
+    Object.entries(themes).forEach(([name, theme]) => {
+      this.register(name, theme);
+    });
   }
 
   /**
@@ -33,32 +44,47 @@ class CoreThemeManager {
    */
   switch(name) {
     const theme = this.themes.get(name);
+
     if (!theme) {
-      throw new Error(`Theme "${name}" is not registered`);
+      throw new Error(
+        `Theme "${name}" is not registered. Register it first with ThemeManager.register()`
+      );
     }
-    
-    // Remove current theme if exists
-    if (this.currentTheme && this.currentTheme !== name) {
-      const currentThemeObj = this.themes.get(this.currentTheme);
-      if (currentThemeObj && typeof currentThemeObj.remove === 'function') {
-        currentThemeObj.remove();
-      }
+
+    // Remove current theme classes
+    if (this.currentTheme) {
+      document.documentElement.classList.remove(`${this.currentTheme}-theme`);
+      document.body.classList.remove(`${this.currentTheme}-theme`);
     }
-    
+
+    // Apply new theme
     theme.apply();
+
+    const previousTheme = this.currentTheme;
     this.currentTheme = name;
-    
+
+    // Notify observers
+    this.notifyObservers({ previousTheme, currentTheme: name });
+
     // Dispatch event
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('themechange', {
-        detail: { theme: name }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('themechange', {
+          detail: { theme: name, previousTheme },
+        })
+      );
+    }
+
+    // Save preference
+    try {
+      localStorage.setItem('svarog-theme', name);
+    } catch (_e) {
+      // Silent fail
     }
   }
 
   /**
    * Get current theme name
-   * @returns {string|null}
    */
   getCurrent() {
     return this.currentTheme;
@@ -66,10 +92,41 @@ class CoreThemeManager {
 
   /**
    * Get all registered theme names
-   * @returns {string[]}
    */
   getRegistered() {
     return Array.from(this.themes.keys());
+  }
+
+  /**
+   * Add observer for theme changes
+   */
+  observe(callback) {
+    this.observers.add(callback);
+    return () => this.observers.delete(callback);
+  }
+
+  notifyObservers(data) {
+    this.observers.forEach((callback) => {
+      try {
+        callback(data);
+      } catch (error) {
+        console.error('Theme observer error:', error);
+      }
+    });
+  }
+
+  /**
+   * Initialize theme from localStorage or default
+   */
+  init() {
+    try {
+      const savedTheme = localStorage.getItem('svarog-theme');
+      if (savedTheme && this.themes.has(savedTheme)) {
+        this.switch(savedTheme);
+      }
+    } catch (_e) {
+      // Silent fail
+    }
   }
 }
 
@@ -77,6 +134,7 @@ class CoreThemeManager {
 export const ThemeManager = new CoreThemeManager();
 
 // Export convenience functions
-export const registerTheme = (name, theme) => ThemeManager.register(name, theme);
+export const registerTheme = (name, theme) =>
+  ThemeManager.register(name, theme);
 export const switchTheme = (name) => ThemeManager.switch(name);
 export const getCurrentTheme = () => ThemeManager.getCurrent();

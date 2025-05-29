@@ -3,12 +3,14 @@
   /* Typography */
   --font-family-primary: 'questa-grande', serif;
   --font-family-heading: 'copperplate', serif;
+
   /* Colors - Brand */
   --color-brand-primary: #accf4e;
   --color-brand-primary-dark: #354914;
   --color-brand-secondary: #8f3557;
   --color-brand-secondary-dark: #4a1a2c;
   --color-brand-secondary-light: #e3cad4;
+
   /* Component: Button */
   --button-bg: var(--color-brand-primary);
   --button-color: var(--color-text-white);
@@ -32,6 +34,7 @@
   --button-padding-lg: var(--space-4) var(--space-14);
   --button-font-size-sm: var(--font-size-xl);
   --button-font-size-lg: var(--font-size-3xl);
+
   /* Component: Link */
   --link-color: var(--color-brand-primary);
   --link-hover-color: var(--color-brand-primary-dark);
@@ -40,6 +43,7 @@
   --link-margin-right: var(--space-1);
   --link-font-family: var(--font-family-primary);
   --link-transition: var(--transition-fast);
+
   /* Component: Navigation */
   --nav-bg: transparent;
   --nav-border-bottom: 1px solid transparent;
@@ -53,6 +57,7 @@
   --nav-burger-margin-bottom: var(--space-2);
   --nav-padding-mobile: var(--space-2) 0;
   --nav-link-font-size: var(--font-size-2xl);
+
   /* Component: Section */
   --section-bg: var(--color-brand-secondary-dark);
   --section-color: var(--color-text-white);
@@ -62,6 +67,7 @@
   --section-padding-tablet: var(--space-1);
   --section-gap-tablet: var(--space-1);
   --section-padding-mobile: var(--space-1);
+
   /* Component: Typography */
   --typography-color: var(--color-text);
   --typography-muted-color: var(--color-text-light);
@@ -74,9 +80,11 @@
   --typography-h6-size: var(--font-size-lg);
   --typography-body-size: var(--font-size-base);
   --typography-small-size: var(--font-size-sm);
+
   /* Component: Logo */
   --logo-width: 100px;
   --logo-height: 100px;
+
   /* Component: Card */
   --card-bg: var(--color-brand-secondary-dark);
   --card-color: var(--color-text-white);
@@ -97,6 +105,7 @@
   --card-title-padding-mobile: var(--space-4);
   --card-content-padding-mobile: var(--space-4);
   --card-footer-padding-mobile: var(--space-3) var(--space-4);
+
   /* Component: Input */
   --input-bg: var(--color-brand-secondary-dark);
   --input-color: var(--color-text-white);
@@ -117,6 +126,7 @@
   --input-validation-color: var(--color-danger);
   --input-validation-font-size: var(--font-size-base);
   --input-margin-bottom: var(--space-5);
+
   /* Component: Select */
   --select-bg: var(--color-brand-secondary-dark);
   --select-color: var(--color-text-white);
@@ -140,6 +150,7 @@
   --select-validation-font-size: var(--font-size-base);
   --select-margin-bottom: var(--space-5);
   --select-option-padding: var(--space-2) var(--space-3);
+
   /* Component: Checkbox */
   --checkbox-bg: var(--color-brand-secondary-dark);
   --checkbox-border: 2px solid var(--color-brand-primary);
@@ -162,6 +173,7 @@
   --checkbox-validation-color: var(--color-danger);
   --checkbox-margin-bottom: var(--space-4);
   --checkbox-required-color: var(--color-danger);
+
   /* Component: Radio */
   --radio-bg: var(--color-brand-secondary-dark);
   --radio-border: 2px solid var(--color-brand-primary);
@@ -182,6 +194,7 @@
   --radio-disabled-checked-color: var(--color-gray-300);
   --radio-margin-bottom: var(--space-4);
   --radio-required-color: var(--color-danger);
+
   /* Component: Radio Group */
   --radio-group-margin-bottom: var(--space-5);
   --radio-group-padding: var(--space-4);
@@ -201,6 +214,7 @@
   --radio-group-validation-font-size: var(--font-size-base);
   --radio-group-disabled-opacity: 0.7;
   --radio-group-disabled-bg: var(--color-gray-800);
+
   /* Component: Form Group */
   --form-group-margin-bottom: var(--space-5);
   --form-group-label-font-size: var(--font-size-lg);
@@ -214,6 +228,7 @@
   --form-group-label-margin-right: var(--space-4);
   --form-group-label-margin-left: var(--space-4);
   --form-group-label-width: 40%;
+
   /* Component: Form */
   --form-label-width: 40%;
   --form-section-margin-bottom: var(--space-8);
@@ -229,19 +244,23 @@
   --form-actions-margin-top: var(--space-6);
   --form-actions-justify: flex-end;
 }
+
 .cabalou-theme h1 {
   font-family: var(--font-family-heading);
 }
+
 .cabalou-theme .card__title {
   font-family: var(--font-family-heading);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
 .cabalou-theme .form-section__title {
   font-family: var(--font-family-heading);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding-bottom: var(--space-2);
+
   /* TODO: Define value for 'border-radius-default' in cabalou theme */
   --border-radius-default: inherit;
   /* TODO: Define value for 'box-shadow-sm' in cabalou theme */
@@ -565,5 +584,4 @@
   /* TODO: Define value for 'transition-duration' in cabalou theme */
   --transition-duration: inherit;
   /* TODO: Define value for 'transition-timing' in cabalou theme */
-  --transition-timing: inherit;
-}
+  --transition-timing: inherit;}
