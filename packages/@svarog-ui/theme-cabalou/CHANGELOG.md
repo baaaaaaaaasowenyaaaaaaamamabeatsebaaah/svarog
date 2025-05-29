@@ -5,11 +5,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.4.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.3.4...@svarog-ui/theme-cabalou@1.4.0) (2025-05-29)
 
+### Bug Fixes
+
+- peer dependency issue ([d81cf4b](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/d81cf4bd985afd28944e4bd5a97b12bff033fc98))
+
+# [1.4.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.3.4...@svarog-ui/theme-cabalou@1.4.0) (2025-05-29)
+
 **Note:** Version bump only for package @svarog-ui/theme-cabalou
-
-
-
-
 
 ## [1.3.4](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-cabalou@1.3.3...@svarog-ui/theme-cabalou@1.3.4) (2025-05-27)
 

@@ -5,11 +5,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [5.1.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui@5.0.0...svarog-ui@5.1.0) (2025-05-29)
 
+### Bug Fixes
+
+- peer dependency issue ([d81cf4b](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/d81cf4bd985afd28944e4bd5a97b12bff033fc98))
+
+# [5.1.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui@5.0.0...svarog-ui@5.1.0) (2025-05-29)
+
 **Note:** Version bump only for package svarog-ui
-
-
-
-
 
 # [4.2.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui@4.1.14...svarog-ui@4.2.0) (2025-05-28)
 

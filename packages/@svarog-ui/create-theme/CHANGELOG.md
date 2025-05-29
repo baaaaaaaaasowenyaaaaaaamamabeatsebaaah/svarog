@@ -5,11 +5,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [1.2.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/create-theme@1.1.6...@svarog-ui/create-theme@1.2.0) (2025-05-29)
 
+### Bug Fixes
+
+- peer dependency issue ([d81cf4b](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/d81cf4bd985afd28944e4bd5a97b12bff033fc98))
+
+# [1.2.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/create-theme@1.1.6...@svarog-ui/create-theme@1.2.0) (2025-05-29)
+
 **Note:** Version bump only for package @svarog-ui/create-theme
-
-
-
-
 
 ## [1.1.6](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/create-theme@1.1.5...@svarog-ui/create-theme@1.1.6) (2025-05-27)
 
