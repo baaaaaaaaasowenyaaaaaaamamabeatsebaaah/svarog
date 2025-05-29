@@ -6,7 +6,6 @@
   --font-family-heading: var(--font-family-primary);
   --font-family-base: var(--font-family-primary);
   --font-family-mono: 'Fira Code', 'Courier New', monospace;
-
   /* Colors - Brand - Red & Bold */
   --color-brand-primary: #dc2626;
   --color-brand-primary-light: #ef4444;
@@ -14,7 +13,6 @@
   --color-brand-secondary: #1f2937;
   --color-brand-secondary-light: #374151;
   --color-brand-secondary-dark: #111827;
-
   /* Base colors */
   --color-bg: #ffffff;
   --color-bg-secondary: #fef2f2;
@@ -23,7 +21,6 @@
   --color-text: #1f2937;
   --color-text-light: #6b7280;
   --color-text-muted: #9ca3af;
-
   /* Component: Typography */
   --typography-color: var(--color-text);
   --typography-muted-color: var(--color-text-muted);
@@ -36,7 +33,6 @@
   --typography-h6-size: 1.125rem;
   --typography-body-size: 1rem;
   --typography-small-size: 0.875rem;
-
   /* Component: Button */
   --button-bg: var(--color-brand-primary);
   --button-color: #ffffff;
@@ -62,7 +58,6 @@
   --button-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --button-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.2);
   --button-focus-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
-
   /* Primary variant */
   --button-primary-bg: var(--color-brand-primary);
   --button-primary-color: #ffffff;
@@ -72,7 +67,6 @@
   --button-primary-hover-color: #ffffff;
   --button-primary-active-bg: #991b1b;
   --button-primary-active-border-color: transparent;
-
   /* Secondary variant */
   --button-secondary-bg: var(--color-brand-secondary);
   --button-secondary-color: #ffffff;
@@ -82,37 +76,31 @@
   --button-secondary-hover-color: #ffffff;
   --button-secondary-active-bg: #030712;
   --button-secondary-active-border-color: transparent;
-
   /* Text variant */
   --button-text-color: var(--color-brand-primary);
   --button-text-hover-color: var(--color-brand-primary-dark);
   --button-text-padding: 0.75rem 1rem;
-
   /* Small button styles */
   --button-padding-sm: 0.5rem 1.25rem;
   --button-font-size-sm: 0.875rem;
   --button-radius-sm: 9999px;
   --button-icon-size-sm: 1.125rem;
-
   /* Large button styles */
   --button-padding-lg: 1rem 2.5rem;
   --button-font-size-lg: 1.125rem;
   --button-radius-lg: 9999px;
   --button-icon-size-lg: 1.5rem;
-
   /* Icon button styles */
   --button-icon-margin: 0.625rem;
   --button-icon-padding: 0.875rem;
   --button-icon-radius: 50%;
   --button-icon-size: 1.375rem;
-
   /* Outlined button styles */
   --button-outlined-color: var(--color-brand-primary);
   --button-outlined-border-color: var(--color-brand-primary);
   --button-outlined-hover-bg: rgba(220, 38, 38, 0.05);
   --button-outlined-hover-color: var(--color-brand-primary-dark);
   --button-outlined-hover-border-color: var(--color-brand-primary-dark);
-
   /* Success button styles */
   --button-success-bg: #059669;
   --button-success-color: #ffffff;
@@ -120,7 +108,6 @@
   --button-success-hover-bg: #047857;
   --button-success-hover-border-color: transparent;
   --button-success-hover-color: #ffffff;
-
   /* Danger button styles */
   --button-danger-bg: #1f2937;
   --button-danger-color: #ffffff;
@@ -128,7 +115,6 @@
   --button-danger-hover-bg: #111827;
   --button-danger-hover-border-color: transparent;
   --button-danger-hover-color: #ffffff;
-
   /* Component: Link */
   --link-color: var(--color-brand-primary);
   --link-hover-color: var(--color-brand-primary-dark);
@@ -137,7 +123,6 @@
   --link-margin-right: 0;
   --link-font-family: var(--font-family-primary);
   --link-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-
   /* Component: Card */
   --card-bg: #ffffff;
   --card-color: var(--color-text);
@@ -159,7 +144,6 @@
   --card-title-padding-mobile: 1.5rem;
   --card-content-padding-mobile: 1.5rem;
   --card-footer-padding-mobile: 1.5rem;
-
   /* Component: Input */
   --input-bg: #ffffff;
   --input-color: var(--color-text);
@@ -183,7 +167,6 @@
   --input-margin-bottom: 1.5rem;
   --input-mobile-font-size: 16px;
   --input-mobile-padding: 0.75rem 1rem;
-
   /* Component: Select */
   --select-bg: #ffffff;
   --select-color: var(--color-text);
@@ -212,7 +195,6 @@
   --select-multiple-padding: 0.5rem;
   --select-option-padding: 0.625rem 1rem;
   --select-option-margin: 0.25rem 0;
-
   /* Component: Checkbox */
   --checkbox-bg: #ffffff;
   --checkbox-border: 2px solid var(--color-brand-primary);
@@ -244,7 +226,6 @@
   --checkbox-indeterminate-border-color: var(--color-brand-primary);
   --checkbox-indeterminate-width: 10px;
   --checkbox-indeterminate-height: 2px;
-
   /* Component: Radio */
   --radio-bg: #ffffff;
   --radio-border: 2px solid var(--color-brand-primary);
@@ -266,7 +247,6 @@
   --radio-disabled-checked-color: #fecaca;
   --radio-margin-bottom: 1.25rem;
   --radio-required-color: #7f1d1d;
-
   /* Component: Radio Group */
   --radio-group-margin-bottom: 1.5rem;
   --radio-group-padding: 1rem;
@@ -286,7 +266,6 @@
   --radio-group-validation-font-size: 0.875rem;
   --radio-group-disabled-opacity: 0.6;
   --radio-group-disabled-bg: #fef2f2;
-
   /* Component: Form Group */
   --form-group-margin-bottom: 1.5rem;
   --form-group-label-font-size: 1rem;
@@ -300,7 +279,6 @@
   --form-group-label-margin-right: 1.5rem;
   --form-group-label-margin-left: 1.5rem;
   --form-group-label-width: 30%;
-
   /* Component: Form */
   --form-label-width: 30%;
   --form-section-margin-bottom: 3rem;
@@ -315,7 +293,6 @@
   --form-actions-gap: 1rem;
   --form-actions-margin-top: 2.5rem;
   --form-actions-justify: flex-end;
-
   /* Component: Navigation */
   --nav-bg: #ffffff;
   --nav-border-bottom: 3px solid var(--color-brand-primary);
@@ -356,7 +333,6 @@
   --nav-mobile-submenu-bg: #fef2f2;
   --nav-mobile-active-bg: #fee2e2;
   --nav-mobile-hover-bg: #fef2f2;
-
   /* Component: Section */
   --section-bg: #ffffff;
   --section-color: var(--color-text);
@@ -368,7 +344,6 @@
   --section-padding-mobile: 3rem 1.5rem;
   --section-bg-minor: #fef2f2;
   --section-color-minor: #991b1b;
-
   /* Component: Logo */
   --logo-width: auto;
   --logo-height: 3rem;
@@ -377,7 +352,6 @@
   --logo-max-height: 4rem;
   --logo-max-width: 15rem;
   --logo-width-tablet: auto;
-
   /* ContactInfo Component */
   --contact-info-gap: 1.5rem;
   --contact-info-item-gap: 0.75rem;
@@ -386,7 +360,6 @@
   --contact-info-hover-color: var(--color-brand-primary);
   --contact-info-font-size: 1rem;
   --contact-info-icon-size: 1.25rem;
-
   /* StickyContactIcons Variables */
   --sticky-contact-icons-right: 2.5rem;
   --sticky-contact-icons-gap: 1.25rem;
@@ -402,7 +375,6 @@
   --sticky-contact-icons-mobile-bottom: 1.25rem;
   --sticky-contact-icons-mobile-size: 3rem;
   --sticky-contact-icons-mobile-icon-size: 1.5rem;
-
   /* Component: Header */
   --header-bg: #ffffff;
   --header-bg-scrolled: rgba(255, 255, 255, 0.98);
@@ -421,7 +393,6 @@
   --header-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --header-transparent-color: var(--color-text);
   --header-z-index: 50;
-
   /* Component: CollapsibleHeader */
   --collapsible-header-collapsed-height: 5rem;
   --collapsible-header-contact-bg: #fef2f2;
@@ -432,17 +403,14 @@
   --collapsible-header-mobile-height: 4rem;
   --collapsible-header-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --collapsible-header-transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-
   /* Component: Footer */
   --footer-bg: var(--color-brand-secondary);
   --footer-text: #e5e7eb;
   --footer-link-hover: #ffffff;
-
   /* Component: PriceDisplay */
   --price-display-bg: rgba(220, 38, 38, 0.05);
   --price-display-border: 2px solid var(--color-brand-primary);
   --price-display-color: var(--color-brand-primary);
-
   /* Additional Variables */
   --color-yellow: #fbbf24;
   --transition-duration: 300ms;
@@ -451,16 +419,13 @@
   --border-radius-default: 0.75rem;
   --box-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
-
 /* Red theme specific enhancements */
 .red-theme .card {
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .red-theme .card:hover {
   transform: translateY(-8px) rotate(-1deg);
 }
-
 .red-theme h1,
 .red-theme h2,
 .red-theme h3,
@@ -471,7 +436,6 @@
   line-height: 1.2;
   letter-spacing: -0.025em;
 }
-
 .red-theme h1 {
   color: var(--color-brand-primary);
 }

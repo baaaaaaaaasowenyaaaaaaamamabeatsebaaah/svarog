@@ -1,25 +1,19 @@
 {
   "name": "svarog-ui-core",
   "version": "1.3.0",
-  "description": "Core components of Svarog UI without themes",
+  "description": "Core components of Svarog UI without themes - modular approach",
   "main": "dist/index.js",
-  "module": "src/index.js",
+  "module": "dist/index.js",
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "exports": {
-    ".": {
-      "import": "./src/index.js",
-      "require": "./dist/index.js"
-    },
-    "./utils/styleInjection": "./src/utils/styleInjection.js",
-    "./utils/themeManager": "./src/utils/themeManager.js",
-    "./components/*": "./src/components/*"
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "src",
     "README.md"
   ],
   "scripts": {
@@ -31,7 +25,9 @@
     "components",
     "ui",
     "vanilla-js",
-    "core"
+    "modular",
+    "core",
+    "jsdoc"
   ],
   "author": "Sebastian Huber",
   "license": "ISC",
@@ -41,5 +37,8 @@
     "directory": "packages/svarog-ui-core"
   },
   "sideEffects": false,
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "gitHead": "849700738cb6e8ba21400df607c575da6d581621"
 }

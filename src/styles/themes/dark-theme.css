@@ -6,7 +6,6 @@
   --font-family-heading: var(--font-family-primary);
   --font-family-base: var(--font-family-primary);
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
   /* Colors - Brand - Dark/shadcn style */
   --color-brand-primary: #f1f5f9;
   --color-brand-primary-light: #ffffff;
@@ -14,7 +13,6 @@
   --color-brand-secondary: #3b82f6;
   --color-brand-secondary-light: #60a5fa;
   --color-brand-secondary-dark: #2563eb;
-
   /* Dark mode base colors */
   --color-bg: #020617;
   --color-bg-secondary: #0f172a;
@@ -23,7 +21,6 @@
   --color-text: #f8fafc;
   --color-text-light: #cbd5e1;
   --color-text-muted: #64748b;
-
   /* Component: Typography */
   --typography-color: var(--color-text);
   --typography-muted-color: var(--color-text-muted);
@@ -36,7 +33,6 @@
   --typography-h6-size: 1rem;
   --typography-body-size: 0.875rem;
   --typography-small-size: 0.75rem;
-
   /* Component: Button */
   --button-bg: #1e293b;
   --button-color: #f8fafc;
@@ -62,7 +58,6 @@
   --button-transition: all 150ms ease;
   --button-shadow: none;
   --button-focus-shadow: 0 0 0 2px #020617, 0 0 0 4px #64748b;
-
   /* Primary variant */
   --button-primary-bg: #f8fafc;
   --button-primary-color: #020617;
@@ -72,7 +67,6 @@
   --button-primary-hover-color: #020617;
   --button-primary-active-bg: #cbd5e1;
   --button-primary-active-border-color: #cbd5e1;
-
   /* Secondary variant */
   --button-secondary-bg: transparent;
   --button-secondary-color: #f8fafc;
@@ -82,37 +76,31 @@
   --button-secondary-hover-color: #f8fafc;
   --button-secondary-active-bg: #334155;
   --button-secondary-active-border-color: #64748b;
-
   /* Text variant */
   --button-text-color: #f8fafc;
   --button-text-hover-color: #cbd5e1;
   --button-text-padding: 0.5rem;
-
   /* Small button styles */
   --button-padding-sm: 0.25rem 0.75rem;
   --button-font-size-sm: 0.75rem;
   --button-radius-sm: 0.25rem;
   --button-icon-size-sm: 1rem;
-
   /* Large button styles */
   --button-padding-lg: 0.625rem 1.5rem;
   --button-font-size-lg: 1rem;
   --button-radius-lg: 0.5rem;
   --button-icon-size-lg: 1.25rem;
-
   /* Icon button styles */
   --button-icon-margin: 0.5rem;
   --button-icon-padding: 0.5rem;
   --button-icon-radius: 0.375rem;
   --button-icon-size: 1rem;
-
   /* Outlined button styles */
   --button-outlined-color: #f8fafc;
   --button-outlined-border-color: #334155;
   --button-outlined-hover-bg: #1e293b;
   --button-outlined-hover-color: #f8fafc;
   --button-outlined-hover-border-color: #475569;
-
   /* Success button styles */
   --button-success-bg: #166534;
   --button-success-color: #dcfce7;
@@ -120,7 +108,6 @@
   --button-success-hover-bg: #15803d;
   --button-success-hover-border-color: #15803d;
   --button-success-hover-color: #f0fdf4;
-
   /* Danger button styles */
   --button-danger-bg: #991b1b;
   --button-danger-color: #fef2f2;
@@ -128,7 +115,6 @@
   --button-danger-hover-bg: #b91c1c;
   --button-danger-hover-border-color: #b91c1c;
   --button-danger-hover-color: #ffffff;
-
   /* Component: Link */
   --link-color: #60a5fa;
   --link-hover-color: #93bbfc;
@@ -137,7 +123,6 @@
   --link-margin-right: 0;
   --link-font-family: var(--font-family-primary);
   --link-transition: color 150ms ease;
-
   /* Component: Card */
   --card-bg: #0f172a;
   --card-color: #f8fafc;
@@ -159,7 +144,6 @@
   --card-title-padding-mobile: 1rem;
   --card-content-padding-mobile: 1rem;
   --card-footer-padding-mobile: 1rem;
-
   /* Component: Input */
   --input-bg: #020617;
   --input-color: #f8fafc;
@@ -183,7 +167,6 @@
   --input-margin-bottom: 1rem;
   --input-mobile-font-size: 16px;
   --input-mobile-padding: 0.5rem 0.75rem;
-
   /* Component: Select */
   --select-bg: #020617;
   --select-color: #f8fafc;
@@ -212,7 +195,6 @@
   --select-multiple-padding: 0.25rem;
   --select-option-padding: 0.5rem 0.75rem;
   --select-option-margin: 0;
-
   /* Component: Checkbox */
   --checkbox-bg: #020617;
   --checkbox-border: 1px solid #475569;
@@ -244,7 +226,6 @@
   --checkbox-indeterminate-border-color: #f8fafc;
   --checkbox-indeterminate-width: 8px;
   --checkbox-indeterminate-height: 2px;
-
   /* Component: Radio */
   --radio-bg: #020617;
   --radio-border: 1px solid #475569;
@@ -266,7 +247,6 @@
   --radio-disabled-checked-color: #475569;
   --radio-margin-bottom: 0.75rem;
   --radio-required-color: #fca5a5;
-
   /* Component: Radio Group */
   --radio-group-margin-bottom: 1rem;
   --radio-group-padding: 0;
@@ -286,7 +266,6 @@
   --radio-group-validation-font-size: 0.75rem;
   --radio-group-disabled-opacity: 0.5;
   --radio-group-disabled-bg: transparent;
-
   /* Component: Form Group */
   --form-group-margin-bottom: 1rem;
   --form-group-label-font-size: 0.875rem;
@@ -300,7 +279,6 @@
   --form-group-label-margin-right: 1rem;
   --form-group-label-margin-left: 1rem;
   --form-group-label-width: 30%;
-
   /* Component: Form */
   --form-label-width: 30%;
   --form-section-margin-bottom: 2rem;
@@ -315,7 +293,6 @@
   --form-actions-gap: 0.5rem;
   --form-actions-margin-top: 1.5rem;
   --form-actions-justify: flex-end;
-
   /* Component: Navigation */
   --nav-bg: #020617;
   --nav-border-bottom: 1px solid #1e293b;
@@ -356,7 +333,6 @@
   --nav-mobile-submenu-bg: #0f172a;
   --nav-mobile-active-bg: #1e293b;
   --nav-mobile-hover-bg: #1e293b;
-
   /* Component: Section */
   --section-bg: #020617;
   --section-color: #f8fafc;
@@ -368,7 +344,6 @@
   --section-padding-mobile: 2rem 1rem;
   --section-bg-minor: #0f172a;
   --section-color-minor: #64748b;
-
   /* Component: Logo */
   --logo-width: auto;
   --logo-height: 2rem;
@@ -377,7 +352,6 @@
   --logo-max-height: 3rem;
   --logo-max-width: 12rem;
   --logo-width-tablet: auto;
-
   /* ContactInfo Component */
   --contact-info-gap: 1rem;
   --contact-info-item-gap: 0.5rem;
@@ -386,7 +360,6 @@
   --contact-info-hover-color: #f8fafc;
   --contact-info-font-size: 0.875rem;
   --contact-info-icon-size: 1rem;
-
   /* StickyContactIcons Variables */
   --sticky-contact-icons-right: 1.5rem;
   --sticky-contact-icons-gap: 0.75rem;
@@ -402,7 +375,6 @@
   --sticky-contact-icons-mobile-bottom: 1rem;
   --sticky-contact-icons-mobile-size: 2.25rem;
   --sticky-contact-icons-mobile-icon-size: 1rem;
-
   /* Component: Header */
   --header-bg: #0f172a;
   --header-bg-scrolled: #020617;
@@ -421,7 +393,6 @@
   --header-transition: all 150ms ease;
   --header-transparent-color: #f8fafc;
   --header-z-index: 50;
-
   /* Component: CollapsibleHeader */
   --collapsible-header-collapsed-height: 4rem;
   --collapsible-header-contact-bg: #0f172a;
@@ -431,17 +402,14 @@
   --collapsible-header-mobile-height: 3.5rem;
   --collapsible-header-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
   --collapsible-header-transition: all 150ms ease;
-
   /* Component: Footer */
   --footer-bg: #0f172a;
   --footer-text: #94a3b8;
   --footer-link-hover: #f8fafc;
-
   /* Component: PriceDisplay */
   --price-display-bg: rgba(59, 130, 246, 0.1);
   --price-display-border: 1px solid rgba(59, 130, 246, 0.3);
   --price-display-color: #60a5fa;
-
   /* Additional Variables */
   --color-yellow: #fbbf24;
   --transition-duration: 150ms;
@@ -450,16 +418,13 @@
   --border-radius-default: 0.375rem;
   --box-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
-
 /* Dark theme specific styles */
 .dark-theme * {
   border-color: var(--color-border);
 }
-
 .dark-theme .card {
   transition: border-color 150ms ease;
 }
-
 .dark-theme .card:hover {
   transform: none;
 }

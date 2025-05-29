@@ -5,7 +5,6 @@
   --font-family-heading: var(--font-family-primary);
   --font-family-base: var(--font-family-primary);
   --font-family-mono: 'Roboto Mono', monospace;
-
   /* Colors - Brand - Material UI Blue */
   --color-brand-primary: #2196f3;
   --color-brand-primary-light: #64b5f6;
@@ -13,12 +12,10 @@
   --color-brand-secondary: #ff5722;
   --color-brand-secondary-light: #ff8a65;
   --color-brand-secondary-dark: #e64a19;
-
   /* Colors - Background */
   --color-bg-secondary: #fafafa;
   --color-border: #e0e0e0;
   --color-gray-50: #fafafa;
-
   /* Component: Typography */
   --typography-color: var(--color-text);
   --typography-muted-color: var(--color-text-light);
@@ -31,7 +28,6 @@
   --typography-h6-size: var(--font-size-lg);
   --typography-body-size: var(--font-size-base);
   --typography-small-size: var(--font-size-sm);
-
   /* Component: Button */
   --button-bg: var(--color-brand-primary);
   --button-color: var(--color-text-white);
@@ -64,7 +60,6 @@
     0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
     0 1px 5px 0 rgba(0, 0, 0, 0.12);
   --button-focus-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
-
   /* Primary variant */
   --button-primary-bg: var(--color-brand-primary);
   --button-primary-color: var(--color-text-white);
@@ -74,7 +69,6 @@
   --button-primary-hover-color: var(--color-text-white);
   --button-primary-active-bg: var(--color-brand-primary-dark);
   --button-primary-active-border-color: transparent;
-
   /* Secondary variant */
   --button-secondary-bg: var(--color-brand-secondary);
   --button-secondary-color: var(--color-text-white);
@@ -84,37 +78,31 @@
   --button-secondary-hover-color: var(--color-text-white);
   --button-secondary-active-bg: var(--color-brand-secondary-dark);
   --button-secondary-active-border-color: transparent;
-
   /* Text variant */
   --button-text-color: var(--color-brand-primary);
   --button-text-hover-color: var(--color-brand-primary-dark);
   --button-text-padding: 6px 8px;
-
   /* Small button styles */
   --button-padding-sm: 4px 10px;
   --button-font-size-sm: 0.8125rem;
   --button-radius-sm: 4px;
   --button-icon-size-sm: 18px;
-
   /* Large button styles */
   --button-padding-lg: 8px 22px;
   --button-font-size-lg: 0.9375rem;
   --button-radius-lg: 4px;
   --button-icon-size-lg: 22px;
-
   /* Icon button styles */
   --button-icon-margin: 8px;
   --button-icon-padding: 12px;
   --button-icon-radius: 50%;
   --button-icon-size: 24px;
-
   /* Outlined button styles */
   --button-outlined-color: var(--color-brand-primary);
   --button-outlined-border-color: rgba(33, 150, 243, 0.5);
   --button-outlined-hover-bg: rgba(33, 150, 243, 0.08);
   --button-outlined-hover-color: var(--color-brand-primary);
   --button-outlined-hover-border-color: var(--color-brand-primary);
-
   /* Success button styles */
   --button-success-bg: #4caf50;
   --button-success-color: var(--color-text-white);
@@ -122,7 +110,6 @@
   --button-success-hover-bg: #388e3c;
   --button-success-hover-border-color: transparent;
   --button-success-hover-color: var(--color-text-white);
-
   /* Danger button styles */
   --button-danger-bg: #f44336;
   --button-danger-color: var(--color-text-white);
@@ -130,7 +117,6 @@
   --button-danger-hover-bg: #d32f2f;
   --button-danger-hover-border-color: transparent;
   --button-danger-hover-color: var(--color-text-white);
-
   /* Component: Link */
   --link-color: var(--color-brand-primary);
   --link-hover-color: var(--color-brand-primary-dark);
@@ -139,7 +125,6 @@
   --link-margin-right: var(--space-1);
   --link-font-family: var(--font-family-primary);
   --link-transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1);
-
   /* Component: Card */
   --card-bg: var(--color-white);
   --card-color: var(--color-text);
@@ -164,7 +149,6 @@
   --card-title-padding-mobile: 16px;
   --card-content-padding-mobile: 16px;
   --card-footer-padding-mobile: 8px;
-
   /* Component: Input */
   --input-bg: var(--color-bg);
   --input-color: var(--color-text);
@@ -189,7 +173,6 @@
   --input-margin-bottom: 16px;
   --input-mobile-font-size: 16px;
   --input-mobile-padding: 4px 0 5px;
-
   /* Component: Select */
   --select-bg: var(--color-bg);
   --select-color: var(--color-text);
@@ -219,7 +202,6 @@
   --select-multiple-padding: 4px 0;
   --select-option-padding: 6px 16px;
   --select-option-margin: 0;
-
   /* Component: Checkbox */
   --checkbox-bg: transparent;
   --checkbox-border: 2px solid rgba(0, 0, 0, 0.54);
@@ -251,7 +233,6 @@
   --checkbox-indeterminate-border-color: var(--color-brand-primary);
   --checkbox-indeterminate-width: 10px;
   --checkbox-indeterminate-height: 2px;
-
   /* Component: Radio */
   --radio-bg: transparent;
   --radio-border: 2px solid rgba(0, 0, 0, 0.54);
@@ -273,7 +254,6 @@
   --radio-disabled-checked-color: rgba(0, 0, 0, 0.26);
   --radio-margin-bottom: 12px;
   --radio-required-color: #f44336;
-
   /* Component: Radio Group */
   --radio-group-margin-bottom: 16px;
   --radio-group-padding: 8px;
@@ -293,7 +273,6 @@
   --radio-group-validation-font-size: 0.75rem;
   --radio-group-disabled-opacity: 0.38;
   --radio-group-disabled-bg: transparent;
-
   /* Component: Form Group */
   --form-group-margin-bottom: 16px;
   --form-group-label-font-size: 0.75rem;
@@ -307,7 +286,6 @@
   --form-group-label-margin-right: 16px;
   --form-group-label-margin-left: 16px;
   --form-group-label-width: 30%;
-
   /* Component: Form */
   --form-label-width: 30%;
   --form-section-margin-bottom: 24px;
@@ -322,7 +300,6 @@
   --form-actions-gap: 8px;
   --form-actions-margin-top: 24px;
   --form-actions-justify: flex-end;
-
   /* Component: Navigation */
   --nav-bg: var(--color-bg);
   --nav-border-bottom: none;
@@ -364,7 +341,6 @@
   --nav-mobile-submenu-bg: rgba(0, 0, 0, 0.04);
   --nav-mobile-active-bg: rgba(33, 150, 243, 0.12);
   --nav-mobile-hover-bg: rgba(0, 0, 0, 0.04);
-
   /* Component: Section */
   --section-bg: var(--color-bg);
   --section-color: var(--color-text);
@@ -376,7 +352,6 @@
   --section-padding-mobile: 32px 16px;
   --section-bg-minor: var(--color-bg-secondary);
   --section-color-minor: rgba(0, 0, 0, 0.54);
-
   /* Component: Logo */
   --logo-width: auto;
   --logo-height: 40px;
@@ -385,7 +360,6 @@
   --logo-max-height: 48px;
   --logo-max-width: 200px;
   --logo-width-tablet: auto;
-
   /* ContactInfo Component */
   --contact-info-gap: 16px;
   --contact-info-item-gap: 8px;
@@ -394,7 +368,6 @@
   --contact-info-hover-color: var(--color-brand-primary);
   --contact-info-font-size: 0.875rem;
   --contact-info-icon-size: 18px;
-
   /* StickyContactIcons Variables */
   --sticky-contact-icons-right: 24px;
   --sticky-contact-icons-gap: 12px;
@@ -410,7 +383,6 @@
   --sticky-contact-icons-mobile-bottom: 16px;
   --sticky-contact-icons-mobile-size: 40px;
   --sticky-contact-icons-mobile-icon-size: 20px;
-
   /* Component: Header */
   --header-bg: var(--color-brand-primary);
   --header-bg-scrolled: var(--color-brand-primary);
@@ -431,7 +403,6 @@
   --header-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --header-transparent-color: var(--color-white);
   --header-z-index: 1100;
-
   /* Component: CollapsibleHeader */
   --collapsible-header-collapsed-height: 64px;
   --collapsible-header-contact-bg: rgba(0, 0, 0, 0.04);
@@ -442,17 +413,14 @@
   --collapsible-header-mobile-height: 56px;
   --collapsible-header-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   --collapsible-header-transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-
   /* Component: Footer */
   --footer-bg: #424242;
   --footer-text: rgba(255, 255, 255, 0.87);
   --footer-link-hover: var(--color-brand-primary-light);
-
   /* Component: PriceDisplay */
   --price-display-bg: rgba(33, 150, 243, 0.08);
   --price-display-border: 1px solid rgba(33, 150, 243, 0.24);
   --price-display-color: var(--color-brand-primary);
-
   /* Additional Variables */
   --color-yellow: #ffeb3b;
   --color-text-muted: rgba(0, 0, 0, 0.54);
@@ -462,17 +430,14 @@
   --border-radius-default: 4px;
   --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
-
 /* Material UI specific enhancements */
 .default-theme .card {
   transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .default-theme .card:hover {
   transform: none;
   box-shadow: var(--card-hover-shadow);
 }
-
 .default-theme h1,
 .default-theme h2,
 .default-theme h3,
