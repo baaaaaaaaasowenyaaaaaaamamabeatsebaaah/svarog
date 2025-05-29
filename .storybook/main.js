@@ -6,7 +6,7 @@ import { getPrototypes } from '../src/utils/getPrototypes.js';
 import Sidebar from './components/Sidebar/Sidebar.js';
 import Stage from './components/Stage/Stage.js';
 import HeaderToolbar from './components/HeaderToolbar/HeaderToolbar.js';
-import { switchTheme, getCurrentTheme } from '../src/utils/theme.js';
+import { switchTheme, getCurrentTheme } from '../src/utils/themeManager.js';
 
 const app = document.getElementById('app');
 

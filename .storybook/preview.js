@@ -1,5 +1,5 @@
 // .storybook/preview.js
-import { switchTheme } from '../src/utils/theme.js';
+import { switchTheme } from '../src/utils/themeManager.js';
 import { THEMES } from '../src/constants/themes.js';
 
 // Get stored theme from localStorage or use default

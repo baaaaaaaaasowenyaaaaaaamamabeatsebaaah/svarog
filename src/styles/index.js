@@ -15,4 +15,4 @@ import './themes/light-theme.css';
 import './themes/red-theme.css';
 
 // Export theme utilities
-export * from '../utils/theme.js';
+export * from '../utils/themeManager.js';

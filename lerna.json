@@ -6,13 +6,42 @@
       "conventionalCommits": true,
       "message": "chore(release): publish",
       "registry": "https://registry.npmjs.org",
-      "allowBranch": ["main", "master"]
+      "allowBranch": ["main", "master"],
+      "skipGit": false,
+      "skipNpm": false,
+      "verifyAccess": true,
+      "verifyRegistry": true
     },
     "version": {
       "allowBranch": ["main", "master"],
       "conventionalCommits": true,
-      "exact": true
+      "exact": false,
+      "forcePublish": false,
+      "syncVersions": false,
+      "createRelease": "github",
+      "push": true,
+      "gitTagVersion": true,
+      "ignoreChanges": [
+        "**/__tests__/**",
+        "**/*.test.js",
+        "**/*.spec.js",
+        "**/stories/**",
+        "**/*.md"
+      ]
+    },
+    "bootstrap": {
+      "hoist": true,
+      "npmClientArgs": ["--no-package-lock"]
     }
   },
-  "packages": ["packages/*", "packages/@svarog-ui/*"]
+  "packages": ["packages/*", "packages/@svarog-ui/*"],
+  "ignoreChanges": [
+    "**/__fixtures__/**",
+    "**/__tests__/**",
+    "**/*.test.js",
+    "**/*.spec.js",
+    "**/stories/**",
+    "**/*.md",
+    "**/CHANGELOG.md"
+  ]
 }

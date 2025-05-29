@@ -18,8 +18,8 @@
     "build": "node ../../scripts/build-main.mjs"
   },
   "dependencies": {
-    "@svarog-ui/theme-default": "latest",
-    "svarog-ui-core": "latest"
+    "@svarog-ui/theme-default": ">=1.4.0 <2.0.0",
+    "svarog-ui-core": ">=2.0.0 <3.0.0"
   },
   "gitHead": "849700738cb6e8ba21400df607c575da6d581621"
 }

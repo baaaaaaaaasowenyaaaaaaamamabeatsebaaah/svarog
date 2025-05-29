@@ -388,7 +388,7 @@ async function updateComponentsRegistry(componentName) {
 
   try {
     // Read the current registry file
-    let content = await fs.readFile(registryPath, 'utf-8');
+    const content = await fs.readFile(registryPath, 'utf-8');
 
     // Check if component is already registered
     if (content.includes(`name: '${componentName}'`)) {
@@ -455,7 +455,7 @@ async function updateMainIndex(componentName) {
 
   try {
     // Read the current index file
-    let content = await fs.readFile(indexPath, 'utf-8');
+    const content = await fs.readFile(indexPath, 'utf-8');
 
     // Check if component is already exported
     if (content.includes(`import ${componentName} from`)) {
