@@ -270,7 +270,7 @@ describe('Select component', () => {
       const mockLoadOptions = vi.fn().mockResolvedValue(options);
 
       select = Select({
-        options: options,
+        options,
         onLoadOptions: mockLoadOptions,
       });
 
@@ -322,7 +322,7 @@ describe('Select component', () => {
   describe('Value management during loading', () => {
     it('should preserve value when updating options with keepValue=true', () => {
       select = Select({
-        options: options,
+        options,
         value: 'option2',
       });
 
@@ -338,7 +338,7 @@ describe('Select component', () => {
 
     it('should clear value when updating options with keepValue=false', () => {
       select = Select({
-        options: options,
+        options,
         value: 'option2',
       });
 
@@ -371,7 +371,7 @@ describe('Select component', () => {
 
     it('should preserve multiple values when updating options', () => {
       select = Select({
-        options: options,
+        options,
         multiple: true,
         value: ['option1', 'option2'],
       });
@@ -391,7 +391,7 @@ describe('Select component', () => {
     // Test defaultValue with multiple selection
     it('should handle defaultValue with multiple selection', () => {
       select = Select({
-        options: options,
+        options,
         multiple: true,
         defaultValue: ['option1', 'option3'],
       });
@@ -424,7 +424,7 @@ describe('Select component', () => {
 
     it('should handle multiple value type conversion', () => {
       select = Select({
-        options: options,
+        options,
         multiple: true,
         value: 'string-value', // Invalid for multiple, should be converted
       });
@@ -435,7 +435,7 @@ describe('Select component', () => {
     // Test defaultValue conversion for multiple select
     it('should handle multiple defaultValue type conversion', () => {
       select = Select({
-        options: options,
+        options,
         multiple: true,
         defaultValue: 'string-value', // Invalid for multiple, should be converted
       });
@@ -447,7 +447,7 @@ describe('Select component', () => {
   describe('Props migration and standardization', () => {
     it('should migrate defaultValue to value when only defaultValue is provided', () => {
       select = Select({
-        options: options,
+        options,
         defaultValue: 'option2',
       });
 
@@ -456,7 +456,7 @@ describe('Select component', () => {
 
     it('should handle both defaultValue and value correctly during update', () => {
       select = Select({
-        options: options,
+        options,
         value: 'option1',
       });
 

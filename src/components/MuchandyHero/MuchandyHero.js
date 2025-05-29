@@ -193,8 +193,12 @@ const validateMuchandyHeroProps = (props) => {
 
   if (!hasValidForms) {
     const missing = [];
-    if (!hasRepairForm) missing.push('repairForm');
-    if (!hasBuybackForm) missing.push('buybackForm');
+    if (!hasRepairForm) {
+      missing.push('repairForm');
+    }
+    if (!hasBuybackForm) {
+      missing.push('buybackForm');
+    }
     throw new Error(
       `MuchandyHero: Missing required props: ${missing.join(', ')}`
     );

@@ -318,7 +318,7 @@ const createPage = (props) => {
 
   // Add state methods directly to component object
   Object.defineProperty(pageComponent, 'getState', {
-    value: function () {
+    value() {
       return componentState.get();
     },
     writable: false,
@@ -327,7 +327,7 @@ const createPage = (props) => {
   });
 
   Object.defineProperty(pageComponent, 'setState', {
-    value: function (newState) {
+    value(newState) {
       componentState.set(newState);
     },
     writable: false,
@@ -338,7 +338,7 @@ const createPage = (props) => {
   // Override update method to sync with state
   const originalUpdate = pageComponent.update;
   Object.defineProperty(pageComponent, 'update', {
-    value: function (newProps) {
+    value(newProps) {
       // Standardize incoming props on update as well
       const standardized = migrateLegacyProps(newProps);
       this.setState(standardized);
@@ -358,7 +358,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'setLoading', {
-    value: function (loading, options = {}) {
+    value(loading, options = {}) {
       const currentState = this.getState();
       const currentOptions = currentState.loadingOptions || {};
 
@@ -382,7 +382,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'setError', {
-    value: function (error) {
+    value(error) {
       const newState = { error, loading: false };
       this.setState(newState);
       this.update(newState);
@@ -399,7 +399,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'setContent', {
-    value: function (contentData) {
+    value(contentData) {
       const newState = {
         content: contentData,
         error: null, // Clear error state when updating content
@@ -420,7 +420,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'updateSEO', {
-    value: function (seoData) {
+    value(seoData) {
       if (headComponent) {
         headComponent.update(seoData);
         headComponent.render();
@@ -448,7 +448,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'renderSEO', {
-    value: function () {
+    value() {
       if (headComponent) {
         headComponent.render();
       }
@@ -465,7 +465,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'loadFromCMS', {
-    value: function (cmsData) {
+    value(cmsData) {
       const { seo, header, content, footer } = cmsData;
 
       // Update SEO if provided
@@ -496,7 +496,7 @@ const createPage = (props) => {
    * @returns {Promise} Navigation promise
    */
   Object.defineProperty(pageComponent, 'navigate', {
-    value: async function (path, options = {}) {
+    async value(path, options = {}) {
       const { showLoading = true, onNavigate } = options;
 
       if (showLoading) {
@@ -535,7 +535,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'optimize', {
-    value: function () {
+    value() {
       const element = this.getElement();
 
       // Lazy load images
@@ -570,7 +570,7 @@ const createPage = (props) => {
    * @returns {Object} Component instance for chaining
    */
   Object.defineProperty(pageComponent, 'preloadCriticalResources', {
-    value: function () {
+    value() {
       const state = this.getState();
 
       // Preload critical CSS/JS if specified
@@ -599,7 +599,7 @@ const createPage = (props) => {
    * @returns {Object} Accessibility report
    */
   Object.defineProperty(pageComponent, 'validateAccessibility', {
-    value: function () {
+    value() {
       const element = this.getElement();
       const issues = [];
 
@@ -634,7 +634,7 @@ const createPage = (props) => {
    */
   const originalDestroy = pageComponent.destroy;
   Object.defineProperty(pageComponent, 'destroy', {
-    value: function () {
+    value() {
       if (headComponent) {
         headComponent.destroy();
         headComponent = null;

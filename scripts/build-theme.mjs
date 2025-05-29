@@ -1,4 +1,4 @@
-// scripts/build-theme.mjs
+// File: scripts/build-theme.mjs
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -14,7 +14,29 @@ if (!themeName) {
   process.exit(1);
 }
 
+// VALIDATION: Check if source CSS exists
+const validateSourceFiles = () => {
+  const themeCssPath = resolve(
+    __dirname,
+    `../src/styles/themes/${themeName}-theme.css`
+  );
+
+  if (!existsSync(themeCssPath)) {
+    console.error(`❌ Theme CSS file not found: ${themeCssPath}`);
+    console.error(`   Expected: src/styles/themes/${themeName}-theme.css`);
+    process.exit(1);
+  }
+
+  console.log(`✅ Source CSS found: ${themeCssPath}`);
+  return themeCssPath;
+};
+
 try {
+  console.log(`🔨 Building theme: ${themeName}`);
+
+  // Validate source files first
+  const themeCssPath = validateSourceFiles();
+
   // Paths
   const packagePath = resolve(
     __dirname,
@@ -30,14 +52,6 @@ try {
   mkdirSync(distPath, { recursive: true });
 
   // Read theme CSS
-  const themeCssPath = resolve(
-    __dirname,
-    `../src/styles/themes/${themeName}-theme.css`
-  );
-  if (!existsSync(themeCssPath)) {
-    throw new Error(`Theme CSS file not found: ${themeCssPath}`);
-  }
-
   const themeCss = readFileSync(themeCssPath, 'utf-8');
 
   // Extract and validate CSS
@@ -45,6 +59,13 @@ try {
     themeCss,
     themeName
   );
+
+  // VALIDATION: Check if we extracted anything
+  if (!variables && !componentStyles) {
+    console.warn(
+      `⚠️  Warning: No theme variables or styles extracted from ${themeName}-theme.css`
+    );
+  }
 
   // Generate modules
   const modules = generateThemeModules(themeName, variables, componentStyles);
@@ -64,6 +85,14 @@ try {
   Object.keys(modules).forEach((file) => {
     console.log(`      - ${file}`);
   });
+
+  // VALIDATION: Verify generated files exist
+  Object.keys(modules).forEach((filename) => {
+    const filePath = resolve(distPath, filename);
+    if (!existsSync(filePath)) {
+      throw new Error(`Failed to generate ${filename}`);
+    }
+  });
 } catch (error) {
   console.error(`❌ Failed to build theme "${themeName}":`, error.message);
   if (error.stack) {
@@ -72,6 +101,7 @@ try {
   process.exit(1);
 }
 
+// Rest of the functions remain the same...
 function extractThemeStyles(css, themeName) {
   const variables = new Map();
   const componentStyles = new Set();
@@ -139,10 +169,10 @@ import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
 
 const ${themeName}Theme = {
   name: '${themeName}',
-  
+
   apply() {
     this.remove();
-    
+
     const styles = css\`
       :root {
         ${variables}
@@ -152,18 +182,18 @@ const ${themeName}Theme = {
       }
       ${componentStyles}
     \`;
-    
+
     injectStyles('theme-${themeName}', styles, { priority: 'high' });
-    
+
     document.documentElement.classList.add('${themeName}-theme');
     document.body.classList.add('${themeName}-theme');
   },
-  
+
   remove() {
     document.documentElement.classList.remove('${themeName}-theme');
     document.body.classList.remove('${themeName}-theme');
   },
-  
+
   getStyles() {
     return css\`
       :root {

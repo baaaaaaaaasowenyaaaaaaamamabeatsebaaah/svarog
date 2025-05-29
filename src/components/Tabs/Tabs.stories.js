@@ -235,7 +235,7 @@ export const AllVariants = () => {
 
     const tabs = createTabs({
       ...createTabsConfig(),
-      variant: variant,
+      variant,
     });
 
     section.appendChild(header);
@@ -269,7 +269,7 @@ export const TabAlignments = () => {
 
     const tabs = createTabs({
       ...createTabsConfig(),
-      align: align,
+      align,
     });
 
     section.appendChild(header);

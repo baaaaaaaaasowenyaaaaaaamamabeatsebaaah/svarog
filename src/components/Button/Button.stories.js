@@ -136,8 +136,8 @@ export const AllVariants = () => {
 
   variants.forEach(({ name, text, variant }) => {
     const button = Button({
-      text: text,
-      variant: variant,
+      text,
+      variant,
       onClick: () => console.log(`${name} button clicked`),
     });
     variantsSection.appendChild(button.getElement());
@@ -162,7 +162,7 @@ export const AllVariants = () => {
   ['sm', '', 'lg'].forEach((size) => {
     const button = Button({
       text: size ? `${size.toUpperCase()} Size` : 'Default Size',
-      size: size,
+      size,
       variant: 'primary',
       onClick: () => console.log(`${size || 'default'} size button clicked`),
     });

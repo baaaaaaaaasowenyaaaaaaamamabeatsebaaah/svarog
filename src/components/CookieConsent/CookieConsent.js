@@ -78,7 +78,9 @@ class CookieManager {
       const stored =
         localStorage.getItem(this.CONSENT_KEY) ||
         this.getCookie(this.CONSENT_KEY);
-      if (!stored) return null;
+      if (!stored) {
+        return null;
+      }
 
       const consent = JSON.parse(stored);
       if (new Date(consent.expires) < new Date()) {
@@ -147,7 +149,7 @@ const createCookieConsent = (props = {}) => {
   };
 
   let currentModal = null;
-  let categoryCheckboxes = new Map(); // Store checkbox component references
+  const categoryCheckboxes = new Map(); // Store checkbox component references
 
   // Get merged categories with GDPR compliance
   const getCategories = () => {
@@ -213,7 +215,9 @@ const createCookieConsent = (props = {}) => {
       const container = document.querySelector(
         `[data-category="${category.id}"]`
       );
-      if (!container) return;
+      if (!container) {
+        return;
+      }
 
       // Create checkbox using Checkbox component
       const checkbox = Checkbox({
@@ -415,7 +419,9 @@ const createCookieConsent = (props = {}) => {
   };
 
   const recreateModal = () => {
-    if (!currentModal) return;
+    if (!currentModal) {
+      return;
+    }
 
     const wasOpen = currentModal.isOpen();
 
@@ -535,7 +541,9 @@ const createCookieConsent = (props = {}) => {
 
     hasConsent(category = null) {
       const consent = CookieManager.getConsent();
-      if (!consent) return false;
+      if (!consent) {
+        return false;
+      }
       return category ? consent.preferences[category] === true : true;
     },
 
@@ -564,7 +572,9 @@ const createCookieConsent = (props = {}) => {
 createCookieConsent.getConsent = () => CookieManager.getConsent();
 createCookieConsent.hasConsent = (category) => {
   const consent = CookieManager.getConsent();
-  if (!consent) return false;
+  if (!consent) {
+    return false;
+  }
   return category ? consent.preferences[category] === true : true;
 };
 createCookieConsent.revokeConsent = () => CookieManager.clearConsent();

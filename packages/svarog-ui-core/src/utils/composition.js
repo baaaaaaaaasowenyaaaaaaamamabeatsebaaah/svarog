@@ -36,7 +36,9 @@ export const withThemeAwareness = (createComponent) => {
     const originalDestroy = component.destroy;
     component.destroy = () => {
       window.removeEventListener('themechange', handleThemeChange);
-      if (originalDestroy) originalDestroy.call(component);
+      if (originalDestroy) {
+        originalDestroy.call(component);
+      }
     };
 
     return component;

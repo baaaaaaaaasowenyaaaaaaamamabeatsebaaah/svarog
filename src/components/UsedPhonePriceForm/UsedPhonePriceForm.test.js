@@ -145,9 +145,9 @@ describe('UsedPhonePriceForm component', () => {
 
   it('should enable the submit button when all selections are made', () => {
     const form = createUsedPhonePriceForm({
-      manufacturers: manufacturers,
-      devices: devices,
-      conditions: conditions,
+      manufacturers,
+      devices,
+      conditions,
     });
 
     // Initial state - button should be disabled
@@ -176,9 +176,9 @@ describe('UsedPhonePriceForm component', () => {
 
     // Set up form with all the required data and the mock callback
     const form = createUsedPhonePriceForm({
-      manufacturers: manufacturers,
-      devices: devices,
-      conditions: conditions,
+      manufacturers,
+      devices,
+      conditions,
       selectedManufacturer: '1',
       selectedDevice: '2',
       selectedCondition: '3',
@@ -268,7 +268,7 @@ describe('UsedPhonePriceForm component', () => {
 
   it('should show manufacturers in select when provided', () => {
     const form = createUsedPhonePriceForm({
-      manufacturers: manufacturers,
+      manufacturers,
     });
 
     const element = form.getElement();
@@ -284,7 +284,7 @@ describe('UsedPhonePriceForm component', () => {
 
   it('should disable device select when no manufacturer is selected', () => {
     const form = createUsedPhonePriceForm({
-      manufacturers: manufacturers,
+      manufacturers,
       devices: [], // No devices
     });
 
@@ -296,8 +296,8 @@ describe('UsedPhonePriceForm component', () => {
 
   it('should enable device select when manufacturer is selected', () => {
     const form = createUsedPhonePriceForm({
-      manufacturers: manufacturers,
-      devices: devices,
+      manufacturers,
+      devices,
       selectedManufacturer: '1', // Required to enable device select
     });
 
@@ -309,7 +309,7 @@ describe('UsedPhonePriceForm component', () => {
 
   it('should transform raw data to select options format', () => {
     const form = createUsedPhonePriceForm({
-      manufacturers: manufacturers,
+      manufacturers,
     });
 
     const element = form.getElement();

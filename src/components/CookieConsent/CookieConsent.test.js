@@ -710,7 +710,7 @@ describe('CookieConsent', () => {
     });
 
     it('should properly handle checkbox onChange events', async () => {
-      let capturedEvents = [];
+      const capturedEvents = [];
       const cookieConsent = CookieConsent({
         autoShow: false,
         mode: 'detailed',

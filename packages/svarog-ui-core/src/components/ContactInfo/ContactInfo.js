@@ -43,7 +43,9 @@ const renderContactInfo = (state) => {
 
   // Create the contact info container
   const contactInfoClasses = ['contact-info'];
-  if (state.className) contactInfoClasses.push(state.className);
+  if (state.className) {
+    contactInfoClasses.push(state.className);
+  }
 
   const contactInfoElement = createElement('div', {
     classes: contactInfoClasses,

@@ -31,7 +31,7 @@ const validateHeadProps = (props) => {
  * @returns {string} Sanitized title
  */
 const sanitizeTitle = (title) => {
-  return title.length > 60 ? title.substring(0, 57) + '...' : title;
+  return title.length > 60 ? `${title.substring(0, 57)}...` : title;
 };
 
 /**
@@ -41,7 +41,7 @@ const sanitizeTitle = (title) => {
  */
 const sanitizeDescription = (description) => {
   return description.length > 160
-    ? description.substring(0, 157) + '...'
+    ? `${description.substring(0, 157)}...`
     : description;
 };
 
@@ -52,7 +52,9 @@ const sanitizeDescription = (description) => {
  */
 const createAndAppendMetaTags = (container, tags) => {
   tags.forEach((tag) => {
-    if (!tag || !Object.keys(tag).length) return;
+    if (!tag || !Object.keys(tag).length) {
+      return;
+    }
 
     const metaTag = createElement('meta', {
       attributes: tag,
@@ -377,8 +379,8 @@ const createHead = (props) => {
     const linkTag = createElement('link', {
       attributes: {
         rel: 'alternate',
-        hreflang: hreflang,
-        href: href,
+        hreflang,
+        href,
       },
     });
     headElement.appendChild(linkTag);

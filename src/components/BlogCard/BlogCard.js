@@ -88,7 +88,9 @@ const createBlogCard = (props) => {
    * @returns {string} Formatted date string
    */
   const formatDate = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) {
+      return '';
+    }
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',

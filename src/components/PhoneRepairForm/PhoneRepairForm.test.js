@@ -121,9 +121,9 @@ describe('PhoneRepairForm component', () => {
 
   it('should enable the schedule button when all selections are made', () => {
     const form = createPhoneRepairForm({
-      manufacturers: manufacturers,
-      devices: devices,
-      actions: actions,
+      manufacturers,
+      devices,
+      actions,
     });
 
     // Initial state - button should be disabled
@@ -152,9 +152,9 @@ describe('PhoneRepairForm component', () => {
 
     // Set up form with all the required data and the mock callback
     const form = createPhoneRepairForm({
-      manufacturers: manufacturers,
-      devices: devices,
-      actions: actions,
+      manufacturers,
+      devices,
+      actions,
       selectedManufacturer: '1',
       selectedDevice: '2',
       selectedAction: '3',
@@ -248,7 +248,7 @@ describe('PhoneRepairForm component', () => {
 
   it('should show manufacturers in select when provided', () => {
     const form = createPhoneRepairForm({
-      manufacturers: manufacturers,
+      manufacturers,
     });
 
     const element = form.getElement();
@@ -264,7 +264,7 @@ describe('PhoneRepairForm component', () => {
 
   it('should disable device select when no devices available', () => {
     const form = createPhoneRepairForm({
-      manufacturers: manufacturers,
+      manufacturers,
       devices: [], // No devices
     });
 
@@ -276,8 +276,8 @@ describe('PhoneRepairForm component', () => {
 
   it('should enable device select when devices are available', () => {
     const form = createPhoneRepairForm({
-      manufacturers: manufacturers,
-      devices: devices,
+      manufacturers,
+      devices,
       selectedManufacturer: '1', // Required to enable device select
     });
 
@@ -289,7 +289,7 @@ describe('PhoneRepairForm component', () => {
 
   it('should transform raw data to select options format', () => {
     const form = createPhoneRepairForm({
-      manufacturers: manufacturers,
+      manufacturers,
     });
 
     const element = form.getElement();

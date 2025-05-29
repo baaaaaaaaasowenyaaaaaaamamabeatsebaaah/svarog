@@ -64,12 +64,24 @@ const createInput = (props) => {
 
     // Create custom input UI first (for proper z-index layering)
     const customClasses = ['input-custom', `input-custom--${type}`];
-    if (disabled) customClasses.push('input-custom--disabled');
-    if (readonly) customClasses.push('input-custom--readonly');
-    if (loading) customClasses.push('input-custom--loading');
-    if (error === false) customClasses.push('input-custom--valid');
-    if (error) customClasses.push('input-custom--invalid');
-    if (currentValue) customClasses.push('input-custom--has-value');
+    if (disabled) {
+      customClasses.push('input-custom--disabled');
+    }
+    if (readonly) {
+      customClasses.push('input-custom--readonly');
+    }
+    if (loading) {
+      customClasses.push('input-custom--loading');
+    }
+    if (error === false) {
+      customClasses.push('input-custom--valid');
+    }
+    if (error) {
+      customClasses.push('input-custom--invalid');
+    }
+    if (currentValue) {
+      customClasses.push('input-custom--has-value');
+    }
 
     const customInput = createElement('div', {
       classes: customClasses,
@@ -173,10 +185,18 @@ const createInput = (props) => {
     };
 
     // Add optional attributes
-    if (minLength !== undefined) inputAttributes.minLength = minLength;
-    if (maxLength !== undefined) inputAttributes.maxLength = maxLength;
-    if (disabled) inputAttributes.disabled = true;
-    if (readonly) inputAttributes.readOnly = true;
+    if (minLength !== undefined) {
+      inputAttributes.minLength = minLength;
+    }
+    if (maxLength !== undefined) {
+      inputAttributes.maxLength = maxLength;
+    }
+    if (disabled) {
+      inputAttributes.disabled = true;
+    }
+    if (readonly) {
+      inputAttributes.readOnly = true;
+    }
 
     const input = createElement('input', {
       classes: ['input-native'],
@@ -310,15 +330,21 @@ const createInput = (props) => {
   const handleControlClick = (event) => {
     // Only handle direct clicks on buttons with data-action
     const button = event.target.closest('[data-action]');
-    if (!button) return;
+    if (!button) {
+      return;
+    }
 
     // Get the action type
     const action = button.getAttribute('data-action');
-    if (!action) return;
+    if (!action) {
+      return;
+    }
 
     // Reference to native input
     const inputElement = element.querySelector('.input-native');
-    if (!inputElement) return;
+    if (!inputElement) {
+      return;
+    }
 
     // Process different actions
     switch (action) {
@@ -334,13 +360,17 @@ const createInput = (props) => {
         break;
 
       case 'increment':
-        if (state.disabled || state.readonly) return;
+        if (state.disabled || state.readonly) {
+          return;
+        }
         incrementValue(inputElement);
         event.stopPropagation();
         break;
 
       case 'decrement':
-        if (state.disabled || state.readonly) return;
+        if (state.disabled || state.readonly) {
+          return;
+        }
         decrementValue(inputElement);
         event.stopPropagation();
         break;
@@ -451,7 +481,9 @@ const createInput = (props) => {
    */
   const handleKeydown = (event) => {
     const inputElement = element.querySelector('.input-native');
-    if (!inputElement) return;
+    if (!inputElement) {
+      return;
+    }
 
     switch (state.type) {
       case 'number':
@@ -480,7 +512,9 @@ const createInput = (props) => {
     const valueDisplay = element.querySelector('.input-custom__value');
     const customInput = element.querySelector('.input-custom');
 
-    if (!valueDisplay || !customInput) return;
+    if (!valueDisplay || !customInput) {
+      return;
+    }
 
     // Ensure value is always a string, never undefined
     const value = state.value || '';
@@ -576,7 +610,9 @@ const createInput = (props) => {
     const customElement = element.querySelector('.input-custom');
     const messageElement = element.querySelector('.input-validation-message');
 
-    if (!inputElement || !customElement || !messageElement) return false;
+    if (!inputElement || !customElement || !messageElement) {
+      return false;
+    }
 
     // Use the abstracted validation utility
     const isValid = validateInput(inputElement, {

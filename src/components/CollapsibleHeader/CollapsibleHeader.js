@@ -45,12 +45,21 @@ const migrateLegacyProps = (props) => {
 const validateCollapsibleHeaderProps = (props) => {
   const missingProps = [];
 
-  if (!props.siteName && !props.logo) missingProps.push('siteName or logo');
-  if (!props.navigation.items || props.navigation.items.length === 0)
+  if (!props.siteName && !props.logo) {
+    missingProps.push('siteName or logo');
+  }
+  if (!props.navigation.items || props.navigation.items.length === 0) {
     missingProps.push('navigation.items');
-  if (!props.contactInfo.location) missingProps.push('contactInfo.location');
-  if (!props.contactInfo.phone) missingProps.push('contactInfo.phone');
-  if (!props.contactInfo.email) missingProps.push('contactInfo.email');
+  }
+  if (!props.contactInfo.location) {
+    missingProps.push('contactInfo.location');
+  }
+  if (!props.contactInfo.phone) {
+    missingProps.push('contactInfo.phone');
+  }
+  if (!props.contactInfo.email) {
+    missingProps.push('contactInfo.email');
+  }
 
   if (missingProps.length > 0) {
     throw new Error(`Missing required props: ${missingProps.join(', ')}`);

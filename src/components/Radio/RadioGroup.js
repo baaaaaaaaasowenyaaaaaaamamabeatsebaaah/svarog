@@ -111,7 +111,7 @@ const createRadioGroupDOM = (props) => {
 
   props.options.forEach((option, index) => {
     // In test environment, directly attach onChange to make testing easier
-    let onChangeHandler =
+    const onChangeHandler =
       isInTestEnv && props.onChange
         ? (event, value) => props.onChange(event, value)
         : null;
@@ -315,7 +315,7 @@ const RadioGroupFactory = (props) => {
      * @param {string} value - The new value
      * @returns {Object} Component instance for chaining
      */
-    setValue: function (value) {
+    setValue(value) {
       const endBenchmark = benchmark.start('setValue');
 
       // Skip if not changed
@@ -353,7 +353,7 @@ const RadioGroupFactory = (props) => {
      * Focuses the first or checked radio
      * @returns {Object} Component instance for chaining
      */
-    focus: function () {
+    focus() {
       const radios = element.querySelectorAll('input[type="radio"]');
       const checkedRadio =
         Array.from(radios).find((r) => r.checked) || radios[0];
@@ -374,7 +374,7 @@ const RadioGroupFactory = (props) => {
     /**
      * Custom destroy method to clean up radio components
      */
-    destroy: function () {
+    destroy() {
       if (element._radioComponents) {
         element._radioComponents.forEach((radio) => radio.destroy());
       }
@@ -401,7 +401,7 @@ const RadioGroupFactory = (props) => {
     /**
      * Partial update implementation - used when shouldRerender returns false
      */
-    partialUpdate: function (element, newProps) {
+    partialUpdate(element, newProps) {
       const endBenchmark = benchmark.start('updates');
 
       // Migrate legacy props first

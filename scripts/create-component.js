@@ -62,7 +62,7 @@ async function createComponent(componentName) {
         console.log('Operation cancelled');
         return false;
       }
-    } catch (e) {
+    } catch (_e) {
       // Directory doesn't exist, which is fine
     }
 
@@ -178,7 +178,7 @@ const create${ComponentName} = (props) => {
         });
         element._listeners = {};
       }
-      
+
       element = null;
     },
   };
@@ -199,11 +199,11 @@ export default createComponent('${ComponentName}', create${ComponentName});
 .${componentNameLower} {
   /* Base styles */
   display: block;
-  
+
   /* Use theme variables when appropriate */
   color: var(--color-text);
   background-color: var(--color-bg);
-  
+
   /* Add more styling as needed */
 }
 
@@ -223,7 +223,7 @@ export const Default = () => {
   const ${componentNameLower} = ${ComponentName}({
     // Add default props here
   });
-  
+
   return ${componentNameLower}.getElement();
 };
 
@@ -257,7 +257,7 @@ describe('${ComponentName} component', () => {
 
     // Get the element AFTER the update
     const updatedElement = ${componentNameLower}.getElement();
-    
+
     expect(updatedElement.className).toContain('updated-class');
   });
 
@@ -471,11 +471,9 @@ async function updateMainIndex(componentName) {
     const lastImportEndIndex = content.indexOf(';', lastImportIndex) + 1;
 
     // Insert the new import after the last import
-    let updatedContent =
-      content.slice(0, lastImportEndIndex) +
-      '\n' +
-      importStatement +
-      content.slice(lastImportEndIndex);
+    let updatedContent = `${content.slice(0, lastImportEndIndex)}\n${
+      importStatement
+    }${content.slice(lastImportEndIndex)}`;
 
     // Add to the Svarog object
     updatedContent = updatedContent.replace(

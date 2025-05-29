@@ -78,9 +78,15 @@ const createCard = (props) => {
 
   // Create class name with conditionals
   const classNames = ['card'];
-  if (className) classNames.push(className);
-  if (outlined) classNames.push('card--outlined');
-  if (elevated) classNames.push('card--elevated');
+  if (className) {
+    classNames.push(className);
+  }
+  if (outlined) {
+    classNames.push('card--outlined');
+  }
+  if (elevated) {
+    classNames.push('card--elevated');
+  }
 
   // Create the main card element
   const card = createElement('div', {

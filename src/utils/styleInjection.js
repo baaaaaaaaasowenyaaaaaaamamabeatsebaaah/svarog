@@ -90,7 +90,9 @@ export const createStyleInjector = (componentName) => {
  * @param {string} id - Style ID to remove
  */
 export const removeStyles = (id) => {
-  if (isServer) return;
+  if (isServer) {
+    return;
+  }
 
   const style = document.getElementById(`svarog-${id}`);
   if (style) {

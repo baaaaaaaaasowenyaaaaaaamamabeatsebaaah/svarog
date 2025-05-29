@@ -72,7 +72,7 @@ try {
   console.log('Running ESLint...');
   execSync('npx eslint "src/**/*.js" --quiet', { stdio: 'inherit' });
   console.log('✅ ESLint passed!');
-} catch (error) {
+} catch (_error) {
   console.error('❌ ESLint failed!');
   process.exit(1);
 }
@@ -82,7 +82,7 @@ try {
   console.log('Running tests...');
   execSync('npm test', { stdio: 'inherit' });
   console.log('✅ Tests passed!');
-} catch (error) {
+} catch (_error) {
   console.error('❌ Tests failed!');
   process.exit(1);
 }

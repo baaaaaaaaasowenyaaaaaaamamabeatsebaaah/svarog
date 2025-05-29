@@ -42,8 +42,7 @@ import CookieConsent from './components/CookieConsent/index.js';
 import Input from './components/Input/index.js';
 import Select from './components/Select/index.js';
 import Checkbox from './components/Checkbox/index.js';
-import Radio from './components/Radio/index.js';
-import RadioGroup from './components/Radio/index.js';
+import { RadioGroup, Radio } from './components/Radio/index.js';
 import {
   Form,
   FormGroup,

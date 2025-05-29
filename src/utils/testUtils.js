@@ -65,7 +65,9 @@ export function submitForm(form, values = {}) {
   // Set form field values
   Object.entries(values).forEach(([name, value]) => {
     const field = form.elements[name];
-    if (!field) return;
+    if (!field) {
+      return;
+    }
 
     if (field.type === 'checkbox') {
       field.checked = !!value;

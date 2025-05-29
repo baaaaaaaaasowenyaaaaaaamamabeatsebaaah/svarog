@@ -80,7 +80,9 @@ const createBlogDetail = (props) => {
      * @returns {string} Formatted date string
      */
     const formatDate = (dateString) => {
-      if (!dateString) return '';
+      if (!dateString) {
+        return '';
+      }
       try {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {

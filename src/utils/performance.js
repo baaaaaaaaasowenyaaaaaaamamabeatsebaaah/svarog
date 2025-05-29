@@ -17,7 +17,9 @@ export function debounce(func, wait, immediate = false) {
 
     const later = function () {
       timeout = null;
-      if (!immediate) func.apply(context, args);
+      if (!immediate) {
+        func.apply(context, args);
+      }
     };
 
     const callNow = immediate && !timeout;
@@ -26,7 +28,9 @@ export function debounce(func, wait, immediate = false) {
 
     timeout = setTimeout(later, wait);
 
-    if (callNow) func.apply(context, args);
+    if (callNow) {
+      func.apply(context, args);
+    }
   };
 }
 
@@ -106,7 +110,9 @@ export function memoize(func, keyResolver = JSON.stringify) {
 
   return function memoized(...args) {
     const key = keyResolver(args);
-    if (cache.has(key)) return cache.get(key);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
 
     const result = func.apply(this, args);
     cache.set(key, result);
@@ -177,7 +183,9 @@ export class PerformanceBenchmark {
    * @returns {Function} Function to call when operation completes
    */
   start(operation) {
-    if (!this.enabled) return () => {};
+    if (!this.enabled) {
+      return () => {};
+    }
 
     const startTime = performance.now();
 
@@ -210,7 +218,9 @@ export class PerformanceBenchmark {
     const summary = {};
 
     Object.entries(this.metrics).forEach(([operation, measurements]) => {
-      if (measurements.length === 0) return;
+      if (measurements.length === 0) {
+        return;
+      }
 
       const total = measurements.reduce((sum, time) => sum + time, 0);
       const avg = total / measurements.length;

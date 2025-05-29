@@ -58,7 +58,9 @@ const createFooter = (props) => {
    * @returns {Object} Normalized props
    */
   const migrateLegacyProps = (props) => {
-    if (!props || typeof props !== 'object') return props;
+    if (!props || typeof props !== 'object') {
+      return props;
+    }
 
     const migrated = { ...props };
 

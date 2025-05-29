@@ -114,7 +114,7 @@ describe('Head Component', () => {
     const head = Head({
       title: 'Canonical URL Test',
       description: 'Testing canonical URL',
-      canonicalUrl: canonicalUrl,
+      canonicalUrl,
     });
 
     head.render();

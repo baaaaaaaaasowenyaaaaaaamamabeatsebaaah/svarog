@@ -68,7 +68,9 @@ async function findStoryFiles() {
 
       // Check if it's a directory
       const stats = await fs.stat(componentDir);
-      if (!stats.isDirectory()) continue;
+      if (!stats.isDirectory()) {
+        continue;
+      }
 
       // Check for story file
       const storyFile = path.join(
@@ -238,7 +240,7 @@ async function main() {
   } else {
     missingComponents.forEach(({ name, stories }) => {
       console.log(`\nComponent: ${name}`);
-      console.log('Stories: ' + stories.join(', '));
+      console.log(`Stories: ${stories.join(', ')}`);
       console.log('\nCode to add:');
       console.log(generateComponentCode(name, stories));
     });
@@ -250,7 +252,7 @@ async function main() {
   } else {
     componentsWithMissingStories.forEach(({ name, missingStories }) => {
       console.log(`\nComponent: ${name}`);
-      console.log('Missing stories: ' + missingStories.join(', '));
+      console.log(`Missing stories: ${missingStories.join(', ')}`);
       console.log('\nEntries to add:');
       console.log(generateStoryEntries(name, missingStories));
     });

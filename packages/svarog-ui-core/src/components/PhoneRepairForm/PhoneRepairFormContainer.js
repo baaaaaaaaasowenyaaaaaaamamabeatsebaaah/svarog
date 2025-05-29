@@ -44,7 +44,7 @@ const createPhoneRepairFormContainer = (props) => {
   const container = new FormContainer(service);
 
   // Container-specific state
-  let containerState = {
+  const containerState = {
     currentManufacturer: null,
     currentDevice: null,
     currentAction: null,

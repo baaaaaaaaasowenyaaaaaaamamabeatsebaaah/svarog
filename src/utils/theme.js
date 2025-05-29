@@ -64,7 +64,9 @@ class ThemeManager {
       theme = this.defaultTheme;
     }
 
-    if (this.currentTheme === theme) return false;
+    if (this.currentTheme === theme) {
+      return false;
+    }
 
     const previousTheme = this.currentTheme;
 
@@ -141,7 +143,9 @@ class ThemeManager {
   }
 
   getThemeValue(cssVariable) {
-    if (typeof window === 'undefined' || !document) return '';
+    if (typeof window === 'undefined' || !document) {
+      return '';
+    }
     return window
       .getComputedStyle(document.documentElement)
       .getPropertyValue(cssVariable)
@@ -149,7 +153,9 @@ class ThemeManager {
   }
 
   setThemeVariable(name, value) {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') {
+      return;
+    }
     const cssVarName = name.startsWith('--') ? name : `--${name}`;
     document.documentElement.style.setProperty(cssVarName, value);
   }

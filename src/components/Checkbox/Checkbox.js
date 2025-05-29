@@ -130,7 +130,9 @@ const createCheckbox = (props) => {
    */
   const partialUpdate = (element, newProps) => {
     const input = element.querySelector('.checkbox-input');
-    if (!input) return; // Safety check
+    if (!input) {
+      return;
+    } // Safety check
 
     // Update checked/value state
     if ('checked' in newProps || 'value' in newProps) {
@@ -158,7 +160,9 @@ const createCheckbox = (props) => {
     // Update label text
     if ('label' in newProps) {
       const labelEl = element.querySelector('.checkbox-label');
-      if (labelEl) labelEl.textContent = newProps.label;
+      if (labelEl) {
+        labelEl.textContent = newProps.label;
+      }
     }
 
     // Update validation state
@@ -182,9 +186,13 @@ const createCheckbox = (props) => {
     // Update class name
     if ('className' in newProps && state.className !== newProps.className) {
       // Remove old class if it exists
-      if (state.className) element.classList.remove(state.className);
+      if (state.className) {
+        element.classList.remove(state.className);
+      }
       // Add new class if it exists
-      if (newProps.className) element.classList.add(newProps.className);
+      if (newProps.className) {
+        element.classList.add(newProps.className);
+      }
     }
   };
 
@@ -215,11 +223,18 @@ const createCheckbox = (props) => {
 
     // Create container div with appropriate classes
     const containerClasses = ['checkbox-container'];
-    if (state.className) containerClasses.push(state.className);
-    if (state.required && isValid)
+    if (state.className) {
+      containerClasses.push(state.className);
+    }
+    if (state.required && isValid) {
       containerClasses.push('checkbox-container--valid');
-    if (!isValid) containerClasses.push('checkbox-container--invalid');
-    if (state.loading) containerClasses.push('checkbox-container--loading');
+    }
+    if (!isValid) {
+      containerClasses.push('checkbox-container--invalid');
+    }
+    if (state.loading) {
+      containerClasses.push('checkbox-container--loading');
+    }
 
     // Create container element
     const container = document.createElement('div');
@@ -235,9 +250,15 @@ const createCheckbox = (props) => {
     input.className = 'checkbox-input'; // This must be exactly 'checkbox-input'
 
     // Set input attributes
-    if (state.id) input.id = state.id;
-    if (state.name) input.name = state.name;
-    if (state.required) input.required = true;
+    if (state.id) {
+      input.id = state.id;
+    }
+    if (state.name) {
+      input.name = state.name;
+    }
+    if (state.required) {
+      input.required = true;
+    }
 
     // Set properties
     input.checked = state.checked;

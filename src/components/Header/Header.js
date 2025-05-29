@@ -37,7 +37,9 @@ const createHeader = (props) => {
    * @returns {Array} Updated navigation items
    */
   const normalizeNavigationItems = (items) => {
-    if (!items || !Array.isArray(items)) return items;
+    if (!items || !Array.isArray(items)) {
+      return items;
+    }
 
     return items.map((item) => {
       const newItem = { ...item };

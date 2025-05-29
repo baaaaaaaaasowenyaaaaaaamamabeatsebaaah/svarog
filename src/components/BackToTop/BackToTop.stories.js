@@ -24,7 +24,9 @@ const cleanupStory = () => {
     window.scrollTo(0, 0);
 
     [document.documentElement, document.body].forEach((el) => {
-      if (el) el.scrollTop = 0;
+      if (el) {
+        el.scrollTop = 0;
+      }
     });
 
     document.querySelectorAll('[style*="overflow"]').forEach((el) => {

@@ -182,7 +182,9 @@ const cleanup = () => {
   // Remove any sticky icons from the DOM
   const stickyElements = document.querySelectorAll('.sticky-contact-icons');
   stickyElements.forEach((el) => {
-    if (el.parentNode) el.parentNode.removeChild(el);
+    if (el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
   });
 };
 

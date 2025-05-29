@@ -584,4 +584,5 @@
   /* TODO: Define value for 'transition-duration' in cabalou theme */
   --transition-duration: inherit;
   /* TODO: Define value for 'transition-timing' in cabalou theme */
-  --transition-timing: inherit;}
+  --transition-timing: inherit;
+}

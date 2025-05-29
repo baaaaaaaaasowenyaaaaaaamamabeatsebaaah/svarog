@@ -478,7 +478,7 @@ export const AllVariants = () => {
 function showToast(message, variant = 'info', duration = 3000) {
   const toast = Modal({
     content: message,
-    variant: variant,
+    variant,
     size: 'small',
     showCloseButton: false,
     closeOnBackdrop: false,

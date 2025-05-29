@@ -94,7 +94,9 @@ const createCollapsibleHeaderContainer = (props) => {
    * Handle scroll events
    */
   function handleScroll() {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      return;
+    }
 
     const scrollY = window.scrollY;
 
@@ -129,7 +131,7 @@ const createCollapsibleHeaderContainer = (props) => {
 
       // Update header
       header.update({
-        isMobile: isMobile,
+        isMobile,
       });
 
       // Update sticky icons
@@ -141,7 +143,9 @@ const createCollapsibleHeaderContainer = (props) => {
    * Update sticky icons visibility based on state
    */
   function updateStickyIconsVisibility() {
-    if (!stickyIcons || !componentState.showStickyIcons) return;
+    if (!stickyIcons || !componentState.showStickyIcons) {
+      return;
+    }
 
     const iconElement = stickyIcons.getElement();
     const shouldShow = componentState.isCollapsed || componentState.isMobile;

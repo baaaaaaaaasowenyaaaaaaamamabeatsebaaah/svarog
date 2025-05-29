@@ -134,7 +134,9 @@ const isValidUrl = (url) => {
  * @returns {boolean} Whether image URL is valid
  */
 const isValidImageUrl = (imageUrl) => {
-  if (!isValidUrl(imageUrl)) return false;
+  if (!isValidUrl(imageUrl)) {
+    return false;
+  }
 
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
   const url = new URL(imageUrl);
@@ -225,7 +227,7 @@ const optimizeTitle = (title, brandName) => {
 
   // Truncate if too long
   if (optimized.length > 60) {
-    optimized = optimized.substring(0, 57) + '...';
+    optimized = `${optimized.substring(0, 57)}...`;
   }
 
   return optimized;
@@ -246,7 +248,7 @@ const optimizeDescription = (description) => {
 
   // Truncate if too long
   if (optimized.length > 160) {
-    optimized = optimized.substring(0, 157) + '...';
+    optimized = `${optimized.substring(0, 157)}...`;
   }
 
   return optimized;

@@ -86,9 +86,11 @@ export const validateRequiredProps = (props, requirements, componentName) => {
       // Special handling for arrays
       if (requirement.type === 'array' && !Array.isArray(props[propName])) {
         throw new Error(`${componentName}: ${propName} must be an array`);
-      }
-      // Regular type checking
-      else if (requirement.type !== 'array' && propType !== requirement.type) {
+      } else if (
+        requirement.type !== 'array' &&
+        propType !== requirement.type
+      ) {
+        // Regular type checking
         throw new Error(
           `${componentName}: ${propName} must be a ${requirement.type}, got ${propType}`
         );

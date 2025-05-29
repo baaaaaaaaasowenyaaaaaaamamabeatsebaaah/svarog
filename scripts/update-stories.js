@@ -73,7 +73,9 @@ async function findStoryFiles() {
 
       // Check if it's a directory
       const stats = await fs.stat(componentDir);
-      if (!stats.isDirectory()) continue;
+      if (!stats.isDirectory()) {
+        continue;
+      }
 
       // Check for story file
       const storyFile = path.join(
@@ -88,7 +90,7 @@ async function findStoryFiles() {
         if (storyExports.length > 0) {
           componentStories.set(componentName, storyExports);
         }
-      } catch (error) {
+      } catch (_error) {
         // Story file doesn't exist or can't be accessed
         console.log(`No story file found for ${componentName}`);
       }

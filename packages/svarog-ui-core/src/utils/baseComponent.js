@@ -79,7 +79,9 @@ export const createBaseComponent = (renderFn) => {
        * Clean up resources
        */
       destroy() {
-        if (isDestroyed) return;
+        if (isDestroyed) {
+          return;
+        }
 
         isDestroyed = true;
 

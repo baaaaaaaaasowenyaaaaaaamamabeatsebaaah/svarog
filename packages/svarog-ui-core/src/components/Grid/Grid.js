@@ -30,7 +30,7 @@ const createColumn = (props) => {
   injectGridStyles(gridStyles);
 
   // State
-  let columnState = { ...props };
+  const columnState = { ...props };
 
   // Validate column width
   const validateWidth = (prop, value) => {
@@ -41,11 +41,21 @@ const createColumn = (props) => {
 
   // Validate all widths
   validateWidth('width', width);
-  if (mobileWidth) validateWidth('mobileWidth', mobileWidth);
-  if (tabletWidth) validateWidth('tabletWidth', tabletWidth);
-  if (desktopWidth) validateWidth('desktopWidth', desktopWidth);
-  if (desktopOffset) validateWidth('desktopOffset', desktopOffset);
-  if (offset) validateWidth('offset', offset);
+  if (mobileWidth) {
+    validateWidth('mobileWidth', mobileWidth);
+  }
+  if (tabletWidth) {
+    validateWidth('tabletWidth', tabletWidth);
+  }
+  if (desktopWidth) {
+    validateWidth('desktopWidth', desktopWidth);
+  }
+  if (desktopOffset) {
+    validateWidth('desktopOffset', desktopOffset);
+  }
+  if (offset) {
+    validateWidth('offset', offset);
+  }
 
   // Create the column element
   const buildColumnElement = () => {
@@ -158,7 +168,7 @@ const createGrid = (props = {}) => {
   injectGridStyles(gridStyles);
 
   // State
-  let gridState = { ...props };
+  const gridState = { ...props };
 
   // Validation
   const isValidCSSValue = (value) => {
@@ -195,8 +205,12 @@ const createGrid = (props = {}) => {
   // Create the grid element
   const buildGridElement = () => {
     const classNames = ['grid'];
-    if (gridState.reverse) classNames.push('grid--reverse');
-    if (gridState.mobileReverse) classNames.push('grid--mobile-reverse');
+    if (gridState.reverse) {
+      classNames.push('grid--reverse');
+    }
+    if (gridState.mobileReverse) {
+      classNames.push('grid--mobile-reverse');
+    }
 
     const style = {
       display: 'grid',
@@ -207,13 +221,21 @@ const createGrid = (props = {}) => {
     if (gridState.gap) {
       style.gap = gridState.gap;
     } else {
-      if (gridState.rowGap) style.rowGap = gridState.rowGap;
-      if (gridState.columnGap) style.columnGap = gridState.columnGap;
+      if (gridState.rowGap) {
+        style.rowGap = gridState.rowGap;
+      }
+      if (gridState.columnGap) {
+        style.columnGap = gridState.columnGap;
+      }
     }
 
     // Alignment
-    if (gridState.alignItems) style.alignItems = gridState.alignItems;
-    if (gridState.justifyItems) style.justifyItems = gridState.justifyItems;
+    if (gridState.alignItems) {
+      style.alignItems = gridState.alignItems;
+    }
+    if (gridState.justifyItems) {
+      style.justifyItems = gridState.justifyItems;
+    }
 
     return createElement('div', {
       classes: classNames,

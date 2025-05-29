@@ -66,9 +66,15 @@ export default class Button {
 
     // Set classes
     const classes = ['btn'];
-    if (this.className) classes.push(this.className);
-    if (this.size) classes.push(`btn--${this.size}`);
-    if (this.variant) classes.push(`btn--${this.variant}`);
+    if (this.className) {
+      classes.push(this.className);
+    }
+    if (this.size) {
+      classes.push(`btn--${this.size}`);
+    }
+    if (this.variant) {
+      classes.push(`btn--${this.variant}`);
+    }
 
     button.className = classes.join(' ');
 

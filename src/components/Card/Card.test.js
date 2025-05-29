@@ -29,7 +29,7 @@ describe('Card component', () => {
   it('should render with an image from imageUrl', () => {
     const imageUrl = 'https://example.com/image.jpg';
     const card = Card({
-      imageUrl: imageUrl,
+      imageUrl,
       children: 'Card content',
     });
 

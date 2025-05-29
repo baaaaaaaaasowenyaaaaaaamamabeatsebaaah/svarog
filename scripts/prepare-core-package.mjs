@@ -1,3 +1,4 @@
+// File: scripts/prepare-core-package.mjs
 import {
   copyFileSync,
   mkdirSync,
@@ -16,8 +17,27 @@ const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, '..');
 const corePackageDir = resolve(rootDir, 'packages/svarog-ui-core');
 
+// VALIDATION: Check source directories exist
+const validateSourceDirectories = () => {
+  const requiredDirs = [
+    resolve(rootDir, 'src/components'),
+    resolve(rootDir, 'src/utils'),
+  ];
+
+  requiredDirs.forEach((dir) => {
+    if (!existsSync(dir)) {
+      console.error(
+        `❌ Required source directory not found: ${relative(rootDir, dir)}`
+      );
+      process.exit(1);
+    }
+  });
+
+  console.log('✅ Source directories validated');
+};
+
 /**
- * Copy files recursively with filtering
+ * Copy files recursively with filtering - IMPROVED VERSION
  */
 function copyRecursive(src, dest, options = {}) {
   const { exclude = [], include = [] } = options;
@@ -57,12 +77,12 @@ function cleanDirectories() {
   console.log('🧹 Cleaning existing directories...');
 
   // First, preserve themeManager.js if it exists
-  const themeManagerPath = resolve(corePackageDir, 'src/utils/themeManager.js');
+  const themeManagerPath = resolve(corePackageDir, 'src/utils/theme.js');
   let themeManagerContent = null;
 
   if (existsSync(themeManagerPath)) {
     themeManagerContent = readFileSync(themeManagerPath, 'utf-8');
-    console.log('  ✓ Preserved: themeManager.js content');
+    console.log('  ✓ Preserved: theme.js content');
   }
 
   const dirsToClean = [
@@ -81,29 +101,25 @@ function cleanDirectories() {
 }
 
 /**
- * Main preparation function
+ * Main preparation function - IMPROVED VERSION
  */
 async function prepareCore() {
   console.log('📦 Preparing svarog-ui-core package...\n');
 
+  // VALIDATION: Check source directories first
+  validateSourceDirectories();
+
   // Clean existing directories and preserve themeManager content
   const themeManagerContent = cleanDirectories();
 
-  // Copy components
-  console.log('\n📁 Copying components...');
+  // IMPROVED: Copy components and CSS in single pass
+  console.log('\n📁 Copying components and styles...');
   const srcComponentsDir = resolve(rootDir, 'src/components');
   const destComponentsDir = resolve(corePackageDir, 'src/components');
 
   copyRecursive(srcComponentsDir, destComponentsDir, {
-    exclude: ['.test.', '.stories.', '.css'],
-    include: ['.js'],
-  });
-
-  // Copy CSS files separately (we need these for style injection)
-  console.log('\n🎨 Copying component styles...');
-  copyRecursive(srcComponentsDir, destComponentsDir, {
-    exclude: ['.test.', '.stories.'],
-    include: ['.css'],
+    exclude: ['.test.', '.stories.'], // Exclude test and story files
+    include: ['.js', '.css'], // Include both JS and CSS in one pass
   });
 
   // Copy utilities
@@ -126,14 +142,29 @@ async function prepareCore() {
   if (themeManagerContent) {
     // Restore the preserved content
     writeFileSync(themeManagerPath, themeManagerContent);
-    console.log('\n✓ Restored: themeManager.js');
+    console.log('\n✅ Restored: themeManager.js');
   } else {
     // themeManager.js doesn't exist, we need to ensure it's created
     console.log('\n⚠️  Warning: themeManager.js not found');
     console.log('  Run: node scripts/fix-theme-manager.mjs');
   }
 
+  // VALIDATION: Verify core files were copied
+  const coreIndexPath = resolve(corePackageDir, 'src/index.js');
+  if (!existsSync(coreIndexPath)) {
+    console.error('❌ Core index.js not found after preparation');
+    process.exit(1);
+  }
+
   console.log('\n✅ Core package prepared successfully!');
+
+  // Count copied files for verification
+  const componentCount = readdirSync(destComponentsDir, {
+    recursive: true,
+  }).length;
+  const utilsCount = readdirSync(destUtilsDir).length;
+  console.log(`   📊 Components copied: ${componentCount} files`);
+  console.log(`   📊 Utils copied: ${utilsCount} files`);
 }
 
 // Run the preparation

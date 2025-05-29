@@ -153,10 +153,14 @@ const createMap = (props = {}) => {
    * @private
    */
   const loadGoogleMapsScript = (callback, config) => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') {
+      return;
+    }
 
     if (document.querySelector('#google-maps-script')) {
-      if (callback) callback();
+      if (callback) {
+        callback();
+      }
       return;
     }
 
@@ -170,7 +174,9 @@ const createMap = (props = {}) => {
     });
 
     script.onload = () => {
-      if (callback) callback();
+      if (callback) {
+        callback();
+      }
     };
 
     script.onerror = () => {
@@ -188,7 +194,9 @@ const createMap = (props = {}) => {
    * @private
    */
   const initializeLiveMap = (container, config) => {
-    if (typeof window === 'undefined' || !window.google) return;
+    if (typeof window === 'undefined' || !window.google) {
+      return;
+    }
 
     try {
       const mapOptions = {
@@ -211,7 +219,7 @@ const createMap = (props = {}) => {
           lat: config.latitude,
           lng: config.longitude,
         },
-        map: map,
+        map,
         title: config.locationName,
       });
 

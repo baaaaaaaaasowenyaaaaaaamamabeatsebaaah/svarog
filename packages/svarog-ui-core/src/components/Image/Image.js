@@ -60,7 +60,9 @@ const Image = (props) => {
     // Handle image loading errors
     img.onerror = () => {
       // Prevent multiple error handling
-      if (errorHandled) return;
+      if (errorHandled) {
+        return;
+      }
       errorHandled = true;
 
       console.error(`Failed to load image from path: ${state.imageUrl}`);
@@ -145,7 +147,9 @@ const Image = (props) => {
 
     if (normalizedNewProps.alt !== undefined) {
       const img = element.querySelector('img');
-      if (img) img.alt = normalizedNewProps.alt;
+      if (img) {
+        img.alt = normalizedNewProps.alt;
+      }
     }
 
     if (normalizedNewProps.onClick !== undefined) {

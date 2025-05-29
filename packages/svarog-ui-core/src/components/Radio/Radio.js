@@ -142,7 +142,7 @@ const createChangeHandler = (input, container, props) => {
     // Validate if required
     if (props.validationMessage && container.validationContainer) {
       validateInput(input, {
-        container: container,
+        container,
         messageElement: container.validationContainer,
         customMessage: props.validationMessage,
       });
@@ -343,7 +343,7 @@ const RadioFactory = (props) => {
      * @param {boolean} checked - The new checked state
      * @returns {Object} Component instance for chaining
      */
-    setChecked: function (checked) {
+    setChecked(checked) {
       inputElement.checked = checked;
       inputElement.setAttribute('aria-checked', checked ? 'true' : 'false');
       return this;
@@ -353,7 +353,7 @@ const RadioFactory = (props) => {
      * Validates the radio input
      * @returns {boolean} Whether the input is valid
      */
-    validate: function () {
+    validate() {
       if (element.validationContainer) {
         return validateInput(inputElement, {
           container: element,
@@ -368,7 +368,7 @@ const RadioFactory = (props) => {
      * Focuses the radio input
      * @returns {Object} Component instance for chaining
      */
-    focus: function () {
+    focus() {
       inputElement.focus();
       return this;
     },
@@ -377,14 +377,14 @@ const RadioFactory = (props) => {
      * Get performance metrics
      * @returns {Object} Performance metrics
      */
-    getPerformanceMetrics: function () {
+    getPerformanceMetrics() {
       return benchmark.getSummary();
     },
 
     /**
      * Custom destroy method to ensure event listener cleanup
      */
-    destroy: function () {
+    destroy() {
       if (inputElement && inputElement._changeHandler) {
         inputElement.removeEventListener('change', inputElement._changeHandler);
       }

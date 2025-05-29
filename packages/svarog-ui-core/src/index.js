@@ -32,4 +32,4 @@ export {
   registerTheme,
   switchTheme,
   getCurrentTheme,
-} from './utils/themeManager.js';
+} from './utils/theme.js';

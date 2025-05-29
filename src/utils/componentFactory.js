@@ -51,7 +51,9 @@ export const validateProps = (
   requiredProps = [],
   componentName = 'Component'
 ) => {
-  if (!requiredProps || !requiredProps.length) return;
+  if (!requiredProps || !requiredProps.length) {
+    return;
+  }
 
   requiredProps.forEach((propName) => {
     if (props[propName] === undefined) {
@@ -65,7 +67,9 @@ export const validateProps = (
  * @param {HTMLElement} element - DOM element
  */
 export const cleanupEventListeners = (element) => {
-  if (!element || !element._listeners) return;
+  if (!element || !element._listeners) {
+    return;
+  }
 
   Object.entries(element._listeners).forEach(([event, handler]) => {
     element.removeEventListener(event, handler);
@@ -148,7 +152,9 @@ export const appendChildren = (parent, children) => {
   const childrenArray = Array.isArray(children) ? children : [children];
 
   childrenArray.forEach((child) => {
-    if (!child) return;
+    if (!child) {
+      return;
+    }
 
     if (typeof child === 'string') {
       fragment.appendChild(document.createTextNode(child));

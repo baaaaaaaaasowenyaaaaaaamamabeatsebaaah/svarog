@@ -42,7 +42,9 @@ const createIcon = (icon = '↑') => {
  * @param {Object} position - Position object
  */
 const updatePosition = (element, position) => {
-  if (!element || !position) return;
+  if (!element || !position) {
+    return;
+  }
 
   ['top', 'right', 'bottom', 'left'].forEach((prop) => {
     element.style[prop] = '';
@@ -61,7 +63,9 @@ const updatePosition = (element, position) => {
  * @returns {number} Current scroll position
  */
 const getScrollPosition = (scrollTarget) => {
-  if (!scrollTarget) return 0;
+  if (!scrollTarget) {
+    return 0;
+  }
 
   if (scrollTarget === window) {
     return window.pageYOffset || document.documentElement.scrollTop || 0;
@@ -202,7 +206,9 @@ const createBackToTop = (props = {}) => {
 
   // Check visibility based on scroll position
   const checkVisibility = () => {
-    if (destroyed || !state.scrollTarget || state.disabled) return;
+    if (destroyed || !state.scrollTarget || state.disabled) {
+      return;
+    }
 
     const scrollPosition = getScrollPosition(state.scrollTarget);
     const shouldShow = scrollPosition > state.showAfter;
@@ -225,7 +231,9 @@ const createBackToTop = (props = {}) => {
 
   // Handle interactions
   const handleInteraction = (event) => {
-    if (destroyed || state.disabled || state.isScrolling) return;
+    if (destroyed || state.disabled || state.isScrolling) {
+      return;
+    }
 
     event.preventDefault();
 
@@ -244,7 +252,9 @@ const createBackToTop = (props = {}) => {
   // Override getElement to set up event listeners
   const originalGetElement = backToTopComponent.getElement;
   backToTopComponent.getElement = function () {
-    if (destroyed) return null;
+    if (destroyed) {
+      return null;
+    }
 
     if (!currentElement) {
       currentElement = originalGetElement.call(this);
@@ -252,7 +262,9 @@ const createBackToTop = (props = {}) => {
       // Attach event handlers
       currentElement.addEventListener('click', handleInteraction);
       currentElement.addEventListener('keydown', (event) => {
-        if (destroyed || state.disabled) return;
+        if (destroyed || state.disabled) {
+          return;
+        }
         if (event.key === 'Enter' || event.key === ' ') {
           handleInteraction(event);
         }
@@ -275,29 +287,39 @@ const createBackToTop = (props = {}) => {
 
   // Public methods
   backToTopComponent.show = function () {
-    if (destroyed) return this;
+    if (destroyed) {
+      return this;
+    }
     state.isVisible = true;
     if (currentElement) {
       currentElement.classList.add('back-to-top--visible');
       currentElement.setAttribute('aria-hidden', 'false');
     }
-    if (state.onShow) state.onShow();
+    if (state.onShow) {
+      state.onShow();
+    }
     return this;
   };
 
   backToTopComponent.hide = function () {
-    if (destroyed) return this;
+    if (destroyed) {
+      return this;
+    }
     state.isVisible = false;
     if (currentElement) {
       currentElement.classList.remove('back-to-top--visible');
       currentElement.setAttribute('aria-hidden', 'true');
     }
-    if (state.onHide) state.onHide();
+    if (state.onHide) {
+      state.onHide();
+    }
     return this;
   };
 
   backToTopComponent.scrollToTop = function () {
-    if (destroyed || !state.scrollTarget || state.isScrolling) return this;
+    if (destroyed || !state.scrollTarget || state.isScrolling) {
+      return this;
+    }
     state.isScrolling = true;
     smoothScrollToTop(state.scrollTarget, state.scrollDuration, () => {
       if (!destroyed) {
@@ -348,7 +370,9 @@ const createBackToTop = (props = {}) => {
   // Override destroy
   const originalDestroy = backToTopComponent.destroy;
   backToTopComponent.destroy = function () {
-    if (destroyed) return this;
+    if (destroyed) {
+      return this;
+    }
     destroyed = true;
 
     if (scrollListener && state.scrollTarget) {

@@ -15,7 +15,7 @@
     "build:theme-default": "node scripts/build-theme.mjs default",
     "build:theme-cabalou": "node scripts/build-theme.mjs cabalou",
     "build:theme-muchandy": "node scripts/build-theme.mjs muchandy",
-    "build:main": "cd packages/svarog-ui && npm run build",
+    "build:main": "node scripts/build-main.mjs",
     "build:all": "npm run build:core && npm run build:themes && npm run build:main",
     "build:storybook": "webpack --config .storybook/webpack.config.js --mode production",
     "dev": "webpack serve --config .storybook/webpack.config.js --mode development",
