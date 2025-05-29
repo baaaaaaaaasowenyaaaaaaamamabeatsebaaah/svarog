@@ -4,7 +4,7 @@ import { PhoneRepairFormContainer } from '../PhoneRepairForm/index.js';
 import { UsedPhonePriceFormContainer } from '../UsedPhonePriceForm/index.js';
 import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 import { mockPhoneBuybackData } from '../../../__mocks__/phoneBuybackData.js';
-import { switchTheme } from '../../utils/theme.js';
+import { switchTheme } from '../../utils/themeManager.js';
 
 import muchandyHeroBg from '../../../.storybook/assets/muchandy-hero-bg.png';
 

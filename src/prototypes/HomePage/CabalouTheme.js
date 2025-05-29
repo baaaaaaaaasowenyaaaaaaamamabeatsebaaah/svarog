@@ -3,7 +3,7 @@
  * Creates a homepage prototype with the Cabalou theme
  * @returns {HTMLElement} The prototype container element
  */
-import { switchTheme } from '../../utils/theme.js';
+import { switchTheme } from '../../utils/themeManager.js';
 import { Section } from '../../components/Section/index.js';
 import Typography from '../../components/Typography/index.js';
 import Button from '../../components/Button/index.js';

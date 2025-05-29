@@ -73,7 +73,7 @@ import {
   switchTheme,
   getCurrentTheme,
   setThemeVariable,
-} from './utils/theme.js';
+} from './utils/themeManager.js';
 
 // ===============================================
 // PRIMARY EXPORTS - Individual Components

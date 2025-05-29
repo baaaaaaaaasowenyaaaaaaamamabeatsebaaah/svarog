@@ -28,8 +28,8 @@ export * from './utils/styleInjection.js';
 
 // Theme manager
 export {
-  ThemeManager,
-  registerTheme,
+  themeManager,
+  setThemeVariable,
   switchTheme,
   getCurrentTheme,
-} from './utils/theme.js';
+} from './utils/themeManager.js';
