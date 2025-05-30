@@ -1,6 +1,6 @@
 {
   "name": "@svarog-ui/theme-muchandy",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Muchandy theme for Svarog UI components",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -29,7 +29,7 @@
   "author": "Sebastian Huber",
   "license": "ISC",
   "peerDependencies": {
-    "svarog-ui-core": ">=2.3.0 <3.0.0"
+    "svarog-ui-core": ">=2.4.0 <3.0.0"
   },
   "gitHead": "663493a26a2f5d2ee1ee38c5f75eee08062e5ffa"
 }
