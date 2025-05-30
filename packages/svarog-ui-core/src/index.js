@@ -80,10 +80,14 @@ export * from './utils/themeManager.js';
 
 // Re-export themeManager convenience functions
 import {
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 } from './utils/themeManager.js';
 
 // ===============================================
@@ -152,10 +156,14 @@ export {
   Head,
 
   // Theme Utilities
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 };
 
 // ===============================================
@@ -222,10 +230,14 @@ export const Content = {
 };
 
 export const Utils = {
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 };
 
 // ===============================================
@@ -288,10 +300,14 @@ const SvarogCore = {
   BlogDetail,
   Map,
   Head,
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 };
 
 export default SvarogCore;
