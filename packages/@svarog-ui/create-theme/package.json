@@ -14,7 +14,7 @@
     "README.md"
   ],
   "peerDependencies": {
-    "svarog-ui-core": ">=2.1.0 <3.0.0"
+    "svarog-ui-core": ">=2.2.0 <3.0.0"
   },
   "gitHead": "849700738cb6e8ba21400df607c575da6d581621"
 }
