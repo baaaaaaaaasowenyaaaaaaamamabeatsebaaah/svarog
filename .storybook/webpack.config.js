@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import webpack from 'webpack';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,6 +50,15 @@ export default (env, argv) => {
       ],
     },
     plugins: [
+      // Ignore ALL markdown files everywhere
+      new webpack.IgnorePlugin({
+        resourceRegExp: /\.md$/,
+      }),
+      // Ignore specific markdown files in theme packages
+      new webpack.IgnorePlugin({
+        resourceRegExp: /\/(CHANGELOG|LICENSE|README)\.md$/,
+        contextRegExp: /@svarog-ui/,
+      }),
       ...(isProduction
         ? [
             new MiniCssExtractPlugin({
