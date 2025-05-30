@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.3.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.2.0...svarog-ui-core@2.3.0) (2025-05-30)
+
+### Bug Fixes
+
+- missing base styles in package ([2e763ec](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/2e763ecf922b25935be4dc96084f2fbad58014b2))
+
 # [2.2.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.0.0...svarog-ui-core@2.2.0) (2025-05-29)
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 {
   "name": "svarog-ui-all",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Complete Svarog UI library with all components and themes in one bundle",
   "main": "dist/index.js",
   "module": "dist/index.js",

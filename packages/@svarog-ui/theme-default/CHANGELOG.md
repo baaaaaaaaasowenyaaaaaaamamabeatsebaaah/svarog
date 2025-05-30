@@ -1,0 +1,10 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [1.6.0](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/@svarog-ui/theme-default@1.5.0...@svarog-ui/theme-default@1.6.0) (2025-05-30)
+
+### Bug Fixes
+
+- missing base styles in package ([2e763ec](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/2e763ecf922b25935be4dc96084f2fbad58014b2))
