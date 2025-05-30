@@ -14,8 +14,7 @@
     "./components": "./dist/components.js"
   },
   "files": [
-    "dist",
-    "README.md"
+    "dist"
   ],
   "scripts": {
     "build": "node ../../../scripts/build-theme.mjs muchandy",
