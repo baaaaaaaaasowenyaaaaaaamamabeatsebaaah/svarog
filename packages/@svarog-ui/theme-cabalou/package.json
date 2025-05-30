@@ -31,5 +31,6 @@
   "license": "ISC",
   "peerDependencies": {
     "svarog-ui-core": ">=2.2.0 <3.0.0"
-  }
+  },
+  "gitHead": "af294650dbf40f793aa367ba2f27cdfc8c33ba6b"
 }

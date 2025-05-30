@@ -47,5 +47,6 @@
   "sideEffects": [
     "*.css",
     "./dist/styles.css"
-  ]
+  ],
+  "gitHead": "af294650dbf40f793aa367ba2f27cdfc8c33ba6b"
 }

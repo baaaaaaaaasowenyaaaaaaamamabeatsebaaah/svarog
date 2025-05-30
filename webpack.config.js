@@ -45,6 +45,11 @@ export default (env, argv) => {
             },
           },
         },
+        // ADD THIS RULE FOR MARKDOWN FILES
+        {
+          test: /\.(md|markdown)$/,
+          type: 'asset/source',
+        },
       ],
     },
     plugins: [
@@ -59,6 +64,10 @@ export default (env, argv) => {
             }),
             new webpack.IgnorePlugin({
               resourceRegExp: /muchandy-theme\.css$/,
+            }),
+            // ALSO IGNORE MARKDOWN FILES IN THEME PACKAGES
+            new webpack.IgnorePlugin({
+              resourceRegExp: /\/(CHANGELOG|LICENSE)\.md$/,
             }),
           ]
         : []),
