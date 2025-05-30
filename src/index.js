@@ -69,10 +69,14 @@ import Head from './components/Head/index.js';
 
 // ---- UTILITIES ----
 import {
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 } from './utils/themeManager.js';
 
 // ===============================================
@@ -143,10 +147,14 @@ export {
   Head,
 
   // Theme Utilities
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 };
 
 // ===============================================
@@ -215,10 +223,14 @@ export const Content = {
 };
 
 export const Utils = {
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 };
 
 // ===============================================
@@ -282,10 +294,14 @@ const Svarog = {
   BlogDetail,
   Map,
   Head,
+  ThemeManager,
   themeManager,
+  loadTheme,
+  loadCustomTheme,
+  checkRequiredVariables,
+  onThemeChange,
   switchTheme,
   getCurrentTheme,
-  setThemeVariable,
 };
 
 export default Svarog;

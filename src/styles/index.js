@@ -1,18 +1,16 @@
-// Base styles
-import './base/00-reset.css';
-import './base/01-colors.css';
-import './base/02-spacing.css';
-import './base/03-typography.css';
-import './base/04-layout.css';
-import './base/05-states.css';
+// src/styles/index.js
 
-// Theme styles
-import './themes/default-theme.css';
-import './themes/cabalou-theme.css';
-import './themes/muchandy-theme.css';
-import './themes/dark-theme.css';
-import './themes/light-theme.css';
-import './themes/red-theme.css';
+// Import and auto-inject base styles and variables
+import './baseStyles.js'; // This auto-injects base styles when imported
+
+// Export base styles for use in other modules if needed
+export { baseStyles, baseVariables } from './baseStyles.js';
 
 // Export theme utilities
 export * from '../utils/themeManager.js';
+
+import './themes/default-theme.css';
+import './themes/dark-theme.css';
+import './themes/light-theme.css';
+import './themes/cabalou-theme.css';
+import './themes/muchandy-theme.css';

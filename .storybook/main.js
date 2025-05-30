@@ -1,4 +1,7 @@
 // .storybook/main.js
+// Set a flag before importing themeManager to prevent auto-initialization
+window.__STORYBOOK_DISABLE_THEME_INIT__ = true;
+
 import '../src/styles/index.js';
 import './index.css';
 import { getComponents } from '../src/utils/getComponents.js';
@@ -6,7 +9,10 @@ import { getPrototypes } from '../src/utils/getPrototypes.js';
 import Sidebar from './components/Sidebar/Sidebar.js';
 import Stage from './components/Stage/Stage.js';
 import HeaderToolbar from './components/HeaderToolbar/HeaderToolbar.js';
-import { switchTheme, getCurrentTheme } from '../src/utils/themeManager.js';
+import themeManager, {
+  loadTheme,
+  switchTheme,
+} from '../src/utils/themeManager.js';
 
 const app = document.getElementById('app');
 
@@ -64,74 +70,72 @@ const onStorySelect = (story) => {
     });
 };
 
-const onSelectTheme = (theme) => {
-  // Update UI to indicate current theme
-  const themeSelector = document.querySelector('.theme-selector');
-  if (themeSelector) {
-    Array.from(themeSelector.options).forEach((option) => {
-      if (option.value === theme) {
-        option.selected = true;
-      }
-    });
-  }
+const onSelectTheme = async (theme) => {
+  console.log(`Main: Switching theme to: ${theme}`);
 
-  // Store selected theme in localStorage before switching
   try {
+    // Save theme preference
     localStorage.setItem('svarog-storybook-theme', theme);
     console.log('Main: Theme saved to localStorage:', theme);
-  } catch (error) {
-    console.debug('Main: Could not save theme to localStorage', error);
-  }
 
-  // Apply the theme - this dispatches the 'themechange' event that preview.js listens for
-  console.log(`Main: Switching theme to: ${theme}`);
-  switchTheme(theme);
+    // Use loadTheme which will fall back to switchTheme in legacy mode
+    await loadTheme(theme);
 
-  // Force re-render of the current story if one is loaded
-  setTimeout(() => {
-    const activeStoryLink = document.querySelector('.story-link.active');
-    if (activeStoryLink) {
-      console.log('Main: Refreshing current story with new theme');
-      activeStoryLink.click();
+    // Verify the selector is in sync
+    const themeSelector = document.querySelector('.theme-selector');
+    if (themeSelector && themeSelector.value !== theme) {
+      console.log(
+        'Main: Updating selector from',
+        themeSelector.value,
+        'to',
+        theme
+      );
+      themeSelector.value = theme;
     }
-  }, 100);
-};
 
-// Ensure theme is fully applied during initialization
-const applyInitialTheme = () => {
-  // Get theme from localStorage or use default
-  let savedTheme;
-  try {
-    savedTheme = localStorage.getItem('svarog-storybook-theme');
-    console.log('Main: Found saved theme in localStorage:', savedTheme);
+    // Force re-render of the current story if one is loaded
+    setTimeout(() => {
+      const activeStoryLink = document.querySelector('.story-link.active');
+      if (activeStoryLink) {
+        console.log('Main: Refreshing current story with new theme');
+        activeStoryLink.click();
+      }
+    }, 100);
   } catch (error) {
-    console.debug('Main: Could not read theme from localStorage', error);
+    console.error('Main: Failed to load theme:', error);
   }
-
-  // Make sure we have a valid theme
-  const themeToApply = savedTheme || getCurrentTheme() || 'default';
-  console.log('Main: Using initial theme:', themeToApply);
-
-  return themeToApply;
 };
 
-const initializeApp = () => {
-  // Apply theme first to ensure it's ready before components load
-  const initialTheme = applyInitialTheme();
+const initializeApp = async () => {
+  // Get saved theme from localStorage
+  const savedTheme =
+    localStorage.getItem('svarog-storybook-theme') || 'default';
+  console.log('Main: Initializing with saved theme:', savedTheme);
 
+  // Manually initialize themeManager with the correct theme
+  themeManager.loadBaseVariables();
+  switchTheme(savedTheme);
+
+  // Create UI components
   const headerToolbar = new HeaderToolbar({
     onSelectTheme,
-    initialTheme,
+    initialTheme: savedTheme,
   });
+
   headerContainer.appendChild(headerToolbar.getElement());
+
+  // Listen for theme changes to keep selector in sync
+  themeManager.onThemeChange((newTheme, oldTheme) => {
+    console.log('Main: Theme changed externally:', oldTheme, '->', newTheme);
+    const themeSelector = document.querySelector('.theme-selector');
+    if (themeSelector && themeSelector.value !== newTheme) {
+      themeSelector.value = newTheme;
+    }
+  });
 
   const sidebar = new Sidebar(components, prototypes, onStorySelect);
   contentContainer.appendChild(sidebar.getElement());
   contentContainer.appendChild(stage.getElement());
-
-  // Initialize the theme selector but don't trigger a theme change yet
-  // Let preview.js handle the initial theme application
-  console.log('Main: Initializing with theme:', initialTheme);
 
   // Try to load the last viewed story if available
   try {
@@ -142,27 +146,12 @@ const initializeApp = () => {
 
       // Allow the DOM to render fully before attempting to find and select the story
       setTimeout(() => {
-        const activeStoryLink = document.querySelector('.story-link.active');
-        if (activeStoryLink) {
-          console.log('Main: Refreshing current story with new theme');
-          // Instead of clicking, get the story data and call onStorySelect directly
-          const storyElements = document.querySelectorAll('.story-link');
-          storyElements.forEach((el) => {
-            if (el.classList.contains('active')) {
-              // Find the story data
-              for (const category of [components, prototypes]) {
-                for (const component of category) {
-                  for (const story of component.stories) {
-                    if (story.name === el.textContent) {
-                      onStorySelect(story);
-                      return;
-                    }
-                  }
-                }
-              }
-            }
-          });
-        }
+        const storyLinks = document.querySelectorAll('.story-link');
+        storyLinks.forEach((link) => {
+          if (link.textContent === storyData.name) {
+            link.click();
+          }
+        });
       }, 100);
     }
   } catch (error) {
@@ -170,6 +159,7 @@ const initializeApp = () => {
   }
 };
 
+// Initialize the app only once
 if (!document.querySelector('.sidebar') && !document.querySelector('.stage')) {
   initializeApp();
 }

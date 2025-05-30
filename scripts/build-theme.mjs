@@ -101,7 +101,6 @@ try {
   process.exit(1);
 }
 
-// Rest of the functions remain the same...
 function extractThemeStyles(css, themeName) {
   const variables = new Map();
   const componentStyles = new Set();
@@ -165,7 +164,7 @@ function extractThemeStyles(css, themeName) {
 function generateThemeModules(themeName, variables, componentStyles) {
   return {
     'index.js': `// Auto-generated theme module for ${themeName}
-import { injectStyles, css } from 'svarog-ui-core/utils/styleInjection';
+// This file is designed to work with the modular Svarog UI system
 
 const ${themeName}Theme = {
   name: '${themeName}',
@@ -173,7 +172,12 @@ const ${themeName}Theme = {
   apply() {
     this.remove();
 
-    const styles = css\`
+    // For production use, we inject styles directly without imports
+    const style = document.createElement('style');
+    style.setAttribute('data-svarog', 'theme-${themeName}');
+    style.setAttribute('data-priority', 'theme');
+    style.setAttribute('data-priority-value', '300');
+    style.textContent = \`
       :root {
         ${variables}
       }
@@ -182,20 +186,26 @@ const ${themeName}Theme = {
       }
       ${componentStyles}
     \`;
-
-    injectStyles('theme-${themeName}', styles, { priority: 'high' });
+    document.head.appendChild(style);
 
     document.documentElement.classList.add('${themeName}-theme');
     document.body.classList.add('${themeName}-theme');
   },
 
   remove() {
+    // Remove style tag
+    const styleTag = document.querySelector('[data-svarog="theme-${themeName}"]');
+    if (styleTag) {
+      styleTag.remove();
+    }
+
+    // Remove classes
     document.documentElement.classList.remove('${themeName}-theme');
     document.body.classList.remove('${themeName}-theme');
   },
 
   getStyles() {
-    return css\`
+    return \`
       :root {
         ${variables}
       }

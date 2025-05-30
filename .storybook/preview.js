@@ -7,30 +7,20 @@ const getStoredTheme = () => {
   try {
     const storedTheme = localStorage.getItem('svarog-storybook-theme');
     if (storedTheme && Object.values(THEMES).includes(storedTheme)) {
-      console.log(
-        'Preview: Using stored theme from localStorage:',
-        storedTheme
-      );
       return storedTheme;
     }
   } catch (error) {
     console.debug('Preview: Could not read theme from localStorage', error);
   }
-  console.log('Preview: Using default theme');
   return THEMES.default;
 };
 
-const renderStories = (currentTheme) => {
-  console.log(`Preview: Rendering stories for theme: ${currentTheme}`);
-  switchTheme(currentTheme);
-};
-
-// Initial render with saved theme or default
+// Initialize theme
 const initialTheme = getStoredTheme();
-renderStories(initialTheme);
+switchTheme(initialTheme);
+console.log('Preview: Theme initialized:', initialTheme);
 
-// Listen for theme changes from main.js
+// Listen for theme changes
 window.addEventListener('themechange', (event) => {
-  console.log('Preview: Theme change event received:', event.detail);
-  renderStories(event.detail.theme);
+  console.log('Preview: Theme changed to:', event.detail.theme);
 });

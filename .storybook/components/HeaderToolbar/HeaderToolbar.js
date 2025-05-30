@@ -5,10 +5,7 @@ import logo from '../../assets/svg/svarog.svg';
 
 export default class HeaderToolbar {
   constructor({ onSelectTheme, initialTheme }) {
-    this.onSelectTheme = (theme) => {
-      console.log('Theme selection changed:', theme);
-      onSelectTheme(theme);
-    };
+    this.onSelectTheme = onSelectTheme;
 
     this.header = document.createElement('header');
     this.header.className = 'header-toolbar';
@@ -41,7 +38,6 @@ export default class HeaderToolbar {
       option.value = THEMES[theme];
       option.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
 
-      // Set selected option based on initial theme
       if (THEMES[theme] === initialTheme) {
         option.selected = true;
       }

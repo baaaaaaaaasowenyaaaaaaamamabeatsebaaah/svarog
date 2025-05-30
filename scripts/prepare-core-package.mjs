@@ -22,16 +22,30 @@ const validateSourceDirectories = () => {
   const requiredDirs = [
     resolve(rootDir, 'src/components'),
     resolve(rootDir, 'src/utils'),
+    resolve(rootDir, 'src/styles'), // Now required
   ];
 
   // Optional directories (warn if missing, don't fail)
   const optionalDirs = [resolve(rootDir, 'src/constants')];
+
+  // Check required files
+  const requiredFiles = [
+    resolve(rootDir, 'src/styles/baseVariables.js'),
+    resolve(rootDir, 'src/styles/baseStyles.js'),
+  ];
 
   requiredDirs.forEach((dir) => {
     if (!existsSync(dir)) {
       console.error(
         `❌ Required source directory not found: ${relative(rootDir, dir)}`
       );
+      process.exit(1);
+    }
+  });
+
+  requiredFiles.forEach((file) => {
+    if (!existsSync(file)) {
+      console.error(`❌ Required file not found: ${relative(rootDir, file)}`);
       process.exit(1);
     }
   });
@@ -44,11 +58,11 @@ const validateSourceDirectories = () => {
     }
   });
 
-  console.log('✅ Source directories validated');
+  console.log('✅ Source directories and required files validated');
 };
 
 /**
- * Copy files recursively with filtering - IMPROVED VERSION
+ * Copy files recursively with filtering
  */
 function copyRecursive(src, dest, options = {}) {
   const { exclude = [], include = [] } = options;
@@ -99,7 +113,8 @@ function cleanDirectories() {
   const dirsToClean = [
     resolve(corePackageDir, 'src/components'),
     resolve(corePackageDir, 'src/utils'),
-    resolve(corePackageDir, 'src/constants'), // Added constants cleanup
+    resolve(corePackageDir, 'src/constants'),
+    resolve(corePackageDir, 'src/styles'),
   ];
 
   dirsToClean.forEach((dir) => {
@@ -113,138 +128,76 @@ function cleanDirectories() {
 }
 
 /**
- * Ensure themeManager.js exists with proper content
+ * Copy and prepare base styles
  */
-function ensureThemeManager(destUtilsDir, preservedContent) {
-  const themeManagerPath = resolve(destUtilsDir, 'themeManager.js');
+function prepareBaseStyles() {
+  console.log('\n🎨 Copying base styles...');
 
-  if (preservedContent) {
-    // Restore the preserved content
-    writeFileSync(themeManagerPath, preservedContent);
-    console.log('✅ Restored: themeManager.js');
-    return;
+  const srcStylesDir = resolve(rootDir, 'src/styles');
+  const destStylesDir = resolve(corePackageDir, 'src/styles');
+  mkdirSync(destStylesDir, { recursive: true });
+
+  // Copy baseVariables.js (required)
+  const srcBaseVariablesPath = resolve(srcStylesDir, 'baseVariables.js');
+  const destBaseVariablesPath = resolve(destStylesDir, 'baseVariables.js');
+
+  if (!existsSync(srcBaseVariablesPath)) {
+    console.error('❌ Required file baseVariables.js not found!');
+    process.exit(1);
   }
 
-  // Check if it was copied from source
-  if (existsSync(themeManagerPath)) {
-    console.log('✅ Found: themeManager.js (copied from source)');
-    return;
+  copyFileSync(srcBaseVariablesPath, destBaseVariablesPath);
+  console.log('  ✓ Copied: baseVariables.js');
+
+  // Copy baseStyles.js (required)
+  const srcBaseStylesPath = resolve(srcStylesDir, 'baseStyles.js');
+  const destBaseStylesPath = resolve(destStylesDir, 'baseStyles.js');
+
+  if (!existsSync(srcBaseStylesPath)) {
+    console.error('❌ Required file baseStyles.js not found!');
+    process.exit(1);
   }
 
-  // Create default themeManager.js
-  console.log('⚠️  themeManager.js not found, creating default...');
+  copyFileSync(srcBaseStylesPath, destBaseStylesPath);
+  console.log('  ✓ Copied: baseStyles.js');
 
-  const defaultThemeManagerContent = `// Auto-generated themeManager.js
-const themes = new Map();
-let currentTheme = null;
+  // Copy any other style utilities (optional)
+  const styleFiles = readdirSync(srcStylesDir).filter(
+    (file) =>
+      file.endsWith('.js') &&
+      file !== 'index.js' &&
+      file !== 'baseVariables.js' &&
+      file !== 'baseStyles.js'
+  );
 
-/**
- * Theme Manager for Svarog UI
- * Manages theme registration, switching, and state
- */
-export const ThemeManager = {
-  /**
-   * Register a theme
-   * @param {string} name - Theme name
-   * @param {Object} theme - Theme object with apply/remove methods
-   */
-  register(name, theme) {
-    if (!theme || typeof theme.apply !== 'function') {
-      throw new Error(\`Invalid theme: \${name}. Theme must have apply() method.\`);
-    }
-
-    themes.set(name, theme);
-    console.log(\`✓ Registered theme: \${name}\`);
-  },
-
-  /**
-   * Switch to a theme
-   * @param {string} name - Theme name to switch to
-   */
-  switch(name) {
-    const theme = themes.get(name);
-
-    if (!theme) {
-      console.error(\`Theme "\${name}" not found. Available themes:\`, Array.from(themes.keys()));
-      return false;
-    }
-
-    // Remove current theme if exists
-    if (currentTheme && typeof currentTheme.remove === 'function') {
-      currentTheme.remove();
-    }
-
-    // Apply new theme
-    theme.apply();
-    currentTheme = theme;
-
-    console.log(\`✓ Switched to theme: \${name}\`);
-    return true;
-  },
-
-  /**
-   * Get current active theme
-   * @returns {Object|null} Current theme object
-   */
-  getCurrent() {
-    return currentTheme;
-  },
-
-  /**
-   * Get all registered themes
-   * @returns {Array<string>} Array of theme names
-   */
-  getRegistered() {
-    return Array.from(themes.keys());
-  },
-
-  /**
-   * Remove a theme
-   * @param {string} name - Theme name to remove
-   */
-  unregister(name) {
-    if (currentTheme === themes.get(name)) {
-      if (typeof currentTheme.remove === 'function') {
-        currentTheme.remove();
-      }
-      currentTheme = null;
-    }
-
-    themes.delete(name);
-    console.log(\`✓ Unregistered theme: \${name}\`);
-  }
-};
-
-// Convenience exports for backward compatibility
-export const registerTheme = ThemeManager.register.bind(ThemeManager);
-export const switchTheme = ThemeManager.switch.bind(ThemeManager);
-export const getCurrentTheme = ThemeManager.getCurrent.bind(ThemeManager);
-`;
-
-  writeFileSync(themeManagerPath, defaultThemeManagerContent);
-  console.log('✅ Created: themeManager.js');
+  styleFiles.forEach((file) => {
+    const srcPath = resolve(srcStylesDir, file);
+    const destPath = resolve(destStylesDir, file);
+    copyFileSync(srcPath, destPath);
+    console.log(`  ✓ Copied: ${file}`);
+  });
 }
 
 /**
- * Main preparation function - IMPROVED VERSION
+ * Main preparation function
  */
 async function prepareCore() {
   console.log('📦 Preparing svarog-ui-core package...\n');
 
-  // VALIDATION: Check source directories first
+  // VALIDATION: Check source directories and required files first
   validateSourceDirectories();
 
   // Clean existing directories and preserve themeManager content
   const themeManagerContent = cleanDirectories();
 
-  // IMPROVED: Copy components and CSS in single pass
+  // Copy components and CSS
   console.log('\n📁 Copying components and styles...');
   const srcComponentsDir = resolve(rootDir, 'src/components');
   const destComponentsDir = resolve(corePackageDir, 'src/components');
 
   copyRecursive(srcComponentsDir, destComponentsDir, {
-    exclude: ['.test.', '.stories.'], // Exclude test and story files
-    include: ['.js', '.css'], // Include both JS and CSS in one pass
+    exclude: ['.test.', '.stories.'],
+    include: ['.js', '.css'],
   });
 
   // Copy utilities
@@ -252,65 +205,103 @@ async function prepareCore() {
   const srcUtilsDir = resolve(rootDir, 'src/utils');
   const destUtilsDir = resolve(corePackageDir, 'src/utils');
 
-  // Create utils directory
   mkdirSync(destUtilsDir, { recursive: true });
 
-  // Don't copy test utilities or theme-specific utilities
   copyRecursive(srcUtilsDir, destUtilsDir, {
     exclude: ['testUtils', '.test.'],
     include: ['.js'],
   });
 
-  // NEW: Copy constants folder
+  // Copy constants
   console.log('\n📋 Copying constants...');
   const srcConstantsDir = resolve(rootDir, 'src/constants');
   const destConstantsDir = resolve(corePackageDir, 'src/constants');
 
   if (existsSync(srcConstantsDir)) {
     copyRecursive(srcConstantsDir, destConstantsDir, {
-      exclude: ['.test.', '.stories.'], // Exclude test files
-      include: ['.js', '.json'], // Include JS and JSON files
+      exclude: ['.test.', '.stories.'],
+      include: ['.js', '.json'],
     });
   } else {
     console.log('  ⚠️  src/constants directory not found, skipping...');
   }
 
-  // Ensure themeManager.js exists
-  console.log('\n🎨 Ensuring themeManager.js...');
-  ensureThemeManager(destUtilsDir, themeManagerContent);
+  // Prepare base styles (will fail if files missing)
+  prepareBaseStyles();
 
-  // VALIDATION: Verify core files were copied
+  // Restore or ensure themeManager.js
+  console.log('\n🎨 Ensuring themeManager.js...');
+  const destThemeManagerPath = resolve(destUtilsDir, 'themeManager.js');
+
+  if (themeManagerContent) {
+    // Restore the preserved content
+    writeFileSync(destThemeManagerPath, themeManagerContent);
+    console.log('  ✓ Restored: themeManager.js');
+  } else {
+    // Copy from source if it exists
+    const srcThemeManagerPath = resolve(rootDir, 'src/utils/themeManager.js');
+    if (existsSync(srcThemeManagerPath)) {
+      copyFileSync(srcThemeManagerPath, destThemeManagerPath);
+      console.log('  ✓ Copied: themeManager.js from source');
+    } else {
+      console.error('❌ themeManager.js not found in source!');
+      process.exit(1);
+    }
+  }
+
+  // Create index.js if it doesn't exist in the core package
   const coreIndexPath = resolve(corePackageDir, 'src/index.js');
   if (!existsSync(coreIndexPath)) {
-    console.error('❌ Core index.js not found after preparation');
-    process.exit(1);
+    // Check if there's one in source to copy
+    const srcIndexPath = resolve(rootDir, 'src/core-index.js');
+    if (existsSync(srcIndexPath)) {
+      copyFileSync(srcIndexPath, coreIndexPath);
+      console.log('  ✓ Copied: core-index.js as index.js');
+    } else {
+      console.error(
+        '❌ Core index.js not found and no core-index.js template available!'
+      );
+      process.exit(1);
+    }
   }
 
   console.log('\n✅ Core package prepared successfully!');
 
   // Count copied files for verification
   const componentCount = existsSync(destComponentsDir)
-    ? readdirSync(destComponentsDir, { recursive: true }).length
+    ? readdirSync(destComponentsDir, { recursive: true }).filter(
+        (f) => !f.name || !f.isDirectory?.()
+      ).length
     : 0;
   const utilsCount = existsSync(destUtilsDir)
     ? readdirSync(destUtilsDir).length
     : 0;
   const constantsCount = existsSync(destConstantsDir)
-    ? readdirSync(destConstantsDir, { recursive: true }).length
+    ? readdirSync(destConstantsDir, { recursive: true }).filter(
+        (f) => !f.name || !f.isDirectory?.()
+      ).length
+    : 0;
+  const stylesCount = existsSync(resolve(corePackageDir, 'src/styles'))
+    ? readdirSync(resolve(corePackageDir, 'src/styles')).length
     : 0;
 
   console.log(`   📊 Components copied: ${componentCount} files`);
   console.log(`   📊 Utils copied: ${utilsCount} files`);
   console.log(`   📊 Constants copied: ${constantsCount} files`);
+  console.log(`   📊 Styles copied: ${stylesCount} files`);
 
   // Show summary of what was created
   console.log('\n📂 Package structure created:');
   console.log('   ├── src/');
   console.log('   │   ├── components/');
   console.log('   │   ├── utils/');
+  console.log('   │   │   └── themeManager.js');
   if (constantsCount > 0) {
     console.log('   │   ├── constants/');
   }
+  console.log('   │   ├── styles/');
+  console.log('   │   │   ├── baseVariables.js');
+  console.log('   │   │   └── baseStyles.js');
   console.log('   │   └── index.js');
   console.log('   └── package.json');
 }
