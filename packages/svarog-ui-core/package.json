@@ -1,6 +1,6 @@
 {
   "name": "svarog-ui-core",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Core components of Svarog UI without themes",
   "main": "dist/index.js",
   "module": "src/index.js",

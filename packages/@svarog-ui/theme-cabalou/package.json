@@ -1,6 +1,6 @@
 {
   "name": "@svarog-ui/theme-cabalou",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Cabalou theme for Svarog UI components",
   "main": "dist/index.js",
   "module": "dist/index.js",
