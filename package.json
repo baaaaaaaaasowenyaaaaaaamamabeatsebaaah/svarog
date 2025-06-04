@@ -23,7 +23,6 @@
     "dev": "webpack serve --config .storybook/webpack.config.js --mode development",
     "start": "npm run dev",
     "start:prod": "node server.mjs",
-    "prepublishOnly": "npm run build:all && npm run test:size",
     "watch": "webpack --config webpack.config.js --mode development --watch",
     "lint": "eslint \"src/**/*.js\" --quiet",
     "format": "prettier --write \"src/**/*.{js,css}\"",
