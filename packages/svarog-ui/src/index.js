@@ -1,3 +1,4 @@
+// packages/svarog-ui/src/index.js
 // Re-export everything from core
 export * from 'svarog-ui-core';
 

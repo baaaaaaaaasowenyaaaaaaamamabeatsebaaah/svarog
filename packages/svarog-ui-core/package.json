@@ -40,6 +40,9 @@
     "url": "git+https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog.git",
     "directory": "packages/svarog-ui-core"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "src/styles/baseStyles.js",
+    "src/index.js"
+  ],
   "gitHead": "663493a26a2f5d2ee1ee38c5f75eee08062e5ffa"
 }

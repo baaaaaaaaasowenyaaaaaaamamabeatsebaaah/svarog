@@ -1,4 +1,4 @@
-// File: scripts/prepare-core-package.mjs
+// scripts/prepare-core-package.mjs
 import {
   copyFileSync,
   mkdirSync,
@@ -17,18 +17,27 @@ const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, '..');
 const corePackageDir = resolve(rootDir, 'packages/svarog-ui-core');
 
-// VALIDATION: Check source directories exist
+// Files to preserve during clean
+const FILES_TO_PRESERVE = [
+  'src/utils/themeManager.js',
+  'src/index.js',
+  'package.json',
+  'README.md',
+  'LICENSE.md',
+];
+
+/**
+ * Validate source directories exist
+ */
 const validateSourceDirectories = () => {
   const requiredDirs = [
     resolve(rootDir, 'src/components'),
     resolve(rootDir, 'src/utils'),
-    resolve(rootDir, 'src/styles'), // Now required
+    resolve(rootDir, 'src/styles'),
   ];
 
-  // Optional directories (warn if missing, don't fail)
   const optionalDirs = [resolve(rootDir, 'src/constants')];
 
-  // Check required files
   const requiredFiles = [
     resolve(rootDir, 'src/styles/baseVariables.js'),
     resolve(rootDir, 'src/styles/baseStyles.js'),
@@ -96,19 +105,45 @@ function copyRecursive(src, dest, options = {}) {
 }
 
 /**
+ * Preserve important files before cleaning
+ */
+function preserveFiles() {
+  console.log('📦 Preserving important files...');
+
+  const preserved = {};
+
+  FILES_TO_PRESERVE.forEach((file) => {
+    const filePath = resolve(corePackageDir, file);
+    if (existsSync(filePath)) {
+      preserved[file] = readFileSync(filePath, 'utf-8');
+      console.log(`  ✓ Preserved: ${file}`);
+    }
+  });
+
+  return preserved;
+}
+
+/**
+ * Restore preserved files
+ */
+function restoreFiles(preserved) {
+  console.log('\n📦 Restoring preserved files...');
+
+  Object.entries(preserved).forEach(([file, content]) => {
+    const filePath = resolve(corePackageDir, file);
+    const dir = dirname(filePath);
+
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(filePath, content);
+    console.log(`  ✓ Restored: ${file}`);
+  });
+}
+
+/**
  * Clean destination directories
  */
 function cleanDirectories() {
   console.log('🧹 Cleaning existing directories...');
-
-  // First, preserve themeManager.js if it exists
-  const themeManagerPath = resolve(corePackageDir, 'src/utils/themeManager.js');
-  let themeManagerContent = null;
-
-  if (existsSync(themeManagerPath)) {
-    themeManagerContent = readFileSync(themeManagerPath, 'utf-8');
-    console.log('  ✓ Preserved: themeManager.js content');
-  }
 
   const dirsToClean = [
     resolve(corePackageDir, 'src/components'),
@@ -123,8 +158,6 @@ function cleanDirectories() {
       console.log(`  ✓ Cleaned: ${relative(rootDir, dir)}`);
     }
   });
-
-  return themeManagerContent;
 }
 
 /**
@@ -137,37 +170,28 @@ function prepareBaseStyles() {
   const destStylesDir = resolve(corePackageDir, 'src/styles');
   mkdirSync(destStylesDir, { recursive: true });
 
-  // Copy baseVariables.js (required)
-  const srcBaseVariablesPath = resolve(srcStylesDir, 'baseVariables.js');
-  const destBaseVariablesPath = resolve(destStylesDir, 'baseVariables.js');
+  // Copy required style files
+  const requiredStyleFiles = ['baseVariables.js', 'baseStyles.js'];
 
-  if (!existsSync(srcBaseVariablesPath)) {
-    console.error('❌ Required file baseVariables.js not found!');
-    process.exit(1);
-  }
+  requiredStyleFiles.forEach((file) => {
+    const srcPath = resolve(srcStylesDir, file);
+    const destPath = resolve(destStylesDir, file);
 
-  copyFileSync(srcBaseVariablesPath, destBaseVariablesPath);
-  console.log('  ✓ Copied: baseVariables.js');
+    if (!existsSync(srcPath)) {
+      console.error(`❌ Required file ${file} not found!`);
+      process.exit(1);
+    }
 
-  // Copy baseStyles.js (required)
-  const srcBaseStylesPath = resolve(srcStylesDir, 'baseStyles.js');
-  const destBaseStylesPath = resolve(destStylesDir, 'baseStyles.js');
-
-  if (!existsSync(srcBaseStylesPath)) {
-    console.error('❌ Required file baseStyles.js not found!');
-    process.exit(1);
-  }
-
-  copyFileSync(srcBaseStylesPath, destBaseStylesPath);
-  console.log('  ✓ Copied: baseStyles.js');
+    copyFileSync(srcPath, destPath);
+    console.log(`  ✓ Copied: ${file}`);
+  });
 
   // Copy any other style utilities (optional)
   const styleFiles = readdirSync(srcStylesDir).filter(
     (file) =>
       file.endsWith('.js') &&
       file !== 'index.js' &&
-      file !== 'baseVariables.js' &&
-      file !== 'baseStyles.js'
+      !requiredStyleFiles.includes(file)
   );
 
   styleFiles.forEach((file) => {
@@ -179,24 +203,77 @@ function prepareBaseStyles() {
 }
 
 /**
+ * Create or ensure core index.js exists
+ */
+function ensureCoreIndex(preservedFiles) {
+  const coreIndexPath = resolve(corePackageDir, 'src/index.js');
+
+  // Check if we already have the index.js content from preserved files
+  if (preservedFiles['src/index.js']) {
+    console.log('  ✓ Core index.js already restored from preserved files');
+    return;
+  }
+
+  // Check if the actual core package index.js exists
+  const existingCoreIndex = resolve(
+    rootDir,
+    'packages/svarog-ui-core/src/index.js'
+  );
+  if (existsSync(existingCoreIndex)) {
+    console.log('  ✓ Core index.js already exists');
+    return;
+  }
+
+  // Check for a template file
+  const templatePath = resolve(rootDir, 'src/core-index.js');
+  if (existsSync(templatePath)) {
+    copyFileSync(templatePath, coreIndexPath);
+    console.log('  ✓ Created index.js from core-index.js template');
+    return;
+  }
+
+  // Create a basic index.js that re-exports from the main src/index.js
+  console.log('  ✓ Creating basic core index.js');
+  const basicIndex = `/**
+ * @file Main library entry point for Svarog UI Core
+ * @description Provides both individual and categorized component exports
+ * Auto-injects base styles when imported
+ */
+
+// Auto-inject base styles when core is imported
+import './styles/baseStyles.js';
+
+// Re-export all components and utilities from main index
+export * from '../../../src/index.js';
+`;
+
+  mkdirSync(dirname(coreIndexPath), { recursive: true });
+  writeFileSync(coreIndexPath, basicIndex);
+  console.log('  ✓ Created basic core index.js');
+}
+
+/**
  * Main preparation function
  */
 async function prepareCore() {
   console.log('📦 Preparing svarog-ui-core package...\n');
 
-  // VALIDATION: Check source directories and required files first
+  // Validate source directories first
   validateSourceDirectories();
 
-  // Clean existing directories and preserve themeManager content
-  const themeManagerContent = cleanDirectories();
+  // Preserve important files
+  const preservedFiles = preserveFiles();
 
-  // Copy components and CSS
-  console.log('\n📁 Copying components and styles...');
+  // Clean existing directories
+  cleanDirectories();
+
+  // Copy components
+  console.log('\n📁 Copying components...');
   const srcComponentsDir = resolve(rootDir, 'src/components');
   const destComponentsDir = resolve(corePackageDir, 'src/components');
 
   copyRecursive(srcComponentsDir, destComponentsDir, {
-    exclude: ['.test.', '.stories.'],
+    exclude: ['.test.', '.stories.', '.spec.'],
     include: ['.js', '.css'],
   });
 
@@ -208,11 +285,11 @@ async function prepareCore() {
   mkdirSync(destUtilsDir, { recursive: true });
 
   copyRecursive(srcUtilsDir, destUtilsDir, {
-    exclude: ['testUtils', '.test.'],
+    exclude: ['testUtils', '.test.', '.spec.'],
     include: ['.js'],
   });
 
-  // Copy constants
+  // Copy constants if they exist
   console.log('\n📋 Copying constants...');
   const srcConstantsDir = resolve(rootDir, 'src/constants');
   const destConstantsDir = resolve(corePackageDir, 'src/constants');
@@ -226,84 +303,34 @@ async function prepareCore() {
     console.log('  ⚠️  src/constants directory not found, skipping...');
   }
 
-  // Prepare base styles (will fail if files missing)
+  // Prepare base styles
   prepareBaseStyles();
 
-  // Restore or ensure themeManager.js
-  console.log('\n🎨 Ensuring themeManager.js...');
-  const destThemeManagerPath = resolve(destUtilsDir, 'themeManager.js');
+  // Restore preserved files
+  restoreFiles(preservedFiles);
 
-  if (themeManagerContent) {
-    // Restore the preserved content
-    writeFileSync(destThemeManagerPath, themeManagerContent);
-    console.log('  ✓ Restored: themeManager.js');
-  } else {
-    // Copy from source if it exists
-    const srcThemeManagerPath = resolve(rootDir, 'src/utils/themeManager.js');
-    if (existsSync(srcThemeManagerPath)) {
-      copyFileSync(srcThemeManagerPath, destThemeManagerPath);
-      console.log('  ✓ Copied: themeManager.js from source');
-    } else {
-      console.error('❌ themeManager.js not found in source!');
-      process.exit(1);
-    }
-  }
-
-  // Create index.js if it doesn't exist in the core package
-  const coreIndexPath = resolve(corePackageDir, 'src/index.js');
-  if (!existsSync(coreIndexPath)) {
-    // Check if there's one in source to copy
-    const srcIndexPath = resolve(rootDir, 'src/core-index.js');
-    if (existsSync(srcIndexPath)) {
-      copyFileSync(srcIndexPath, coreIndexPath);
-      console.log('  ✓ Copied: core-index.js as index.js');
-    } else {
-      console.error(
-        '❌ Core index.js not found and no core-index.js template available!'
-      );
-      process.exit(1);
-    }
-  }
+  // Ensure core index.js exists
+  ensureCoreIndex(preservedFiles);
 
   console.log('\n✅ Core package prepared successfully!');
 
-  // Count copied files for verification
-  const componentCount = existsSync(destComponentsDir)
-    ? readdirSync(destComponentsDir, { recursive: true }).filter(
-        (f) => !f.name || !f.isDirectory?.()
-      ).length
-    : 0;
-  const utilsCount = existsSync(destUtilsDir)
-    ? readdirSync(destUtilsDir).length
-    : 0;
-  const constantsCount = existsSync(destConstantsDir)
-    ? readdirSync(destConstantsDir, { recursive: true }).filter(
-        (f) => !f.name || !f.isDirectory?.()
-      ).length
-    : 0;
-  const stylesCount = existsSync(resolve(corePackageDir, 'src/styles'))
-    ? readdirSync(resolve(corePackageDir, 'src/styles')).length
-    : 0;
+  // Show summary
+  const componentCount = readdirSync(destComponentsDir, {
+    recursive: true,
+  }).filter((entry) =>
+    typeof entry === 'string' ? entry.endsWith('.js') : !entry.isDirectory()
+  ).length;
+  const utilsCount = readdirSync(destUtilsDir).filter((f) =>
+    f.endsWith('.js')
+  ).length;
+  const stylesCount = readdirSync(resolve(corePackageDir, 'src/styles')).filter(
+    (f) => f.endsWith('.js')
+  ).length;
 
-  console.log(`   📊 Components copied: ${componentCount} files`);
-  console.log(`   📊 Utils copied: ${utilsCount} files`);
-  console.log(`   📊 Constants copied: ${constantsCount} files`);
-  console.log(`   📊 Styles copied: ${stylesCount} files`);
-
-  // Show summary of what was created
-  console.log('\n📂 Package structure created:');
-  console.log('   ├── src/');
-  console.log('   │   ├── components/');
-  console.log('   │   ├── utils/');
-  console.log('   │   │   └── themeManager.js');
-  if (constantsCount > 0) {
-    console.log('   │   ├── constants/');
-  }
-  console.log('   │   ├── styles/');
-  console.log('   │   │   ├── baseVariables.js');
-  console.log('   │   │   └── baseStyles.js');
-  console.log('   │   └── index.js');
-  console.log('   └── package.json');
+  console.log(`\n📊 Summary:`);
+  console.log(`   Components: ${componentCount} files`);
+  console.log(`   Utils: ${utilsCount} files`);
+  console.log(`   Styles: ${stylesCount} files`);
 }
 
 // Run the preparation

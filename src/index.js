@@ -8,13 +8,15 @@
 // ---- LAYOUT COMPONENTS ----
 import Accordion from './components/Accordion/index.js';
 import Grid from './components/Grid/index.js';
-import { Section } from './components/Section/index.js';
+import Section from './components/Section/index.js';
 import Header from './components/Header/index.js';
 import Footer from './components/Footer/index.js';
 import Hero from './components/Hero/index.js';
 import MuchandyHero from './components/MuchandyHero/index.js';
-import CollapsibleHeader from './components/CollapsibleHeader/index.js';
-import Page from './components/Page/Page.js';
+import CollapsibleHeader, {
+  CollapsibleHeaderContainer,
+} from './components/CollapsibleHeader/index.js';
+import Page from './components/Page/index.js';
 
 // ---- NAVIGATION COMPONENTS ----
 import Navigation from './components/Navigation/index.js';
@@ -42,17 +44,19 @@ import CookieConsent from './components/CookieConsent/index.js';
 import Input from './components/Input/index.js';
 import Select from './components/Select/index.js';
 import Checkbox from './components/Checkbox/index.js';
-import { RadioGroup, Radio } from './components/Radio/index.js';
+import { Radio, RadioGroup } from './components/Radio/index.js';
 import {
   Form,
   FormGroup,
   FormSection,
   FormActions,
 } from './components/Form/index.js';
-import PhoneRepairForm from './components/PhoneRepairForm/index.js';
-import UsedPhonePriceForm from './components/UsedPhonePriceForm/index.js';
-import PhoneRepairFormContainer from './components/PhoneRepairForm/PhoneRepairFormContainer.js';
-import UsedPhonePriceFormContainer from './components/UsedPhonePriceForm/UsedPhonePriceFormContainer.js';
+import PhoneRepairForm, {
+  PhoneRepairFormContainer,
+} from './components/PhoneRepairForm/index.js';
+import UsedPhonePriceForm, {
+  UsedPhonePriceFormContainer,
+} from './components/UsedPhonePriceForm/index.js';
 import ConditionSelector from './components/ConditionSelector/index.js';
 import Textarea from './components/Textarea/index.js';
 
@@ -94,6 +98,7 @@ export {
   Hero,
   MuchandyHero,
   CollapsibleHeader,
+  CollapsibleHeaderContainer,
   Page,
 
   // Navigation Components
@@ -171,6 +176,7 @@ export const Layout = {
   Hero,
   MuchandyHero,
   CollapsibleHeader,
+  CollapsibleHeaderContainer,
   Page,
 };
 
@@ -222,6 +228,14 @@ export const Content = {
   BlogDetail,
 };
 
+export const Maps = {
+  Map,
+};
+
+export const Meta = {
+  Head,
+};
+
 export const Utils = {
   ThemeManager,
   themeManager,
@@ -244,13 +258,12 @@ const Svarog = {
   UI,
   Forms,
   Content,
+  Maps,
+  Meta,
   Utils,
 
   // Individual components (for backward compatibility)
   Accordion,
-  BackToTop,
-  CookieConsent,
-  Modal,
   Grid,
   Section,
   Header,
@@ -258,11 +271,11 @@ const Svarog = {
   Hero,
   MuchandyHero,
   CollapsibleHeader,
+  CollapsibleHeaderContainer,
   Page,
   Navigation,
   Link,
   Tabs,
-  Textarea,
   Pagination,
   StickyContactIcons,
   Button,
@@ -275,6 +288,9 @@ const Svarog = {
   ContactInfo,
   ProductCard,
   Image,
+  Modal,
+  BackToTop,
+  CookieConsent,
   Input,
   Select,
   Checkbox,
@@ -289,6 +305,7 @@ const Svarog = {
   UsedPhonePriceForm,
   UsedPhonePriceFormContainer,
   ConditionSelector,
+  Textarea,
   BlogCard,
   BlogList,
   BlogDetail,
