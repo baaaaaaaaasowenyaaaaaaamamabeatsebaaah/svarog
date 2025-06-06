@@ -72,15 +72,6 @@ export default (env, argv) => {
             }),
           ]
         : []),
-      // Define environment variables
-      new webpack.DefinePlugin({
-        'process.env': {
-          NODE_ENV: JSON.stringify(isProduction ? 'production' : 'development'),
-          GOOGLE_MAP_API_KEY: JSON.stringify(
-            process.env.GOOGLE_MAP_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'
-          ),
-        },
-      }),
     ],
     optimization: isProduction
       ? {

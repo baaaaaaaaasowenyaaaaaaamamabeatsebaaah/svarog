@@ -291,6 +291,7 @@ const renderUsedPhonePriceForm = (state) => {
     isPlaceholder: !state.currentPrice,
     loading: state.loadingStates.price || false,
     isError: !!state.error.price,
+    isHighlighted: true,
   });
   form.appendChild(components.priceDisplay.getElement());
 
