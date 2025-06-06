@@ -1,53 +1,81 @@
 # Map Component
 
-The Map component provides either a Google Maps integration or a fallback mock map display for applications requiring location visualization. Styles are automatically injected when the component is used, requiring no additional CSS imports.
+The Map component provides Google Maps integration with an automatic fallback to a mock display when no API key is available. It features automatic style injection, place details integration, and full SSR compatibility.
 
 ## Features
 
-✅ **Zero Configuration** - Styles automatically injected, no CSS imports needed  
-✅ **Google Maps Integration** - Live maps when API key provided  
-✅ **Fallback Mock Display** - Works without API key  
-✅ **SSR Compatible** - Safe for server-side rendering  
-✅ **Responsive Design** - Adapts to different screen sizes  
+✅ **Zero Configuration** - Styles automatically injected, no CSS imports needed
+✅ **Google Maps Integration** - Interactive maps with Places API support
+✅ **Smart Fallback** - Clean preview mode when no API key is provided
+✅ **Place Details** - Automatic fetching of business information via Place ID
+✅ **URL Parsing** - Extract coordinates and place IDs from Google Maps URLs
+✅ **SSR Compatible** - Safe for server-side rendering
+✅ **Responsive Design** - Adapts to different screen sizes
 ✅ **Theme Support** - Uses CSS variables for easy theming
 
 ## Usage
 
 ```javascript
-import { Map } from '@svarog-ui/core';
+import { Map } from 'svarog-ui-core';
 
-// Create a basic map with default location (New York City)
-const myMap = Map({});
+// Basic map with coordinates
+const map = Map({
+  latitude: 48.1417262,
+  longitude: 11.5609816,
+  locationName: 'Munich Shop',
+});
 
-// Create a map with specific coordinates
-const locationMap = Map({
-  latitude: 37.7749,
-  longitude: -122.4194,
-  locationName: 'San Francisco',
+// Map with Google Maps API
+const googleMap = Map({
+  apiKey: 'YOUR_API_KEY',
+  latitude: 48.8566,
+  longitude: 2.3522,
+  locationName: 'Paris, France',
+});
+
+// Map with Place ID
+const placeMap = Map({
+  apiKey: 'YOUR_API_KEY',
+  placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
+  autoOpenInfo: true,
 });
 
 // Add to DOM
-document.body.appendChild(myMap.getElement());
+document.body.appendChild(map.getElement());
 ```
 
 ## Props
 
-| Prop         | Type   | Default         | Description                      |
-| ------------ | ------ | --------------- | -------------------------------- |
-| apiKey       | string | null            | Google Maps API key (optional)   |
-| latitude     | number | 40.7128         | Map center latitude              |
-| longitude    | number | -74.006         | Map center longitude             |
-| locationName | string | 'New York City' | Location name                    |
-| storeId      | string | null            | ID for predefined store location |
-| options      | object | {}              | Additional map options           |
-| location     | string | -               | _Deprecated: Use locationName_   |
+| Prop          | Type    | Default    | Description                                   |
+| ------------- | ------- | ---------- | --------------------------------------------- |
+| apiKey        | string  | null       | Google Maps API key (enables interactive map) |
+| latitude      | number  | 48.1417262 | Map center latitude                           |
+| longitude     | number  | 11.5609816 | Map center longitude                          |
+| locationName  | string  | 'Location' | Display name for the location                 |
+| placeId       | string  | null       | Google Places ID for automatic details        |
+| googleMapsUrl | string  | null       | Google Maps URL to extract data from          |
+| shopInfo      | object  | null       | Manual shop information                       |
+| autoOpenInfo  | boolean | true       | Auto-open info window on load                 |
+| options       | object  | {}         | Additional map options                        |
+
+### Shop Info Object
+
+```javascript
+{
+  name: string,      // Business name
+  address: string,   // Street address
+  phone: string,     // Phone number
+  website: string,   // Website URL
+  hours: string      // Opening hours
+}
+```
 
 ### Options Object
 
-| Option  | Type   | Default   | Description                             |
-| ------- | ------ | --------- | --------------------------------------- |
-| zoom    | number | 12        | Map zoom level (1-20)                   |
-| mapType | string | 'roadmap' | Map type ('roadmap', 'satellite', etc.) |
+| Option  | Type   | Default   | Description                                           |
+| ------- | ------ | --------- | ----------------------------------------------------- |
+| zoom    | number | 16        | Map zoom level (1-20)                                 |
+| mapType | string | 'roadmap' | Map type: 'roadmap', 'satellite', 'hybrid', 'terrain' |
 
 ## Methods
 
@@ -56,31 +84,8 @@ document.body.appendChild(myMap.getElement());
 Returns the map DOM element.
 
 ```javascript
-const mapElement = myMap.getElement();
-```
-
-### setLocation(latitude, longitude, [locationName])
-
-Updates the map's location.
-
-```javascript
-myMap.setLocation(34.0522, -118.2437, 'Los Angeles');
-```
-
-### setZoom(zoom)
-
-Updates the map's zoom level.
-
-```javascript
-myMap.setZoom(14);
-```
-
-### setMapType(mapType)
-
-Updates the map's type.
-
-```javascript
-myMap.setMapType('satellite');
+const element = map.getElement();
+document.body.appendChild(element);
 ```
 
 ### update(props)
@@ -88,208 +93,284 @@ myMap.setMapType('satellite');
 Updates multiple map properties at once.
 
 ```javascript
-myMap.update({
-  latitude: 51.5074,
-  longitude: -0.1278,
-  locationName: 'London',
-  options: {
-    zoom: 10,
-    mapType: 'hybrid',
-  },
+map.update({
+  locationName: 'Updated Location',
+  latitude: 52.52,
+  longitude: 13.405,
 });
+```
+
+### setCoordinates(latitude, longitude)
+
+Updates the map's center coordinates.
+
+```javascript
+map.setCoordinates(48.8566, 2.3522);
+```
+
+### setPlaceId(placeId)
+
+Sets a Google Places ID to fetch location details.
+
+```javascript
+map.setPlaceId('ChIJ9ZsAL_p1nkcRaVYZabonLbg');
+```
+
+### setGoogleMapsUrl(url)
+
+Extracts and sets data from a Google Maps URL.
+
+```javascript
+map.setGoogleMapsUrl(
+  'https://maps.google.com/maps/place/Berlin/@52.5200,13.4050'
+);
 ```
 
 ### destroy()
 
-Cleans up resources and event listeners. Call when removing the map.
+Cleans up resources and removes the map.
 
 ```javascript
-myMap.destroy();
+map.destroy();
 ```
-
-## CSS Customization
-
-Map styles are automatically injected and can be customized using CSS variables:
-
-```css
-:root {
-  --color-gray-100: #f8f9fa;
-  --color-gray-300: #dee2e6;
-  --color-primary: #007bff;
-  --color-text: #212529;
-  --color-text-light: #6c757d;
-  --color-text-muted: #6c757d;
-  --border-radius-default: 8px;
-  --box-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --font-size-lg: 18px;
-}
-```
-
-### Responsive Behavior
-
-The map automatically adjusts for mobile devices:
-
-- Height reduces to 300px on screens smaller than 768px
-- Overlay padding adjusts for better mobile experience
 
 ## Examples
 
-### Basic Map
+### Basic Mock Map (No API Key)
 
 ```javascript
-const basicMap = Map({});
-```
-
-### Map with Custom Location
-
-```javascript
-const londonMap = Map({
-  latitude: 51.5074,
-  longitude: -0.1278,
-  locationName: 'London, UK',
+const mockMap = Map({
+  latitude: 48.1371,
+  longitude: 11.5754,
+  locationName: 'Munich Electronics Store',
+  shopInfo: {
+    address: 'Marienplatz 1, 80331 München',
+    phone: '+49 89 12345678',
+    hours: 'Mon-Sat: 10:00-20:00',
+  },
 });
 ```
 
-### Map with Google Maps Integration
+### Interactive Map with API Key
 
 ```javascript
-const googleMap = Map({
-  apiKey: 'your-google-maps-api-key',
-  latitude: 48.8566,
-  longitude: 2.3522,
-  locationName: 'Paris, France',
+const liveMap = Map({
+  apiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
+  latitude: 48.1351,
+  longitude: 11.582,
+  locationName: 'Viktualienmarkt',
   options: {
-    zoom: 14,
+    zoom: 17,
     mapType: 'satellite',
   },
 });
 ```
 
-### Using Predefined Store Locations
+### Using Google Maps URL
 
 ```javascript
-const storeMap = Map({
-  storeId: 'default', // Uses predefined store location
+const urlMap = Map({
+  apiKey: 'YOUR_API_KEY',
+  googleMapsUrl:
+    'https://maps.google.com/maps/place/Neues+Rathaus/@48.1374,11.5755,17z',
+  autoOpenInfo: true,
 });
 ```
 
-### Map with Custom Options
+### Map with Place Details
 
 ```javascript
-const customMap = Map({
-  latitude: 55.7558,
-  longitude: 37.6173,
-  locationName: 'Moscow, Russia',
-  options: {
-    zoom: 16,
-    mapType: 'terrain',
-  },
+const detailsMap = Map({
+  apiKey: 'YOUR_API_KEY',
+  placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
+  autoOpenInfo: true,
 });
+
+// Place details are automatically fetched and displayed:
+// - Business name
+// - Address
+// - Phone number
+// - Website
+// - Opening hours
+// - Rating
+// - Open/Closed status
 ```
 
-### Dynamic Map Updates
+### Dynamic Location Updates
 
 ```javascript
 const dynamicMap = Map({
-  latitude: 40.7128,
-  longitude: -74.006,
-  locationName: 'New York City',
+  latitude: 48.1351,
+  longitude: 11.582,
+  locationName: 'Current Location',
 });
 
-// Update location programmatically
-setTimeout(() => {
-  dynamicMap.setLocation(37.7749, -122.4194, 'San Francisco');
-}, 2000);
+// Update location from URL
+dynamicMap.setGoogleMapsUrl(
+  'https://maps.google.com/maps/@48.1374,11.5755,17z'
+);
 
-// Chain multiple updates
-dynamicMap
-  .setZoom(15)
-  .setMapType('satellite')
-  .setLocation(34.0522, -118.2437, 'Los Angeles');
+// Update coordinates directly
+dynamicMap.setCoordinates(48.1486, 11.5633);
+dynamicMap.update({ locationName: 'New Location' });
+
+// Switch to a place with details
+dynamicMap.setPlaceId('ChIJ9ZsAL_p1nkcRaVYZabonLbg');
 ```
+
+## Google Maps Setup
+
+1. **Get an API Key**
+
+   - Visit [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing
+   - Enable "Maps JavaScript API" and "Places API"
+   - Create credentials (API Key)
+
+2. **Restrict Your API Key**
+
+   - Add HTTP referrer restrictions
+   - Limit to your domain(s)
+   - Enable only required APIs
+
+3. **Use in Component**
+   ```javascript
+   const map = Map({
+     apiKey: 'YOUR_RESTRICTED_API_KEY',
+     // ... other props
+   });
+   ```
+
+## CSS Customization
+
+Map styles use CSS variables for theming:
+
+```css
+:root {
+  /* Colors */
+  --color-gray-100: #f8f9fa;
+  --color-gray-300: #dee2e6;
+  --color-primary: #007bff;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+
+  /* Typography */
+  --font-family: system-ui, -apple-system, sans-serif;
+  --font-size-lg: 18px;
+
+  /* Borders & Shadows */
+  --border-radius-default: 8px;
+  --box-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --box-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+```
+
+### Responsive Behavior
+
+- Desktop: 400px height
+- Mobile (<768px): 300px height
+- Info windows adapt to screen size
 
 ## Architecture
 
-### CSS Injection System
-
-The Map component uses our modern CSS injection system:
-
-- **Automatic Style Loading**: Styles are injected when the component is first rendered
-- **Deduplication**: Styles are only injected once, even with multiple instances
-- **SSR Safe**: No errors in Node.js environments
-- **Performance Optimized**: Styles are cached and reused
-
-### File Structure
+### Component Structure
 
 ```
 src/components/Map/
-├── Map.js              # Main component with CSS injection
-├── Map.styles.js       # Component-specific styles
+├── Map.js              # Main component logic
+├── Map.styles.js       # CSS-in-JS styles
 ├── Map.stories.js      # Storybook stories
 ├── Map.test.js         # Unit tests
-├── README.md           # This documentation
+├── README.md           # Documentation
 └── index.js            # Export wrapper
 ```
 
-## Accessibility
+### Key Features
 
-The Map component follows best practices for accessibility:
-
-- Provides text-based location information for screen readers
-- Maintains proper color contrast ratios when using theme variables
-- Uses semantic HTML elements
-- Includes appropriate ARIA attributes for interactive elements
-
-## Browser Support
-
-- **Modern Browsers**: Full support for all features
-- **IE11**: Basic mock map functionality (no Google Maps integration)
-- **Server-Side Rendering**: Full support with automatic style injection
-
-## Migration from CSS Imports
-
-If migrating from the previous CSS import version:
-
-1. **Remove CSS Import**: No longer needed in your application code
-2. **No API Changes**: All component APIs remain the same
-3. **Automatic Styles**: Styles are now automatically injected
-4. **Better Performance**: Improved loading and caching behavior
-
-```javascript
-// OLD: Required CSS import
-import 'svarog-ui/dist/Map.css';
-import { Map } from 'svarog-ui';
-
-// NEW: No CSS import needed
-import { Map } from 'svarog-ui';
-```
+1. **Automatic Fallback** - Displays mock map when API key is missing
+2. **Smart URL Parsing** - Extracts coordinates and place IDs from URLs
+3. **Place Details Integration** - Fetches business info via Places API
+4. **Coordinate Validation** - Handles invalid inputs gracefully
+5. **Style Injection** - CSS loaded only when component is used
 
 ## Troubleshooting
 
-**Issue: Styles not appearing**
+### Common Issues
 
-- Check browser dev tools for injected `<style>` tags with `data-svarog="map"`
-- Verify component is properly imported and used
+**Map shows preview mode instead of interactive map**
 
-**Issue: Google Maps not loading**
+- Verify API key is valid and not a placeholder
+- Check that Maps JavaScript API is enabled
+- Ensure API key has proper restrictions
 
-- Verify API key is valid and has Maps JavaScript API enabled
-- Check browser console for API errors
-- Component will fallback to mock display if API fails
+**Place details not loading**
 
-**Issue: Theme variables not working**
+- Verify Places API is enabled for your API key
+- Check that place ID is in new format (without colons)
+- Old format IDs (with `:`) are no longer supported
 
-- Ensure CSS variables are defined in your theme
-- Check that theme is properly applied to document root
-- Verify variable names match the expected format
+**Coordinates showing as NaN**
 
-## Performance Notes
+- Component validates and converts invalid coordinates to defaults
+- Check that latitude/longitude are numbers, not strings
 
-- Styles are injected only once per page load
-- Google Maps scripts are loaded lazily when needed
-- Mock fallback has minimal performance impact
-- Component cleanup prevents memory leaks
+**Console errors about Google not defined**
+
+- Normal in SSR environments
+- Component handles this gracefully with fallback
+
+### Performance Tips
+
+1. **Lazy Load Maps** - Only create maps when visible
+2. **Reuse API Keys** - Use same key across all map instances
+3. **Cache Place Data** - Store fetched place details
+4. **Optimize Info Windows** - Keep content lightweight
+
+## Migration Notes
+
+### From Previous Version
+
+The component has been refactored for better performance and maintainability:
+
+1. **Default Location** - Now Munich (48.1417262, 11.5609816) instead of NYC
+2. **Removed Features**:
+   - `storeId` prop (use coordinates or placeId instead)
+   - `location` prop (use `locationName`)
+   - Custom validation errors
+3. **New Features**:
+   - Google Maps URL parsing
+   - Automatic coordinate validation
+   - Better error handling
+   - Cleaner codebase (~150 lines shorter)
+
+### API Changes
+
+```javascript
+// Old
+map.setLocation(lat, lng, name);
+
+// New
+map.setCoordinates(lat, lng);
+map.update({ locationName: name });
+```
+
+## Browser Support
+
+- **Modern Browsers**: Full support
+- **IE11**: Mock map only (no Google Maps)
+- **Mobile**: Full touch support
+- **SSR**: Complete compatibility
+
+## Contributing
+
+When contributing to the Map component:
+
+1. Maintain zero-dependency architecture
+2. Ensure SSR compatibility
+3. Add tests for new features
+4. Update documentation
+5. Follow Svarog UI principles

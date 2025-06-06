@@ -9,7 +9,9 @@ describe('Map component', () => {
 
     expect(mapElement).toBeTruthy();
     expect(mapElement.classList.contains('map-container')).toBe(true);
-    expect(mapElement.textContent).toContain('New York City');
+    expect(mapElement.textContent).toContain('Location');
+    expect(mapElement.textContent).toContain('48.141726');
+    expect(mapElement.textContent).toContain('11.560982');
   });
 
   it('should handle specific coordinates', () => {
@@ -23,33 +25,38 @@ describe('Map component', () => {
 
     expect(mapElement).toBeTruthy();
     expect(mapElement.textContent).toContain('San Francisco');
-    expect(mapElement.textContent).toContain('37.7749');
-    expect(mapElement.textContent).toContain('-122.4194');
+    expect(mapElement.textContent).toContain('37.774900');
+    expect(mapElement.textContent).toContain('-122.419400');
   });
 
-  it('should use store ID', () => {
+  it('should handle place ID', () => {
     const map = Map({
-      storeId: 'default',
+      placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
+      locationName: 'Test Place',
     });
 
     const mapElement = map.getElement();
 
     expect(mapElement).toBeTruthy();
-    expect(mapElement.textContent).toContain('Sample Store');
+    expect(mapElement.textContent).toContain('Test Place');
+    expect(mapElement.textContent).toContain('ChIJ9ZsAL_p1nkcRaVYZabonLbg');
   });
 
   it('should fallback to default coordinates when no location provided', () => {
     const map = Map({});
     const mapElement = map.getElement();
 
-    expect(mapElement.textContent).toContain('40.7128');
-    expect(mapElement.textContent).toContain('-74.0060');
+    expect(mapElement.textContent).toContain('48.141726');
+    expect(mapElement.textContent).toContain('11.560982');
   });
 
-  it('should throw error for invalid coordinates', () => {
-    expect(() => {
-      Map({ latitude: 'invalid' });
-    }).toThrow('latitude must be a number');
+  it('should handle invalid coordinates gracefully', () => {
+    // Should not throw, but use defaults instead
+    const map = Map({ latitude: 'invalid', longitude: 'invalid' });
+    const mapElement = map.getElement();
+
+    expect(mapElement).toBeTruthy();
+    expect(mapElement.textContent).toContain('Location');
   });
 
   it('should clean up resources when destroyed', () => {
@@ -69,28 +76,29 @@ describe('Map component', () => {
     expect(() => map.destroy()).not.toThrow();
   });
 
-  it('should handle setLocation method', () => {
+  it('should handle setCoordinates method', () => {
     const map = Map({});
 
     // First check the initial state
     let mapElement = map.getElement();
-    expect(mapElement.textContent).toContain('New York City');
+    expect(mapElement.textContent).toContain('48.141726');
 
     // Now update the location
-    map.setLocation(34.0522, -118.2437, 'Los Angeles');
+    map.setCoordinates(34.0522, -118.2437);
+    map.update({ locationName: 'Los Angeles' });
 
     // We need to get the element again after update
     mapElement = map.getElement();
     expect(mapElement.textContent).toContain('Los Angeles');
-    expect(mapElement.textContent).toContain('34.0522');
-    expect(mapElement.textContent).toContain('-118.2437');
+    expect(mapElement.textContent).toContain('34.052200');
+    expect(mapElement.textContent).toContain('-118.243700');
   });
 
-  it('should support legacy "location" prop for backward compatibility', () => {
+  it('should display location name correctly', () => {
     const map = Map({
       latitude: 51.5074,
       longitude: -0.1278,
-      location: 'London',
+      locationName: 'London',
     });
 
     const mapElement = map.getElement();
@@ -108,20 +116,56 @@ describe('Map component', () => {
     expect(mapElement.textContent).toContain('Moscow');
   });
 
-  it('should log warning when using deprecated location prop', () => {
-    // Mock console.warn
-    const originalWarn = console.warn;
-    console.warn = vi.fn();
-
-    Map({
-      location: 'Berlin',
+  it('should extract data from Google Maps URL', () => {
+    const map = Map({
+      googleMapsUrl:
+        'https://maps.google.com/maps?q=@48.8566,2.3522&place_id=ChIJD7fiBh9u5kcRYJSMaMOCCwQ',
     });
 
-    expect(console.warn).toHaveBeenCalledWith(
-      'Map: "location" prop is deprecated, use "locationName" instead'
-    );
+    const mapElement = map.getElement();
+    expect(mapElement.textContent).toContain('48.856600');
+    expect(mapElement.textContent).toContain('2.352200');
+    expect(mapElement.textContent).toContain('ChIJD7fiBh9u5kcRYJSMaMOCCwQ');
+  });
 
-    // Restore console.warn
-    console.warn = originalWarn;
+  it('should handle shop info', () => {
+    const map = Map({
+      latitude: 48.1371,
+      longitude: 11.5754,
+      locationName: 'Test Shop',
+      shopInfo: {
+        address: '123 Test Street',
+        phone: '+49 123 456789',
+        hours: 'Mon-Fri: 9AM-6PM',
+      },
+    });
+
+    const mapElement = map.getElement();
+    expect(mapElement.textContent).toContain('Test Shop');
+    expect(mapElement.textContent).toContain('123 Test Street');
+    expect(mapElement.textContent).toContain('+49 123 456789');
+    expect(mapElement.textContent).toContain('Mon-Fri: 9AM-6PM');
+  });
+
+  it('should handle setGoogleMapsUrl method', () => {
+    const map = Map({});
+
+    map.setGoogleMapsUrl(
+      'https://maps.google.com/maps/place/Berlin/@52.5200,13.4050'
+    );
+    const mapElement = map.getElement();
+
+    expect(mapElement.textContent).toContain('Berlin');
+    expect(mapElement.textContent).toContain('52.520000');
+    expect(mapElement.textContent).toContain('13.405000');
+  });
+
+  it('should handle setPlaceId method', () => {
+    const map = Map({});
+
+    map.setPlaceId('ChIJAAAAAAAAAARYJSMaMOCCwQ');
+    const mapElement = map.getElement();
+
+    expect(mapElement.textContent).toContain('ChIJAAAAAAAAAARYJSMaMOCCwQ');
   });
 });
