@@ -41,6 +41,8 @@ npx lerna publish from-git
 git commit -m "feat: add Tooltip component"
 npx lerna version minor
 npx lerna publish from-git
+# Remove prepublishOnly from root package.json temporarily
+npx lerna publish from-package --no-verify-access
 ```
 
 ### Release a breaking change

@@ -1517,36 +1517,59 @@ export const getComponents = () => {
       category: 'Media',
       stories: [
         {
-          name: 'Default',
-          module: () =>
-            import('../components/Map/Map.stories.js').then((m) => m.Default),
-        },
-        {
-          name: 'SpecificCoordinates',
+          name: 'MuchandyShopMunich', // 🆕 Google Places integration example
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.SpecificCoordinates
+              (m) => m.MuchandyShopMunich
             ),
         },
         {
-          name: 'SanFrancisco',
+          name: 'MuchandyShopMockView', // 🆕 Mock view without API key
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.SanFrancisco
+              (m) => m.MuchandyShopMockView
             ),
         },
         {
-          name: 'LosAngeles',
+          name: 'MuchandyLuisenstrasse', // 🆕 Using Place ID directly
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.LosAngeles
+              (m) => m.MuchandyLuisenstrasse
             ),
         },
         {
-          name: 'StoreLocation',
+          name: 'MunichElectronicsStores', // 🆕 Another shop example
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.StoreLocation
+              (m) => m.MunichElectronicsStores
+            ),
+        },
+        {
+          name: 'DynamicShopUpdate', // 🆕 Dynamic URL loading
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.DynamicShopUpdate
+            ),
+        },
+        {
+          name: 'ShopSelector', // 🆕 Multiple shops selector
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.ShopSelector
+            ),
+        },
+        {
+          name: 'SimpleCoordinates', // 🆕 Simple coordinates example
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.SimpleCoordinates
+            ),
+        },
+        {
+          name: 'ConfigurationExample', // 🆕 API configuration guide
+          module: () =>
+            import('../components/Map/Map.stories.js').then(
+              (m) => m.ConfigurationExample
             ),
         },
       ],

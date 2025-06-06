@@ -4,6 +4,10 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import webpack from 'webpack';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +35,7 @@ export default (env, argv) => {
             {
               loader: 'css-loader',
               options: {
-                modules: false, // Disable CSS modules - we want global styles
+                modules: false,
               },
             },
           ],
@@ -51,16 +55,13 @@ export default (env, argv) => {
       new MiniCssExtractPlugin({
         filename: 'styles.css',
       }),
-      // Ignore ALL markdown files everywhere
       new webpack.IgnorePlugin({
         resourceRegExp: /\.md$/,
       }),
-      // Ignore specific markdown files in theme packages
       new webpack.IgnorePlugin({
         resourceRegExp: /\/(CHANGELOG|LICENSE|README)\.md$/,
         contextRegExp: /@svarog-ui/,
       }),
-      // Ignore non-default themes in production only
       ...(isProduction
         ? [
             new webpack.IgnorePlugin({
@@ -71,11 +72,14 @@ export default (env, argv) => {
             }),
           ]
         : []),
-      // Add NODE_ENV definition for better optimization
+      // Define environment variables
       new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(
-          isProduction ? 'production' : 'development'
-        ),
+        'process.env': {
+          NODE_ENV: JSON.stringify(isProduction ? 'production' : 'development'),
+          GOOGLE_MAP_API_KEY: JSON.stringify(
+            process.env.GOOGLE_MAP_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'
+          ),
+        },
       }),
     ],
     optimization: isProduction

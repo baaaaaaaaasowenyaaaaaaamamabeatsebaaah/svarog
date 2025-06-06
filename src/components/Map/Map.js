@@ -1,261 +1,193 @@
-// src/components/Map/Map.js
+/* global google */
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
-
-// CSS injection imports
 import { createStyleInjector } from '../../utils/styleInjection.js';
 import { mapStyles } from './Map.styles.js';
 
-// Create style injector for Map component
 const injectMapStyles = createStyleInjector('Map');
 
+// List of invalid API keys to detect
+const INVALID_API_KEYS = [
+  'YOUR_GOOGLE_MAPS_API_KEY',
+  'YOUR_ACTUAL_API_KEY_HERE',
+  'YOUR_API_KEY',
+  'API_KEY_HERE',
+  '',
+  null,
+  undefined,
+];
+
 /**
- * Creates a Map component
+ * Creates a Map component with Google Maps integration
  * @param {Object} props - Map properties
  * @returns {Object} Map component
  */
 const createMap = (props = {}) => {
-  // Validate props
-  if (props.apiKey !== undefined && typeof props.apiKey !== 'string') {
-    throw new Error('apiKey must be a string');
-  }
+  // Check if API key is valid
+  const isValidApiKey = (key) => {
+    return (
+      key &&
+      typeof key === 'string' &&
+      key.length > 10 &&
+      !INVALID_API_KEYS.includes(key)
+    );
+  };
 
-  if (props.latitude !== undefined && typeof props.latitude !== 'number') {
-    throw new Error('latitude must be a number');
-  }
+  // Extract place ID from Google Maps URL
+  const extractPlaceId = (url) => {
+    if (!url) return null;
 
-  if (props.longitude !== undefined && typeof props.longitude !== 'number') {
-    throw new Error('longitude must be a number');
-  }
+    // Try new format first (without colon)
+    const newFormatMatch = url.match(/place_id=([A-Za-z0-9_-]+)/);
+    if (newFormatMatch) return newFormatMatch[1];
 
-  if (
-    props.locationName !== undefined &&
-    typeof props.locationName !== 'string'
-  ) {
-    throw new Error('locationName must be a string');
-  }
+    // Try data parameter format
+    const dataMatch = url.match(/data=[^/]*!1s([A-Za-z0-9_-]+)/);
+    if (dataMatch) return dataMatch[1];
 
-  // Backward compatibility for 'location' prop
-  if (props.location !== undefined && typeof props.location !== 'string') {
-    throw new Error('location must be a string');
-  }
+    // Legacy formats (convert to new format if needed)
+    const patterns = [
+      /place\/[^/]+\/[^/]+\/[^/]+\/[^/]+!1s([^!]+)/,
+      /ftid=([^&]+)/,
+    ];
 
-  if (props.storeId !== undefined && typeof props.storeId !== 'string') {
-    throw new Error('storeId must be a string');
-  }
-
-  // Validate options if provided
-  if (props.options !== undefined) {
-    if (typeof props.options !== 'object') {
-      throw new Error('options must be an object');
-    }
-
-    if (
-      props.options.zoom !== undefined &&
-      typeof props.options.zoom !== 'number'
-    ) {
-      throw new Error('options.zoom must be a number');
-    }
-
-    if (props.options.mapType !== undefined) {
-      const validTypes = ['roadmap', 'satellite', 'hybrid', 'terrain'];
-      if (!validTypes.includes(props.options.mapType)) {
-        throw new Error(
-          `options.mapType must be one of: ${validTypes.join(', ')}`
-        );
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) {
+        // If it contains a colon, it's an old format - we can't use it
+        if (match[1].includes(':')) {
+          console.warn(
+            '[Map] Old place ID format detected. Place details may not load.'
+          );
+          return null;
+        }
+        return match[1];
       }
     }
-  }
 
-  // Normalize props to handle legacy properties
+    return null;
+  };
+
+  // Extract coordinates from URL
+  const extractCoordinates = (url) => {
+    if (!url) return null;
+
+    const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (match) {
+      return {
+        latitude: parseFloat(match[1]),
+        longitude: parseFloat(match[2]),
+      };
+    }
+
+    return null;
+  };
+
+  // Extract location name from URL
+  const extractLocationName = (url) => {
+    if (!url) return null;
+
+    const match = url.match(/place\/([^/@]+)/);
+    if (match) {
+      return decodeURIComponent(match[1].replace(/\+/g, ' '));
+    }
+
+    return null;
+  };
+
+  // Normalize props
   const normalizeProps = (inputProps) => {
     const normalized = { ...inputProps };
 
-    // Handle legacy 'location' prop
-    if (normalized.location !== undefined && !normalized.locationName) {
-      console.warn(
-        'Map: "location" prop is deprecated, use "locationName" instead'
-      );
-      normalized.locationName = normalized.location;
-      delete normalized.location;
+    // Validate API key
+    if (!isValidApiKey(normalized.apiKey)) {
+      if (normalized.apiKey) {
+        console.warn('[Map] Invalid API key detected. Using mock mode.');
+      }
+      delete normalized.apiKey;
+    }
+
+    // Handle Google Maps URL
+    if (normalized.googleMapsUrl) {
+      const placeId = extractPlaceId(normalized.googleMapsUrl);
+      if (placeId) normalized.placeId = placeId;
+
+      const coords = extractCoordinates(normalized.googleMapsUrl);
+      if (coords) {
+        normalized.latitude = normalized.latitude || coords.latitude;
+        normalized.longitude = normalized.longitude || coords.longitude;
+      }
+
+      const locationName = extractLocationName(normalized.googleMapsUrl);
+      if (locationName && !normalized.locationName) {
+        normalized.locationName = locationName;
+      }
     }
 
     return normalized;
   };
 
-  // Apply normalization to initial props
   const normalizedProps = normalizeProps(props);
 
-  // Predefined store locations
-  const predefinedStores = {
-    default: {
-      name: 'Sample Store',
-      latitude: 40.7128,
-      longitude: -74.006,
-      locationName: 'New York City',
-    },
-  };
-
-  // Resolve location and coordinates
-  const resolveLocation = (config) => {
-    const { locationName, latitude, longitude, storeId } = config;
-
-    let resolvedLocation = locationName;
-    let resolvedLatitude = latitude;
-    let resolvedLongitude = longitude;
-
-    if (storeId && predefinedStores[storeId]) {
-      const store = predefinedStores[storeId];
-      resolvedLocation = store.name;
-      resolvedLatitude = store.latitude;
-      resolvedLongitude = store.longitude;
-    }
-
-    // Use default coordinates if not provided
-    if (!resolvedLatitude || !resolvedLongitude) {
-      resolvedLatitude = 40.7128; // New York City
-      resolvedLongitude = -74.006;
-      resolvedLocation = resolvedLocation || 'New York City';
-    }
-
-    return {
-      locationName: resolvedLocation,
-      latitude: resolvedLatitude,
-      longitude: resolvedLongitude,
-    };
-  };
-
   /**
-   * Creates a live Google Maps element
-   * @param {Object} config - Map configuration
-   * @returns {HTMLElement} Live map container
-   * @private
-   */
-  const createLiveMapElement = (config) => {
-    const container = createElement('div', {
-      classes: ['map-container', 'map-container--live'],
-    });
-
-    // Load Google Maps script if not already loaded
-    if (typeof window !== 'undefined' && window.google === undefined) {
-      loadGoogleMapsScript(() => initializeLiveMap(container, config), config);
-    } else if (typeof window !== 'undefined') {
-      initializeLiveMap(container, config);
-    }
-
-    return container;
-  };
-
-  /**
-   * Load Google Maps JavaScript API
-   * @param {Function} callback - Callback to execute after script loads
-   * @param {Object} config - Map configuration with API key
-   * @private
-   */
-  const loadGoogleMapsScript = (callback, config) => {
-    if (typeof document === 'undefined') {
-      return;
-    }
-
-    if (document.querySelector('#google-maps-script')) {
-      if (callback) {
-        callback();
-      }
-      return;
-    }
-
-    const script = createElement('script', {
-      attributes: {
-        id: 'google-maps-script',
-        src: `https://maps.googleapis.com/maps/api/js?key=${config.apiKey}&libraries=places`,
-        async: true,
-        defer: true,
-      },
-    });
-
-    script.onload = () => {
-      if (callback) {
-        callback();
-      }
-    };
-
-    script.onerror = () => {
-      console.error('Failed to load Google Maps API');
-      // Optionally handle the error by calling callback with an error parameter
-    };
-
-    document.head.appendChild(script);
-  };
-
-  /**
-   * Initialize live Google Map
-   * @param {HTMLElement} container - Map container
-   * @param {Object} config - Map configuration
-   * @private
-   */
-  const initializeLiveMap = (container, config) => {
-    if (typeof window === 'undefined' || !window.google) {
-      return;
-    }
-
-    try {
-      const mapOptions = {
-        center: {
-          lat: config.latitude,
-          lng: config.longitude,
-        },
-        zoom: config.options.zoom,
-        mapTypeId: config.options.mapType,
-      };
-
-      const map = new window.google.maps.Map(container, mapOptions);
-
-      // Store map instance for later cleanup
-      container._mapInstance = map;
-
-      // Add marker
-      const marker = new window.google.maps.Marker({
-        position: {
-          lat: config.latitude,
-          lng: config.longitude,
-        },
-        map,
-        title: config.locationName,
-      });
-
-      // Store marker instance for later cleanup
-      container._markerInstance = marker;
-    } catch (error) {
-      console.error('Error initializing live map:', error);
-      // Fallback to mock map if live map fails
-      const mockMap = createMockMapElement(config);
-      container.innerHTML = mockMap.innerHTML;
-    }
-  };
-
-  /**
-   * Create a mock map element
-   * @param {Object} config - Map configuration
-   * @returns {HTMLElement} Mock map container element
-   * @private
+   * Create mock map element for development/no API key
    */
   const createMockMapElement = (config) => {
     const mockPin = createElement('div', {
       classes: ['map-mock-pin'],
+      html: '📍',
     });
+
+    const detailsHtml = [];
+
+    // Title
+    if (config.locationName) {
+      detailsHtml.push(`<h3>${config.locationName}</h3>`);
+    } else {
+      detailsHtml.push(`<h3>Location</h3>`);
+    }
+
+    // Coordinates
+    detailsHtml.push(
+      `<p class="map-coords">`,
+      `Latitude: ${config.latitude.toFixed(6)}<br>`,
+      `Longitude: ${config.longitude.toFixed(6)}`,
+      `</p>`
+    );
+
+    // Place ID if available
+    if (config.placeId) {
+      detailsHtml.push(
+        `<p class="map-place-info">`,
+        `<small>Place ID: ${config.placeId}</small>`,
+        `</p>`
+      );
+    }
+
+    // Shop info if provided
+    if (config.shopInfo) {
+      if (config.shopInfo.address) {
+        detailsHtml.push(`<p>📍 ${config.shopInfo.address}</p>`);
+      }
+      if (config.shopInfo.phone) {
+        detailsHtml.push(`<p>📞 ${config.shopInfo.phone}</p>`);
+      }
+      if (config.shopInfo.hours) {
+        detailsHtml.push(`<p>🕐 ${config.shopInfo.hours}</p>`);
+      }
+    }
+
+    // Development notice
+    detailsHtml.push(
+      `<div class="map-mock-notice">`,
+      `<p>📍 Map Preview Mode</p>`,
+      `<small>Add a Google Maps API key to see interactive map</small>`,
+      `</div>`
+    );
 
     const mockDetails = createElement('div', {
       classes: ['map-mock-details'],
-      html: `
-        <h3>${config.locationName}</h3>
-        <p>Latitude: ${config.latitude.toFixed(4)}</p>
-        <p>Longitude: ${config.longitude.toFixed(4)}</p>
-        <small>${
-          config.apiKey
-            ? 'API Key Provided (Mock Fallback)'
-            : 'Mock Map (No API Key)'
-        }</small>
-      `,
+      html: detailsHtml.join(''),
     });
 
     const mockOverlay = createElement('div', {
@@ -263,189 +195,374 @@ const createMap = (props = {}) => {
       children: [mockPin, mockDetails],
     });
 
+    // Background with gradient to simulate map
+    const mockBackground = createElement('div', {
+      classes: ['map-mock-background'],
+    });
+
     return createElement('div', {
       classes: ['map-container', 'map-container--mock'],
-      children: [mockOverlay],
+      children: [mockBackground, mockOverlay],
     });
   };
 
   /**
-   * Renders the map element based on current state
-   * @param {Object} state - Current component state
-   * @returns {HTMLElement} Map element
+   * Check if Google Maps is loaded
    */
-  const renderMap = (state) => {
-    // Inject styles on first render
-    injectMapStyles(mapStyles);
+  const isGoogleMapsLoaded = () => {
+    return (
+      typeof window !== 'undefined' &&
+      typeof window.google !== 'undefined' &&
+      typeof window.google.maps !== 'undefined'
+    );
+  };
 
-    // Create merged options with defaults
-    const options = {
-      zoom: 12,
-      mapType: 'roadmap',
-      ...(state.options || {}),
+  /**
+   * Load Google Maps script
+   */
+  const loadGoogleMapsScript = async (config) => {
+    if (typeof window === 'undefined') {
+      throw new Error('Google Maps requires a browser environment');
+    }
+
+    // Check if already loaded
+    if (isGoogleMapsLoaded()) {
+      return;
+    }
+
+    // Check if script is already loading
+    const existingScript = document.querySelector('#google-maps-script');
+    if (existingScript) {
+      return new Promise((resolve, reject) => {
+        existingScript.addEventListener('load', resolve);
+        existingScript.addEventListener('error', reject);
+      });
+    }
+
+    // Create and load script (without loading=async for legacy support)
+    return new Promise((resolve, reject) => {
+      const script = createElement('script', {
+        attributes: {
+          id: 'google-maps-script',
+          src: `https://maps.googleapis.com/maps/api/js?key=${config.apiKey}&libraries=places`,
+          async: true,
+          defer: true,
+        },
+      });
+
+      script.addEventListener('load', resolve);
+      script.addEventListener('error', () => {
+        reject(new Error('Failed to load Google Maps'));
+      });
+
+      document.head.appendChild(script);
+    });
+  };
+
+  /**
+   * Initialize Google Map with legacy API
+   */
+  const initializeGoogleMap = async (container, config) => {
+    try {
+      // Load Google Maps if needed
+      await loadGoogleMapsScript(config);
+
+      // Double-check that google is available
+      if (!isGoogleMapsLoaded()) {
+        throw new Error('Google Maps failed to load');
+      }
+
+      // Get the global google object
+      const googleMaps = window.google;
+
+      // Create map
+      const map = new googleMaps.maps.Map(container, {
+        center: { lat: config.latitude, lng: config.longitude },
+        zoom: config.options.zoom,
+        mapTypeId: config.options.mapType,
+      });
+
+      // Create marker (using standard Marker for now)
+      const marker = new googleMaps.maps.Marker({
+        position: { lat: config.latitude, lng: config.longitude },
+        map,
+        title: config.locationName,
+      });
+
+      // Store instances
+      container._mapInstance = map;
+      container._markerInstance = marker;
+
+      // Create basic info window without place details
+      if (config.shopInfo || config.locationName) {
+        const infoContent = createBasicInfoWindowContent(config);
+        const infoWindow = new googleMaps.maps.InfoWindow({
+          content: infoContent,
+          maxWidth: 400,
+        });
+
+        if (config.autoOpenInfo) {
+          infoWindow.open(map, marker);
+        }
+
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
+        });
+      }
+
+      // If we have a valid place ID, try to get details
+      if (config.placeId && !config.placeId.includes(':')) {
+        try {
+          const service = new googleMaps.maps.places.PlacesService(map);
+
+          const request = {
+            placeId: config.placeId,
+            fields: [
+              'name',
+              'formatted_address',
+              'geometry',
+              'rating',
+              'opening_hours',
+              'formatted_phone_number',
+              'website',
+            ],
+          };
+
+          service.getDetails(request, (place, status) => {
+            if (
+              status === googleMaps.maps.places.PlacesServiceStatus.OK &&
+              place
+            ) {
+              // Update marker position if geometry available
+              if (place.geometry && place.geometry.location) {
+                marker.setPosition(place.geometry.location);
+                map.setCenter(place.geometry.location);
+              }
+
+              // Update info window with place details
+              const placeInfo = formatPlaceDetails(place);
+              const infoContent = createPlacesInfoWindowContent(placeInfo);
+              const infoWindow = new googleMaps.maps.InfoWindow({
+                content: infoContent,
+                maxWidth: 400,
+              });
+
+              if (config.autoOpenInfo) {
+                infoWindow.open(map, marker);
+              }
+
+              marker.addListener('click', () => {
+                infoWindow.open(map, marker);
+              });
+            }
+          });
+        } catch (error) {
+          console.warn('[Map] Could not fetch place details:', error);
+        }
+      }
+    } catch (error) {
+      console.error('[Map] Failed to initialize:', error);
+      // Replace with mock on error
+      const mock = createMockMapElement(config);
+      container.innerHTML = '';
+      container.appendChild(mock);
+    }
+  };
+
+  /**
+   * Format place details from Places API
+   */
+  const formatPlaceDetails = (place) => {
+    const details = {
+      name: place.name,
+      address: place.formatted_address,
+      phone: place.formatted_phone_number,
+      website: place.website,
+      rating: place.rating,
     };
 
-    // Resolve location
-    const locationInfo = resolveLocation({
-      locationName: state.locationName,
-      latitude: state.latitude,
-      longitude: state.longitude,
-      storeId: state.storeId,
+    // Format opening hours
+    if (place.opening_hours) {
+      details.openNow = place.opening_hours.isOpen
+        ? place.opening_hours.isOpen()
+        : false;
+      if (place.opening_hours.weekday_text) {
+        details.hours = place.opening_hours.weekday_text.join('<br>');
+      }
+    }
+
+    return details;
+  };
+
+  /**
+   * Create basic info window content
+   */
+  const createBasicInfoWindowContent = (config) => {
+    const parts = [`<div class="map-info-window">`];
+
+    if (config.locationName || config.shopInfo?.name) {
+      parts.push(`<h3>${config.shopInfo?.name || config.locationName}</h3>`);
+    }
+
+    if (config.shopInfo) {
+      if (config.shopInfo.address) {
+        parts.push(`<p>📍 ${config.shopInfo.address}</p>`);
+      }
+      if (config.shopInfo.phone) {
+        parts.push(`<p>📞 ${config.shopInfo.phone}</p>`);
+      }
+      if (config.shopInfo.website) {
+        parts.push(
+          `<p>🌐 <a href="${config.shopInfo.website}" target="_blank">Website</a></p>`
+        );
+      }
+      if (config.shopInfo.hours) {
+        parts.push(`<p>🕐 ${config.shopInfo.hours}</p>`);
+      }
+    }
+
+    parts.push(`</div>`);
+    return parts.join('');
+  };
+
+  /**
+   * Create places info window content
+   */
+  const createPlacesInfoWindowContent = (details) => {
+    const parts = [`<div class="map-info-window map-info-window--places">`];
+
+    // Header
+    parts.push(`<div class="map-info-header">`);
+    if (details.name) {
+      parts.push(`<h3 class="map-info-title">${details.name}</h3>`);
+    }
+    if (details.openNow !== undefined) {
+      const statusClass = details.openNow ? 'open' : 'closed';
+      const statusText = details.openNow ? 'Open' : 'Closed';
+      parts.push(
+        `<span class="map-info-status map-info-status--${statusClass}">${statusText}</span>`
+      );
+    }
+    parts.push(`</div>`);
+
+    // Rating
+    if (details.rating) {
+      const stars = '⭐'.repeat(Math.round(details.rating));
+      parts.push(
+        `<div class="map-info-rating">${stars} ${details.rating}/5</div>`
+      );
+    }
+
+    // Contact info
+    parts.push(`<div class="map-info-content">`);
+
+    if (details.address) {
+      parts.push(`<p class="map-info-address">📍 ${details.address}</p>`);
+    }
+
+    if (details.phone) {
+      parts.push(
+        `<p class="map-info-phone">📞 <a href="tel:${details.phone}">${details.phone}</a></p>`
+      );
+    }
+
+    if (details.website) {
+      const displayUrl = details.website
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+      parts.push(
+        `<p class="map-info-website">🌐 <a href="${details.website}" target="_blank" rel="noopener">${displayUrl}</a></p>`
+      );
+    }
+
+    // Opening hours
+    if (details.hours) {
+      parts.push(`<details class="map-info-hours-details">`);
+      parts.push(`<summary>🕐 Opening Hours</summary>`);
+      parts.push(`<div class="map-info-hours">${details.hours}</div>`);
+      parts.push(`</details>`);
+    }
+
+    parts.push(`</div></div>`);
+    return parts.join('');
+  };
+
+  /**
+   * Create live map element
+   */
+  const createLiveMapElement = (config) => {
+    const container = createElement('div', {
+      classes: ['map-container', 'map-container--live'],
+      html: '<div class="map-loading">Loading map...</div>',
     });
 
-    // Create config object
+    // Initialize map asynchronously
+    if (typeof window !== 'undefined') {
+      initializeGoogleMap(container, config);
+    }
+
+    return container;
+  };
+
+  /**
+   * Render the map
+   */
+  const renderMap = (state) => {
+    injectMapStyles(mapStyles);
+
     const config = {
       apiKey: state.apiKey,
-      locationName: locationInfo.locationName,
-      latitude: locationInfo.latitude,
-      longitude: locationInfo.longitude,
-      options,
+      locationName: state.locationName || 'Location',
+      latitude: state.latitude || 48.1417262,
+      longitude: state.longitude || 11.5609816,
+      placeId: state.placeId,
+      shopInfo: state.shopInfo,
+      autoOpenInfo: state.autoOpenInfo !== false,
+      options: {
+        zoom: state.options?.zoom || 16,
+        mapType: state.options?.mapType || 'roadmap',
+      },
     };
 
-    // Create map element based on whether API key is provided
-    return config.apiKey
+    // Only use live map if we have a valid API key
+    return isValidApiKey(config.apiKey)
       ? createLiveMapElement(config)
       : createMockMapElement(config);
   };
 
-  // Create component using baseComponent
+  // Create base component
   const baseComponent = createBaseComponent(renderMap)(normalizedProps);
 
-  // Custom methods for Map component
-  const mapComponent = {
+  // Extended API
+  return {
     ...baseComponent,
 
-    /**
-     * Determines if component needs to fully re-render based on prop changes
-     * @param {Object} newProps - New properties
-     * @returns {boolean} Whether a full re-render is required
-     */
-    shouldRerender(newProps) {
-      // Always re-render if any of these critical props change
-      const normalizedNewProps = normalizeProps(newProps);
+    setGoogleMapsUrl(url) {
+      const updates = {};
 
-      const criticalProps = [
-        'latitude',
-        'longitude',
-        'locationName',
-        'storeId',
-        'apiKey',
-      ];
+      const placeId = extractPlaceId(url);
+      if (placeId) updates.placeId = placeId;
 
-      return Object.keys(normalizedNewProps).some((key) =>
-        criticalProps.includes(key)
-      );
+      const coords = extractCoordinates(url);
+      if (coords) {
+        updates.latitude = coords.latitude;
+        updates.longitude = coords.longitude;
+      }
+
+      const locationName = extractLocationName(url);
+      if (locationName) updates.locationName = locationName;
+
+      return this.update(updates);
     },
 
-    /**
-     * Override update to handle prop normalization
-     * @param {Object} newProps - New properties
-     * @returns {Object} Map component (for chaining)
-     */
-    update(newProps) {
-      const normalizedNewProps = normalizeProps(newProps);
-      return baseComponent.update.call(this, normalizedNewProps);
+    setPlaceId(placeId) {
+      return this.update({ placeId });
     },
 
-    /**
-     * Update map location
-     * @param {number} latitude - New latitude
-     * @param {number} longitude - New longitude
-     * @param {string} [locationName] - Location name
-     * @returns {Object} Map component (for chaining)
-     */
-    setLocation(latitude, longitude, locationName) {
-      if (typeof latitude !== 'number') {
-        throw new Error('latitude must be a number');
-      }
-
-      if (typeof longitude !== 'number') {
-        throw new Error('longitude must be a number');
-      }
-
-      if (locationName !== undefined && typeof locationName !== 'string') {
-        throw new Error('locationName must be a string');
-      }
-
-      return this.update({
-        latitude,
-        longitude,
-        locationName: locationName || `Lat: ${latitude}, Lng: ${longitude}`,
-      });
-    },
-
-    /**
-     * Set map zoom level
-     * @param {number} zoom - Zoom level (1-20)
-     * @returns {Object} Map component (for chaining)
-     */
-    setZoom(zoom) {
-      if (typeof zoom !== 'number') {
-        throw new Error('zoom must be a number');
-      }
-
-      if (zoom < 1 || zoom > 20) {
-        throw new Error('zoom must be between 1 and 20');
-      }
-
-      const newOptions = { ...(this.options || {}), zoom };
-      return this.update({ options: newOptions });
-    },
-
-    /**
-     * Set map type (roadmap, satellite, hybrid, terrain)
-     * @param {string} mapType - Map type
-     * @returns {Object} Map component (for chaining)
-     */
-    setMapType(mapType) {
-      const validTypes = ['roadmap', 'satellite', 'hybrid', 'terrain'];
-      if (!validTypes.includes(mapType)) {
-        throw new Error(
-          `Invalid map type. Must be one of: ${validTypes.join(', ')}`
-        );
-      }
-
-      const newOptions = { ...(this.options || {}), mapType };
-      return this.update({ options: newOptions });
-    },
-
-    /**
-     * Override destroy to clean up Google Maps instances
-     */
-    destroy() {
-      const element = this.getElement();
-
-      // Clean up map instance if it exists
-      if (element && element._mapInstance) {
-        // Google Maps doesn't have a destroy method, but we need to remove markers
-        if (element._markerInstance) {
-          element._markerInstance.setMap(null);
-          element._markerInstance = null;
-        }
-
-        element._mapInstance = null;
-      }
-
-      // Call base destroy method
-      baseComponent.destroy();
-    },
-
-    /**
-     * Handle theme changes
-     * @param {string} newTheme - New theme name
-     * @param {string} previousTheme - Previous theme name
-     */
-    onThemeChange(newTheme, previousTheme) {
-      console.debug(`Map: theme changed from ${previousTheme} to ${newTheme}`);
-      // Implement theme-specific adjustments if needed
+    setCoordinates(lat, lng) {
+      return this.update({ latitude: lat, longitude: lng });
     },
   };
-
-  return mapComponent;
 };
 
-// Define required props for validation
-createMap.requiredProps = [];
-
-// Export as a factory function
 export default createMap;

@@ -96,3 +96,5 @@ packages/*/src/utils/
 
 # Keep the index file
 !src/index.js
+
+*.config.js

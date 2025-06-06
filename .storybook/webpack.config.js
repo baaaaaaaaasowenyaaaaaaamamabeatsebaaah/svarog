@@ -70,6 +70,14 @@ export default (env, argv) => {
         template: './public/index.html',
         filename: 'index.html',
       }),
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+          GOOGLE_MAP_API_KEY: JSON.stringify(
+            process.env.GOOGLE_MAP_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'
+          ),
+        },
+      }),
     ],
     resolve: {
       extensions: ['.js'],
