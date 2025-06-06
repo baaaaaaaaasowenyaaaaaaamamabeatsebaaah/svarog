@@ -5,8 +5,7 @@ export const priceDisplayStyles = css`
   .price-display {
     display: flex;
     align-items: center;
-    padding: var(--space-4);
-    margin-top: var(--space-3);
+    padding: 0;
     background-color: var(--price-display-bg);
     border: 1px solid var(--price-display-border);
     border-radius: 0; /* Remove border radius */
@@ -21,7 +20,7 @@ export const priceDisplayStyles = css`
   }
 
   .price-display__value {
-    color: var(--price-display-color);
+    color: var(--color-text);
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-2xl);
     display: flex;
@@ -29,7 +28,8 @@ export const priceDisplayStyles = css`
   }
 
   /* Highlighted state */
-  .price-display--highlighted {
+  .price-display--highlighted .price-display__value {
+    color: var(--price-display-color);
   }
 
   /* Loading state */

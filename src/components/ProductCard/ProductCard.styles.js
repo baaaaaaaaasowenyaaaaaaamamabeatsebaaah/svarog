@@ -14,7 +14,22 @@ export const productCardStyles = css`
 
   /* Override card content padding */
   .product-card .card__content {
-    padding: var(--space-4, 16px);
+    padding: 0;
+  }
+
+  /* Product image using Image component */
+  .product-card__image {
+    width: 100%;
+    height: 200px;
+    margin-bottom: var(--space-3, 12px);
+  }
+
+  .product-card__image .image-element {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: var(--color-gray-50, #f9fafb);
+    padding: var(--space-2, 8px);
   }
 
   /* Content container */
@@ -25,10 +40,6 @@ export const productCardStyles = css`
   }
 
   /* Product specifications */
-  .product-card__data {
-    margin-bottom: var(--space-3, 12px);
-  }
-
   .product-card__specs {
     list-style-type: none;
     padding: 0;
@@ -39,10 +50,9 @@ export const productCardStyles = css`
   }
 
   .product-card__spec-item {
+    font-size: var(--font-size-xs, 12px);
     display: flex;
     justify-content: space-between;
-    padding-bottom: var(--space-1, 4px);
-    border-bottom: 1px solid var(--color-gray-100, #f8f9fa);
   }
 
   .product-card__spec-label {
@@ -59,28 +69,26 @@ export const productCardStyles = css`
   /* Actions section */
   .product-card__actions {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: var(--space-2, 8px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2, 8px);
   }
 
-  .product-card__price {
-    font-size: var(--font-size-xl, 1.25rem);
-    color: var(--color-primary, #0d6efd);
+  /* Price display integration */
+  .product-card__price-display {
+    align-self: end;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin-top: 0;
   }
 
-  /* Override card image styling */
-  .product-card .card__image {
-    height: 200px;
-    object-fit: contain;
-    background-color: var(--color-gray-50, #f9fafb);
-    padding: var(--space-2, 8px);
+  .product-card__price-display .price-display__label {
+    display: none; /* Hide label in product card context */
   }
 
-  /* Muchandy specific theme overrides */
-  .product-card.muchandy-theme {
-    --card-bg: var(--color-transparent, transparent);
-    --color-primary: var(--primary-color, #ff0000);
+  .product-card__price-display .price-display__value {
+    font-size: var(--font-size-4xl, 1.5rem);
   }
 
   /* Grid display for product cards */
@@ -105,7 +113,8 @@ export const productCardStyles = css`
       gap: var(--space-2, 8px);
     }
 
-    .product-card__price {
+    .product-card__price-display {
+      width: 100%;
       text-align: center;
       margin-bottom: var(--space-2, 8px);
     }

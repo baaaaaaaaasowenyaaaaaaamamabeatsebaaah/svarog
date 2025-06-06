@@ -4,11 +4,13 @@ The ProductCard component provides a customizable card for displaying product in
 
 ## Features
 
-✅ **Zero Configuration** - Just import and use, styles inject automatically  
-✅ **SSR Compatible** - Styles inject safely in browser only  
-✅ **Performance Optimized** - Styles are cached and deduped  
-✅ **Theme Aware** - Responds to theme changes automatically  
+✅ **Zero Configuration** - Just import and use, styles inject automatically
+✅ **SSR Compatible** - Styles inject safely in browser only
+✅ **Performance Optimized** - Styles are cached and deduped
+✅ **Theme Aware** - Responds to theme changes automatically
 ✅ **Accessible** - Semantic HTML with proper ARIA attributes
+✅ **Image Component Integration** - Uses the Image component for advanced image handling
+✅ **PriceDisplay Integration** - Professional price presentation with loading states
 
 ## Usage
 
@@ -35,17 +37,20 @@ document.body.appendChild(productCard.getElement());
 
 ## Props
 
-| Prop        | Type           | Default    | Description                               |
-| ----------- | -------------- | ---------- | ----------------------------------------- |
-| imageUrl    | string         | (Required) | URL to the product image                  |
-| title       | string         | (Required) | Product title                             |
-| productData | Object         | (Required) | Key-value pairs of product specifications |
-| price       | string\|number | (Required) | Product price                             |
-| currency    | string         | '€'        | Currency symbol                           |
-| buttonText  | string         | 'Reserve'  | Text for the reserve/buy button           |
-| onClick     | Function       | () => {}   | Callback function when button is clicked  |
-| onReserve   | Function       | -          | DEPRECATED: Use onClick instead           |
-| className   | string         | ''         | Additional CSS classes                    |
+| Prop             | Type           | Default    | Description                               |
+| ---------------- | -------------- | ---------- | ----------------------------------------- |
+| imageUrl         | string         | (Required) | URL to the product image                  |
+| fallbackImageUrl | string         | undefined  | Fallback image URL if primary fails       |
+| title            | string         | (Required) | Product title                             |
+| productData      | Object         | (Required) | Key-value pairs of product specifications |
+| price            | string\|number | (Required) | Product price                             |
+| currency         | string         | '€'        | Currency symbol                           |
+| buttonText       | string         | 'Reserve'  | Text for the reserve/buy button           |
+| onClick          | Function       | () => {}   | Callback function when button is clicked  |
+| onReserve        | Function       | -          | DEPRECATED: Use onClick instead           |
+| className        | string         | ''         | Additional CSS classes                    |
+| loading          | boolean        | false      | Whether price is loading                  |
+| priceHighlighted | boolean        | false      | Whether price should be highlighted       |
 
 ## Methods
 
@@ -71,10 +76,84 @@ productCard.update({
 
 ### destroy()
 
-Cleans up resources. Call when removing the product card.
+Cleans up resources including sub-components. Call when removing the product card.
 
 ```javascript
 productCard.destroy();
+```
+
+### setPriceLoading(isLoading)
+
+Sets the loading state for the price display.
+
+```javascript
+// Show loading spinner for price
+productCard.setPriceLoading(true);
+
+// Hide loading spinner
+productCard.setPriceLoading(false);
+```
+
+### setPrice(newPrice, isHighlighted)
+
+Updates the price value dynamically.
+
+```javascript
+// Update price
+productCard.setPrice('599.99');
+
+// Update price with highlight
+productCard.setPrice('499.99', true);
+```
+
+## Image Handling
+
+The ProductCard now uses the Image component internally, providing:
+
+- **Lazy Loading**: Native browser lazy loading support
+- **Fallback Support**: Graceful degradation if the primary image fails
+- **Responsive Images**: Automatic responsive behavior
+- **Alt Text**: Product title is used as alt text automatically
+
+### With Fallback Image
+
+```javascript
+const productCard = ProductCard({
+  imageUrl: 'https://example.com/phone.jpg',
+  fallbackImageUrl: 'https://example.com/placeholder.jpg',
+  title: 'iPhone 13 Pro',
+  productData: {
+    /* ... */
+  },
+  price: '699.99',
+});
+```
+
+## Price Display
+
+The ProductCard now uses the PriceDisplay component internally, providing:
+
+- **Loading States**: Show spinner while price loads
+- **Highlighting**: Emphasize special prices (sales, discounts)
+- **Error Handling**: Graceful error display
+- **Consistent Styling**: Matches other price displays in your app
+
+### Price States Example
+
+```javascript
+// Loading state
+const card = ProductCard({
+  // ... other props
+  price: 'Loading...',
+  loading: true,
+});
+
+// Highlighted price (e.g., sale)
+const saleCard = ProductCard({
+  // ... other props
+  price: '499.99',
+  priceHighlighted: true,
+});
 ```
 
 ## Theme Awareness
@@ -123,6 +202,19 @@ ProductCard styles can be customized using CSS variables. The component automati
 .product-card {
   /* Your custom styles here */
 }
+
+/* Custom image styling */
+.product-card__image .image-element {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Price display customization (via PriceDisplay component) */
+.product-card__price-display .price-display__value {
+  /* Custom price styling */
+  font-size: 1.5rem;
+  color: #0066cc;
+}
 ```
 
 ## Architecture
@@ -133,6 +225,7 @@ The ProductCard follows the CSS injection pattern for optimal compatibility:
 - **Performance Optimized**: Styles are cached and only injected once
 - **SSR Safe**: No issues in Node.js environments
 - **Zero Dependencies**: No separate CSS files to import
+- **Component Composition**: Uses Image, Card, Button, Typography, and PriceDisplay components
 
 ### File Structure
 
@@ -146,6 +239,16 @@ src/components/ProductCard/
 └── index.js                # Exports
 ```
 
+### Dependencies
+
+The ProductCard component internally uses:
+
+- **Card**: For the base card structure
+- **Image**: For product image display with fallback support
+- **Button**: For the reserve/buy action
+- **Typography**: For text elements
+- **PriceDisplay**: For price presentation with loading states
+
 ## Examples
 
 ### Basic Product Card
@@ -153,6 +256,22 @@ src/components/ProductCard/
 ```javascript
 const basicCard = ProductCard({
   imageUrl: 'https://example.com/phone.jpg',
+  title: 'iPhone 13 Pro',
+  productData: {
+    Storage: '128GB',
+    Color: 'Graphite',
+  },
+  price: '699.99',
+  onClick: () => console.log('Product reserved'),
+});
+```
+
+### With Fallback Image
+
+```javascript
+const cardWithFallback = ProductCard({
+  imageUrl: 'https://example.com/phone.jpg',
+  fallbackImageUrl: 'https://example.com/placeholder.jpg',
   title: 'iPhone 13 Pro',
   productData: {
     Storage: '128GB',
@@ -180,6 +299,29 @@ const customCard = ProductCard({
 });
 ```
 
+### With Loading Price
+
+```javascript
+const loadingCard = ProductCard({
+  imageUrl: 'https://example.com/phone.jpg',
+  title: 'iPhone 13 Pro',
+  productData: {
+    Storage: '128GB',
+    Color: 'Graphite',
+  },
+  price: 'Loading...',
+  loading: true, // Shows loading spinner for price
+  buttonText: 'Reserve',
+  onClick: () => console.log('Product reserved'),
+});
+
+// Later update the price
+setTimeout(() => {
+  loadingCard.setPriceLoading(false);
+  loadingCard.setPrice('699.99', true); // With highlight
+}, 2000);
+```
+
 ### Creating a Product Grid
 
 ```javascript
@@ -191,6 +333,7 @@ grid.className = 'product-grid';
 products.forEach((product) => {
   const card = ProductCard({
     imageUrl: product.image,
+    fallbackImageUrl: '/images/product-placeholder.jpg',
     title: product.name,
     productData: product.specs,
     price: product.price,
@@ -204,6 +347,41 @@ products.forEach((product) => {
 document.body.appendChild(grid);
 ```
 
+### Dynamic Price Updates
+
+```javascript
+const productCard = ProductCard({
+  imageUrl: 'https://example.com/phone.jpg',
+  title: 'iPhone 13 Pro',
+  productData: {
+    Storage: '128GB',
+    Color: 'Graphite',
+  },
+  price: '0.00',
+  loading: true,
+});
+
+document.body.appendChild(productCard.getElement());
+
+// Simulate fetching price from API
+async function fetchPrice() {
+  productCard.setPriceLoading(true);
+
+  try {
+    const response = await fetch('/api/products/price');
+    const data = await response.json();
+
+    productCard.setPriceLoading(false);
+    productCard.setPrice(data.price, data.isOnSale);
+  } catch (error) {
+    productCard.setPriceLoading(false);
+    productCard.setPrice('Error', false);
+  }
+}
+
+fetchPrice();
+```
+
 ### Working with Node.js/SSR
 
 The component works perfectly in Node.js environments:
@@ -214,6 +392,7 @@ import { ProductCard } from 'svarog-ui';
 
 // Component can be created and configured server-side
 const card = ProductCard({
+  imageUrl: 'https://example.com/phone.jpg',
   title: 'Server-side Product',
   productData: { Storage: '256GB' },
   price: '499.99',
@@ -223,6 +402,21 @@ const card = ProductCard({
 ```
 
 ## Migration Notes
+
+### v2.2.0 Updates
+
+- **PriceDisplay Integration**: ProductCard now uses the PriceDisplay component for prices
+- **New Props**: Added `loading` and `priceHighlighted` props
+- **New Methods**: Added `setPriceLoading()` and `setPrice()` for dynamic updates
+- **Better Loading States**: Price can show loading spinner while data fetches
+- **Consistent Styling**: Price display matches other price components in the system
+
+### v2.1.0 Updates
+
+- **Image Component Integration**: ProductCard now uses the Image component internally
+- **New Prop**: Added `fallbackImageUrl` for fallback image support
+- **Better Error Handling**: Images gracefully fall back when loading fails
+- **Improved Performance**: Leverages Image component's lazy loading
 
 ### v2.0.0 Breaking Changes
 
@@ -247,6 +441,8 @@ import ProductCard from './ProductCard.js'; // ✅ Styles inject automatically
 - **Subsequent Usage**: 0ms overhead (styles cached)
 - **Bundle Size**: No change (styles embedded as JS strings)
 - **Memory**: Minimal impact (one `<style>` tag per component type)
+- **Image Loading**: Lazy loading enabled through Image component
+- **Price Updates**: Efficient partial DOM updates through PriceDisplay
 
 ## Browser Support
 
@@ -265,6 +461,7 @@ The ProductCard component implements these accessibility features:
 - Appropriate text contrast ratios
 - Keyboard focusable elements
 - Screen reader friendly markup
+- Product images include alt text (uses product title)
 
 ## Development
 
@@ -290,4 +487,18 @@ Enable style injection debugging:
 // Check if styles were injected
 const styleElement = document.querySelector('[data-svarog="productcard"]');
 console.log('ProductCard styles injected:', !!styleElement);
+
+// Check if Image component is used
+const imageContainer = card.getElement().querySelector('.product-card__image');
+console.log('Image component present:', !!imageContainer);
+
+// Check if PriceDisplay component is used
+const priceDisplay = card
+  .getElement()
+  .querySelector('.product-card__price-display');
+console.log('PriceDisplay component present:', !!priceDisplay);
 ```
+
+---
+
+_This component is part of the Svarog UI library, providing enterprise-quality components to small and medium businesses._

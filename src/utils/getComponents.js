@@ -2220,10 +2220,24 @@ export const getComponents = () => {
             ),
         },
         {
-          name: 'MuchandyThemed',
+          name: 'WithLoadingPrice',
           module: () =>
             import('../components/ProductCard/ProductCard.stories.js').then(
-              (m) => m.MuchandyThemed
+              (m) => m.WithLoadingPrice
+            ),
+        },
+        {
+          name: 'WithHighlightedPrice',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithHighlightedPrice
+            ),
+        },
+        {
+          name: 'DynamicPriceLoading',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.DynamicPriceLoading
             ),
         },
         {
@@ -2231,6 +2245,13 @@ export const getComponents = () => {
           module: () =>
             import('../components/ProductCard/ProductCard.stories.js').then(
               (m) => m.WithMultipleSpecs
+            ),
+        },
+        {
+          name: 'WithLegacyOnReserve',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithLegacyOnReserve
             ),
         },
         {

@@ -34,8 +34,9 @@ describe('Hero', () => {
     const hero = Hero(defaultProps);
     const element = hero.getElement();
 
+    // Browser adds quotes around URLs automatically
     expect(element.style.backgroundImage).toBe(
-      `url(${defaultProps.backgroundImageUrl})`
+      `url("${defaultProps.backgroundImageUrl}")`
     );
     expect(element.classList.contains('hero--with-background')).toBe(true);
   });
@@ -114,7 +115,8 @@ describe('Hero', () => {
     hero.setBackgroundImage('new.jpg');
     const element = hero.getElement();
 
-    expect(element.style.backgroundImage).toBe('url(new.jpg)');
+    // Browser adds quotes around URLs
+    expect(element.style.backgroundImage).toBe('url("new.jpg")');
   });
 
   it('should update alignment with setAlignment method', () => {
@@ -166,7 +168,8 @@ describe('Hero', () => {
     });
     const element = hero.getElement();
 
-    expect(element.style.backgroundImage).toBe('url(legacy.jpg)');
+    // Browser adds quotes around URLs
+    expect(element.style.backgroundImage).toBe('url("legacy.jpg")');
   });
 
   it('should handle legacy prop ctaLink', () => {

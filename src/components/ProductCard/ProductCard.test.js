@@ -21,13 +21,33 @@ describe('ProductCard component', () => {
     expect(element.classList.contains('product-card')).toBe(true);
   });
 
-  it('should render the product image', () => {
+  it('should render the product image using Image component', () => {
     const productCard = ProductCard(defaultProps);
     const element = productCard.getElement();
-    const imageElement = element.querySelector('img');
+    const imageContainer = element.querySelector('.product-card__image');
 
+    expect(imageContainer).not.toBeNull();
+    expect(imageContainer.classList.contains('image-container')).toBe(true);
+
+    const imageElement = imageContainer.querySelector('.image-element');
     expect(imageElement).not.toBeNull();
     expect(imageElement.src).toContain(defaultProps.imageUrl);
+    expect(imageElement.alt).toBe(defaultProps.title);
+  });
+
+  it('should pass fallback image URL to Image component', () => {
+    const fallbackUrl = 'https://example.com/fallback.jpg';
+    const productCard = ProductCard({
+      ...defaultProps,
+      fallbackImageUrl: fallbackUrl,
+    });
+    const element = productCard.getElement();
+    const imageElement = element.querySelector('.image-element');
+
+    // Simulate image load error to test fallback
+    imageElement.onerror();
+
+    expect(imageElement.src).toContain(fallbackUrl);
   });
 
   it('should render the product title', () => {
@@ -52,16 +72,103 @@ describe('ProductCard component', () => {
     });
   });
 
-  it('should render the price with correct currency', () => {
+  it('should render the price using PriceDisplay component', () => {
     const productCard = ProductCard({
       ...defaultProps,
       currency: '$',
     });
     const element = productCard.getElement();
-    const priceElement = element.querySelector('.product-card__price');
+    const priceDisplay = element.querySelector('.product-card__price-display');
 
-    expect(priceElement).not.toBeNull();
-    expect(priceElement.textContent).toBe('$299.99');
+    expect(priceDisplay).not.toBeNull();
+    expect(priceDisplay.classList.contains('price-display')).toBe(true);
+
+    const priceValue = priceDisplay.querySelector('.price-display__value');
+    expect(priceValue.textContent).toBe('$299.99');
+  });
+
+  it('should render price with loading state', () => {
+    const productCard = ProductCard({
+      ...defaultProps,
+      loading: true,
+    });
+    const element = productCard.getElement();
+    const priceDisplay = element.querySelector('.product-card__price-display');
+
+    expect(priceDisplay.classList.contains('price-display--loading')).toBe(
+      true
+    );
+
+    const loadingIndicator = priceDisplay.querySelector(
+      '.price-display__loading-indicator'
+    );
+    expect(loadingIndicator).not.toBeNull();
+  });
+
+  it('should render price with highlighted state', () => {
+    const productCard = ProductCard({
+      ...defaultProps,
+      priceHighlighted: true,
+    });
+    const element = productCard.getElement();
+    const priceDisplay = element.querySelector('.product-card__price-display');
+
+    expect(priceDisplay.classList.contains('price-display--highlighted')).toBe(
+      true
+    );
+  });
+
+  it('should disable button when loading', () => {
+    const productCard = ProductCard({
+      ...defaultProps,
+      loading: true,
+    });
+    const element = productCard.getElement();
+    const button = element.querySelector('button');
+
+    expect(button.disabled).toBe(true);
+  });
+
+  it('should update price loading state with setPriceLoading', () => {
+    const productCard = ProductCard(defaultProps);
+    const element = productCard.getElement();
+    const priceDisplay = element.querySelector('.product-card__price-display');
+
+    // Initially not loading
+    expect(priceDisplay.classList.contains('price-display--loading')).toBe(
+      false
+    );
+
+    // Set loading
+    productCard.setPriceLoading(true);
+    expect(priceDisplay.classList.contains('price-display--loading')).toBe(
+      true
+    );
+
+    // Unset loading
+    productCard.setPriceLoading(false);
+    expect(priceDisplay.classList.contains('price-display--loading')).toBe(
+      false
+    );
+  });
+
+  it('should update price value with setPrice', () => {
+    const productCard = ProductCard({
+      ...defaultProps,
+      currency: '$',
+    });
+    const element = productCard.getElement();
+
+    // Update price
+    productCard.setPrice('399.99', true);
+
+    const priceValue = element.querySelector('.price-display__value');
+    expect(priceValue.textContent).toBe('$399.99');
+
+    const priceDisplay = element.querySelector('.product-card__price-display');
+    expect(priceDisplay.classList.contains('price-display--highlighted')).toBe(
+      true
+    );
   });
 
   it('should render the reserve button with custom text', () => {

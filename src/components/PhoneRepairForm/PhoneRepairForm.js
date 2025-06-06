@@ -245,6 +245,7 @@ const renderPhoneRepairForm = (state) => {
     isPlaceholder: !state.currentPrice,
     isLoading: state.loadingStates.price,
     isError: !!state.error.price,
+    isHighlighted: true,
   });
   form.appendChild(components.priceDisplay.getElement());
 

@@ -64,7 +64,8 @@ describe('MuchandyHero', () => {
       });
       const element = hero.getElement();
 
-      expect(element.style.backgroundImage).toBe('url(test-image.jpg)');
+      // Browser adds quotes around URLs
+      expect(element.style.backgroundImage).toBe('url("test-image.jpg")');
     });
 
     it('should handle legacy backgroundImage prop for backward compatibility', () => {
@@ -78,7 +79,8 @@ describe('MuchandyHero', () => {
       });
       const element = hero.getElement();
 
-      expect(element.style.backgroundImage).toBe('url(legacy-image.jpg)');
+      // Browser adds quotes around URLs
+      expect(element.style.backgroundImage).toBe('url("legacy-image.jpg")');
       expect(console.warn).toHaveBeenCalledWith(
         'MuchandyHero: "backgroundImage" prop is deprecated, use "backgroundImageUrl" instead'
       );
@@ -238,7 +240,8 @@ describe('MuchandyHero', () => {
 
       // Verify the method works via the new method
       const element = hero.getElement();
-      expect(element.style.backgroundImage).toBe('url(test-image.jpg)');
+      // Browser adds quotes around URLs
+      expect(element.style.backgroundImage).toBe('url("test-image.jpg")');
 
       // Restore console.warn
       console.warn = originalWarn;
@@ -271,7 +274,8 @@ describe('MuchandyHero', () => {
 
       hero.setBackgroundImageUrl('new-image.jpg');
 
-      expect(element.style.backgroundImage).toBe('url(new-image.jpg)');
+      // Browser adds quotes around URLs
+      expect(element.style.backgroundImage).toBe('url("new-image.jpg")');
     });
 
     it('should perform partial title updates', () => {
@@ -326,7 +330,8 @@ describe('MuchandyHero', () => {
       );
 
       // Check that element was updated correctly
-      expect(element.style.backgroundImage).toBe('url(legacy-update.jpg)');
+      // Browser adds quotes around URLs
+      expect(element.style.backgroundImage).toBe('url("legacy-update.jpg")');
 
       // Restore console.warn
       console.warn = originalWarn;

@@ -10,9 +10,31 @@ import { productCardStyles } from './ProductCard.styles.js';
 import Card from '../Card/Card.js';
 import Button from '../Button/Button.js';
 import Typography from '../Typography/Typography.js';
+import Image from '../Image/Image.js';
+import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
 
 // Create style injector for ProductCard component
 const injectProductCardStyles = createStyleInjector('ProductCard');
+
+/**
+ * Creates the product image element
+ * @private
+ * @param {string} imageUrl - Product image URL
+ * @param {string} title - Product title for alt text
+ * @param {string} [fallbackImageUrl] - Fallback image URL
+ * @returns {HTMLElement} The image element
+ */
+const createProductImageElement = (imageUrl, title, fallbackImageUrl) => {
+  const imageComponent = Image({
+    imageUrl,
+    alt: title,
+    fallbackImageUrl,
+    className: 'product-card__image',
+    responsive: true,
+  });
+
+  return imageComponent.getElement();
+};
 
 /**
  * Creates the product specifications section
@@ -61,30 +83,47 @@ const createProductDataElement = (productData) => {
  * @param {string} currency - Currency symbol
  * @param {string} buttonText - Text for the reserve button
  * @param {Function} onClick - Callback function when reserve button is clicked
- * @returns {HTMLElement} The actions element
+ * @param {boolean} loading - Whether price is loading
+ * @param {boolean} priceHighlighted - Whether price should be highlighted
+ * @returns {Object} The actions element and component references
  */
-const createActionsElement = (price, currency, buttonText, onClick) => {
+const createActionsElement = (
+  price,
+  currency,
+  buttonText,
+  onClick,
+  loading,
+  priceHighlighted
+) => {
   const container = createElement('div', {
     classes: 'product-card__actions',
   });
 
-  const priceElement = Typography({
-    children: `${currency}${price}`,
-    className: 'product-card__price',
-    weight: 'bold',
-    as: 'div',
-  }).getElement();
+  const priceComponent = PriceDisplay({
+    label: '', // No label for product card prices
+    value: `${currency}${price}`,
+    loading,
+    isHighlighted: priceHighlighted,
+    className: 'product-card__price-display',
+  });
+
+  const priceElement = priceComponent.getElement();
 
   const reserveButton = Button({
     text: buttonText,
     onClick,
-    variant: 'primary',
+    variant: 'default',
     className: 'product-card__reserve-button',
+    disabled: loading,
   }).getElement();
 
   container.appendChild(priceElement);
   container.appendChild(reserveButton);
-  return container;
+
+  return {
+    element: container,
+    priceComponent,
+  };
 };
 
 /**
@@ -109,6 +148,7 @@ const migrateLegacyProps = (props) => {
  * Creates a ProductCard component
  * @param {Object} props - ProductCard properties
  * @param {string} props.imageUrl - URL to the product image
+ * @param {string} [props.fallbackImageUrl] - Fallback image URL if primary fails
  * @param {string} props.title - Product title
  * @param {Object} props.productData - Product specifications
  * @param {string|number} props.price - Product price
@@ -117,6 +157,8 @@ const migrateLegacyProps = (props) => {
  * @param {Function} [props.onClick] - Callback function when reserve button is clicked
  * @param {Function} [props.onReserve] - DEPRECATED: Use onClick instead
  * @param {string} [props.className=''] - Additional CSS class names
+ * @param {boolean} [props.loading=false] - Whether price is loading
+ * @param {boolean} [props.priceHighlighted=false] - Whether price should be highlighted
  * @returns {Object} ProductCard component API
  */
 const createProductCard = (props) => {
@@ -136,6 +178,7 @@ const createProductCard = (props) => {
   // Extract props with defaults
   const {
     imageUrl,
+    fallbackImageUrl,
     title,
     productData,
     price,
@@ -143,12 +186,21 @@ const createProductCard = (props) => {
     buttonText = 'Reserve',
     onClick = () => {},
     className = '',
+    loading = false,
+    priceHighlighted = false,
   } = normalizedProps;
 
   const classNames = ['product-card'];
   if (className) {
     classNames.push(className);
   }
+
+  // Create the product image using Image component
+  const imageElement = createProductImageElement(
+    imageUrl,
+    title,
+    fallbackImageUrl
+  );
 
   // Create content container for product data and actions
   const contentContainer = createElement('div', {
@@ -158,24 +210,35 @@ const createProductCard = (props) => {
   const productDataElement = createProductDataElement(productData);
   contentContainer.appendChild(productDataElement);
 
-  const actionsElement = createActionsElement(
+  const { element: actionsElement, priceComponent } = createActionsElement(
     price,
     currency,
     buttonText,
-    onClick
+    onClick,
+    loading,
+    priceHighlighted
   );
   contentContainer.appendChild(actionsElement);
 
-  // Create the card using the base Card component
+  // Create the card using the base Card component without image
   const card = Card({
     title,
-    image: imageUrl,
     children: contentContainer,
     className: classNames.join(' '),
   });
 
+  // Get the card element and add the image
+  const cardElement = card.getElement();
+
+  // Insert image before the title
+  const titleElement = cardElement.querySelector('.card__title');
+  if (titleElement && titleElement.parentNode) {
+    titleElement.parentNode.insertBefore(imageElement, titleElement);
+  }
+
   const components = {
     card,
+    priceComponent,
   };
 
   return {
@@ -184,7 +247,7 @@ const createProductCard = (props) => {
      * @returns {HTMLElement} The product card element
      */
     getElement() {
-      return components.card.getElement();
+      return cardElement;
     },
 
     /**
@@ -198,9 +261,11 @@ const createProductCard = (props) => {
         ...newProps,
       });
 
-      const element = this.getElement();
-      if (element.parentNode) {
-        element.parentNode.replaceChild(updatedComponent.getElement(), element);
+      if (cardElement.parentNode) {
+        cardElement.parentNode.replaceChild(
+          updatedComponent.getElement(),
+          cardElement
+        );
       }
 
       return updatedComponent;
@@ -213,6 +278,37 @@ const createProductCard = (props) => {
       if (components.card) {
         components.card.destroy();
       }
+      if (components.priceComponent) {
+        components.priceComponent.destroy();
+      }
+    },
+
+    /**
+     * Set price loading state
+     * @param {boolean} isLoading - Whether price is loading
+     * @returns {Object} Component for chaining
+     */
+    setPriceLoading(isLoading) {
+      if (components.priceComponent) {
+        components.priceComponent.setLoading(isLoading);
+      }
+      return this;
+    },
+
+    /**
+     * Update price value
+     * @param {string|number} newPrice - New price value
+     * @param {boolean} [isHighlighted=false] - Whether to highlight the price
+     * @returns {Object} Component for chaining
+     */
+    setPrice(newPrice, isHighlighted = false) {
+      if (components.priceComponent) {
+        components.priceComponent.setValue(
+          `${currency}${newPrice}`,
+          isHighlighted
+        );
+      }
+      return this;
     },
 
     /**
