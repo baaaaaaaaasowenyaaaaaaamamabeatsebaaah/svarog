@@ -1517,59 +1517,59 @@ export const getComponents = () => {
       category: 'Media',
       stories: [
         {
-          name: 'MuchandyShopMunich', // 🆕 Google Places integration example
+          name: 'MuchandyShopModern', // 🆕 Google Places integration example
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.MuchandyShopMunich
+              (m) => m.MuchandyShopModern
             ),
         },
         {
-          name: 'MuchandyShopMockView', // 🆕 Mock view without API key
+          name: 'MockPreviewMode', // 🆕 Mock view without API key
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.MuchandyShopMockView
+              (m) => m.MockPreviewMode
             ),
         },
         {
-          name: 'MuchandyLuisenstrasse', // 🆕 Using Place ID directly
+          name: 'ModernPlacesAPI', // 🆕 Using Place ID directly
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.MuchandyLuisenstrasse
+              (m) => m.ModernPlacesAPI
             ),
         },
         {
-          name: 'MunichElectronicsStores', // 🆕 Another shop example
+          name: 'ModernElectronicsStores', // 🆕 Another shop example
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.MunichElectronicsStores
+              (m) => m.ModernElectronicsStores
             ),
         },
         {
-          name: 'DynamicShopUpdate', // 🆕 Dynamic URL loading
+          name: 'ModernDynamicUpdates', // 🆕 Dynamic URL loading
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.DynamicShopUpdate
+              (m) => m.ModernDynamicUpdates
             ),
         },
         {
-          name: 'ShopSelector', // 🆕 Multiple shops selector
+          name: 'ModernURLParsing', // 🆕 Multiple shops selector
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.ShopSelector
+              (m) => m.ModernURLParsing
             ),
         },
         {
-          name: 'SimpleCoordinates', // 🆕 Simple coordinates example
+          name: 'ModernSetupGuide', // 🆕 Simple coordinates example
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.SimpleCoordinates
+              (m) => m.ModernSetupGuide
             ),
         },
         {
-          name: 'ConfigurationExample', // 🆕 API configuration guide
+          name: 'PerformanceShowcase', // 🆕 API configuration guide
           module: () =>
             import('../components/Map/Map.stories.js').then(
-              (m) => m.ConfigurationExample
+              (m) => m.PerformanceShowcase
             ),
         },
       ],
@@ -2283,6 +2283,68 @@ export const getComponents = () => {
             import('../components/ProductCard/ProductCard.stories.js').then(
               (m) => m.ProductGrid
             ),
+        },
+      ],
+    },
+    {
+      name: 'ContactSection',
+      category: 'Contact',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.Default),
+        },
+        {
+          name: 'WithGoogleMaps',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.WithGoogleMaps),
+        },
+        {
+          name: 'MapOnRight',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.MapOnRight),
+        },
+        {
+          name: 'WithCustomFields',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.WithCustomFields),
+        },
+        {
+          name: 'WithMinorVariant',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.WithMinorVariant),
+        },
+        {
+          name: 'MobileReversedLayout',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.MobileReversedLayout),
+        },
+        {
+          name: 'MinimalConfiguration',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.MinimalConfiguration),
+        },
+        {
+          name: 'WithCallbacks',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.WithCallbacks),
         },
       ],
     },

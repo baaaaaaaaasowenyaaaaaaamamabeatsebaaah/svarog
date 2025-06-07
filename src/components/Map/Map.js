@@ -1,4 +1,4 @@
-// src/components/Map/Map.js
+// src/components/Map/Map.js - Modern Google Maps API 2025
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import { createStyleInjector } from '../../utils/styleInjection.js';
@@ -15,73 +15,83 @@ const INVALID_KEYS = [
 ];
 const DEFAULT_COORDS = { lat: 48.1417262, lng: 11.5609816 };
 const DEFAULT_ZOOM = 16;
+const SCRIPT_LOAD_TIMEOUT = 15000;
 
 /**
- * Creates a Map component with Google Maps integration
+ * Creates a modern Map component with Google Maps API 2025
  * @param {Object} props - Map properties
+ * @param {string} [props.apiKey] - Google Maps API key
+ * @param {number} [props.latitude] - Map center latitude
+ * @param {number} [props.longitude] - Map center longitude
+ * @param {string} [props.title] - Location title (Svarog standard)
+ * @param {string} [props.placeId] - Google Places ID
+ * @param {string} [props.googleMapsUrl] - Google Maps URL to parse
+ * @param {Object} [props.shopInfo] - Business information
+ * @param {boolean} [props.autoOpenInfo=true] - Auto-open info window
+ * @param {Object} [props.options] - Map configuration
+ * @param {Function} [props.onMapLoad] - Map load callback
+ * @param {Function} [props.onError] - Error callback
  * @returns {Object} Map component
  */
 const createMap = (props = {}) => {
-  // Utilities
+  // Validation utilities
   const isValidApiKey = (key) =>
     key &&
     typeof key === 'string' &&
     key.length > 10 &&
     !INVALID_KEYS.includes(key);
 
-  const isGoogleMapsLoaded = () =>
-    typeof window !== 'undefined' && window.google?.maps;
-
   const parseCoordinate = (value, defaultValue) => {
     const parsed = parseFloat(value);
     return isNaN(parsed) ? defaultValue : parsed;
   };
 
-  const extractFromUrl = (url, patterns) => {
-    if (!url) return null;
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) return match[1];
-    }
-    return null;
-  };
-
+  // URL parsing utilities
   const extractPlaceId = (url) => {
-    const placeId = extractFromUrl(url, [
+    if (!url) return null;
+    const patterns = [
       /place_id=([A-Za-z0-9_-]+)/,
       /data=[^/]*!1s([A-Za-z0-9_-]+)/,
       /place\/[^/]+\/[^/]+\/[^/]+\/[^/]+!1s([^!]+)/,
       /ftid=([^&]+)/,
-    ]);
+    ];
 
-    if (placeId?.includes(':')) {
-      console.warn(
-        '[Map] Old place ID format detected. Place details may not load.'
-      );
-      return null;
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) {
+        const placeId = match[1];
+        if (placeId.includes(':')) {
+          console.warn('[Map] Old place ID format detected and ignored');
+          return null;
+        }
+        return placeId;
+      }
     }
-    return placeId;
+    return null;
   };
 
   const extractCoordinates = (url) => {
-    const match = url?.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (!url) return null;
+    const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
     return match
       ? { latitude: parseFloat(match[1]), longitude: parseFloat(match[2]) }
       : null;
   };
 
   const extractLocationName = (url) => {
-    const match = url?.match(/place\/([^/@]+)/);
+    if (!url) return null;
+    const match = url.match(/place\/([^/@]+)/);
     return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : null;
   };
 
-  // Normalize props
+  // Props normalization
   const normalizeProps = (inputProps) => {
     const normalized = { ...inputProps };
 
     if (!isValidApiKey(normalized.apiKey)) {
-      normalized.apiKey &&
-        console.warn('[Map] Invalid API key detected. Using mock mode.');
+      if (normalized.apiKey) {
+        console.warn('[Map] Invalid API key provided. Using mock mode.');
+      }
       delete normalized.apiKey;
     }
 
@@ -92,11 +102,9 @@ const createMap = (props = {}) => {
 
       if (placeId) normalized.placeId = placeId;
       if (coords) Object.assign(normalized, coords);
-      if (locationName && !normalized.locationName)
-        normalized.locationName = locationName;
+      if (locationName && !normalized.title) normalized.title = locationName;
     }
 
-    // Validate coordinates
     normalized.latitude = parseCoordinate(
       normalized.latitude,
       DEFAULT_COORDS.lat
@@ -114,228 +122,348 @@ const createMap = (props = {}) => {
   /**
    * Create info window content
    */
-  const createInfoContent = (type, data) => {
-    const templates = {
-      basic: (config) => `
-        <div class="map-info-window">
-          ${config.locationName || config.shopInfo?.name ? `<h3>${config.shopInfo?.name || config.locationName}</h3>` : ''}
-          ${
-            config.shopInfo
-              ? Object.entries({
-                  address: '📍',
-                  phone: '📞',
-                  website: '🌐',
-                  hours: '🕐',
-                })
-                  .map(([key, icon]) =>
-                    config.shopInfo[key]
-                      ? `<p>${icon} ${
-                          key === 'website'
-                            ? `<a href="${config.shopInfo[key]}" target="_blank">Website</a>`
-                            : config.shopInfo[key]
-                        }</p>`
-                      : ''
-                  )
-                  .join('')
-              : ''
-          }
-        </div>`,
-
-      places: (details) => `
-        <div class="map-info-window map-info-window--places">
-          <div class="map-info-header">
-            ${details.name ? `<h3 class="map-info-title">${details.name}</h3>` : ''}
-            ${
-              details.openNow !== undefined
-                ? `<span class="map-info-status map-info-status--${details.openNow ? 'open' : 'closed'}">
-                ${details.openNow ? 'Open' : 'Closed'}</span>`
-                : ''
-            }
-          </div>
-          ${details.rating ? `<div class="map-info-rating">${'⭐'.repeat(Math.round(details.rating))} ${details.rating}/5</div>` : ''}
-          <div class="map-info-content">
-            ${details.address ? `<p class="map-info-address">📍 ${details.address}</p>` : ''}
-            ${details.phone ? `<p class="map-info-phone">📞 <a href="tel:${details.phone}">${details.phone}</a></p>` : ''}
-            ${
-              details.website
-                ? `<p class="map-info-website">🌐 <a href="${details.website}" target="_blank" rel="noopener">
-              ${details.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></p>`
-                : ''
-            }
-            ${
-              details.hours
-                ? `
-              <details class="map-info-hours-details">
-                <summary>🕐 Opening Hours</summary>
-                <div class="map-info-hours">${details.hours}</div>
-              </details>`
-                : ''
-            }
-          </div>
-        </div>`,
-    };
-
-    return templates[type](data);
+  const createInfoContent = (data) => {
+    if (data.name || data.address || data.phone) {
+      // Places API data
+      return `
+        <div style="font-family: Arial, sans-serif; max-width: 300px;">
+          ${data.name ? `<h3 style="margin: 0 0 8px 0; font-size: 16px;">${data.name}</h3>` : ''}
+          ${data.address ? `<p style="margin: 4px 0; font-size: 14px;">📍 ${data.address}</p>` : ''}
+          ${data.phone ? `<p style="margin: 4px 0; font-size: 14px;">📞 ${data.phone}</p>` : ''}
+          ${data.website ? `<p style="margin: 4px 0; font-size: 14px;">🌐 <a href="${data.website}" target="_blank">Website</a></p>` : ''}
+          ${data.rating ? `<p style="margin: 4px 0; font-size: 14px;">⭐ ${data.rating}/5</p>` : ''}
+        </div>
+      `;
+    } else {
+      // Basic data
+      return `
+        <div style="font-family: Arial, sans-serif; max-width: 300px;">
+          ${data.title ? `<h3 style="margin: 0 0 8px 0; font-size: 16px;">${data.title}</h3>` : ''}
+          ${data.shopInfo?.address ? `<p style="margin: 4px 0; font-size: 14px;">📍 ${data.shopInfo.address}</p>` : ''}
+          ${data.shopInfo?.phone ? `<p style="margin: 4px 0; font-size: 14px;">📞 ${data.shopInfo.phone}</p>` : ''}
+          ${data.shopInfo?.hours ? `<p style="margin: 4px 0; font-size: 14px;">🕐 ${data.shopInfo.hours}</p>` : ''}
+        </div>
+      `;
+    }
   };
 
   /**
    * Create mock map element
    */
   const createMockMapElement = (config) => {
-    const content = `
-      <div class="map-mock-background"></div>
-      <div class="map-mock-overlay">
-        <div class="map-mock-pin">📍</div>
-        <div class="map-mock-details">
-          <h3>${config.locationName || 'Location'}</h3>
-          <p class="map-coords">
-            Latitude: ${config.latitude.toFixed(6)}<br>
-            Longitude: ${config.longitude.toFixed(6)}
-          </p>
-          ${config.placeId ? `<p class="map-place-info"><small>Place ID: ${config.placeId}</small></p>` : ''}
-          ${
-            config.shopInfo
-              ? Object.entries({ address: '📍', phone: '📞', hours: '🕐' })
-                  .map(([key, icon]) =>
-                    config.shopInfo[key]
-                      ? `<p>${icon} ${config.shopInfo[key]}</p>`
-                      : ''
-                  )
-                  .join('')
-              : ''
-          }
-          <div class="map-mock-notice">
-            <p>📍 Map Preview Mode</p>
-            <small>Add a Google Maps API key to see interactive map</small>
-          </div>
-        </div>
-      </div>`;
-
-    return createElement('div', {
-      classes: ['map-container', 'map-container--mock'],
-      html: content,
+    const container = createElement('div', {
+      className: 'map-container map-container--mock',
     });
+
+    container.innerHTML = `
+      <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 8px; max-width: 400px;">
+        <div style="font-size: 32px; margin-bottom: 16px;">📍</div>
+        <h3 style="margin: 0 0 12px 0;">${config.title || 'Location'}</h3>
+        <p style="margin: 4px 0; color: #666; font-size: 12px;">
+          Lat: ${config.latitude.toFixed(6)}<br>
+          Lng: ${config.longitude.toFixed(6)}
+        </p>
+        ${config.placeId ? `<p style="margin: 4px 0; color: #666; font-size: 10px; font-family: monospace; word-break: break-all;">Place ID: ${config.placeId}</p>` : ''}
+        ${config.shopInfo?.address ? `<p style="margin: 8px 0;">📍 ${config.shopInfo.address}</p>` : ''}
+        ${config.shopInfo?.phone ? `<p style="margin: 4px 0;">📞 ${config.shopInfo.phone}</p>` : ''}
+        ${config.shopInfo?.hours ? `<p style="margin: 4px 0;">🕐 ${config.shopInfo.hours}</p>` : ''}
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #999;">
+          <p style="margin: 0;">📍 Map Preview Mode</p>
+          <small>Add Google Maps API key for interactive map</small>
+        </div>
+      </div>
+    `;
+
+    return container;
   };
 
   /**
-   * Load Google Maps script
+   * Load Google Maps with modern async loading
    */
-  const loadGoogleMapsScript = async (apiKey) => {
-    if (typeof window === 'undefined')
-      throw new Error('Google Maps requires a browser environment');
-    if (isGoogleMapsLoaded()) return;
-
-    const existingScript = document.querySelector('#google-maps-script');
-    if (existingScript) {
-      return new Promise((resolve, reject) => {
-        existingScript.addEventListener('load', resolve);
-        existingScript.addEventListener('error', reject);
-      });
-    }
-
+  const loadGoogleMapsAsync = (apiKey) => {
     return new Promise((resolve, reject) => {
+      // Check if already loaded
+      if (
+        window.google?.maps?.Map &&
+        window.google?.maps?.marker?.AdvancedMarkerElement
+      ) {
+        resolve();
+        return;
+      }
+
+      // Check for existing script
+      const existingScript = document.querySelector('#google-maps-script');
+      if (existingScript) {
+        const pollForReady = () => {
+          if (
+            window.google?.maps?.Map &&
+            window.google?.maps?.marker?.AdvancedMarkerElement
+          ) {
+            resolve();
+          } else {
+            setTimeout(pollForReady, 100);
+          }
+        };
+        pollForReady();
+        return;
+      }
+
+      // Create unique callback name
+      const callbackName = `initGoogleMaps_${Date.now()}`;
+
+      // Set up global callback
+      window[callbackName] = () => {
+        delete window[callbackName];
+        resolve();
+      };
+
+      // Create script with modern loading
       const script = createElement('script', {
         attributes: {
           id: 'google-maps-script',
-          src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`,
+          src: `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&callback=${callbackName}&loading=async`,
           async: true,
           defer: true,
         },
       });
 
-      script.addEventListener('load', resolve);
-      script.addEventListener('error', () =>
-        reject(new Error('Failed to load Google Maps'))
-      );
+      script.addEventListener('error', () => {
+        delete window[callbackName];
+        reject(new Error('Failed to load Google Maps'));
+      });
+
+      // Timeout protection
+      setTimeout(() => {
+        if (window[callbackName]) {
+          delete window[callbackName];
+          reject(new Error('Google Maps loading timeout'));
+        }
+      }, SCRIPT_LOAD_TIMEOUT);
+
       document.head.appendChild(script);
     });
   };
 
   /**
-   * Initialize Google Map
+   * Create modern AdvancedMarkerElement
    */
-  const initializeGoogleMap = async (container, config) => {
+  const createAdvancedMarker = (map, position, title) => {
+    const { maps } = window.google;
+
+    // Use modern AdvancedMarkerElement
+    if (maps.marker?.AdvancedMarkerElement) {
+      return new maps.marker.AdvancedMarkerElement({
+        map,
+        position,
+        title,
+      });
+    }
+
+    // Fallback to legacy Marker (shouldn't happen with modern loading)
+    console.warn(
+      '[Map] AdvancedMarkerElement not available, using legacy Marker'
+    );
+    return new maps.Marker({
+      map,
+      position,
+      title,
+    });
+  };
+
+  /**
+   * Fetch place details using modern Places API
+   */
+  const fetchPlaceDetails = async (placeId, map) => {
+    const { maps } = window.google;
+
+    // Try modern Place class first
+    if (maps.places?.Place) {
+      try {
+        const place = new maps.places.Place({
+          id: placeId,
+          requestedLanguage: 'en',
+        });
+
+        await place.fetchFields({
+          fields: [
+            'displayName',
+            'formattedAddress',
+            'location',
+            'rating',
+            'nationalPhoneNumber',
+            'websiteURI',
+          ],
+        });
+
+        return {
+          name: place.displayName,
+          address: place.formattedAddress,
+          phone: place.nationalPhoneNumber,
+          website: place.websiteURI?.toString(),
+          rating: place.rating,
+          location: place.location,
+        };
+      } catch (error) {
+        console.warn('[Map] Modern Places API failed:', error);
+      }
+    }
+
+    // Fallback to legacy PlacesService
+    return new Promise((resolve) => {
+      if (!maps.places?.PlacesService) {
+        console.warn('[Map] Places API not available');
+        resolve(null);
+        return;
+      }
+
+      console.warn(
+        '[Map] Using legacy PlacesService - consider upgrading API version'
+      );
+      const service = new maps.places.PlacesService(map);
+
+      service.getDetails(
+        {
+          placeId,
+          fields: [
+            'name',
+            'formatted_address',
+            'geometry',
+            'rating',
+            'formatted_phone_number',
+            'website',
+          ],
+        },
+        (place, status) => {
+          if (status === maps.places.PlacesServiceStatus.OK && place) {
+            resolve({
+              name: place.name,
+              address: place.formatted_address,
+              phone: place.formatted_phone_number,
+              website: place.website,
+              rating: place.rating,
+              location: place.geometry?.location,
+            });
+          } else {
+            resolve(null);
+          }
+        }
+      );
+    });
+  };
+
+  /**
+   * Initialize modern Google Map
+   */
+  const initializeModernMap = async (container, config) => {
     try {
-      await loadGoogleMapsScript(config.apiKey);
-      if (!isGoogleMapsLoaded()) throw new Error('Google Maps failed to load');
+      await loadGoogleMapsAsync(config.apiKey);
 
       const { maps } = window.google;
       const position = { lat: config.latitude, lng: config.longitude };
 
+      // Clear loading content
+      container.innerHTML = '';
+
+      // Create map with mapId for AdvancedMarkerElement
       const map = new maps.Map(container, {
         center: position,
-        zoom: config.options.zoom,
-        mapTypeId: config.options.mapType,
+        zoom: config.options.zoom || DEFAULT_ZOOM,
+        mapTypeId: config.options.mapType || 'roadmap',
+        mapId: 'svarog-map-modern', // Required for AdvancedMarkerElement
       });
 
-      const marker = new maps.Marker({
-        position,
+      // Create modern marker
+      const marker = createAdvancedMarker(
         map,
-        title: config.locationName,
-      });
+        position,
+        config.title || 'Location'
+      );
 
+      // Store references
       container._mapInstance = map;
       container._markerInstance = marker;
 
-      // Setup info window
-      const setupInfoWindow = (content) => {
-        const infoWindow = new maps.InfoWindow({ content, maxWidth: 400 });
-        if (config.autoOpenInfo) infoWindow.open(map, marker);
-        marker.addListener('click', () => infoWindow.open(map, marker));
-      };
+      // Setup info window with modern event handling
+      await setupModernInfoWindow(map, marker, config);
 
-      // Basic info window
-      if (config.shopInfo || config.locationName) {
-        setupInfoWindow(createInfoContent('basic', config));
-      }
-
-      // Try to get place details
-      if (config.placeId && !config.placeId.includes(':')) {
-        try {
-          const service = new maps.places.PlacesService(map);
-          service.getDetails(
-            {
-              placeId: config.placeId,
-              fields: [
-                'name',
-                'formatted_address',
-                'geometry',
-                'rating',
-                'opening_hours',
-                'formatted_phone_number',
-                'website',
-              ],
-            },
-            (place, status) => {
-              if (status === maps.places.PlacesServiceStatus.OK && place) {
-                if (place.geometry?.location) {
-                  marker.setPosition(place.geometry.location);
-                  map.setCenter(place.geometry.location);
-                }
-
-                const details = {
-                  name: place.name,
-                  address: place.formatted_address,
-                  phone: place.formatted_phone_number,
-                  website: place.website,
-                  rating: place.rating,
-                  openNow: place.opening_hours?.isOpen?.(),
-                  hours: place.opening_hours?.weekday_text?.join('<br>'),
-                };
-
-                setupInfoWindow(createInfoContent('places', details));
-              }
-            }
-          );
-        } catch (error) {
-          console.warn('[Map] Could not fetch place details:', error);
-        }
+      // Trigger success callback
+      if (typeof config.onMapLoad === 'function') {
+        config.onMapLoad({ map, marker });
       }
     } catch (error) {
-      console.error('[Map] Failed to initialize:', error);
+      console.error('[Map] Failed to initialize modern map:', error);
+
+      if (typeof config.onError === 'function') {
+        config.onError(error);
+      }
+
+      // Fallback to mock map
       container.innerHTML = '';
       container.appendChild(createMockMapElement(config));
     }
+  };
+
+  /**
+   * Setup info window with modern marker events
+   */
+  const setupModernInfoWindow = async (map, marker, config) => {
+    const { maps } = window.google;
+    let infoWindow = null;
+
+    const createAndShowInfoWindow = (content) => {
+      if (infoWindow) {
+        infoWindow.close();
+      }
+
+      infoWindow = new maps.InfoWindow({
+        content,
+        maxWidth: 400,
+      });
+
+      if (config.autoOpenInfo !== false) {
+        infoWindow.open(map, marker);
+      }
+
+      // Modern marker event handling
+      if (marker.addListener) {
+        // Legacy Marker
+        marker.addListener('click', () => infoWindow.open(map, marker));
+      } else {
+        // AdvancedMarkerElement
+        marker.addEventListener('gmp-click', () =>
+          infoWindow.open(map, marker)
+        );
+      }
+    };
+
+    // Try to get place details if placeId provided
+    if (config.placeId && !config.placeId.includes(':')) {
+      try {
+        const placeDetails = await fetchPlaceDetails(config.placeId, map);
+
+        if (placeDetails) {
+          // Update marker position if place has location
+          if (placeDetails.location) {
+            if (marker.position !== undefined) {
+              // AdvancedMarkerElement
+              marker.position = placeDetails.location;
+            } else if (marker.setPosition) {
+              // Legacy Marker
+              marker.setPosition(placeDetails.location);
+            }
+            map.setCenter(placeDetails.location);
+          }
+
+          createAndShowInfoWindow(createInfoContent(placeDetails));
+          return;
+        }
+      } catch (error) {
+        console.warn('[Map] Place details fetch failed:', error);
+      }
+    }
+
+    // Use basic configuration data
+    createAndShowInfoWindow(createInfoContent(config));
   };
 
   /**
@@ -343,13 +471,31 @@ const createMap = (props = {}) => {
    */
   const createLiveMapElement = (config) => {
     const container = createElement('div', {
-      classes: ['map-container', 'map-container--live'],
-      html: '<div class="map-loading">Loading map...</div>',
+      className: 'map-container map-container--live',
     });
 
-    if (typeof window !== 'undefined') {
-      initializeGoogleMap(container, config);
-    }
+    // Add loading state
+    container.innerHTML = `
+      <div style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255,255,255,0.9);
+        padding: 16px 24px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      ">
+        <div style="font-size: 24px; margin-bottom: 8px;">🗺️</div>
+        <div style="font-size: 14px; color: #666;">Loading modern map...</div>
+      </div>
+    `;
+
+    // Initialize map after DOM is ready
+    setTimeout(() => {
+      initializeModernMap(container, config);
+    }, 100);
 
     return container;
   };
@@ -362,16 +508,15 @@ const createMap = (props = {}) => {
 
     const config = {
       apiKey: state.apiKey,
-      locationName: state.locationName || 'Location',
+      title: state.title || 'Location',
       latitude: state.latitude,
       longitude: state.longitude,
       placeId: state.placeId,
       shopInfo: state.shopInfo,
-      autoOpenInfo: state.autoOpenInfo !== false,
-      options: {
-        zoom: state.options?.zoom || DEFAULT_ZOOM,
-        mapType: state.options?.mapType || 'roadmap',
-      },
+      autoOpenInfo: state.autoOpenInfo,
+      options: state.options || {},
+      onMapLoad: state.onMapLoad,
+      onError: state.onError,
     };
 
     return isValidApiKey(config.apiKey)
@@ -386,6 +531,9 @@ const createMap = (props = {}) => {
   return {
     ...baseComponent,
 
+    /**
+     * Update map from Google Maps URL
+     */
     setGoogleMapsUrl(url) {
       const updates = {};
       const placeId = extractPlaceId(url);
@@ -394,20 +542,42 @@ const createMap = (props = {}) => {
 
       if (placeId) updates.placeId = placeId;
       if (coords) Object.assign(updates, coords);
-      if (locationName) updates.locationName = locationName;
+      if (locationName) updates.title = locationName;
 
       return this.update(updates);
     },
 
+    /**
+     * Set Google Places ID
+     */
     setPlaceId(placeId) {
       return this.update({ placeId });
     },
 
+    /**
+     * Update map coordinates
+     */
     setCoordinates(lat, lng) {
       return this.update({
         latitude: parseCoordinate(lat, DEFAULT_COORDS.lat),
         longitude: parseCoordinate(lng, DEFAULT_COORDS.lng),
       });
+    },
+
+    /**
+     * Get map instance (modern)
+     */
+    getMapInstance() {
+      const element = this.getElement();
+      return element?._mapInstance || null;
+    },
+
+    /**
+     * Get marker instance (modern)
+     */
+    getMarkerInstance() {
+      const element = this.getElement();
+      return element?._markerInstance || null;
     },
   };
 };

@@ -17,6 +17,7 @@ import CollapsibleHeader, {
   CollapsibleHeaderContainer,
 } from './components/CollapsibleHeader/index.js';
 import Page from './components/Page/index.js';
+import ContactSection from './components/ContactSection/index.js';
 
 // ---- NAVIGATION COMPONENTS ----
 import Navigation from './components/Navigation/index.js';
@@ -100,6 +101,7 @@ export {
   CollapsibleHeader,
   CollapsibleHeaderContainer,
   Page,
+  ContactSection,
 
   // Navigation Components
   Navigation,
@@ -178,6 +180,7 @@ export const Layout = {
   CollapsibleHeader,
   CollapsibleHeaderContainer,
   Page,
+  ContactSection,
 };
 
 export const Nav = {
@@ -272,6 +275,7 @@ const Svarog = {
   MuchandyHero,
   CollapsibleHeader,
   CollapsibleHeaderContainer,
+  ContactSection,
   Page,
   Navigation,
   Link,

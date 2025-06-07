@@ -233,7 +233,7 @@
   --card-image-margin-bottom: var(--space-3);
 
   /* Component: Input */
-  --input-margin-bottom: var(--space-4);
+  --input-margin-bottom: 0;
   --input-padding: var(--space-2) var(--space-3);
   --input-mobile-padding: var(--space-2);
 
@@ -261,7 +261,7 @@
   --input-disabled-opacity: var(--disabled-opacity);
 
   /* Component: Select */
-  --select-margin-bottom: var(--space-4);
+  --select-margin-bottom: 0;
   --select-padding: var(--space-2) var(--space-3);
   --select-font-size: var(--font-size-sm);
   --select-font-family: var(--font-family-base);

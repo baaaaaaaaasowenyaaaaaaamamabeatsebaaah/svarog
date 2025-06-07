@@ -1,23 +1,25 @@
+// src/components/Map/Map.stories.js - Modern Google Maps API Examples
 import Map from './Map.js';
 import { mapsConfig } from '../../config/maps.config.js';
 
-// Use the config object
 const getApiKey = () => mapsConfig.apiKey;
 
-// Helper to check API key status
 const getApiKeyStatus = () => {
   const key = mapsConfig.apiKey;
   if (
     !key ||
-    key === 'YOUR_GOOGLE_MAPS_API_KEY' ||
-    key === 'YOUR_ACTUAL_API_KEY_HERE'
+    [
+      'YOUR_GOOGLE_MAPS_API_KEY',
+      'YOUR_ACTUAL_API_KEY_HERE',
+      'YOUR_API_KEY',
+      'API_KEY_HERE',
+    ].includes(key)
   ) {
     return { valid: false, message: 'No valid API key configured' };
   }
-  return { valid: true, message: 'API key configured' };
+  return { valid: true, message: 'Modern API key configured' };
 };
 
-// Status banner component
 const createStatusBanner = () => {
   const status = getApiKeyStatus();
   const banner = document.createElement('div');
@@ -38,25 +40,24 @@ const createStatusBanner = () => {
     <strong>${status.valid ? '✅' : '⚠️'} ${status.message}</strong><br>
     <small>${
       status.valid
-        ? 'Maps will display with full Google Maps functionality'
-        : 'Maps will display in preview mode. Add API key to src/config/MapsConfig.js for full functionality'
+        ? 'Maps will use modern AdvancedMarkerElement and Places API'
+        : 'Maps will display in preview mode. Add API key to src/config/MapsConfig.js for modern functionality'
     }</small>
   `;
 
   return banner;
 };
 
-// Working example with your mucHANDY shop
-export const MuchandyShopMunich = () => {
+// Modern mucHANDY shop with AdvancedMarkerElement
+export const MuchandyShopModern = () => {
   const container = document.createElement('div');
   container.appendChild(createStatusBanner());
 
   const map = Map({
     apiKey: getApiKey(),
-    // Using the coordinates directly since Place ID is old format
     latitude: 48.1417262,
     longitude: 11.5609816,
-    locationName: 'mucHANDY Handy Reparatur & An- und Verkauf',
+    title: 'mucHANDY Handy Reparatur & An- und Verkauf',
     shopInfo: {
       name: 'mucHANDY München',
       address: 'Rosenheimer Str. 145, 81671 München',
@@ -65,25 +66,29 @@ export const MuchandyShopMunich = () => {
       hours: 'Mo-Fr: 10:00-19:00, Sa: 10:00-16:00',
     },
     autoOpenInfo: true,
+    onMapLoad: ({ map, marker }) => {
+      console.log('Modern map loaded:', { map, marker });
+    },
   });
 
   container.appendChild(map.getElement());
   return container;
 };
 
-// Mock version without API key
-export const MuchandyShopMockView = () => {
+// Mock version shows exactly what users see without API key
+export const MockPreviewMode = () => {
   const container = document.createElement('div');
 
   const info = document.createElement('p');
   info.style.marginBottom = '10px';
-  info.textContent = 'This is how the map looks without an API key:';
+  info.textContent =
+    'This is how the map looks without an API key (modern template):';
   container.appendChild(info);
 
   const map = Map({
     latitude: 48.1417262,
     longitude: 11.5609816,
-    locationName: 'mucHANDY Handy Reparatur Munich',
+    title: 'mucHANDY Handy Reparatur Munich',
     shopInfo: {
       address: 'Rosenheimer Str. 145, 81671 München',
       phone: '+49 89 12345678',
@@ -95,24 +100,27 @@ export const MuchandyShopMockView = () => {
   return container;
 };
 
-// Using the new Place ID from your API test
-export const MuchandyLuisenstrasse = () => {
+// Using modern Place ID with new Places API
+export const ModernPlacesAPI = () => {
   const container = document.createElement('div');
   container.appendChild(createStatusBanner());
 
   const map = Map({
     apiKey: getApiKey(),
-    placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg', // Valid Place ID from your test
-    locationName: 'mucHANDY Luisenstraße',
+    placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg', // Valid modern Place ID
+    title: 'mucHANDY Luisenstraße',
     autoOpenInfo: true,
+    onMapLoad: ({ _map, _marker }) => {
+      console.log('Place details loaded with modern API');
+    },
   });
 
   container.appendChild(map.getElement());
   return container;
 };
 
-// Multiple shop examples with coordinates
-export const MunichElectronicsStores = () => {
+// Multiple locations with modern markers
+export const ModernElectronicsStores = () => {
   const container = document.createElement('div');
   container.appendChild(createStatusBanner());
 
@@ -122,18 +130,28 @@ export const MunichElectronicsStores = () => {
       lat: 48.1359,
       lng: 11.5754,
       address: 'Schwanthalerstraße 115, 80339 München',
+      type: 'Electronics',
     },
     {
       name: 'MediaMarkt Munich',
       lat: 48.1486,
       lng: 11.5633,
       address: 'Einsteinstraße 130, 81675 München',
+      type: 'Electronics',
     },
     {
       name: 'Apple Store Munich',
       lat: 48.1378,
       lng: 11.576,
       address: 'Rosenstraße 1, 80331 München',
+      type: 'Apple Store',
+    },
+    {
+      name: 'mucHANDY München',
+      lat: 48.1417262,
+      lng: 11.5609816,
+      address: 'Rosenheimer Str. 145, 81671 München',
+      type: 'Phone Repair',
     },
   ];
 
@@ -143,13 +161,14 @@ export const MunichElectronicsStores = () => {
     apiKey: getApiKey(),
     latitude: currentStore.lat,
     longitude: currentStore.lng,
-    locationName: currentStore.name,
+    title: currentStore.name,
     shopInfo: {
       address: currentStore.address,
     },
     autoOpenInfo: true,
     options: {
       zoom: 15,
+      mapType: 'roadmap',
     },
   });
 
@@ -160,12 +179,14 @@ export const MunichElectronicsStores = () => {
     font-size: 14px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    width: 100%;
+    max-width: 300px;
   `;
 
   stores.forEach((store, index) => {
     const option = document.createElement('option');
     option.value = index;
-    option.textContent = store.name;
+    option.textContent = `${store.name} (${store.type})`;
     select.appendChild(option);
   });
 
@@ -173,7 +194,7 @@ export const MunichElectronicsStores = () => {
     const store = stores[e.target.value];
     map.setCoordinates(store.lat, store.lng);
     map.update({
-      locationName: store.name,
+      title: store.name,
       shopInfo: { address: store.address },
     });
   };
@@ -184,8 +205,8 @@ export const MunichElectronicsStores = () => {
   return container;
 };
 
-// Dynamic URL update example
-export const DynamicShopUpdate = () => {
+// Dynamic location updates with modern API
+export const ModernDynamicUpdates = () => {
   const container = document.createElement('div');
   container.appendChild(createStatusBanner());
 
@@ -193,137 +214,182 @@ export const DynamicShopUpdate = () => {
     apiKey: getApiKey(),
     latitude: 48.1371,
     longitude: 11.5754,
-    locationName: 'Munich City Center',
+    title: 'Munich City Center',
+    options: {
+      zoom: 14,
+    },
   });
 
-  const button = document.createElement('button');
-  button.textContent = 'Load mucHANDY Shop';
-  button.style.cssText = `
+  const buttonsContainer = document.createElement('div');
+  buttonsContainer.style.cssText =
+    'margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap;';
+
+  const locations = [
+    {
+      name: 'Load mucHANDY Shop',
+      lat: 48.1417262,
+      lng: 11.5609816,
+      title: 'mucHANDY Shop',
+      shopInfo: {
+        name: 'mucHANDY München',
+        address: 'Rosenheimer Str. 145, 81671 München',
+        phone: '+49 89 12345678',
+      },
+    },
+    {
+      name: 'Load Marienplatz',
+      lat: 48.1374,
+      lng: 11.5755,
+      title: 'Marienplatz München',
+      shopInfo: {
+        address: 'Marienplatz, 80331 München',
+      },
+    },
+    {
+      name: 'Load English Garden',
+      lat: 48.1641,
+      lng: 11.6037,
+      title: 'Englischer Garten',
+      shopInfo: {
+        address: 'Englischer Garten, München',
+      },
+    },
+  ];
+
+  locations.forEach((location, index) => {
+    const button = document.createElement('button');
+    button.textContent = location.name;
+    button.style.cssText = `
+      padding: 8px 16px;
+      background: ${index === 0 ? '#007bff' : '#28a745'};
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    `;
+
+    button.onclick = () => {
+      map.setCoordinates(location.lat, location.lng);
+      map.update({
+        title: location.title,
+        shopInfo: location.shopInfo,
+      });
+
+      // Update button styles
+      locations.forEach((_, i) => {
+        const btn = buttonsContainer.children[i];
+        btn.style.background = i === index ? '#dc3545' : '#28a745';
+        btn.textContent = i === index ? 'Loaded!' : locations[i].name;
+      });
+    };
+
+    buttonsContainer.appendChild(button);
+  });
+
+  container.appendChild(buttonsContainer);
+  container.appendChild(map.getElement());
+
+  return container;
+};
+
+// Modern URL parsing example
+export const ModernURLParsing = () => {
+  const container = document.createElement('div');
+  container.appendChild(createStatusBanner());
+
+  const map = Map({
+    apiKey: getApiKey(),
+    latitude: 48.1371,
+    longitude: 11.5754,
+    title: 'Default Location',
+  });
+
+  const urlInput = document.createElement('input');
+  urlInput.type = 'text';
+  urlInput.placeholder = 'Paste Google Maps URL here...';
+  urlInput.style.cssText = `
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     margin-bottom: 10px;
+  `;
+
+  const parseButton = document.createElement('button');
+  parseButton.textContent = 'Parse URL';
+  parseButton.style.cssText = `
     padding: 8px 16px;
     background: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin-left: 10px;
   `;
-  button.onclick = () => {
-    map.setCoordinates(48.1417262, 11.5609816);
-    map.update({
-      locationName: 'mucHANDY Shop',
-      shopInfo: {
-        name: 'mucHANDY München',
-        address: 'Rosenheimer Str. 145, 81671 München',
-      },
-    });
-    button.textContent = 'Shop Loaded!';
-    button.style.background = '#28a745';
-  };
 
-  container.appendChild(button);
-  container.appendChild(map.getElement());
-
-  return container;
-};
-
-// Shop selector with working place IDs
-export const ShopSelector = () => {
-  const container = document.createElement('div');
-  container.appendChild(createStatusBanner());
-
-  const shops = [
-    {
-      name: 'mucHANDY Munich (Coordinates)',
-      latitude: 48.1417262,
-      longitude: 11.5609816,
-      info: {
-        address: 'Rosenheimer Str. 145, 81671 München',
-      },
-    },
-    {
-      name: 'mucHANDY Luisenstraße',
-      placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
-    },
-    {
-      name: 'Munich Central Station',
-      latitude: 48.1403,
-      longitude: 11.5554,
-      info: {
-        name: 'Hauptbahnhof München',
-        address: 'Bayerstraße 10A, 80335 München',
-      },
-    },
+  const exampleUrls = [
+    'https://maps.google.com/maps/place/Marienplatz/@48.1374,11.5755,17z',
+    'https://maps.google.com/maps/@48.1417,11.5609,16z',
+    'https://maps.google.com/maps/place/Eiffel+Tower/@48.8584,2.2945,17z',
   ];
 
-  const map = Map({
-    apiKey: getApiKey(),
-    latitude: shops[0].latitude,
-    longitude: shops[0].longitude,
-    locationName: shops[0].name,
-    shopInfo: shops[0].info,
-    autoOpenInfo: true,
+  const exampleContainer = document.createElement('div');
+  exampleContainer.style.marginBottom = '10px';
+
+  const exampleLabel = document.createElement('p');
+  exampleLabel.textContent = 'Example URLs:';
+  exampleLabel.style.margin = '10px 0 5px 0';
+  exampleContainer.appendChild(exampleLabel);
+
+  exampleUrls.forEach((url) => {
+    const exampleButton = document.createElement('button');
+    exampleButton.textContent = url.split('/').pop().split('@')[0] || 'Example';
+    exampleButton.style.cssText = `
+      margin: 2px;
+      padding: 4px 8px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    `;
+    exampleButton.onclick = () => {
+      urlInput.value = url;
+    };
+    exampleContainer.appendChild(exampleButton);
   });
 
-  const select = document.createElement('select');
-  select.style.cssText = `
-    margin-bottom: 10px;
-    padding: 5px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
-    max-width: 300px;
-  `;
-
-  shops.forEach((shop, index) => {
-    const option = document.createElement('option');
-    option.value = index;
-    option.textContent = shop.name;
-    select.appendChild(option);
-  });
-
-  select.onchange = (e) => {
-    const shop = shops[e.target.value];
-    if (shop.placeId) {
-      map.setPlaceId(shop.placeId);
-      map.update({ locationName: shop.name });
-    } else if (shop.latitude && shop.longitude) {
-      map.setCoordinates(shop.latitude, shop.longitude);
-      map.update({
-        locationName: shop.name,
-        shopInfo: shop.info,
-      });
+  parseButton.onclick = () => {
+    const url = urlInput.value.trim();
+    if (url) {
+      map.setGoogleMapsUrl(url);
+      parseButton.textContent = 'Parsed!';
+      parseButton.style.background = '#28a745';
+      setTimeout(() => {
+        parseButton.textContent = 'Parse URL';
+        parseButton.style.background = '#007bff';
+      }, 2000);
     }
   };
 
-  container.appendChild(select);
+  const inputContainer = document.createElement('div');
+  inputContainer.style.display = 'flex';
+  inputContainer.style.marginBottom = '10px';
+  inputContainer.appendChild(urlInput);
+  inputContainer.appendChild(parseButton);
+
+  container.appendChild(exampleContainer);
+  container.appendChild(inputContainer);
   container.appendChild(map.getElement());
 
   return container;
 };
 
-// Simple example with coordinates
-export const SimpleCoordinates = () => {
-  const container = document.createElement('div');
-
-  const info = document.createElement('p');
-  info.style.marginBottom = '10px';
-  info.textContent =
-    'Simple map with coordinates (no API key needed for preview):';
-  container.appendChild(info);
-
-  const map = Map({
-    latitude: 48.1417262,
-    longitude: 11.5609816,
-    locationName: 'Munich Shop Location',
-  });
-
-  container.appendChild(map.getElement());
-  return container;
-};
-
-// API key configuration example
-export const ConfigurationExample = () => {
+// Configuration and setup guide
+export const ModernSetupGuide = () => {
   const container = document.createElement('div');
 
   const info = document.createElement('div');
@@ -332,43 +398,160 @@ export const ConfigurationExample = () => {
     background-color: #f0f0f0;
     border-radius: 8px;
     margin-bottom: 20px;
+    line-height: 1.6;
   `;
+
   info.innerHTML = `
-    <h3>Map Configuration</h3>
-    <p>To enable Google Places integration:</p>
+    <h3>Modern Google Maps API Setup (2025)</h3>
+    <p>To enable the modern Google Maps experience with AdvancedMarkerElement and new Places API:</p>
+
+    <h4>1. Get API Key</h4>
     <ol>
-      <li>Get a Google Maps API key from the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
-      <li>Enable both "Maps JavaScript API" and "Places API"</li>
-      <li>Add your API key to <code>src/config/MapsConfig.js</code></li>
+      <li>Visit <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+      <li>Create new project or select existing</li>
+      <li>Enable these APIs:
+        <ul>
+          <li>✅ Maps JavaScript API</li>
+          <li>✅ Places API (New)</li>
+          <li>✅ Maps Static API (optional)</li>
+        </ul>
+      </li>
+      <li>Create API key with proper restrictions</li>
     </ol>
-    <p>Without an API key, the map will show a mock view with the location information.</p>
 
-    <h4>Current Configuration:</h4>
-    <pre style="background: white; padding: 10px; border-radius: 4px;">
-{
-  apiKey: "${getApiKey() ? `${getApiKey().substring(0, 10)}...` : 'not set'}",
-  valid: ${getApiKeyStatus().valid}
-}</pre>
+    <h4>2. Modern Features Enabled</h4>
+    <ul>
+      <li>🚀 <strong>AdvancedMarkerElement</strong> - No deprecation warnings</li>
+      <li>🚀 <strong>Async Loading</strong> - Optimal performance</li>
+      <li>🚀 <strong>Modern Places API</strong> - Latest place details</li>
+      <li>🚀 <strong>Proper Event Handling</strong> - gmp-click events</li>
+    </ul>
 
-    <h4>Note on Place IDs:</h4>
-    <p>⚠️ Old format Place IDs (with colons like "0x479e75fa2f009bf5:0xb82d27ba69195669") are no longer supported by Google.</p>
-    <p>✅ Use coordinates or search for new Place IDs using the Places API.</p>
+    <h4>3. Configuration</h4>
+    <pre style="background: white; padding: 10px; border-radius: 4px; font-size: 12px;">
+// src/config/MapsConfig.js
+export const mapsConfig = {
+  apiKey: 'YOUR_ACTUAL_API_KEY_HERE'
+};</pre>
+
+    <h4>Current Status</h4>
+    <div style="background: ${getApiKeyStatus().valid ? '#d4edda' : '#fff3cd'}; padding: 10px; border-radius: 4px;">
+      <strong>${getApiKeyStatus().valid ? '✅' : '⚠️'} ${getApiKeyStatus().message}</strong>
+    </div>
+
+    <h4>Modern vs Legacy Comparison</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+      <tr style="background: #f8f9fa;">
+        <th style="padding: 8px; border: 1px solid #dee2e6;">Feature</th>
+        <th style="padding: 8px; border: 1px solid #dee2e6;">Legacy</th>
+        <th style="padding: 8px; border: 1px solid #dee2e6;">Modern (2025)</th>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">Markers</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">❌ google.maps.Marker (deprecated)</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">✅ AdvancedMarkerElement</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">Loading</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">⚠️ Synchronous loading</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">✅ Async with loading=async</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">Places API</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">⚠️ PlacesService (legacy)</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">✅ Place class (modern)</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">Events</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">addListener('click')</td>
+        <td style="padding: 8px; border: 1px solid #dee2e6;">✅ addEventListener('gmp-click')</td>
+      </tr>
+    </table>
   `;
 
   const map = Map({
+    apiKey: getApiKey(),
     latitude: 48.1417262,
     longitude: 11.5609816,
-    locationName: 'mucHANDY Shop',
+    title: 'Modern Map Implementation',
     shopInfo: {
-      name: 'mucHANDY Handy Reparatur',
-      address: 'Example Address, Munich',
+      name: 'Svarog UI Map Component',
+      address: 'Modern Google Maps API 2025',
       phone: '+49 123 456789',
-      hours: 'Mon-Fri: 9AM-7PM',
-      rating: 4.8,
+      hours: 'Always available',
     },
   });
 
   container.appendChild(info);
+  container.appendChild(map.getElement());
+
+  return container;
+};
+
+// Performance comparison
+export const PerformanceShowcase = () => {
+  const container = document.createElement('div');
+  container.appendChild(createStatusBanner());
+
+  const performanceInfo = document.createElement('div');
+  performanceInfo.style.cssText = `
+    background: #e7f3ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid #007bff;
+  `;
+
+  performanceInfo.innerHTML = `
+    <h4 style="margin: 0 0 10px 0;">🚀 Modern Performance Features</h4>
+    <ul style="margin: 0; padding-left: 20px;">
+      <li><strong>Async Script Loading</strong> - Non-blocking page load</li>
+      <li><strong>Modern Marker API</strong> - Better rendering performance</li>
+      <li><strong>Efficient Place Details</strong> - Optimized data fetching</li>
+      <li><strong>Automatic Caching</strong> - Script loaded once, reused</li>
+    </ul>
+  `;
+
+  const startTime = Date.now();
+
+  const map = Map({
+    apiKey: getApiKey(),
+    latitude: 48.1417262,
+    longitude: 11.5609816,
+    title: 'Performance Test Location',
+    onMapLoad: ({ map, marker }) => {
+      const loadTime = Date.now() - startTime;
+      const perfDisplay = document.createElement('div');
+      perfDisplay.style.cssText = `
+        background: #d4edda;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-size: 14px;
+      `;
+      perfDisplay.innerHTML = `
+        ✅ <strong>Map loaded successfully!</strong><br>
+        Load time: ${loadTime}ms<br>
+        Marker type: ${marker.constructor.name}<br>
+        Modern API: ${map.getMapTypeId ? 'Yes' : 'No'}
+      `;
+      container.appendChild(perfDisplay);
+    },
+    onError: (error) => {
+      const errorDisplay = document.createElement('div');
+      errorDisplay.style.cssText = `
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-size: 14px;
+      `;
+      errorDisplay.innerHTML = `❌ <strong>Load failed:</strong> ${error.message}`;
+      container.appendChild(errorDisplay);
+    },
+  });
+
+  container.appendChild(performanceInfo);
   container.appendChild(map.getElement());
 
   return container;
