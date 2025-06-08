@@ -152,7 +152,7 @@ const createMap = (props = {}) => {
    */
   const createMockMapElement = (config) => {
     const container = createElement('div', {
-      className: 'map-container map-container--mock',
+      classes: 'map-container map-container--mock',
     });
 
     container.innerHTML = `
@@ -471,7 +471,7 @@ const createMap = (props = {}) => {
    */
   const createLiveMapElement = (config) => {
     const container = createElement('div', {
-      className: 'map-container map-container--live',
+      classes: 'map-container map-container--live',
     });
 
     // Add loading state

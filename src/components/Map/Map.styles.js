@@ -5,13 +5,17 @@ export const mapStyles = css`
   /* ===== EXISTING WORKING STYLES ===== */
   .map-container {
     width: 100%;
+    height: 100%;
     min-height: 400px;
     background-color: #f8f9fa;
     position: relative;
     overflow: hidden;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--color-border-medium);
+    /* Ensure the container can grow to fill parent */
+    flex: 1;
+    /* For cases where parent uses CSS Grid */
+    align-self: stretch;
+    justify-self: stretch;
   }
 
   .map-container--mock {
@@ -152,28 +156,6 @@ export const mapStyles = css`
 
   .map-info__link:hover {
     text-decoration: underline;
-  }
-
-  /* ===== THEME SUPPORT (OPTIONAL) ===== */
-
-  /* Dark theme support */
-  [data-theme='dark'] .map-container--mock {
-    background-color: #2d3748;
-    border-color: #4a5568;
-  }
-
-  [data-theme='dark'] .map-mock {
-    background: rgba(45, 55, 72, 0.95);
-    color: #f7fafc;
-  }
-
-  [data-theme='dark'] .map-mock__title {
-    color: #f7fafc;
-  }
-
-  [data-theme='dark'] .map-loading {
-    background: rgba(45, 55, 72, 0.95);
-    color: #f7fafc;
   }
 
   /* ===== RESPONSIVE DESIGN ===== */

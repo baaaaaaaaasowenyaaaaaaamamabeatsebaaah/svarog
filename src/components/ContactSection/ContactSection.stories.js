@@ -91,6 +91,7 @@ export const WithGoogleMaps = (args) => {
     description: 'Experience Google Maps integration',
     apiKey: getApiKey(),
     placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
+    mapOnTop: true,
   });
   return contactSection.getElement();
 };

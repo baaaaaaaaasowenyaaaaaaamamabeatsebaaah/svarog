@@ -57,9 +57,8 @@ const createContactSection = (props = {}) => {
     onSubmit: null,
     onChange: null,
 
-    // Layout
-    mapPosition: 'left', // 'left' or 'right'
-    mobileLayout: 'stack', // 'stack' or 'reverse'
+    // Layout - Desktop positioning only (mobile always has map on top)
+    mapPosition: 'left', // 'left' or 'right' - desktop layout only
 
     ...props,
   };
@@ -82,7 +81,7 @@ const createContactSection = (props = {}) => {
 
     if (contactInfo.address) {
       const addressItem = createElement('div', {
-        className: 'contact-info__item',
+        classes: 'contact-info__item',
       });
 
       const addressLabel = Typography({
@@ -105,7 +104,7 @@ const createContactSection = (props = {}) => {
 
     if (contactInfo.phone) {
       const phoneItem = createElement('div', {
-        className: 'contact-info__item',
+        classes: 'contact-info__item',
       });
 
       const phoneLabel = Typography({
@@ -116,9 +115,11 @@ const createContactSection = (props = {}) => {
       });
 
       const phoneLink = createElement('a', {
-        href: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
-        textContent: contactInfo.phone,
-        className: 'contact-info__link',
+        attributes: {
+          href: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
+        },
+        classes: 'contact-info__link',
+        text: contactInfo.phone,
       });
 
       phoneItem.appendChild(phoneLabel.getElement());
@@ -128,7 +129,7 @@ const createContactSection = (props = {}) => {
 
     if (contactInfo.email) {
       const emailItem = createElement('div', {
-        className: 'contact-info__item',
+        classes: 'contact-info__item',
       });
 
       const emailLabel = Typography({
@@ -139,9 +140,11 @@ const createContactSection = (props = {}) => {
       });
 
       const emailLink = createElement('a', {
-        href: `mailto:${contactInfo.email}`,
-        textContent: contactInfo.email,
-        className: 'contact-info__link',
+        attributes: {
+          href: `mailto:${contactInfo.email}`,
+        },
+        classes: 'contact-info__link',
+        text: contactInfo.email,
       });
 
       emailItem.appendChild(emailLabel.getElement());
@@ -151,7 +154,7 @@ const createContactSection = (props = {}) => {
 
     if (contactInfo.hours) {
       const hoursItem = createElement('div', {
-        className: 'contact-info__item',
+        classes: 'contact-info__item',
       });
 
       const hoursLabel = Typography({
@@ -174,7 +177,7 @@ const createContactSection = (props = {}) => {
 
     if (contactInfo.website) {
       const websiteItem = createElement('div', {
-        className: 'contact-info__item',
+        classes: 'contact-info__item',
       });
 
       const websiteLabel = Typography({
@@ -185,11 +188,13 @@ const createContactSection = (props = {}) => {
       });
 
       const websiteLink = createElement('a', {
-        href: contactInfo.website,
-        textContent: contactInfo.website.replace(/^https?:\/\//, ''),
-        target: '_blank',
-        rel: 'noopener noreferrer',
-        className: 'contact-info__link',
+        attributes: {
+          href: contactInfo.website,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+        classes: 'contact-info__link',
+        text: contactInfo.website.replace(/^https?:\/\//, ''),
       });
 
       websiteItem.appendChild(websiteLabel.getElement());
@@ -198,7 +203,7 @@ const createContactSection = (props = {}) => {
     }
 
     return createElement('div', {
-      className: 'contact-info',
+      classes: 'contact-info',
       children: items,
     });
   };
@@ -338,7 +343,7 @@ const createContactSection = (props = {}) => {
     return form;
   };
 
-  const createRightColumn = () => {
+  const createFormContent = () => {
     const elements = [];
 
     // Form title
@@ -361,7 +366,7 @@ const createContactSection = (props = {}) => {
     elements.push(formComponent.getElement());
 
     return createElement('div', {
-      className: 'contact-section__content',
+      classes: 'contact-section__content',
       children: elements,
     });
   };
@@ -377,40 +382,83 @@ const createContactSection = (props = {}) => {
       apiKey: state.apiKey,
       latitude: state.latitude,
       longitude: state.longitude,
-      locationName: state.locationName,
+      title: state.locationName, // Updated to use 'title' prop
       placeId: state.placeId,
       googleMapsUrl: state.googleMapsUrl,
       shopInfo: state.contactInfo,
     });
 
-    // Create grid
+    // Create grid with responsive behavior
     gridComponent = Grid({
-      gap: '2rem',
-      className: `contact-section__grid contact-section__grid--${state.mobileLayout}`,
+      gap: '16px',
+      rowGap: '12px', // Smaller gap between rows on mobile
     });
 
-    // Create columns based on layout
-    const leftColumn = Grid.Column({
-      width: 6,
-      mobileWidth: 12,
-      children:
-        state.mapPosition === 'left'
-          ? mapComponent.getElement()
-          : createRightColumn(),
-    });
+    // RESPONSIVE BEHAVIOR IMPLEMENTATION:
+    // Desktop: Side by side based on mapPosition
+    // Mobile: Map always on top (responsive stacking)
 
-    const rightColumn = Grid.Column({
-      width: 6,
-      mobileWidth: 12,
-      children:
-        state.mapPosition === 'left'
-          ? createRightColumn()
-          : mapComponent.getElement(),
-    });
+    if (state.mapOnTop) {
+      // Map on top on mobile (default behavior)
 
-    // Add columns to grid
-    gridComponent.appendChild(leftColumn.getElement());
-    gridComponent.appendChild(rightColumn.getElement());
+      if (state.mapPosition === 'left') {
+        // Desktop: Map left, Form right
+        // Mobile: Map top, Form bottom
+
+        const mapColumn = Grid.Column({
+          width: 6, // 6/12 on desktop (left side)
+          mobileWidth: 12, // 12/12 on mobile (full width, stacked on top)
+          children: mapComponent.getElement(),
+        });
+
+        const formColumn = Grid.Column({
+          width: 6, // 6/12 on desktop (right side)
+          mobileWidth: 12, // 12/12 on mobile (full width, stacked below)
+          children: createFormContent(),
+        });
+
+        // Order matters for mobile stacking:
+        gridComponent.appendChild(mapColumn.getElement()); // First = top on mobile
+        gridComponent.appendChild(formColumn.getElement()); // Second = bottom on mobile
+      } else {
+        // Desktop: Form left, Map right
+        // Mobile: Map top, Form bottom
+
+        const formColumn = Grid.Column({
+          width: 6, // 6/12 on desktop (left side)
+          mobileWidth: 12, // 12/12 on mobile (full width, stacked below map)
+          children: createFormContent(),
+        });
+
+        const mapColumn = Grid.Column({
+          width: 6, // 6/12 on desktop (right side)
+          mobileWidth: 12, // 12/12 on mobile (full width, stacked on top)
+          children: mapComponent.getElement(),
+        });
+
+        // For map-on-top mobile, map goes first regardless of desktop position
+        gridComponent.appendChild(mapColumn.getElement()); // First = top on mobile
+        gridComponent.appendChild(formColumn.getElement()); // Second = bottom on mobile
+      }
+    } else {
+      // Form on top on mobile (alternative behavior)
+
+      const formColumn = Grid.Column({
+        width: 6,
+        mobileWidth: 12,
+        children: createFormContent(),
+      });
+
+      const mapColumn = Grid.Column({
+        width: 6,
+        mobileWidth: 12,
+        children: mapComponent.getElement(),
+      });
+
+      // Form first = form on top on mobile
+      gridComponent.appendChild(formColumn.getElement());
+      gridComponent.appendChild(mapColumn.getElement());
+    }
 
     // Create section
     sectionComponent = Section({
@@ -494,7 +542,7 @@ const createContactSection = (props = {}) => {
       mapComponent.update({
         latitude: state.latitude,
         longitude: state.longitude,
-        locationName: state.locationName,
+        title: state.locationName, // Updated to use 'title' prop
         apiKey: state.apiKey,
         placeId: state.placeId,
         googleMapsUrl: state.googleMapsUrl,

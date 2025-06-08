@@ -3,16 +3,16 @@ import { css } from '../../utils/styleInjection.js';
 
 export const contactSectionStyles = css`
   .contact-section {
-    --contact-section-gap: 2rem;
-    --contact-section-content-gap: 1.5rem;
-    --contact-info-gap: 1rem;
-    --contact-info-item-gap: 0.5rem;
-    --contact-form-title-margin: 0 0 1.5rem 0;
+    --contact-section-gap: var(--space-1);
+    --contact-section-content-gap: var(--space-2);
+    --contact-info-gap: var(--space-1);
+    --contact-info-item-gap: var(--space-1);
+    --contact-form-title-margin: 0 0 var(--space-1) 0;
     --contact-link-color: var(--color-primary, #007bff);
     --contact-link-hover-color: var(--color-primary-dark, #0056b3);
     --contact-info-bg: var(--color-gray-50, #f8f9fa);
-    --contact-info-padding: 1.5rem;
-    --contact-info-radius: var(--border-radius-default, 8px);
+    --contact-info-padding: var(--space-2);
+    --contact-info-radius: 0;
     --contact-info-border: 1px solid var(--color-gray-200, #e9ecef);
   }
 
