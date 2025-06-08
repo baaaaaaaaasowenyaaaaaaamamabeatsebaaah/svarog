@@ -14,6 +14,13 @@ import themeManager, {
   switchTheme,
 } from '../src/utils/themeManager.js';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Set a flag before importing themeManager to prevent auto-initialization
+if (!isProduction) {
+  window.__STORYBOOK_DISABLE_THEME_INIT__ = true;
+}
+
 const app = document.getElementById('app');
 
 const headerContainer = document.createElement('div');

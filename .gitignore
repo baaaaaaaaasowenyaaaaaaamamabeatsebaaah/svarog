@@ -25,6 +25,13 @@ build/
 # Webpack files
 *.bundle.js
 *.bundle.js.map
+build/
+*.chunk.js
+*.chunk.css
+*.bundle.js
+*.bundle.css
+
+storybook-static/
 
 # Temporary files
 *.tmp
