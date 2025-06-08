@@ -41,46 +41,22 @@ const createColumn = (props) => {
 
   // Validate all widths
   validateWidth('width', width);
-  if (mobileWidth) {
-    validateWidth('mobileWidth', mobileWidth);
-  }
-  if (tabletWidth) {
-    validateWidth('tabletWidth', tabletWidth);
-  }
-  if (desktopWidth) {
-    validateWidth('desktopWidth', desktopWidth);
-  }
-  if (desktopOffset) {
+  if (mobileWidth !== undefined) validateWidth('mobileWidth', mobileWidth);
+  if (tabletWidth !== undefined) validateWidth('tabletWidth', tabletWidth);
+  if (desktopWidth !== undefined) validateWidth('desktopWidth', desktopWidth);
+  if (desktopOffset !== undefined)
     validateWidth('desktopOffset', desktopOffset);
-  }
-  if (offset) {
-    validateWidth('offset', offset);
-  }
+  if (offset !== undefined) validateWidth('offset', offset);
 
   // Create the column element
   const buildColumnElement = () => {
     const classes = ['column'];
 
-    // Add responsive classes
-    if (columnState.mobileWidth) {
-      classes.push(`column--mobile-${columnState.mobileWidth}`);
-    }
-    if (columnState.tabletWidth) {
-      classes.push(`column--tablet-${columnState.tabletWidth}`);
-    }
-    if (columnState.desktopWidth) {
-      classes.push(`column--desktop-${columnState.desktopWidth}`);
-    }
-    if (columnState.desktopOffset) {
-      classes.push(`column--desktop-offset-${columnState.desktopOffset}`);
-    }
+    // Regular styles only (no CSS custom properties)
+    const style = {};
 
-    const style = {
-      gridColumnEnd: `span ${columnState.width}`,
-    };
-
-    // Handle offset
-    if (columnState.offset) {
+    // Handle offsets as regular styles
+    if (columnState.offset !== undefined) {
       style.gridColumnStart = columnState.offset + 1;
     }
 
@@ -88,6 +64,25 @@ const createColumn = (props) => {
       classes,
       style,
     });
+
+    // Apply CSS custom properties after element creation
+    column.style.setProperty('--col-width', columnState.width);
+
+    if (columnState.mobileWidth !== undefined) {
+      column.style.setProperty('--col-width-mobile', columnState.mobileWidth);
+    }
+    if (columnState.tabletWidth !== undefined) {
+      column.style.setProperty('--col-width-tablet', columnState.tabletWidth);
+    }
+    if (columnState.desktopWidth !== undefined) {
+      column.style.setProperty('--col-width-desktop', columnState.desktopWidth);
+    }
+    if (columnState.desktopOffset !== undefined) {
+      column.style.setProperty(
+        '--col-offset-desktop',
+        columnState.desktopOffset + 1
+      );
+    }
 
     // Append children - properly handle both array and single child
     if (Array.isArray(columnState.children)) {

@@ -357,6 +357,27 @@ export const getComponents = () => {
               (m) => m.ResponsiveGrid
             ),
         },
+        {
+          name: 'FullyResponsive',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.FullyResponsive
+            ),
+        },
+        {
+          name: 'ComplexResponsiveLayout',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.ComplexResponsiveLayout
+            ),
+        },
+        {
+          name: 'DesktopOffset',
+          module: () =>
+            import('../components/Grid/Grid.stories.js').then(
+              (m) => m.DesktopOffset
+            ),
+        },
       ],
     },
     {

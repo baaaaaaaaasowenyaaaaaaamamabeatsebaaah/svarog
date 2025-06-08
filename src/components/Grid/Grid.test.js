@@ -121,7 +121,8 @@ describe('Column component', () => {
     const element = column.getElement();
     expect(element).toBeInstanceOf(HTMLElement);
     expect(element.className).toBe('column');
-    expect(element.style.gridColumnEnd).toBe('span 6');
+    // Check CSS custom property instead of inline style
+    expect(element.style.getPropertyValue('--col-width')).toBe('6');
   });
 
   it('should throw error when children are missing', () => {
@@ -157,7 +158,7 @@ describe('Column component', () => {
     expect(element.style.gridColumnStart).toBe('3'); // offset + 1
   });
 
-  it('should apply responsive classes correctly', () => {
+  it('should apply responsive CSS custom properties correctly', () => {
     const column = Grid.Column({
       width: 6,
       mobileWidth: 12,
@@ -167,9 +168,24 @@ describe('Column component', () => {
     });
 
     const element = column.getElement();
-    expect(element.classList.contains('column--mobile-12')).toBe(true);
-    expect(element.classList.contains('column--tablet-8')).toBe(true);
-    expect(element.classList.contains('column--desktop-4')).toBe(true);
+    expect(element.style.getPropertyValue('--col-width')).toBe('6');
+    expect(element.style.getPropertyValue('--col-width-mobile')).toBe('12');
+    expect(element.style.getPropertyValue('--col-width-tablet')).toBe('8');
+    expect(element.style.getPropertyValue('--col-width-desktop')).toBe('4');
+  });
+
+  it('should not set undefined responsive properties', () => {
+    const column = Grid.Column({
+      width: 6,
+      mobileWidth: 12,
+      children: document.createElement('div'),
+    });
+
+    const element = column.getElement();
+    expect(element.style.getPropertyValue('--col-width')).toBe('6');
+    expect(element.style.getPropertyValue('--col-width-mobile')).toBe('12');
+    expect(element.style.getPropertyValue('--col-width-tablet')).toBe('');
+    expect(element.style.getPropertyValue('--col-width-desktop')).toBe('');
   });
 });
 
@@ -192,7 +208,7 @@ describe('Grid and Column integration', () => {
 
     const element = grid.getElement();
     expect(element.children).toHaveLength(2);
-    expect(element.children[0].style.gridColumnEnd).toBe('span 6');
-    expect(element.children[1].style.gridColumnEnd).toBe('span 6');
+    expect(element.children[0].style.getPropertyValue('--col-width')).toBe('6');
+    expect(element.children[1].style.getPropertyValue('--col-width')).toBe('6');
   });
 });
