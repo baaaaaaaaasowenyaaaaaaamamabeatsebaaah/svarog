@@ -1,4 +1,5 @@
 // src/components/ContactSection/ContactSection.js
+import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createStyleInjector } from '../../utils/styleInjection.js';
 import { createElement } from '../../utils/componentFactory.js';
 import Section from '../Section/index.js';
@@ -14,12 +15,105 @@ import { contactSectionStyles } from './ContactSection.styles.js';
 const injectStyles = createStyleInjector('ContactSection');
 
 /**
- * Creates a ContactSection component with map and contact form
- * @param {Object} props - Component props
- * @returns {Object} Component API
+ * Creates contact info display element
+ */
+const createContactInfo = (contactInfo) => {
+  const items = [];
+
+  if (contactInfo.address) {
+    items.push(
+      createElement('div', {
+        classes: 'contact-info__item',
+        children: [
+          createElement('span', { text: '📍 ', classes: 'contact-info__icon' }),
+          createElement('span', {
+            text: contactInfo.address,
+            classes: 'contact-info__text',
+          }),
+        ],
+      })
+    );
+  }
+
+  if (contactInfo.phone) {
+    items.push(
+      createElement('div', {
+        classes: 'contact-info__item',
+        children: [
+          createElement('span', { text: '📞 ', classes: 'contact-info__icon' }),
+          createElement('a', {
+            attributes: { href: `tel:${contactInfo.phone.replace(/\s/g, '')}` },
+            classes: 'contact-info__link',
+            text: contactInfo.phone,
+          }),
+        ],
+      })
+    );
+  }
+
+  if (contactInfo.email) {
+    items.push(
+      createElement('div', {
+        classes: 'contact-info__item',
+        children: [
+          createElement('span', { text: '✉️ ', classes: 'contact-info__icon' }),
+          createElement('a', {
+            attributes: { href: `mailto:${contactInfo.email}` },
+            classes: 'contact-info__link',
+            text: contactInfo.email,
+          }),
+        ],
+      })
+    );
+  }
+
+  if (contactInfo.hours) {
+    items.push(
+      createElement('div', {
+        classes: 'contact-info__item',
+        children: [
+          createElement('span', { text: '🕐 ', classes: 'contact-info__icon' }),
+          createElement('span', {
+            text: contactInfo.hours,
+            classes: 'contact-info__text',
+          }),
+        ],
+      })
+    );
+  }
+
+  if (contactInfo.website) {
+    items.push(
+      createElement('div', {
+        classes: 'contact-info__item',
+        children: [
+          createElement('span', { text: '🌐 ', classes: 'contact-info__icon' }),
+          createElement('a', {
+            attributes: {
+              href: contactInfo.website,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            },
+            classes: 'contact-info__link',
+            text: contactInfo.website.replace(/^https?:\/\//, ''),
+          }),
+        ],
+      })
+    );
+  }
+
+  return createElement('div', {
+    classes: 'contact-info',
+    children: items,
+  });
+};
+
+/**
+ * Creates a ContactSection component using baseComponent
  */
 const createContactSection = (props = {}) => {
-  let state = {
+  // Normalize props
+  const normalizedProps = {
     // Section props
     title: 'Contact Us',
     description: 'Get in touch with us',
@@ -57,166 +151,54 @@ const createContactSection = (props = {}) => {
     onSubmit: null,
     onChange: null,
 
-    // Layout - Desktop positioning only (mobile always has map on top)
-    mapPosition: 'left', // 'left' or 'right' - desktop layout only
+    // Layout options
+    mapPosition: 'left', // 'left' or 'right'
+    mobileLayout: 'stack', // 'stack' or 'reverse'
 
     ...props,
   };
 
-  let element = null;
-  let destroyed = false;
-
-  // Component instances
-  let sectionComponent = null;
-  let gridComponent = null;
+  // Component instances storage
   let mapComponent = null;
   let formComponent = null;
-
-  // Form fields
   let formFields = {};
 
-  const createContactInfo = () => {
-    const { contactInfo } = state;
-    const items = [];
+  // Create base component with render function
+  const baseComponent = createBaseComponent((state) => {
+    // Inject styles
+    injectStyles(contactSectionStyles);
 
-    if (contactInfo.address) {
-      const addressItem = createElement('div', {
-        classes: 'contact-info__item',
-      });
-
-      const addressLabel = Typography({
-        as: 'span',
-        children: 'Address:',
-        weight: 'semibold',
-        className: 'contact-info__label',
-      });
-
-      const addressValue = Typography({
-        as: 'span',
-        children: contactInfo.address,
-        className: 'contact-info__value',
-      });
-
-      addressItem.appendChild(addressLabel.getElement());
-      addressItem.appendChild(addressValue.getElement());
-      items.push(addressItem);
-    }
-
-    if (contactInfo.phone) {
-      const phoneItem = createElement('div', {
-        classes: 'contact-info__item',
-      });
-
-      const phoneLabel = Typography({
-        as: 'span',
-        children: 'Phone:',
-        weight: 'semibold',
-        className: 'contact-info__label',
-      });
-
-      const phoneLink = createElement('a', {
-        attributes: {
-          href: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
-        },
-        classes: 'contact-info__link',
-        text: contactInfo.phone,
-      });
-
-      phoneItem.appendChild(phoneLabel.getElement());
-      phoneItem.appendChild(phoneLink);
-      items.push(phoneItem);
-    }
-
-    if (contactInfo.email) {
-      const emailItem = createElement('div', {
-        classes: 'contact-info__item',
-      });
-
-      const emailLabel = Typography({
-        as: 'span',
-        children: 'Email:',
-        weight: 'semibold',
-        className: 'contact-info__label',
-      });
-
-      const emailLink = createElement('a', {
-        attributes: {
-          href: `mailto:${contactInfo.email}`,
-        },
-        classes: 'contact-info__link',
-        text: contactInfo.email,
-      });
-
-      emailItem.appendChild(emailLabel.getElement());
-      emailItem.appendChild(emailLink);
-      items.push(emailItem);
-    }
-
-    if (contactInfo.hours) {
-      const hoursItem = createElement('div', {
-        classes: 'contact-info__item',
-      });
-
-      const hoursLabel = Typography({
-        as: 'span',
-        children: 'Hours:',
-        weight: 'semibold',
-        className: 'contact-info__label',
-      });
-
-      const hoursValue = Typography({
-        as: 'span',
-        children: contactInfo.hours,
-        className: 'contact-info__value',
-      });
-
-      hoursItem.appendChild(hoursLabel.getElement());
-      hoursItem.appendChild(hoursValue.getElement());
-      items.push(hoursItem);
-    }
-
-    if (contactInfo.website) {
-      const websiteItem = createElement('div', {
-        classes: 'contact-info__item',
-      });
-
-      const websiteLabel = Typography({
-        as: 'span',
-        children: 'Website:',
-        weight: 'semibold',
-        className: 'contact-info__label',
-      });
-
-      const websiteLink = createElement('a', {
-        attributes: {
-          href: contactInfo.website,
-          target: '_blank',
-          rel: 'noopener noreferrer',
-        },
-        classes: 'contact-info__link',
-        text: contactInfo.website.replace(/^https?:\/\//, ''),
-      });
-
-      websiteItem.appendChild(websiteLabel.getElement());
-      websiteItem.appendChild(websiteLink);
-      items.push(websiteItem);
-    }
-
-    return createElement('div', {
-      classes: 'contact-info',
-      children: items,
+    // Create map component
+    mapComponent = Map({
+      apiKey: state.apiKey,
+      latitude: state.latitude,
+      longitude: state.longitude,
+      title: state.locationName,
+      placeId: state.placeId,
+      googleMapsUrl: state.googleMapsUrl,
+      shopInfo: state.contactInfo,
     });
-  };
 
-  const createContactForm = () => {
+    // Create form elements
     const formElements = [];
     formFields = {};
+
+    // Form title
+    if (state.formTitle) {
+      const formTitle = Typography({
+        as: 'h3',
+        children: state.formTitle,
+        className: 'contact-form__title',
+      });
+      formElements.push(formTitle);
+    }
 
     // Name field
     if (state.showNameField) {
       formFields.name = Input({
         id: 'contact-name',
         name: 'name',
+        label: 'Name',
         placeholder: 'Your Name',
         required: true,
       });
@@ -236,6 +218,7 @@ const createContactSection = (props = {}) => {
         id: 'contact-email',
         name: 'email',
         type: 'email',
+        label: 'Email',
         placeholder: 'your@email.com',
         required: true,
       });
@@ -255,6 +238,7 @@ const createContactSection = (props = {}) => {
         id: 'contact-phone',
         name: 'phone',
         type: 'tel',
+        label: 'Phone',
         placeholder: 'Your Phone Number',
       });
 
@@ -271,6 +255,7 @@ const createContactSection = (props = {}) => {
       formFields.subject = Input({
         id: 'contact-subject',
         name: 'subject',
+        label: 'Subject',
         placeholder: 'Message Subject',
         required: true,
       });
@@ -289,6 +274,7 @@ const createContactSection = (props = {}) => {
       formFields.message = Textarea({
         id: 'contact-message',
         name: 'message',
+        label: 'Message',
         placeholder: 'Your message...',
         required: true,
         rows: 5,
@@ -321,7 +307,7 @@ const createContactSection = (props = {}) => {
     );
 
     // Create form
-    const form = Form({
+    formComponent = Form({
       children: formElements,
       onSubmit: (event, data, isValid) => {
         if (state.onSubmit) {
@@ -335,133 +321,78 @@ const createContactSection = (props = {}) => {
       },
     });
 
-    // Register fields with form
-    Object.values(formFields).forEach((field) => {
-      form.registerField(field);
-    });
-
-    return form;
-  };
-
-  const createFormContent = () => {
-    const elements = [];
-
-    // Form title
-    if (state.formTitle) {
-      const formTitle = Typography({
-        as: 'h3',
-        children: state.formTitle,
-        className: 'contact-form__title',
-      });
-      elements.push(formTitle.getElement());
-    }
+    // Create form content container
+    const formContentElements = [];
 
     // Contact info
     if (Object.values(state.contactInfo).some((value) => value)) {
-      elements.push(createContactInfo());
+      formContentElements.push(createContactInfo(state.contactInfo));
     }
 
-    // Contact form
-    formComponent = createContactForm();
-    elements.push(formComponent.getElement());
+    // Form
+    formContentElements.push(formComponent.getElement());
 
-    return createElement('div', {
+    const formContent = createElement('div', {
       classes: 'contact-section__content',
-      children: elements,
-    });
-  };
-
-  const render = () => {
-    if (destroyed) return null;
-
-    // Inject styles
-    injectStyles(contactSectionStyles);
-
-    // Create map component
-    mapComponent = Map({
-      apiKey: state.apiKey,
-      latitude: state.latitude,
-      longitude: state.longitude,
-      title: state.locationName, // Updated to use 'title' prop
-      placeId: state.placeId,
-      googleMapsUrl: state.googleMapsUrl,
-      shopInfo: state.contactInfo,
+      children: formContentElements,
     });
 
-    // Create grid with responsive behavior
-    gridComponent = Grid({
-      gap: '16px',
-      rowGap: '12px', // Smaller gap between rows on mobile
+    // Create grid layout
+    const gridComponent = Grid({
+      gap: '32px',
+      rowGap: '24px',
+      className: `contact-section__grid ${state.mobileLayout === 'stack' ? 'contact-section__grid--stack' : ''} ${state.mobileLayout === 'reverse' ? 'contact-section__grid--reverse' : ''}`,
     });
 
-    // RESPONSIVE BEHAVIOR IMPLEMENTATION:
-    // Desktop: Side by side based on mapPosition
-    // Mobile: Map always on top (responsive stacking)
+    // Create columns
+    let mapColumn, formColumn;
 
-    if (state.mapOnTop) {
-      // Map on top on mobile (default behavior)
-
-      if (state.mapPosition === 'left') {
-        // Desktop: Map left, Form right
-        // Mobile: Map top, Form bottom
-
-        const mapColumn = Grid.Column({
-          width: 6, // 6/12 on desktop (left side)
-          mobileWidth: 12, // 12/12 on mobile (full width, stacked on top)
-          children: mapComponent.getElement(),
-        });
-
-        const formColumn = Grid.Column({
-          width: 6, // 6/12 on desktop (right side)
-          mobileWidth: 12, // 12/12 on mobile (full width, stacked below)
-          children: createFormContent(),
-        });
-
-        // Order matters for mobile stacking:
-        gridComponent.appendChild(mapColumn.getElement()); // First = top on mobile
-        gridComponent.appendChild(formColumn.getElement()); // Second = bottom on mobile
-      } else {
-        // Desktop: Form left, Map right
-        // Mobile: Map top, Form bottom
-
-        const formColumn = Grid.Column({
-          width: 6, // 6/12 on desktop (left side)
-          mobileWidth: 12, // 12/12 on mobile (full width, stacked below map)
-          children: createFormContent(),
-        });
-
-        const mapColumn = Grid.Column({
-          width: 6, // 6/12 on desktop (right side)
-          mobileWidth: 12, // 12/12 on mobile (full width, stacked on top)
-          children: mapComponent.getElement(),
-        });
-
-        // For map-on-top mobile, map goes first regardless of desktop position
-        gridComponent.appendChild(mapColumn.getElement()); // First = top on mobile
-        gridComponent.appendChild(formColumn.getElement()); // Second = bottom on mobile
-      }
-    } else {
-      // Form on top on mobile (alternative behavior)
-
-      const formColumn = Grid.Column({
-        width: 6,
-        mobileWidth: 12,
-        children: createFormContent(),
-      });
-
-      const mapColumn = Grid.Column({
+    if (Grid.Column) {
+      mapColumn = Grid.Column({
         width: 6,
         mobileWidth: 12,
         children: mapComponent.getElement(),
       });
 
-      // Form first = form on top on mobile
-      gridComponent.appendChild(formColumn.getElement());
-      gridComponent.appendChild(mapColumn.getElement());
+      formColumn = Grid.Column({
+        width: 6,
+        mobileWidth: 12,
+        children: formContent,
+      });
+    } else {
+      // Fallback to regular div elements
+      mapColumn = createElement('div', {
+        classes: 'contact-section__map-column',
+        children: [mapComponent.getElement()],
+      });
+
+      formColumn = createElement('div', {
+        classes: 'contact-section__form-column',
+        children: [formContent],
+      });
+    }
+
+    // Add columns to grid based on layout
+    if (state.mapPosition === 'left') {
+      if (Grid.Column) {
+        gridComponent.appendChild(mapColumn.getElement());
+        gridComponent.appendChild(formColumn.getElement());
+      } else {
+        gridComponent.getElement().appendChild(mapColumn);
+        gridComponent.getElement().appendChild(formColumn);
+      }
+    } else {
+      if (Grid.Column) {
+        gridComponent.appendChild(formColumn.getElement());
+        gridComponent.appendChild(mapColumn.getElement());
+      } else {
+        gridComponent.getElement().appendChild(formColumn);
+        gridComponent.getElement().appendChild(mapColumn);
+      }
     }
 
     // Create section
-    sectionComponent = Section({
+    const sectionComponent = Section({
       title: state.title,
       description: state.description,
       variant: state.variant,
@@ -470,134 +401,97 @@ const createContactSection = (props = {}) => {
       children: gridComponent.getElement(),
     });
 
-    element = sectionComponent.getElement();
-    return element;
-  };
+    return sectionComponent.getElement();
+  })(normalizedProps);
 
-  const updateContactInfo = (newContactInfo) => {
-    state.contactInfo = { ...state.contactInfo, ...newContactInfo };
-
-    if (mapComponent) {
-      mapComponent.update({ shopInfo: state.contactInfo });
-    }
-
-    if (element) {
-      // Re-render contact info section
-      const contactInfoEl = element.querySelector('.contact-info');
-      if (contactInfoEl) {
-        const newContactInfoEl = createContactInfo();
-        contactInfoEl.parentNode.replaceChild(newContactInfoEl, contactInfoEl);
-      }
-    }
-  };
-
-  const getFormData = () => {
-    if (!formComponent) return {};
-    return formComponent.getFormData();
-  };
-
-  const validateForm = () => {
-    if (!formComponent) return true;
-    return formComponent.validate();
-  };
-
-  const resetForm = () => {
-    if (formComponent) {
-      formComponent.reset();
-    }
-  };
-
-  const update = (newProps) => {
-    if (destroyed) return;
-
-    const oldState = { ...state };
-    state = { ...state, ...newProps };
-
-    // Update section if properties changed
-    if (
-      sectionComponent &&
-      (oldState.title !== state.title ||
-        oldState.description !== state.description ||
-        oldState.variant !== state.variant ||
-        oldState.backgroundColor !== state.backgroundColor)
-    ) {
-      sectionComponent.update({
-        title: state.title,
-        description: state.description,
-        variant: state.variant,
-        backgroundColor: state.backgroundColor,
-      });
-    }
-
-    // Update map if properties changed
-    if (
-      mapComponent &&
-      (oldState.latitude !== state.latitude ||
-        oldState.longitude !== state.longitude ||
-        oldState.locationName !== state.locationName ||
-        oldState.apiKey !== state.apiKey ||
-        oldState.placeId !== state.placeId ||
-        oldState.googleMapsUrl !== state.googleMapsUrl)
-    ) {
-      mapComponent.update({
-        latitude: state.latitude,
-        longitude: state.longitude,
-        title: state.locationName, // Updated to use 'title' prop
-        apiKey: state.apiKey,
-        placeId: state.placeId,
-        googleMapsUrl: state.googleMapsUrl,
-      });
-    }
-
-    // Update contact info if changed
-    if (
-      JSON.stringify(oldState.contactInfo) !== JSON.stringify(state.contactInfo)
-    ) {
-      updateContactInfo(state.contactInfo);
-    }
-  };
-
-  const destroy = () => {
-    if (destroyed) return;
-
-    destroyed = true;
-
-    // Destroy child components
-    [sectionComponent, gridComponent, mapComponent, formComponent]
-      .filter(Boolean)
-      .forEach((component) => component.destroy());
-
-    // Destroy form fields
-    Object.values(formFields).forEach((field) => field.destroy());
-
-    // Clean up references
-    element = null;
-    sectionComponent = null;
-    gridComponent = null;
-    mapComponent = null;
-    formComponent = null;
-    formFields = {};
-  };
-
-  // Public API
+  // Add extended API methods
   return {
-    getElement: () => element || render(),
-    update,
-    destroy,
+    ...baseComponent,
 
     // Contact-specific methods
-    updateContactInfo,
-    getFormData,
-    validateForm,
-    resetForm,
+    updateContactInfo(newContactInfo) {
+      const updatedContactInfo = {
+        ...baseComponent.getState().contactInfo,
+        ...newContactInfo,
+      };
 
-    // State access
-    getState: () => ({ ...state }),
+      this.update({ contactInfo: updatedContactInfo });
+
+      if (mapComponent) {
+        mapComponent.update({ shopInfo: updatedContactInfo });
+      }
+    },
+
+    getFormData() {
+      if (formComponent && formComponent.getFormData) {
+        return formComponent.getFormData();
+      }
+
+      // Fallback: collect data from form fields directly
+      const data = {};
+      Object.entries(formFields).forEach(([key, field]) => {
+        if (field && field.getValue) {
+          data[key] = field.getValue();
+        }
+      });
+      return data;
+    },
+
+    validateForm() {
+      if (formComponent && formComponent.validate) {
+        return formComponent.validate();
+      }
+      return true;
+    },
+
+    resetForm() {
+      if (formComponent && formComponent.reset) {
+        formComponent.reset();
+      }
+    },
 
     // Component access
-    getMapComponent: () => mapComponent,
-    getFormComponent: () => formComponent,
-    getFormFields: () => ({ ...formFields }),
+    getMapComponent() {
+      return mapComponent;
+    },
+
+    getFormComponent() {
+      return formComponent;
+    },
+
+    getFormFields() {
+      return { ...formFields };
+    },
+
+    // State access
+    getState() {
+      return baseComponent.getState();
+    },
+
+    // Enhanced destroy method
+    destroy() {
+      // Destroy child components
+      [mapComponent, formComponent].filter(Boolean).forEach((component) => {
+        if (component.destroy && typeof component.destroy === 'function') {
+          component.destroy();
+        }
+      });
+
+      // Destroy form fields
+      Object.values(formFields).forEach((field) => {
+        if (field && field.destroy && typeof field.destroy === 'function') {
+          field.destroy();
+        }
+      });
+
+      // Clear references
+      mapComponent = null;
+      formComponent = null;
+      formFields = {};
+
+      // Call base destroy
+      baseComponent.destroy();
+    },
   };
 };
 
