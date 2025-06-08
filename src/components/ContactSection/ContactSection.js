@@ -1,9 +1,8 @@
-// src/components/ContactSection/ContactSection.js
+// src/components/ContactSection/ContactSection.js - Proper Svarog Form usage
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createStyleInjector } from '../../utils/styleInjection.js';
 import { createElement } from '../../utils/componentFactory.js';
 import Section from '../Section/index.js';
-import Grid from '../Grid/index.js';
 import Map from '../Map/index.js';
 import { Form, FormGroup, FormActions } from '../Form/index.js';
 import Input from '../Input/index.js';
@@ -158,13 +157,20 @@ const createContactSection = (props = {}) => {
     ...props,
   };
 
+  // Keep our own state reference for getState()
+  let currentState = { ...normalizedProps };
+
   // Component instances storage
   let mapComponent = null;
   let formComponent = null;
   let formFields = {};
+  let sectionComponent = null;
 
   // Create base component with render function
   const baseComponent = createBaseComponent((state) => {
+    // Update our state reference
+    currentState = { ...state };
+
     // Inject styles
     injectStyles(contactSectionStyles);
 
@@ -179,11 +185,11 @@ const createContactSection = (props = {}) => {
       shopInfo: state.contactInfo,
     });
 
-    // Create form elements
+    // Create form elements array (Svarog Form components)
     const formElements = [];
     formFields = {};
 
-    // Form title
+    // Form title using Typography
     if (state.formTitle) {
       const formTitle = Typography({
         as: 'h3',
@@ -198,7 +204,6 @@ const createContactSection = (props = {}) => {
       formFields.name = Input({
         id: 'contact-name',
         name: 'name',
-        label: 'Name',
         placeholder: 'Your Name',
         required: true,
       });
@@ -207,6 +212,7 @@ const createContactSection = (props = {}) => {
         FormGroup({
           label: 'Name',
           field: formFields.name,
+          id: 'contact-name',
           required: true,
         })
       );
@@ -218,7 +224,6 @@ const createContactSection = (props = {}) => {
         id: 'contact-email',
         name: 'email',
         type: 'email',
-        label: 'Email',
         placeholder: 'your@email.com',
         required: true,
       });
@@ -227,6 +232,7 @@ const createContactSection = (props = {}) => {
         FormGroup({
           label: 'Email',
           field: formFields.email,
+          id: 'contact-email',
           required: true,
         })
       );
@@ -238,7 +244,6 @@ const createContactSection = (props = {}) => {
         id: 'contact-phone',
         name: 'phone',
         type: 'tel',
-        label: 'Phone',
         placeholder: 'Your Phone Number',
       });
 
@@ -246,6 +251,7 @@ const createContactSection = (props = {}) => {
         FormGroup({
           label: 'Phone',
           field: formFields.phone,
+          id: 'contact-phone',
         })
       );
     }
@@ -255,7 +261,6 @@ const createContactSection = (props = {}) => {
       formFields.subject = Input({
         id: 'contact-subject',
         name: 'subject',
-        label: 'Subject',
         placeholder: 'Message Subject',
         required: true,
       });
@@ -264,6 +269,7 @@ const createContactSection = (props = {}) => {
         FormGroup({
           label: 'Subject',
           field: formFields.subject,
+          id: 'contact-subject',
           required: true,
         })
       );
@@ -274,7 +280,6 @@ const createContactSection = (props = {}) => {
       formFields.message = Textarea({
         id: 'contact-message',
         name: 'message',
-        label: 'Message',
         placeholder: 'Your message...',
         required: true,
         rows: 5,
@@ -287,6 +292,7 @@ const createContactSection = (props = {}) => {
         FormGroup({
           label: 'Message',
           field: formFields.message,
+          id: 'contact-message',
           required: true,
         })
       );
@@ -306,7 +312,7 @@ const createContactSection = (props = {}) => {
       })
     );
 
-    // Create form
+    // Create form using Svarog Form component
     formComponent = Form({
       children: formElements,
       onSubmit: (event, data, isValid) => {
@@ -321,6 +327,13 @@ const createContactSection = (props = {}) => {
       },
     });
 
+    // Register form fields with the form for validation
+    Object.values(formFields).forEach((field) => {
+      if (field && formComponent.registerField) {
+        formComponent.registerField(field);
+      }
+    });
+
     // Create form content container
     const formContentElements = [];
 
@@ -329,7 +342,7 @@ const createContactSection = (props = {}) => {
       formContentElements.push(createContactInfo(state.contactInfo));
     }
 
-    // Form
+    // Form (get the actual DOM element)
     formContentElements.push(formComponent.getElement());
 
     const formContent = createElement('div', {
@@ -337,81 +350,107 @@ const createContactSection = (props = {}) => {
       children: formContentElements,
     });
 
-    // Create grid layout
-    const gridComponent = Grid({
-      gap: '32px',
-      rowGap: '24px',
-      className: `contact-section__grid ${state.mobileLayout === 'stack' ? 'contact-section__grid--stack' : ''} ${state.mobileLayout === 'reverse' ? 'contact-section__grid--reverse' : ''}`,
+    // Create grid layout with CSS classes only
+    const gridClasses = [
+      'contact-section__grid',
+      state.mobileLayout === 'stack' ? 'contact-section__grid--stack' : '',
+      state.mobileLayout === 'reverse' ? 'contact-section__grid--reverse' : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    const gridElement = createElement('div', {
+      classes: gridClasses,
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '32px',
+        alignItems: 'start',
+      },
     });
 
-    // Create columns
-    let mapColumn, formColumn;
+    // Create columns as simple div elements
+    const mapColumn = createElement('div', {
+      classes: 'contact-section__map-column',
+      children: [mapComponent.getElement()],
+    });
 
-    if (Grid.Column) {
-      mapColumn = Grid.Column({
-        width: 6,
-        mobileWidth: 12,
-        children: mapComponent.getElement(),
-      });
-
-      formColumn = Grid.Column({
-        width: 6,
-        mobileWidth: 12,
-        children: formContent,
-      });
-    } else {
-      // Fallback to regular div elements
-      mapColumn = createElement('div', {
-        classes: 'contact-section__map-column',
-        children: [mapComponent.getElement()],
-      });
-
-      formColumn = createElement('div', {
-        classes: 'contact-section__form-column',
-        children: [formContent],
-      });
-    }
+    const formColumn = createElement('div', {
+      classes: 'contact-section__form-column',
+      children: [formContent],
+    });
 
     // Add columns to grid based on layout
     if (state.mapPosition === 'left') {
-      if (Grid.Column) {
-        gridComponent.appendChild(mapColumn.getElement());
-        gridComponent.appendChild(formColumn.getElement());
-      } else {
-        gridComponent.getElement().appendChild(mapColumn);
-        gridComponent.getElement().appendChild(formColumn);
-      }
+      gridElement.appendChild(mapColumn);
+      gridElement.appendChild(formColumn);
     } else {
-      if (Grid.Column) {
-        gridComponent.appendChild(formColumn.getElement());
-        gridComponent.appendChild(mapColumn.getElement());
-      } else {
-        gridComponent.getElement().appendChild(formColumn);
-        gridComponent.getElement().appendChild(mapColumn);
-      }
+      gridElement.appendChild(formColumn);
+      gridElement.appendChild(mapColumn);
     }
 
-    // Create section
-    const sectionComponent = Section({
-      title: state.title,
-      description: state.description,
-      variant: state.variant,
-      backgroundColor: state.backgroundColor,
-      className: `contact-section ${state.className}`,
-      children: gridComponent.getElement(),
-    });
+    // Create main container (try Section component, fallback to div)
+    try {
+      if (Section) {
+        sectionComponent = Section({
+          title: state.title,
+          description: state.description,
+          variant: state.variant,
+          backgroundColor: state.backgroundColor,
+          className: `contact-section ${state.className}`,
+          children: gridElement,
+        });
 
-    return sectionComponent.getElement();
+        return sectionComponent.getElement();
+      }
+    } catch (error) {
+      console.warn('Section component failed, using fallback:', error);
+    }
+
+    // Fallback to simple structure
+    return createElement('div', {
+      classes: `contact-section ${state.className}`,
+      style: state.backgroundColor
+        ? { backgroundColor: state.backgroundColor }
+        : {},
+      children: [
+        state.title
+          ? createElement('h2', {
+              text: state.title,
+              classes: 'contact-section__title',
+            })
+          : null,
+        state.description
+          ? createElement('p', {
+              text: state.description,
+              classes: 'contact-section__description',
+            })
+          : null,
+        gridElement,
+      ].filter(Boolean),
+    });
   })(normalizedProps);
 
   // Add extended API methods
   return {
     ...baseComponent,
 
+    // State access (required for tests)
+    getState() {
+      return { ...currentState };
+    },
+
+    // Override update to keep our state in sync
+    update(newProps) {
+      const result = baseComponent.update(newProps);
+      currentState = { ...currentState, ...newProps };
+      return result;
+    },
+
     // Contact-specific methods
     updateContactInfo(newContactInfo) {
       const updatedContactInfo = {
-        ...baseComponent.getState().contactInfo,
+        ...currentState.contactInfo,
         ...newContactInfo,
       };
 
@@ -463,19 +502,24 @@ const createContactSection = (props = {}) => {
       return { ...formFields };
     },
 
-    // State access
-    getState() {
-      return baseComponent.getState();
-    },
-
-    // Enhanced destroy method
+    // Enhanced destroy method that actually removes from DOM
     destroy() {
+      // Get the element before destroying
+      const element = baseComponent.getElement();
+
+      // Remove from DOM if it has a parent
+      if (element && element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+
       // Destroy child components
-      [mapComponent, formComponent].filter(Boolean).forEach((component) => {
-        if (component.destroy && typeof component.destroy === 'function') {
-          component.destroy();
-        }
-      });
+      [mapComponent, formComponent, sectionComponent]
+        .filter(Boolean)
+        .forEach((component) => {
+          if (component.destroy && typeof component.destroy === 'function') {
+            component.destroy();
+          }
+        });
 
       // Destroy form fields
       Object.values(formFields).forEach((field) => {
@@ -487,6 +531,7 @@ const createContactSection = (props = {}) => {
       // Clear references
       mapComponent = null;
       formComponent = null;
+      sectionComponent = null;
       formFields = {};
 
       // Call base destroy

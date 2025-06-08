@@ -1,4 +1,4 @@
-// src/components/Map/Map.js - Using baseComponent utility properly
+// src/components/Map/Map.js - Fixed state management
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createStyleInjector } from '../../utils/styleInjection.js';
 import { createElement } from '../../utils/componentFactory.js';
@@ -85,7 +85,6 @@ const normalizeProps = (inputProps) => {
 
     if (placeId) normalized.placeId = placeId;
     if (coords) Object.assign(normalized, coords);
-    // Always use extracted location name if available (don't check if title exists)
     if (locationName) normalized.title = locationName;
   }
 
@@ -309,7 +308,7 @@ const createLiveMapElement = (config) => {
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     ">
       <div style="font-size: 24px; margin-bottom: 8px;">🗺️</div>
-      <div style="font-size: 14px; color: #666;">Loading modern map...</div>
+      <div style="font-size: 14px; color: #666;">Loading map...</div>
     </div>
   `;
 
@@ -333,8 +332,14 @@ const createMap = (props = {}) => {
     ...props,
   });
 
+  // Keep our own state reference for getState()
+  let currentState = { ...normalizedProps };
+
   // Create base component with render function
   const baseComponent = createBaseComponent((state) => {
+    // Update our state reference
+    currentState = { ...state };
+
     // Inject styles
     injectMapStyles(mapStyles);
 
@@ -362,7 +367,15 @@ const createMap = (props = {}) => {
 
     // State access (required for tests)
     getState() {
-      return baseComponent.getState();
+      return { ...currentState };
+    },
+
+    // Override update to keep our state in sync
+    update(newProps) {
+      const result = baseComponent.update(newProps);
+      // Update our state reference
+      currentState = { ...currentState, ...newProps };
+      return result;
     },
 
     // Extended API
@@ -376,15 +389,15 @@ const createMap = (props = {}) => {
       if (coords) Object.assign(updates, coords);
       if (locationName) updates.title = locationName;
 
-      return baseComponent.update(updates);
+      return this.update(updates);
     },
 
     setPlaceId(placeId) {
-      return baseComponent.update({ placeId });
+      return this.update({ placeId });
     },
 
     setCoordinates(lat, lng) {
-      return baseComponent.update({
+      return this.update({
         latitude: parseCoordinate(lat, DEFAULT_COORDS.lat),
         longitude: parseCoordinate(lng, DEFAULT_COORDS.lng),
       });
