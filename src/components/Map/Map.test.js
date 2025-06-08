@@ -195,7 +195,7 @@ describe('Map component - Modern API', () => {
 
     // Should create live map container
     expect(mapElement.classList.contains('map-container--live')).toBe(true);
-    expect(mapElement.textContent).toContain('Loading modern map');
+    expect(mapElement.textContent).toContain('Loading map');
   });
 
   it('should handle update method correctly', () => {
