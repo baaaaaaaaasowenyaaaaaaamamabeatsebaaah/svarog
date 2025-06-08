@@ -76,6 +76,12 @@ export const muchandyHeroStyles = css`
     contain: layout style paint;
   }
 
+  .muchandy-hero__form-wrapper form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
   /* Tabs component overrides with minimal specificity */
   .muchandy-hero .tabs__panels {
     margin-top: var(--space-5);
