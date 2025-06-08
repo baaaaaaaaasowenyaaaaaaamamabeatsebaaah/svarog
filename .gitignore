@@ -104,6 +104,10 @@ packages/*/src/utils/
 # Keep the index file
 !src/index.js
 
-*.config.js
+*.config.local.js
 !webpack*.config.js
 !webpack.*.config.js
+!babel.config.js
+!rollup.config.js
+!vite.config.js
+!**/webpack*.config.js

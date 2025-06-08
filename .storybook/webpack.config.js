@@ -54,6 +54,14 @@ export default (env, argv) => {
       new webpack.IgnorePlugin({
         resourceRegExp: /\.md$/,
       }),
+      new webpack.DefinePlugin({
+        'process.env.GOOGLE_MAPS_API_KEY': JSON.stringify(
+          process.env.GOOGLE_MAPS_API_KEY || ''
+        ),
+        'process.env.NODE_ENV': JSON.stringify(
+          process.env.NODE_ENV || 'development'
+        ),
+      }),
       // Ignore specific markdown files in theme packages
       new webpack.IgnorePlugin({
         resourceRegExp: /\/(CHANGELOG|LICENSE|README)\.md$/,

@@ -1,6 +1,17 @@
 // src/components/Map/Map.stories.js - Modern Google Maps API Examples
 import Map from './Map.js';
-import { mapsConfig } from '../../config/maps.config.js';
+
+// Smart config loading: try local first, fallback to production
+let mapsConfig;
+try {
+  // Try local config (development)
+  mapsConfig = (await import('../../config/maps.config.local.js')).mapsConfig;
+  console.log('🔑 Map: Using local maps config');
+} catch {
+  // Fallback to production config (Railway)
+  mapsConfig = (await import('../../config/maps.config.js')).mapsConfig;
+  console.log('🌍 Map: Using production maps config');
+}
 
 const getApiKey = () => mapsConfig.apiKey;
 
@@ -41,11 +52,16 @@ const createStatusBanner = () => {
     <small>${
       status.valid
         ? 'Maps will use modern AdvancedMarkerElement and Places API'
-        : 'Maps will display in preview mode. Add API key to src/config/MapsConfig.js for modern functionality'
+        : 'Maps will display in preview mode. Add API key to src/config/maps.config.local.js for modern functionality'
     }</small>
   `;
 
   return banner;
+};
+
+export default {
+  title: 'Components/Map',
+  tags: ['autodocs'],
 };
 
 // Modern mucHANDY shop with AdvancedMarkerElement
@@ -429,7 +445,7 @@ export const ModernSetupGuide = () => {
 
     <h4>3. Configuration</h4>
     <pre style="background: white; padding: 10px; border-radius: 4px; font-size: 12px;">
-// src/config/MapsConfig.js
+// src/config/maps.config.local.js (development)
 export const mapsConfig = {
   apiKey: 'YOUR_ACTUAL_API_KEY_HERE'
 };</pre>

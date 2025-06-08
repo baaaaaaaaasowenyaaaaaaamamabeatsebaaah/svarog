@@ -1,6 +1,17 @@
 // src/components/ContactSection/ContactSection.stories.js
 import ContactSection from './ContactSection.js';
-import { mapsConfig } from '../../config/maps.config.js';
+
+// Smart config loading: try local first, fallback to production
+let mapsConfig;
+try {
+  // Try local config (development)
+  mapsConfig = (await import('../../config/maps.config.local.js')).mapsConfig;
+  console.log('🔑 ContactSection: Using local maps config');
+} catch {
+  // Fallback to production config (Railway)
+  mapsConfig = (await import('../../config/maps.config.js')).mapsConfig;
+  console.log('🌍 ContactSection: Using production maps config');
+}
 
 // Use the config object
 const getApiKey = () => mapsConfig.apiKey;
@@ -40,7 +51,7 @@ const createStatusBanner = () => {
     <small>${
       status.valid
         ? 'Maps will display with full Google Maps functionality'
-        : 'Maps will display in preview mode. Add API key to src/config/MapsConfig.js for full functionality'
+        : 'Maps will display in preview mode. Add API key to src/config/maps.config.local.js for full functionality'
     }</small>
   `;
 
@@ -75,11 +86,17 @@ const createContactSection = (props = {}) => {
   });
 };
 
+export default {
+  title: 'Components/ContactSection',
+  tags: ['autodocs'],
+};
+
 export const Default = (args) => {
   const container = document.createElement('div');
   container.appendChild(createStatusBanner());
   const contactSection = createContactSection(args);
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
 
 export const WithGoogleMaps = (args) => {
@@ -93,7 +110,8 @@ export const WithGoogleMaps = (args) => {
     placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
     mapOnTop: true,
   });
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
 
 export const MapOnRight = (args) => {
@@ -105,7 +123,8 @@ export const MapOnRight = (args) => {
     description: 'Map positioned on the right side',
     mapPosition: 'right',
   });
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
 
 export const WithCustomFields = (args) => {
@@ -119,7 +138,8 @@ export const WithCustomFields = (args) => {
     showPhoneField: true,
     showSubjectField: false,
   });
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
 
 export const WithMinorVariant = (args) => {
@@ -131,7 +151,8 @@ export const WithMinorVariant = (args) => {
     variant: 'minor',
     backgroundColor: '#f8f9fa',
   });
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
 
 export const MobileReversedLayout = (args) => {
@@ -143,7 +164,8 @@ export const MobileReversedLayout = (args) => {
     description: 'Form appears first on mobile',
     mobileLayout: 'reverse',
   });
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
 
 export const MinimalConfiguration = (args) => {
@@ -160,7 +182,8 @@ export const MinimalConfiguration = (args) => {
     },
     ...args,
   });
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
 
 export const WithCallbacks = (args) => {
@@ -180,5 +203,6 @@ export const WithCallbacks = (args) => {
       console.log('Form changed:', data);
     },
   });
-  return contactSection.getElement();
+  container.appendChild(contactSection.getElement());
+  return container;
 };
