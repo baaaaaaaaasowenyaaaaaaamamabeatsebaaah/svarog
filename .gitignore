@@ -105,3 +105,4 @@ packages/*/src/utils/
 !src/index.js
 
 *.config.js
+!webpack*.config.js
