@@ -929,6 +929,20 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'UsingValue',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.UsingValue
+            ),
+        },
+        {
+          name: 'UsingDefaultValue',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.UsingDefaultValue
+            ),
+        },
+        {
           name: 'Required',
           module: () =>
             import('../components/Checkbox/Checkbox.stories.js').then(
@@ -940,6 +954,20 @@ export const getComponents = () => {
           module: () =>
             import('../components/Checkbox/Checkbox.stories.js').then(
               (m) => m.Disabled
+            ),
+        },
+        {
+          name: 'Loading',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.Loading
+            ),
+        },
+        {
+          name: 'LoadingAndChecked',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.LoadingAndChecked
             ),
         },
         {
@@ -975,6 +1003,48 @@ export const getComponents = () => {
           module: () =>
             import('../components/Checkbox/Checkbox.stories.js').then(
               (m) => m.CustomStyling
+            ),
+        },
+        {
+          name: 'WithLinkInLabel',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.WithLinkInLabel
+            ),
+        },
+        {
+          name: 'WithPrivacyPolicyLink',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.WithPrivacyPolicyLink
+            ),
+        },
+        {
+          name: 'WithIconInLabel',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.WithIconInLabel
+            ),
+        },
+        {
+          name: 'NewsletterSignup',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.NewsletterSignup
+            ),
+        },
+        {
+          name: 'DynamicLabelUpdate',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.DynamicLabelUpdate
+            ),
+        },
+        {
+          name: 'ImprovedValidationUX',
+          module: () =>
+            import('../components/Checkbox/Checkbox.stories.js').then(
+              (m) => m.ImprovedValidationUX
             ),
         },
       ],
@@ -2361,11 +2431,32 @@ export const getComponents = () => {
             ).then((m) => m.MinimalConfiguration),
         },
         {
+          name: 'WithFullAddressInfo',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.WithFullAddressInfo),
+        },
+        {
           name: 'WithCallbacks',
           module: () =>
             import(
               '../components/ContactSection/ContactSection.stories.js'
             ).then((m) => m.WithCallbacks),
+        },
+        {
+          name: 'BerlinOffice',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.BerlinOffice),
+        },
+        {
+          name: 'OnlyPhoneAndEmail',
+          module: () =>
+            import(
+              '../components/ContactSection/ContactSection.stories.js'
+            ).then((m) => m.OnlyPhoneAndEmail),
         },
       ],
     },

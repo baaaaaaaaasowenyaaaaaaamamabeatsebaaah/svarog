@@ -29,10 +29,6 @@ const createContactInfo = (contactInfo) => {
         classes: 'contact-info__item',
         children: [
           createElement('span', {
-            text: 'Unternehmen:',
-            classes: 'contact-info__label',
-          }),
-          createElement('span', {
             text: contactInfo.companyName,
             classes: 'contact-info__value',
           }),
@@ -79,7 +75,6 @@ const createContactInfo = (contactInfo) => {
     const phoneLink = Link({
       children: contactInfo.phone,
       href: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
-      className: 'contact-info__link',
     });
 
     items.push(
@@ -87,7 +82,7 @@ const createContactInfo = (contactInfo) => {
         classes: 'contact-info__item',
         children: [
           createElement('span', {
-            text: 'Telefon:',
+            text: 'Telefon und E-Mail:',
             classes: 'contact-info__label',
           }),
           phoneLink.getElement(),
@@ -101,37 +96,29 @@ const createContactInfo = (contactInfo) => {
     const emailLink = Link({
       children: contactInfo.email,
       href: `mailto:${contactInfo.email}`,
-      className: 'contact-info__link',
     });
 
     items.push(
       createElement('div', {
         classes: 'contact-info__item',
-        children: [
-          createElement('span', {
-            text: 'E-Mail:',
-            classes: 'contact-info__label',
-          }),
-          emailLink.getElement(),
-        ],
+        children: [emailLink.getElement()],
       })
     );
   }
 
-  // Hours
+  // Hours - Enhanced to handle multiple formats
   if (contactInfo.hours) {
+    const hoursElement = createHoursElement(contactInfo.hours);
+
     items.push(
       createElement('div', {
-        classes: 'contact-info__item',
+        classes: 'contact-info__item contact-info__item--hours',
         children: [
           createElement('span', {
             text: 'Öffnungszeiten:',
             classes: 'contact-info__label',
           }),
-          createElement('span', {
-            text: contactInfo.hours,
-            classes: 'contact-info__value',
-          }),
+          hoursElement,
         ],
       })
     );
@@ -140,6 +127,72 @@ const createContactInfo = (contactInfo) => {
   return createElement('div', {
     classes: 'contact-info',
     children: items,
+  });
+};
+
+/**
+ * Creates a flexible hours display element
+ * @param {string|Array|Object} hours - Hours in various formats
+ * @returns {HTMLElement} Hours display element
+ */
+const createHoursElement = (hours) => {
+  // Case 1: Array of strings
+  if (Array.isArray(hours)) {
+    return createElement('ul', {
+      classes: 'contact-info__hours-list',
+      children: hours.map((hour) =>
+        createElement('li', {
+          text: hour,
+          classes: 'contact-info__hours-item',
+        })
+      ),
+    });
+  }
+
+  // Case 2: Object with day/time pairs
+  if (typeof hours === 'object' && !Array.isArray(hours)) {
+    const hoursList = [];
+
+    Object.entries(hours).forEach(([day, time]) => {
+      hoursList.push(
+        createElement('li', {
+          classes: 'contact-info__hours-item',
+          children: [
+            createElement('span', {
+              text: `${day}:`,
+              classes: 'contact-info__hours-day',
+            }),
+            createElement('span', {
+              text: time,
+              classes: 'contact-info__hours-time',
+            }),
+          ],
+        })
+      );
+    });
+
+    return createElement('ul', {
+      classes: 'contact-info__hours-list',
+      children: hoursList,
+    });
+  }
+
+  // Case 3: String with line breaks
+  if (typeof hours === 'string' && hours.includes('\n')) {
+    const lines = hours.split('\n').filter((line) => line.trim());
+    return createHoursElement(lines); // Recursively handle as array
+  }
+
+  // Case 4: String with <br> tags
+  if (typeof hours === 'string' && hours.includes('<br')) {
+    const lines = hours.split(/<br\s*\/?>/i).filter((line) => line.trim());
+    return createHoursElement(lines); // Recursively handle as array
+  }
+
+  // Case 5: Simple string (fallback)
+  return createElement('span', {
+    text: hours,
+    classes: 'contact-info__value',
   });
 };
 
@@ -209,8 +262,6 @@ const createContactSection = (props = {}) => {
   let formFields = {};
   let sectionComponent = null;
   let gridComponent = null;
-  let mapColumn = null;
-  let formColumn = null;
   let linkComponents = []; // Track Link components for cleanup
 
   // Create base component with render function
@@ -246,8 +297,7 @@ const createContactSection = (props = {}) => {
         Typography({
           as: 'h3',
           children: state.formTitle,
-          className: 'contact-form__title',
-        })
+        }).getElement()
       );
     }
 
@@ -256,7 +306,7 @@ const createContactSection = (props = {}) => {
       formFields.name = Input({
         id: 'contact-name',
         name: 'name',
-        placeholder: 'Your Name',
+        placeholder: 'Ihr Name',
         required: true,
       });
 
@@ -266,7 +316,7 @@ const createContactSection = (props = {}) => {
           field: formFields.name,
           id: 'contact-name',
           required: true,
-        })
+        }).getElement()
       );
     }
 
@@ -276,7 +326,7 @@ const createContactSection = (props = {}) => {
         id: 'contact-email',
         name: 'email',
         type: 'email',
-        placeholder: 'your@email.com',
+        placeholder: 'ihre@email.de',
         required: true,
       });
 
@@ -286,7 +336,7 @@ const createContactSection = (props = {}) => {
           field: formFields.email,
           id: 'contact-email',
           required: true,
-        })
+        }).getElement()
       );
     }
 
@@ -296,7 +346,7 @@ const createContactSection = (props = {}) => {
         id: 'contact-phone',
         name: 'phone',
         type: 'tel',
-        placeholder: 'Your Phone Number',
+        placeholder: 'Ihre Telefonnummer',
       });
 
       formElements.push(
@@ -304,7 +354,7 @@ const createContactSection = (props = {}) => {
           label: 'Telefon',
           field: formFields.phone,
           id: 'contact-phone',
-        })
+        }).getElement()
       );
     }
 
@@ -313,7 +363,7 @@ const createContactSection = (props = {}) => {
       formFields.subject = Input({
         id: 'contact-subject',
         name: 'subject',
-        placeholder: 'Message Subject',
+        placeholder: 'Betreff',
         required: true,
       });
 
@@ -323,7 +373,7 @@ const createContactSection = (props = {}) => {
           field: formFields.subject,
           id: 'contact-subject',
           required: true,
-        })
+        }).getElement()
       );
     }
 
@@ -332,7 +382,7 @@ const createContactSection = (props = {}) => {
       formFields.message = Textarea({
         id: 'contact-message',
         name: 'message',
-        placeholder: 'Your message...',
+        placeholder: 'Ihre Nachricht...',
         required: true,
         rows: 5,
         autoResize: true,
@@ -346,12 +396,13 @@ const createContactSection = (props = {}) => {
           field: formFields.message,
           id: 'contact-message',
           required: true,
-        })
+        }).getElement()
       );
     }
 
     // Privacy policy checkbox
     if (state.showPrivacyCheckbox) {
+      // Create the privacy policy link
       const privacyLink = Link({
         children: 'Datenschutzerklärung',
         href: state.privacyPolicyUrl,
@@ -360,33 +411,22 @@ const createContactSection = (props = {}) => {
       });
       linkComponents.push(privacyLink);
 
-      // Create checkbox with text label first
+      // Create label element with link
+      const privacyLabel = document.createElement('span');
+      privacyLabel.appendChild(document.createTextNode('Ich stimme der '));
+      privacyLabel.appendChild(privacyLink.getElement());
+      privacyLabel.appendChild(document.createTextNode(' zu'));
+
+      // Create checkbox with HTML label
       formFields.privacy = Checkbox({
         id: 'contact-privacy',
         name: 'privacy',
-        label: 'Ich stimme der Datenschutzerklärung zu',
+        label: privacyLabel, // Now we can pass the HTML element directly!
         required: true,
+        validationMessage: 'Sie müssen der Datenschutzerklärung zustimmen',
       });
 
-      // Get the checkbox element and modify its label to include the link
-      const checkboxElement = formFields.privacy.getElement();
-      const labelElement = checkboxElement.querySelector('label');
-      if (labelElement) {
-        // Clear the label and rebuild it with the link
-        labelElement.innerHTML = '';
-        labelElement.appendChild(document.createTextNode('Ich stimme der '));
-        labelElement.appendChild(privacyLink.getElement());
-        labelElement.appendChild(document.createTextNode(' zu'));
-      }
-
-      formElements.push(
-        FormGroup({
-          label: '', // Empty label since checkbox has its own label
-          field: formFields.privacy,
-          id: 'contact-privacy',
-          required: true,
-        })
-      );
+      formElements.push(formFields.privacy.getElement());
     }
 
     // Newsletter checkbox
@@ -398,11 +438,27 @@ const createContactSection = (props = {}) => {
         required: false,
       });
 
+      formElements.push(formFields.newsletter.getElement());
+    }
+
+    // Add required fields notice
+    const hasRequiredFields =
+      state.showNameField ||
+      state.showEmailField ||
+      state.showSubjectField ||
+      state.showMessageField ||
+      state.showPrivacyCheckbox;
+
+    if (hasRequiredFields) {
       formElements.push(
-        FormGroup({
-          label: '', // Empty label since checkbox has its own label
-          field: formFields.newsletter,
-          id: 'contact-newsletter',
+        createElement('div', {
+          classes: 'contact-form__required-notice',
+          children: [
+            createElement('span', {
+              text: '* Pflichtfelder',
+              classes: 'contact-form__required-text',
+            }),
+          ],
         })
       );
     }
@@ -418,221 +474,43 @@ const createContactSection = (props = {}) => {
       FormActions({
         children: submitButton,
         align: 'left',
-      })
+      }).getElement()
     );
 
     // Create form using Svarog Form component
-    try {
-      formComponent = Form({
-        children: formElements,
-        onSubmit: (event, data, isValid) => {
-          if (state.onSubmit) {
-            state.onSubmit(event, data, isValid, formFields);
+    formComponent = Form({
+      children: formElements,
+      onSubmit: async (event, data, _isValid) => {
+        // Manually validate all required fields
+        let allValid = true;
+        const errors = [];
+
+        // Validate each field
+        Object.entries(formFields).forEach(([fieldName, field]) => {
+          if (field.validate && !field.validate()) {
+            allValid = false;
+            errors.push(fieldName);
           }
-        },
-        onChange: (event, data) => {
-          if (state.onChange) {
-            state.onChange(event, data, formFields);
-          }
-        },
-      });
+        });
 
-      // Verify form was created successfully
-      if (!formComponent || !formComponent.getElement) {
-        throw new Error('Form component creation failed');
+        // Pass validation result to handler
+        if (state.onSubmit) {
+          state.onSubmit(event, data, allValid, formFields);
+        }
+      },
+      onChange: (event, data) => {
+        if (state.onChange) {
+          state.onChange(event, data, formFields);
+        }
+      },
+    });
+
+    // Register all form fields for validation
+    Object.values(formFields).forEach((field) => {
+      if (formComponent.registerField) {
+        formComponent.registerField(field);
       }
-    } catch (error) {
-      console.warn(
-        'Svarog Form component failed, creating fallback form:',
-        error
-      );
-
-      // Create a simple fallback form structure with checkboxes
-      const fallbackFormElements = [];
-
-      // Add form title
-      if (state.formTitle) {
-        fallbackFormElements.push(
-          createElement('h3', {
-            text: state.formTitle,
-            classes: 'contact-form__title',
-          })
-        );
-      }
-
-      // Add form fields as simple HTML
-      if (state.showNameField) {
-        fallbackFormElements.push(
-          createElement('div', {
-            classes: 'form-group',
-            children: [
-              createElement('label', {
-                text: 'Name',
-                attributes: { for: 'contact-name' },
-              }),
-              createElement('input', {
-                attributes: {
-                  type: 'text',
-                  id: 'contact-name',
-                  name: 'name',
-                  placeholder: 'Your Name',
-                  required: true,
-                },
-              }),
-            ],
-          })
-        );
-      }
-
-      if (state.showEmailField) {
-        fallbackFormElements.push(
-          createElement('div', {
-            classes: 'form-group',
-            children: [
-              createElement('label', {
-                text: 'E-Mail',
-                attributes: { for: 'contact-email' },
-              }),
-              createElement('input', {
-                attributes: {
-                  type: 'email',
-                  id: 'contact-email',
-                  name: 'email',
-                  placeholder: 'your@email.com',
-                  required: true,
-                },
-              }),
-            ],
-          })
-        );
-      }
-
-      if (state.showSubjectField) {
-        fallbackFormElements.push(
-          createElement('div', {
-            classes: 'form-group',
-            children: [
-              createElement('label', {
-                text: 'Betreff',
-                attributes: { for: 'contact-subject' },
-              }),
-              createElement('input', {
-                attributes: {
-                  type: 'text',
-                  id: 'contact-subject',
-                  name: 'subject',
-                  placeholder: 'Message Subject',
-                  required: true,
-                },
-              }),
-            ],
-          })
-        );
-      }
-
-      if (state.showMessageField) {
-        fallbackFormElements.push(
-          createElement('div', {
-            classes: 'form-group',
-            children: [
-              createElement('label', {
-                text: 'Nachricht',
-                attributes: { for: 'contact-message' },
-              }),
-              createElement('textarea', {
-                attributes: {
-                  id: 'contact-message',
-                  name: 'message',
-                  placeholder: 'Your message...',
-                  required: true,
-                  rows: 5,
-                },
-              }),
-            ],
-          })
-        );
-      }
-
-      // Privacy checkbox
-      if (state.showPrivacyCheckbox) {
-        fallbackFormElements.push(
-          createElement('div', {
-            classes: 'form-group form-group--checkbox',
-            children: [
-              createElement('label', {
-                classes: 'checkbox-label',
-                children: [
-                  createElement('input', {
-                    attributes: {
-                      type: 'checkbox',
-                      id: 'contact-privacy',
-                      name: 'privacy',
-                      required: true,
-                    },
-                  }),
-                  document.createTextNode(' Ich stimme der '),
-                  createElement('a', {
-                    text: 'Datenschutzerklärung',
-                    attributes: {
-                      href: state.privacyPolicyUrl,
-                      target: '_blank',
-                    },
-                  }),
-                  document.createTextNode(' zu'),
-                ],
-              }),
-            ],
-          })
-        );
-      }
-
-      // Newsletter checkbox
-      if (state.showNewsletterCheckbox) {
-        fallbackFormElements.push(
-          createElement('div', {
-            classes: 'form-group form-group--checkbox',
-            children: [
-              createElement('label', {
-                classes: 'checkbox-label',
-                children: [
-                  createElement('input', {
-                    attributes: {
-                      type: 'checkbox',
-                      id: 'contact-newsletter',
-                      name: 'newsletter',
-                    },
-                  }),
-                  document.createTextNode(` ${state.newsletterText}`),
-                ],
-              }),
-            ],
-          })
-        );
-      }
-
-      // Add submit button
-      fallbackFormElements.push(
-        createElement('button', {
-          text: state.submitButtonText,
-          attributes: { type: 'submit' },
-          classes: 'btn btn--primary',
-        })
-      );
-
-      // Create fallback form component
-      const fallbackFormElement = createElement('form', {
-        classes: 'contact-form',
-        children: fallbackFormElements,
-      });
-
-      formComponent = {
-        getElement: () => fallbackFormElement,
-        getFormData: () => ({}),
-        validate: () => true,
-        reset: () => {},
-        destroy: () => {},
-      };
-    }
+    });
 
     // Create form content container
     const formContentElements = [];
@@ -648,7 +526,7 @@ const createContactSection = (props = {}) => {
       formContentElements.push(createContactInfo(state.contactInfo));
     }
 
-    // Form (use the Svarog Form component directly)
+    // Form
     formContentElements.push(formComponent.getElement());
 
     const formContent = createElement('div', {
@@ -662,15 +540,14 @@ const createContactSection = (props = {}) => {
       alignItems: 'start',
     });
 
-    // Create map column
-    mapColumn = Grid.Column({
+    // Create columns based on layout preference
+    const mapColumn = Grid.Column({
       width: 6,
       mobileWidth: 12,
       children: mapComponent.getElement(),
     });
 
-    // Create form column
-    formColumn = Grid.Column({
+    const formColumn = Grid.Column({
       width: 6,
       mobileWidth: 12,
       children: formContent,
@@ -695,55 +572,16 @@ const createContactSection = (props = {}) => {
     }
 
     // Create main container using Section component
-    let finalElement;
+    sectionComponent = Section({
+      title: state.title,
+      description: state.description,
+      variant: state.variant,
+      backgroundColor: state.backgroundColor,
+      className: `contact-section ${state.className}`,
+      children: gridElement,
+    });
 
-    try {
-      sectionComponent = Section({
-        title: state.title,
-        description: state.description,
-        variant: state.variant,
-        backgroundColor: state.backgroundColor,
-        className: `contact-section ${state.className}`,
-        children: gridElement,
-      });
-
-      finalElement = sectionComponent.getElement();
-
-      // Verify the content was added
-      if (!finalElement.contains(gridElement)) {
-        console.warn(
-          'Section component did not include grid element, appending manually'
-        );
-        finalElement.appendChild(gridElement);
-      }
-    } catch (error) {
-      console.warn('Section component failed, using fallback:', error);
-
-      // Fallback to simple structure
-      finalElement = createElement('div', {
-        classes: `contact-section ${state.className}`,
-        style: state.backgroundColor
-          ? { backgroundColor: state.backgroundColor }
-          : {},
-        children: [
-          state.title
-            ? createElement('h2', {
-                text: state.title,
-                classes: 'contact-section__title',
-              })
-            : null,
-          state.description
-            ? createElement('p', {
-                text: state.description,
-                classes: 'contact-section__description',
-              })
-            : null,
-          gridElement,
-        ].filter(Boolean),
-      });
-    }
-
-    return finalElement;
+    return sectionComponent.getElement();
   })(normalizedProps);
 
   // Add extended API methods
@@ -777,31 +615,39 @@ const createContactSection = (props = {}) => {
     },
 
     getFormData() {
-      if (formComponent && formComponent.getFormData) {
-        return formComponent.getFormData();
-      }
-
-      // Fallback: collect data from form fields directly
       const data = {};
       Object.entries(formFields).forEach(([key, field]) => {
         if (field && field.getValue) {
           data[key] = field.getValue();
+        } else if (field && field.isChecked) {
+          data[key] = field.isChecked();
         }
       });
       return data;
     },
 
     validateForm() {
-      if (formComponent && formComponent.validate) {
-        return formComponent.validate();
-      }
-      return true;
+      let isValid = true;
+      Object.values(formFields).forEach((field) => {
+        if (field && field.validate && !field.validate()) {
+          isValid = false;
+        }
+      });
+      return isValid;
     },
 
     resetForm() {
       if (formComponent && formComponent.reset) {
         formComponent.reset();
       }
+      // Also reset individual fields
+      Object.values(formFields).forEach((field) => {
+        if (field && field.setValue) {
+          field.setValue('');
+        } else if (field && field.setChecked) {
+          field.setChecked(false);
+        }
+      });
     },
 
     // Component access
@@ -841,8 +687,6 @@ const createContactSection = (props = {}) => {
         formComponent,
         sectionComponent,
         gridComponent,
-        mapColumn,
-        formColumn,
         ...Object.values(formFields),
       ]
         .filter(Boolean)
@@ -857,8 +701,6 @@ const createContactSection = (props = {}) => {
       formComponent = null;
       sectionComponent = null;
       gridComponent = null;
-      mapColumn = null;
-      formColumn = null;
       formFields = {};
 
       // Call base destroy

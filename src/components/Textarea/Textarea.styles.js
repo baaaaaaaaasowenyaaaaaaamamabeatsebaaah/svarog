@@ -137,7 +137,7 @@ export const textareaStyles = css`
 
   /* Validation message */
   .textarea-validation-message {
-    font-size: var(--textarea-validation-font-size, var(--font-size-sm));
+    font-size: var(--textarea-validation-font-size, var(--font-size-xs));
     margin-top: var(--space-1);
     color: var(--textarea-validation-color, var(--color-danger));
     min-height: 20px;

@@ -227,7 +227,8 @@ export const WithFullAddressInfo = (args) => {
       city: 'München',
       phone: '+49 89 12345678',
       email: 'kontakt@vollstaendige-firma.de',
-      hours: 'Montag bis Freitag: 9:00 - 18:00 Uhr\nSamstag: 10:00 - 14:00 Uhr',
+      hours:
+        'Montag bis Freitag: 9:00 - 18:00 Uhr<br/>Samstag: 10:00 - 14:00 Uhr',
     },
   });
   container.appendChild(contactSection.getElement());

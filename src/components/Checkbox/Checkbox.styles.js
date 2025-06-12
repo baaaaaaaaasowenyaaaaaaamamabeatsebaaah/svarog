@@ -89,6 +89,25 @@ export const checkboxStyles = css`
     cursor: not-allowed;
   }
 
+  /* Disabled AND checked state - should show checkmark */
+  .checkbox-input:disabled:checked ~ .checkbox-indicator {
+    background-color: var(
+      --checkbox-disabled-checked-bg,
+      var(--checkbox-checked-bg)
+    );
+    border-color: var(
+      --checkbox-disabled-checked-border-color,
+      var(--checkbox-checked-border-color)
+    );
+    opacity: 0.6; /* Makes it look disabled while still showing it's checked */
+  }
+
+  /* Ensure checkmark shows for disabled checked state */
+  .checkbox-input:disabled:checked ~ .checkbox-indicator:after {
+    display: block;
+    opacity: 0.8; /* Slightly faded checkmark for disabled state */
+  }
+
   /* Loading state */
   .checkbox-container--loading .checkbox-wrapper {
     cursor: wait;
@@ -134,6 +153,16 @@ export const checkboxStyles = css`
     line-height: 1.5;
   }
 
+  /* Links within labels */
+  .checkbox-label a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .checkbox-label a:hover {
+    opacity: 0.8;
+  }
+
   /* Validation states */
   .checkbox-container--valid .checkbox-indicator {
     border-color: var(--checkbox-valid-border-color);
@@ -143,11 +172,23 @@ export const checkboxStyles = css`
     border-color: var(--checkbox-invalid-border-color);
   }
 
+  /* Validation message with slide-in animation */
   .checkbox-validation-message {
     font-size: var(--checkbox-validation-font-size);
     margin-top: var(--space-1);
     color: var(--checkbox-validation-color);
-    min-height: var(--space-5); /* Reserve space for validation messages */
+    animation: checkbox-error-slide-in 0.2s ease-out;
+  }
+
+  @keyframes checkbox-error-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .checkbox-container--valid .checkbox-validation-message {
@@ -179,7 +220,34 @@ export const checkboxStyles = css`
   }
 
   /* When both loading and disabled */
-  .checkbox-container--loading.checkbox-input:disabled ~ .checkbox-indicator {
+  .checkbox-container--loading .checkbox-input:disabled ~ .checkbox-indicator {
     opacity: 0.7;
+  }
+
+  /* Loading AND checked state */
+  .checkbox-container--loading .checkbox-input:checked ~ .checkbox-indicator {
+    background-color: var(
+      --checkbox-loading-checked-bg,
+      var(--checkbox-checked-bg)
+    );
+    border-color: var(
+      --checkbox-loading-checked-border-color,
+      var(--checkbox-checked-border-color)
+    );
+  }
+
+  /* Hide checkmark when loading to show spinner instead */
+  .checkbox-container--loading
+    .checkbox-input:checked
+    ~ .checkbox-indicator:after {
+    display: none;
+  }
+
+  /* Show spinner when loading and checked */
+  .checkbox-container--loading
+    .checkbox-input:checked
+    ~ .checkbox-indicator
+    .checkbox-loading-spinner {
+    display: block;
   }
 `;
