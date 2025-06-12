@@ -12,7 +12,7 @@ export const formValidationStyles = css`
     padding: 0;
     margin: 0;
     border: none;
-    font-size: var(--validation-font-size, var(--font-size-sm));
+    font-size: var(--validation-font-size, var(--font-size-xs));
     color: var(--validation-color, var(--color-danger-light));
     line-height: 1.5;
     transition: all 0.2s ease;

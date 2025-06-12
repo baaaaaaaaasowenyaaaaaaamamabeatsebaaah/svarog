@@ -1,195 +1,241 @@
+// src/components/Map/Map.styles.js
 import { css } from '../../utils/styleInjection.js';
 
 export const mapStyles = css`
-  /* Map Container */
+  /* ===== EXISTING WORKING STYLES ===== */
   .map-container {
     width: 100%;
-    height: 400px;
-    background-color: var(--color-gray-100, #f8f9fa);
+    height: 100%;
+    min-height: 400px;
+    background-color: #f8f9fa;
     position: relative;
     overflow: hidden;
-    border-radius: var(--border-radius-default, 8px);
-    box-shadow: var(--box-shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
+    border: 1px solid var(--color-border-medium);
+    /* Ensure the container can grow to fill parent */
+    flex: 1;
+    /* For cases where parent uses CSS Grid */
+    align-self: stretch;
+    justify-self: stretch;
   }
 
   .map-container--mock {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--color-gray-100, #f8f9fa);
-    border: 2px dashed var(--color-gray-300, #dee2e6);
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
   }
 
-  /* Info Window Styles */
-  .map-info-window {
-    font-family: var(
-      --font-family,
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      Roboto,
-      sans-serif
-    );
-    max-width: 400px;
+  .map-container--live {
+    background-color: #e9ecef;
   }
 
-  .map-info-window--places {
-    padding: 0;
+  /* Ensure Google Maps gets full size */
+  .map-container--live > div {
+    width: 100% !important;
+    height: 100% !important;
   }
 
-  .map-info-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  /* ===== OPTIONAL CSS CLASSES FOR FUTURE USE ===== */
+  /* These can be used to replace inline styles gradually */
+
+  /* Loading state classes */
+  .map-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 16px 24px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+
+  .map-loading__icon {
+    font-size: 24px;
     margin-bottom: 8px;
+    animation: map-pulse 2s ease-in-out infinite;
   }
 
-  .map-info-title {
+  .map-loading__text {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+
+  @keyframes map-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Mock map classes */
+  .map-mock {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    max-width: 400px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .map-mock__icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .map-mock__title {
+    margin: 0 0 12px 0;
     font-size: 18px;
     font-weight: 500;
     color: #1a1a1a;
-    margin: 0;
-    flex: 1;
   }
 
-  .map-info-status {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 12px;
-    margin-left: 8px;
-  }
-
-  .map-info-status--open {
-    background-color: #d4edda;
-    color: #155724;
-  }
-
-  .map-info-status--closed {
-    background-color: #f8d7da;
-    color: #721c24;
-  }
-
-  .map-info-rating {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 8px;
-  }
-
-  .map-info-photos {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 12px;
-    overflow-x: auto;
-  }
-
-  .map-info-photo {
-    width: 120px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-
-  .map-info-content {
-    font-size: 14px;
-  }
-
-  .map-info-content p {
+  .map-mock__coordinates {
     margin: 4px 0;
+    color: #666;
+    font-size: 12px;
+    font-family: monospace;
+  }
+
+  .map-mock__info {
+    margin: 8px 0;
+    font-size: 14px;
     color: #333;
   }
 
-  .map-info-content a {
+  .map-mock__notice {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+    font-size: 12px;
+  }
+
+  .map-mock__notice-title {
+    margin: 0;
+    font-weight: 500;
+    color: #666;
+  }
+
+  .map-mock__notice-subtitle {
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* Info window classes */
+  .map-info {
+    font-family: Arial, sans-serif;
+    max-width: 300px;
+    line-height: 1.4;
+  }
+
+  .map-info__title {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .map-info__item {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .map-info__link {
     color: #1976d2;
     text-decoration: none;
   }
 
-  .map-info-content a:hover {
+  .map-info__link:hover {
     text-decoration: underline;
   }
 
-  .map-info-hours-details {
-    margin-top: 8px;
-  }
-
-  .map-info-hours-details summary {
-    cursor: pointer;
-    color: #666;
-    font-size: 14px;
-    padding: 4px 0;
-  }
-
-  .map-info-hours {
-    margin-top: 8px;
-    padding-left: 20px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #666;
-  }
-
-  .map-info-directions {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #eee;
-  }
-
-  /* Mock Map Styles */
-  .map-mock-overlay {
-    text-align: center;
-    padding: var(--space-4, 16px);
-    background-color: rgba(255, 255, 255, 0.95);
-    border-radius: var(--border-radius-default, 8px);
-    max-width: 90%;
-    width: 400px;
-    box-shadow: var(--box-shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
-  }
-
-  .map-mock-pin {
-    width: 60px;
-    height: 60px;
-    background-color: var(--color-primary, #007bff);
-    border-radius: 50%;
-    margin: 0 auto var(--space-3, 12px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .map-mock-pin::after {
-    content: '📍';
-    font-size: 32px;
-  }
-
-  .map-place-id {
-    font-family: monospace;
-    font-size: 12px;
-    color: #666;
-    word-break: break-all;
-  }
-
-  .map-coords {
-    font-size: 12px;
-    color: #999;
-    margin-top: 8px;
-  }
-
-  /* Responsive */
+  /* ===== RESPONSIVE DESIGN ===== */
   @media (max-width: 768px) {
     .map-container {
       height: 300px;
     }
 
-    .map-info-window {
+    .map-mock {
+      max-width: 95%;
+      padding: 16px;
+    }
+
+    .map-info {
       max-width: 280px;
     }
 
-    .map-info-photos {
-      margin-bottom: 8px;
+    .map-loading {
+      padding: 12px 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .map-container {
+      height: 250px;
+      border-radius: 4px;
     }
 
-    .map-info-photo {
-      width: 100px;
-      height: 70px;
+    .map-mock__title {
+      font-size: 16px;
+    }
+
+    .map-info {
+      max-width: 260px;
+    }
+  }
+
+  /* ===== ACCESSIBILITY ===== */
+
+  /* Focus states */
+  .map-container:focus-within {
+    outline: 2px solid #4285f4;
+    outline-offset: 2px;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .map-loading__icon {
+      animation: none;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .map-container {
+      border-width: 2px;
+    }
+
+    .map-info__link {
+      text-decoration: underline;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .map-container {
+      border: 2px solid #000;
+      background: #fff;
+    }
+
+    .map-container--live::after {
+      content: 'Interactive map - visit online version';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border: 1px solid #000;
+      font-size: 14px;
     }
   }
 `;
