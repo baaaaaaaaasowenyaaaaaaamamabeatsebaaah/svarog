@@ -4,97 +4,133 @@ import { createStyleInjector } from '../../utils/styleInjection.js';
 import { createElement } from '../../utils/componentFactory.js';
 import Section from '../Section/index.js';
 import Map from '../Map/index.js';
+import Grid from '../Grid/index.js';
 import { Form, FormGroup, FormActions } from '../Form/index.js';
 import Input from '../Input/index.js';
 import Textarea from '../Textarea/index.js';
 import Button from '../Button/index.js';
+import Checkbox from '../Checkbox/index.js';
 import Typography from '../Typography/index.js';
+import Link from '../Link/index.js';
 import { contactSectionStyles } from './ContactSection.styles.js';
 
 const injectStyles = createStyleInjector('ContactSection');
 
 /**
- * Creates contact info display element
+ * Creates contact info display element using Link components
  */
 const createContactInfo = (contactInfo) => {
   const items = [];
 
-  if (contactInfo.address) {
+  // Company name
+  if (contactInfo.companyName) {
     items.push(
       createElement('div', {
         classes: 'contact-info__item',
         children: [
-          createElement('span', { text: '📍 ', classes: 'contact-info__icon' }),
           createElement('span', {
-            text: contactInfo.address,
-            classes: 'contact-info__text',
+            text: 'Unternehmen:',
+            classes: 'contact-info__label',
+          }),
+          createElement('span', {
+            text: contactInfo.companyName,
+            classes: 'contact-info__value',
           }),
         ],
       })
     );
   }
 
+  // Address (street, zipcode, city)
+  if (contactInfo.street || contactInfo.zipcode || contactInfo.city) {
+    const addressParts = [];
+    if (contactInfo.street) addressParts.push(contactInfo.street);
+    if (contactInfo.zipcode && contactInfo.city) {
+      addressParts.push(`${contactInfo.zipcode} ${contactInfo.city}`);
+    } else if (contactInfo.zipcode) {
+      addressParts.push(contactInfo.zipcode);
+    } else if (contactInfo.city) {
+      addressParts.push(contactInfo.city);
+    }
+
+    if (addressParts.length > 0) {
+      items.push(
+        createElement('div', {
+          classes: 'contact-info__item',
+          children: [
+            createElement('span', {
+              text: 'Adresse:',
+              classes: 'contact-info__label',
+            }),
+            createElement('div', {
+              classes: 'contact-info__value contact-info__address',
+              children: addressParts.map((part) =>
+                createElement('div', { text: part })
+              ),
+            }),
+          ],
+        })
+      );
+    }
+  }
+
+  // Phone with Link component
   if (contactInfo.phone) {
+    const phoneLink = Link({
+      children: contactInfo.phone,
+      href: `tel:${contactInfo.phone.replace(/\s/g, '')}`,
+      className: 'contact-info__link',
+    });
+
     items.push(
       createElement('div', {
         classes: 'contact-info__item',
         children: [
-          createElement('span', { text: '📞 ', classes: 'contact-info__icon' }),
-          createElement('a', {
-            attributes: { href: `tel:${contactInfo.phone.replace(/\s/g, '')}` },
-            classes: 'contact-info__link',
-            text: contactInfo.phone,
+          createElement('span', {
+            text: 'Telefon:',
+            classes: 'contact-info__label',
           }),
+          phoneLink.getElement(),
         ],
       })
     );
   }
 
+  // Email with Link component
   if (contactInfo.email) {
+    const emailLink = Link({
+      children: contactInfo.email,
+      href: `mailto:${contactInfo.email}`,
+      className: 'contact-info__link',
+    });
+
     items.push(
       createElement('div', {
         classes: 'contact-info__item',
         children: [
-          createElement('span', { text: '✉️ ', classes: 'contact-info__icon' }),
-          createElement('a', {
-            attributes: { href: `mailto:${contactInfo.email}` },
-            classes: 'contact-info__link',
-            text: contactInfo.email,
+          createElement('span', {
+            text: 'E-Mail:',
+            classes: 'contact-info__label',
           }),
+          emailLink.getElement(),
         ],
       })
     );
   }
 
+  // Hours
   if (contactInfo.hours) {
     items.push(
       createElement('div', {
         classes: 'contact-info__item',
         children: [
-          createElement('span', { text: '🕐 ', classes: 'contact-info__icon' }),
+          createElement('span', {
+            text: 'Öffnungszeiten:',
+            classes: 'contact-info__label',
+          }),
           createElement('span', {
             text: contactInfo.hours,
-            classes: 'contact-info__text',
-          }),
-        ],
-      })
-    );
-  }
-
-  if (contactInfo.website) {
-    items.push(
-      createElement('div', {
-        classes: 'contact-info__item',
-        children: [
-          createElement('span', { text: '🌐 ', classes: 'contact-info__icon' }),
-          createElement('a', {
-            attributes: {
-              href: contactInfo.website,
-              target: '_blank',
-              rel: 'noopener noreferrer',
-            },
-            classes: 'contact-info__link',
-            text: contactInfo.website.replace(/^https?:\/\//, ''),
+            classes: 'contact-info__value',
           }),
         ],
       })
@@ -111,7 +147,7 @@ const createContactInfo = (contactInfo) => {
  * Creates a ContactSection component using Svarog components
  */
 const createContactSection = (props = {}) => {
-  // Normalize props
+  // Normalize props with updated contact info structure
   const normalizedProps = {
     // Section props
     title: 'Contact Us',
@@ -128,13 +164,15 @@ const createContactSection = (props = {}) => {
     placeId: null,
     googleMapsUrl: null,
 
-    // Contact info
+    // Updated contact info structure
     contactInfo: {
-      address: '',
+      companyName: '',
+      street: '',
+      zipcode: '',
+      city: '',
       phone: '',
       email: '',
       hours: '',
-      website: '',
     },
 
     // Form configuration
@@ -145,6 +183,11 @@ const createContactSection = (props = {}) => {
     showPhoneField: false,
     showSubjectField: true,
     showMessageField: true,
+    showPrivacyCheckbox: true,
+    showNewsletterCheckbox: true,
+    privacyPolicyUrl: '/datenschutz',
+    privacyText: 'Ich stimme der Datenschutzerklärung zu',
+    newsletterText: 'Ich möchte den Newsletter erhalten',
 
     // Event handlers
     onSubmit: null,
@@ -165,11 +208,19 @@ const createContactSection = (props = {}) => {
   let formComponent = null;
   let formFields = {};
   let sectionComponent = null;
+  let gridComponent = null;
+  let mapColumn = null;
+  let formColumn = null;
+  let linkComponents = []; // Track Link components for cleanup
 
   // Create base component with render function
   const baseComponent = createBaseComponent((state) => {
     // Update our state reference
     currentState = { ...state };
+
+    // Clear previous link components
+    linkComponents.forEach((link) => link.destroy());
+    linkComponents = [];
 
     // Inject styles
     injectStyles(contactSectionStyles);
@@ -231,7 +282,7 @@ const createContactSection = (props = {}) => {
 
       formElements.push(
         FormGroup({
-          label: 'Email',
+          label: 'E-Mail',
           field: formFields.email,
           id: 'contact-email',
           required: true,
@@ -250,7 +301,7 @@ const createContactSection = (props = {}) => {
 
       formElements.push(
         FormGroup({
-          label: 'Phone',
+          label: 'Telefon',
           field: formFields.phone,
           id: 'contact-phone',
         })
@@ -268,7 +319,7 @@ const createContactSection = (props = {}) => {
 
       formElements.push(
         FormGroup({
-          label: 'Subject',
+          label: 'Betreff',
           field: formFields.subject,
           id: 'contact-subject',
           required: true,
@@ -291,10 +342,67 @@ const createContactSection = (props = {}) => {
 
       formElements.push(
         FormGroup({
-          label: 'Message',
+          label: 'Nachricht',
           field: formFields.message,
           id: 'contact-message',
           required: true,
+        })
+      );
+    }
+
+    // Privacy policy checkbox
+    if (state.showPrivacyCheckbox) {
+      const privacyLink = Link({
+        children: 'Datenschutzerklärung',
+        href: state.privacyPolicyUrl,
+        target: '_blank',
+        underline: true,
+      });
+      linkComponents.push(privacyLink);
+
+      // Create checkbox with text label first
+      formFields.privacy = Checkbox({
+        id: 'contact-privacy',
+        name: 'privacy',
+        label: 'Ich stimme der Datenschutzerklärung zu',
+        required: true,
+      });
+
+      // Get the checkbox element and modify its label to include the link
+      const checkboxElement = formFields.privacy.getElement();
+      const labelElement = checkboxElement.querySelector('label');
+      if (labelElement) {
+        // Clear the label and rebuild it with the link
+        labelElement.innerHTML = '';
+        labelElement.appendChild(document.createTextNode('Ich stimme der '));
+        labelElement.appendChild(privacyLink.getElement());
+        labelElement.appendChild(document.createTextNode(' zu'));
+      }
+
+      formElements.push(
+        FormGroup({
+          label: '', // Empty label since checkbox has its own label
+          field: formFields.privacy,
+          id: 'contact-privacy',
+          required: true,
+        })
+      );
+    }
+
+    // Newsletter checkbox
+    if (state.showNewsletterCheckbox) {
+      formFields.newsletter = Checkbox({
+        id: 'contact-newsletter',
+        name: 'newsletter',
+        label: state.newsletterText,
+        required: false,
+      });
+
+      formElements.push(
+        FormGroup({
+          label: '', // Empty label since checkbox has its own label
+          field: formFields.newsletter,
+          id: 'contact-newsletter',
         })
       );
     }
@@ -339,7 +447,7 @@ const createContactSection = (props = {}) => {
         error
       );
 
-      // Create a simple fallback form structure
+      // Create a simple fallback form structure with checkboxes
       const fallbackFormElements = [];
 
       // Add form title
@@ -352,7 +460,7 @@ const createContactSection = (props = {}) => {
         );
       }
 
-      // Add form fields as simple HTML (for testing purposes)
+      // Add form fields as simple HTML
       if (state.showNameField) {
         fallbackFormElements.push(
           createElement('div', {
@@ -382,7 +490,7 @@ const createContactSection = (props = {}) => {
             classes: 'form-group',
             children: [
               createElement('label', {
-                text: 'Email',
+                text: 'E-Mail',
                 attributes: { for: 'contact-email' },
               }),
               createElement('input', {
@@ -405,7 +513,7 @@ const createContactSection = (props = {}) => {
             classes: 'form-group',
             children: [
               createElement('label', {
-                text: 'Subject',
+                text: 'Betreff',
                 attributes: { for: 'contact-subject' },
               }),
               createElement('input', {
@@ -428,7 +536,7 @@ const createContactSection = (props = {}) => {
             classes: 'form-group',
             children: [
               createElement('label', {
-                text: 'Message',
+                text: 'Nachricht',
                 attributes: { for: 'contact-message' },
               }),
               createElement('textarea', {
@@ -439,6 +547,63 @@ const createContactSection = (props = {}) => {
                   required: true,
                   rows: 5,
                 },
+              }),
+            ],
+          })
+        );
+      }
+
+      // Privacy checkbox
+      if (state.showPrivacyCheckbox) {
+        fallbackFormElements.push(
+          createElement('div', {
+            classes: 'form-group form-group--checkbox',
+            children: [
+              createElement('label', {
+                classes: 'checkbox-label',
+                children: [
+                  createElement('input', {
+                    attributes: {
+                      type: 'checkbox',
+                      id: 'contact-privacy',
+                      name: 'privacy',
+                      required: true,
+                    },
+                  }),
+                  document.createTextNode(' Ich stimme der '),
+                  createElement('a', {
+                    text: 'Datenschutzerklärung',
+                    attributes: {
+                      href: state.privacyPolicyUrl,
+                      target: '_blank',
+                    },
+                  }),
+                  document.createTextNode(' zu'),
+                ],
+              }),
+            ],
+          })
+        );
+      }
+
+      // Newsletter checkbox
+      if (state.showNewsletterCheckbox) {
+        fallbackFormElements.push(
+          createElement('div', {
+            classes: 'form-group form-group--checkbox',
+            children: [
+              createElement('label', {
+                classes: 'checkbox-label',
+                children: [
+                  createElement('input', {
+                    attributes: {
+                      type: 'checkbox',
+                      id: 'contact-newsletter',
+                      name: 'newsletter',
+                    },
+                  }),
+                  document.createTextNode(` ${state.newsletterText}`),
+                ],
               }),
             ],
           })
@@ -491,44 +656,42 @@ const createContactSection = (props = {}) => {
       children: formContentElements,
     });
 
-    // Create grid layout with CSS classes
-    const gridClasses = ['contact-section__grid'];
+    // Create layout using Grid component
+    gridComponent = Grid({
+      gap: '2rem',
+      alignItems: 'start',
+    });
 
+    // Create map column
+    mapColumn = Grid.Column({
+      width: 6,
+      mobileWidth: 12,
+      children: mapComponent.getElement(),
+    });
+
+    // Create form column
+    formColumn = Grid.Column({
+      width: 6,
+      mobileWidth: 12,
+      children: formContent,
+    });
+
+    // Add columns to grid based on layout preference
+    if (state.mapPosition === 'left') {
+      gridComponent.appendChild(mapColumn.getElement());
+      gridComponent.appendChild(formColumn.getElement());
+    } else {
+      gridComponent.appendChild(formColumn.getElement());
+      gridComponent.appendChild(mapColumn.getElement());
+    }
+
+    // Handle mobile layout ordering with CSS classes
+    const gridElement = gridComponent.getElement();
     if (state.mobileLayout === 'stack') {
-      gridClasses.push('contact-section__grid--stack');
+      gridElement.classList.add('contact-section__grid--stack');
     }
     if (state.mobileLayout === 'reverse') {
-      gridClasses.push('contact-section__grid--reverse');
-    }
-
-    const gridElement = createElement('div', {
-      classes: gridClasses.join(' '),
-      style: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '32px',
-        alignItems: 'start',
-      },
-    });
-
-    // Create columns
-    const mapColumn = createElement('div', {
-      classes: 'contact-section__map-column',
-      children: [mapComponent.getElement()],
-    });
-
-    const formColumn = createElement('div', {
-      classes: 'contact-section__form-column',
-      children: [formContent],
-    });
-
-    // Add columns to grid based on layout
-    if (state.mapPosition === 'left') {
-      gridElement.appendChild(mapColumn);
-      gridElement.appendChild(formColumn);
-    } else {
-      gridElement.appendChild(formColumn);
-      gridElement.appendChild(mapColumn);
+      gridElement.classList.add('contact-section__grid--reverse');
     }
 
     // Create main container using Section component
@@ -541,7 +704,7 @@ const createContactSection = (props = {}) => {
         variant: state.variant,
         backgroundColor: state.backgroundColor,
         className: `contact-section ${state.className}`,
-        children: gridElement, // Pass the grid element directly
+        children: gridElement,
       });
 
       finalElement = sectionComponent.getElement();
@@ -664,11 +827,22 @@ const createContactSection = (props = {}) => {
         element.parentNode.removeChild(element);
       }
 
+      // Destroy link components
+      linkComponents.forEach((link) => {
+        if (link.destroy && typeof link.destroy === 'function') {
+          link.destroy();
+        }
+      });
+      linkComponents = [];
+
       // Destroy child components
       [
         mapComponent,
         formComponent,
         sectionComponent,
+        gridComponent,
+        mapColumn,
+        formColumn,
         ...Object.values(formFields),
       ]
         .filter(Boolean)
@@ -682,6 +856,9 @@ const createContactSection = (props = {}) => {
       mapComponent = null;
       formComponent = null;
       sectionComponent = null;
+      gridComponent = null;
+      mapColumn = null;
+      formColumn = null;
       formFields = {};
 
       // Call base destroy

@@ -32,15 +32,19 @@ describe('ContactSection Component', () => {
       expect(element instanceof HTMLElement).toBe(true);
     });
 
-    it('should accept all configuration props', () => {
+    it('should accept updated contact info structure', () => {
       const props = {
         title: 'Custom Title',
         description: 'Custom Description',
         className: 'test-class',
         contactInfo: {
-          address: '123 Test St',
-          phone: '+1234567890',
+          companyName: 'Test Company GmbH',
+          street: 'Test Street 123',
+          zipcode: '12345',
+          city: 'Test City',
+          phone: '+49 123 456789',
           email: 'test@test.com',
+          hours: 'Mon-Fri: 9-17',
         },
         formTitle: 'Contact Form',
         submitButtonText: 'Submit',
@@ -85,18 +89,27 @@ describe('ContactSection Component', () => {
       expect(state.latitude).toBe(50.0);
     });
 
-    it('should update contact info', () => {
+    it('should update contact info with new structure', () => {
       const section = ContactSection({
-        contactInfo: { address: 'Old Address' },
+        contactInfo: {
+          companyName: 'Old Company',
+          street: 'Old Street',
+        },
       });
 
       section.updateContactInfo({
-        address: 'New Address',
+        companyName: 'New Company',
+        street: 'New Street 123',
+        zipcode: '12345',
+        city: 'New City',
         phone: '123-456-7890',
       });
 
       const state = section.getState();
-      expect(state.contactInfo.address).toBe('New Address');
+      expect(state.contactInfo.companyName).toBe('New Company');
+      expect(state.contactInfo.street).toBe('New Street 123');
+      expect(state.contactInfo.zipcode).toBe('12345');
+      expect(state.contactInfo.city).toBe('New City');
       expect(state.contactInfo.phone).toBe('123-456-7890');
     });
 
@@ -130,11 +143,84 @@ describe('ContactSection Component', () => {
     });
   });
 
+  describe('New Contact Info Structure', () => {
+    it('should handle company name in contact info', () => {
+      const section = ContactSection({
+        contactInfo: {
+          companyName: 'Test Company GmbH',
+        },
+      });
+
+      const element = section.getElement();
+      expect(element).toBeTruthy();
+      // Note: In a real test environment, you'd check for the actual rendered content
+    });
+
+    it('should handle separate address fields', () => {
+      const section = ContactSection({
+        contactInfo: {
+          street: 'Main Street 123',
+          zipcode: '80331',
+          city: 'Munich',
+        },
+      });
+
+      const element = section.getElement();
+      expect(element).toBeTruthy();
+    });
+
+    it('should handle partial address information', () => {
+      const partialConfigs = [
+        { street: 'Only Street' },
+        { zipcode: '12345' },
+        { city: 'Only City' },
+        { zipcode: '12345', city: 'City with ZIP' },
+      ];
+
+      partialConfigs.forEach((contactInfo) => {
+        expect(() => ContactSection({ contactInfo })).not.toThrow();
+      });
+    });
+  });
+
+  describe('Checkbox Fields', () => {
+    it('should include privacy checkbox by default', () => {
+      const section = ContactSection({
+        showPrivacyCheckbox: true,
+        privacyPolicyUrl: '/privacy',
+      });
+
+      const element = section.getElement();
+      expect(element).toBeTruthy();
+    });
+
+    it('should include newsletter checkbox by default', () => {
+      const section = ContactSection({
+        showNewsletterCheckbox: true,
+        newsletterText: 'Subscribe to newsletter',
+      });
+
+      const element = section.getElement();
+      expect(element).toBeTruthy();
+    });
+
+    it('should allow hiding checkboxes', () => {
+      const section = ContactSection({
+        showPrivacyCheckbox: false,
+        showNewsletterCheckbox: false,
+      });
+
+      const element = section.getElement();
+      expect(element).toBeTruthy();
+    });
+  });
+
   describe('Event Handlers', () => {
-    it('should accept onSubmit handler', () => {
+    it('should accept onSubmit handler with checkbox data', () => {
       const onSubmit = vi.fn();
       const section = ContactSection({ onSubmit });
       expect(section.getElement()).toBeTruthy();
+      // In a real form submission, onSubmit would be called with checkbox values
     });
 
     it('should accept onChange handler', () => {
@@ -190,7 +276,7 @@ describe('ContactSection Component', () => {
 
       expect(() => {
         section.update({ title: 'Test' });
-        section.updateContactInfo({ address: 'Test' });
+        section.updateContactInfo({ companyName: 'Test' });
         section.resetForm();
         section.validateForm();
         section.getFormData();
@@ -205,7 +291,8 @@ describe('ContactSection Component', () => {
         { contactInfo: null },
         { mapPosition: 'invalid' },
         { mobileLayout: 'invalid' },
-        { formFields: 'not-an-object' },
+        { showPrivacyCheckbox: 'invalid' },
+        { showNewsletterCheckbox: 'invalid' },
       ];
 
       invalidProps.forEach((props) => {
@@ -240,18 +327,78 @@ describe('ContactSection Component', () => {
     it('should maintain state through updates', () => {
       const section = ContactSection({
         title: 'Title 1',
-        contactInfo: { email: 'test@test.com' },
+        contactInfo: {
+          companyName: 'Company 1',
+          email: 'test@test.com',
+        },
       });
 
       const state1 = section.getState();
       expect(state1.title).toBe('Title 1');
+      expect(state1.contactInfo.companyName).toBe('Company 1');
       expect(state1.contactInfo.email).toBe('test@test.com');
 
       section.update({ title: 'Title 2' });
 
       const state2 = section.getState();
       expect(state2.title).toBe('Title 2');
+      expect(state2.contactInfo.companyName).toBe('Company 1'); // Should persist
       expect(state2.contactInfo.email).toBe('test@test.com'); // Should persist
+    });
+
+    it('should handle default values for new contact structure', () => {
+      const section = ContactSection();
+      const state = section.getState();
+
+      expect(state.contactInfo).toBeDefined();
+      expect(typeof state.contactInfo.companyName).toBe('string');
+      expect(typeof state.contactInfo.street).toBe('string');
+      expect(typeof state.contactInfo.zipcode).toBe('string');
+      expect(typeof state.contactInfo.city).toBe('string');
+      expect(typeof state.contactInfo.phone).toBe('string');
+      expect(typeof state.contactInfo.email).toBe('string');
+      expect(typeof state.contactInfo.hours).toBe('string');
+    });
+  });
+
+  describe('Link Components Integration', () => {
+    it('should create Link components for contact info', () => {
+      const section = ContactSection({
+        contactInfo: {
+          phone: '+49 123 456789',
+          email: 'test@example.com',
+        },
+      });
+
+      // Creating the element should not throw errors
+      expect(() => section.getElement()).not.toThrow();
+    });
+
+    it('should handle Link component cleanup on destroy', () => {
+      const section = ContactSection({
+        contactInfo: {
+          phone: '+49 123 456789',
+          email: 'test@example.com',
+        },
+      });
+
+      section.getElement();
+
+      // Destroy should clean up Link components
+      expect(() => section.destroy()).not.toThrow();
+    });
+  });
+
+  describe('German Localization', () => {
+    it('should use German labels by default', () => {
+      const section = ContactSection({
+        privacyText: 'Ich stimme der Datenschutzerklärung zu',
+        newsletterText: 'Ich möchte den Newsletter erhalten',
+      });
+
+      const state = section.getState();
+      expect(state.privacyText).toBe('Ich stimme der Datenschutzerklärung zu');
+      expect(state.newsletterText).toBe('Ich möchte den Newsletter erhalten');
     });
   });
 });

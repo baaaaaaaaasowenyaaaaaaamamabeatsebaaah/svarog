@@ -14,11 +14,7 @@ export const contactSectionStyles = css`
     --contact-info-padding: var(--space-2);
     --contact-info-radius: 0;
     --contact-info-border: 1px solid var(--color-gray-200, #e9ecef);
-  }
-
-  /* Main grid layout */
-  .contact-section__grid {
-    align-items: stretch;
+    --checkbox-gap: var(--space-1);
   }
 
   /* Content area styling */
@@ -65,13 +61,19 @@ export const contactSectionStyles = css`
   .contact-info__label {
     color: var(--color-text, #333);
     font-size: var(--font-size-sm, 0.875rem);
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
+    font-weight: var(--font-weight-semibold, 600);
+    margin-bottom: 0.25rem;
   }
 
   .contact-info__value {
     color: var(--color-text-muted, #666);
     line-height: 1.5;
+  }
+
+  .contact-info__address {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
   }
 
   .contact-info__link {
@@ -92,10 +94,121 @@ export const contactSectionStyles = css`
     border-radius: 2px;
   }
 
-  /* Mobile layout adjustments */
+  /* Checkbox form groups */
+  .form-group--checkbox {
+    margin-top: var(--space-2);
+  }
+
+  /* Custom checkbox styling */
+  .form-group--checkbox > div {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .form-group--checkbox input[type='checkbox'] {
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  .form-group--checkbox span {
+    line-height: 1.5;
+    font-size: var(--font-size-sm, 0.875rem);
+    cursor: pointer;
+    color: var(--color-text, #333);
+  }
+
+  /* Style links within checkbox labels */
+  .form-group--checkbox a {
+    color: var(--contact-link-color);
+    text-decoration: underline;
+  }
+
+  .form-group--checkbox a:hover {
+    color: var(--contact-link-hover-color);
+  }
+
+  .form-group--checkbox a:focus {
+    outline: 2px solid var(--contact-link-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Legacy checkbox label styles for fallback */
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--checkbox-gap);
+    cursor: pointer;
+    line-height: 1.5;
+    font-size: var(--font-size-sm, 0.875rem);
+  }
+
+  .checkbox-label input[type='checkbox'] {
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  .checkbox-label a {
+    color: var(--contact-link-color);
+    text-decoration: underline;
+  }
+
+  .checkbox-label a:hover {
+    color: var(--contact-link-hover-color);
+  }
+
+  /* Ensure proper spacing for checkbox content */
+  label[for*='checkbox'] {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--checkbox-gap);
+    cursor: pointer;
+    line-height: 1.5;
+    font-size: var(--font-size-sm, 0.875rem);
+  }
+
+  label[for*='checkbox'] input[type='checkbox'] {
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  label[for*='checkbox'] a {
+    color: var(--contact-link-color);
+    text-decoration: underline;
+  }
+
+  label[for*='checkbox'] a:hover {
+    color: var(--contact-link-hover-color);
+  }
+
+  /* Form validation styling for checkboxes */
+  .form-group--error .form-group--checkbox span {
+    color: var(--color-danger, #dc3545);
+  }
+
+  .form-group--error .form-group--checkbox input[type='checkbox'] {
+    outline: 2px solid var(--color-danger, #dc3545);
+    outline-offset: 1px;
+  }
+
+  /* Legacy support for old checkbox structure */
+  .form-group--checkbox.form-group--error .checkbox-label {
+    color: var(--color-danger, #dc3545);
+  }
+
+  .form-group--checkbox.form-group--error input[type='checkbox'] {
+    outline: 2px solid var(--color-danger, #dc3545);
+    outline-offset: 1px;
+  }
+
+  /* Mobile layout adjustments using Grid component */
   @media (max-width: 767px) {
     .contact-section {
-      --contact-section-gap: 1.5rem;
       --contact-section-content-gap: 1rem;
       --contact-info-padding: 1rem;
     }
@@ -105,32 +218,50 @@ export const contactSectionStyles = css`
       margin-bottom: 1rem;
     }
 
-    /* Stack layout for mobile */
-    .contact-section__grid--stack .contact-section__content {
+    /* Stack layout for mobile - handled by Grid component responsive behavior */
+    .contact-section__grid--stack .column:first-child {
+      order: 1;
+    }
+
+    .contact-section__grid--stack .column:last-child {
       order: 2;
     }
 
-    .contact-section__grid--reverse .contact-section__content {
+    .contact-section__grid--reverse .column:first-child {
+      order: 2;
+    }
+
+    .contact-section__grid--reverse .column:last-child {
       order: 1;
     }
 
     /* Adjust contact info layout on mobile */
     .contact-info__item {
       flex-direction: row;
-      align-items: baseline;
+      align-items: flex-start;
       gap: 0.75rem;
     }
 
     .contact-info__label {
-      min-width: 70px;
+      min-width: 90px;
       flex-shrink: 0;
+    }
+
+    .contact-info__value,
+    .contact-info__address {
+      flex: 1;
+    }
+
+    /* Checkbox adjustments on mobile */
+    .checkbox-label {
+      font-size: var(--font-size-xs, 0.75rem);
+      line-height: 1.4;
     }
   }
 
   /* Tablet adjustments */
   @media (min-width: 768px) and (max-width: 1023px) {
     .contact-section {
-      --contact-section-gap: 1.75rem;
       --contact-info-padding: 1.25rem;
     }
   }
@@ -138,7 +269,6 @@ export const contactSectionStyles = css`
   /* Large screen optimizations */
   @media (min-width: 1200px) {
     .contact-section {
-      --contact-section-gap: 2.5rem;
       --contact-section-content-gap: 2rem;
     }
   }
@@ -149,8 +279,13 @@ export const contactSectionStyles = css`
       border-width: 2px;
     }
 
-    .contact-info__link {
+    .contact-info__link,
+    .checkbox-label a {
       text-decoration: underline;
+    }
+
+    .checkbox-label input[type='checkbox'] {
+      outline: 2px solid currentColor;
     }
   }
 
@@ -172,15 +307,22 @@ export const contactSectionStyles = css`
       border: 1px solid #ccc;
     }
 
-    .contact-info__link {
+    .contact-info__link,
+    .checkbox-label a {
       color: #000;
       text-decoration: none;
     }
 
-    .contact-info__link::after {
+    .contact-info__link::after,
+    .checkbox-label a::after {
       content: ' (' attr(href) ')';
       font-size: 0.8em;
       color: #666;
+    }
+
+    /* Hide checkboxes in print */
+    .form-group--checkbox {
+      display: none;
     }
   }
 `;

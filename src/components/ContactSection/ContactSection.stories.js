@@ -64,22 +64,29 @@ const createStatusBanner = () => {
  */
 const createContactSection = (props = {}) => {
   return ContactSection({
-    title: 'Contact Us',
-    description: 'We would love to hear from you',
+    title: 'Kontakt',
+    description: 'Wir freuen uns auf Ihre Nachricht',
     latitude: 48.1417262,
     longitude: 11.5609816,
-    locationName: 'Our Munich Office',
+    locationName: 'Unser Münchner Büro',
     contactInfo: {
-      address: 'Marienplatz 1, 80331 München, Germany',
+      companyName: 'Svarog Solutions GmbH',
+      street: 'Marienplatz 1',
+      zipcode: '80331',
+      city: 'München',
       phone: '+49 89 12345678',
-      email: 'hello@company.com',
-      hours: 'Monday - Friday: 9:00 AM - 6:00 PM',
-      website: 'https://company.com',
+      email: 'hallo@svarog-solutions.de',
+      hours: 'Montag - Freitag: 9:00 - 18:00 Uhr',
     },
+    privacyPolicyUrl: '/datenschutz',
+    privacyText: 'Ich stimme der Datenschutzerklärung zu',
+    newsletterText: 'Ich möchte den Newsletter erhalten',
     onSubmit: (event, data, isValid) => {
       if (isValid) {
         console.log('Contact form submitted:', data);
-        alert('Thank you for your message!');
+        alert('Vielen Dank für Ihre Nachricht!');
+      } else {
+        console.log('Form validation failed');
       }
     },
     ...props,
@@ -104,11 +111,10 @@ export const WithGoogleMaps = (args) => {
   container.appendChild(createStatusBanner());
   const contactSection = createContactSection({
     ...args,
-    title: 'Visit Our Store',
-    description: 'Experience Google Maps integration',
+    title: 'Besuchen Sie uns',
+    description: 'Google Maps Integration Beispiel',
     apiKey: getApiKey(),
     placeId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
-    mapOnTop: true,
   });
   container.appendChild(contactSection.getElement());
   return container;
@@ -119,8 +125,8 @@ export const MapOnRight = (args) => {
   container.appendChild(createStatusBanner());
   const contactSection = createContactSection({
     ...args,
-    title: 'Contact with Right Map',
-    description: 'Map positioned on the right side',
+    title: 'Kontakt mit Karte rechts',
+    description: 'Karte auf der rechten Seite positioniert',
     mapPosition: 'right',
   });
   container.appendChild(contactSection.getElement());
@@ -132,11 +138,20 @@ export const WithCustomFields = (args) => {
   container.appendChild(createStatusBanner());
   const contactSection = createContactSection({
     ...args,
-    title: 'Get a Quote',
-    formTitle: 'Request Information',
-    submitButtonText: 'Get Quote',
+    title: 'Angebot anfordern',
+    formTitle: 'Informationen anfordern',
+    submitButtonText: 'Angebot erhalten',
     showPhoneField: true,
     showSubjectField: false,
+    contactInfo: {
+      companyName: 'Tech Solutions GmbH',
+      street: 'Gewerbepark 123',
+      zipcode: '80333',
+      city: 'München',
+      phone: '+49 89 98765432',
+      email: 'angebote@tech-solutions.de',
+      hours: '24/7 für Anfragen verfügbar',
+    },
   });
   container.appendChild(contactSection.getElement());
   return container;
@@ -147,9 +162,18 @@ export const WithMinorVariant = (args) => {
   container.appendChild(createStatusBanner());
   const contactSection = createContactSection({
     ...args,
-    title: 'Contact Support',
+    title: 'Support kontaktieren',
     variant: 'minor',
     backgroundColor: '#f8f9fa',
+    contactInfo: {
+      companyName: 'Support Team',
+      street: 'Hauptstraße 42',
+      zipcode: '10115',
+      city: 'Berlin',
+      phone: '+49 30 87654321',
+      email: 'support@company.de',
+      hours: 'Mo-Fr: 8:00-20:00 Uhr',
+    },
   });
   container.appendChild(contactSection.getElement());
   return container;
@@ -160,8 +184,8 @@ export const MobileReversedLayout = (args) => {
   container.appendChild(createStatusBanner());
   const contactSection = createContactSection({
     ...args,
-    title: 'Mobile Optimized',
-    description: 'Form appears first on mobile',
+    title: 'Mobile optimiert',
+    description: 'Formular erscheint zuerst auf mobilen Geräten',
     mobileLayout: 'reverse',
   });
   container.appendChild(contactSection.getElement());
@@ -173,14 +197,38 @@ export const MinimalConfiguration = (args) => {
   container.appendChild(createStatusBanner());
   const contactSection = ContactSection({
     contactInfo: {
-      email: 'hello@company.com',
+      companyName: 'Minimal Setup',
+      email: 'hallo@company.de',
     },
+    showPrivacyCheckbox: false,
+    showNewsletterCheckbox: false,
     onSubmit: (event, data, isValid) => {
       if (isValid) {
-        alert('Message sent with minimal config!');
+        alert('Nachricht mit minimaler Konfiguration gesendet!');
       }
     },
     ...args,
+  });
+  container.appendChild(contactSection.getElement());
+  return container;
+};
+
+export const WithFullAddressInfo = (args) => {
+  const container = document.createElement('div');
+  container.appendChild(createStatusBanner());
+  const contactSection = createContactSection({
+    ...args,
+    title: 'Vollständige Adressinformationen',
+    description: 'Alle Kontaktfelder ausgefüllt',
+    contactInfo: {
+      companyName: 'Vollständige Firma GmbH & Co. KG',
+      street: 'Lange Straße mit Hausnummer 123a',
+      zipcode: '80331',
+      city: 'München',
+      phone: '+49 89 12345678',
+      email: 'kontakt@vollstaendige-firma.de',
+      hours: 'Montag bis Freitag: 9:00 - 18:00 Uhr\nSamstag: 10:00 - 14:00 Uhr',
+    },
   });
   container.appendChild(contactSection.getElement());
   return container;
@@ -191,17 +239,83 @@ export const WithCallbacks = (args) => {
   container.appendChild(createStatusBanner());
   const contactSection = createContactSection({
     ...args,
-    title: 'Interactive Demo',
-    description: 'Fill out the form to see callbacks',
+    title: 'Interaktive Demo',
+    description: 'Füllen Sie das Formular aus, um Callbacks zu sehen',
     onSubmit: (event, data, isValid) => {
+      console.log('=== Form Submission ===');
+      console.log('Valid:', isValid);
+      console.log('Data:', data);
+
       if (isValid) {
-        console.log('Form submitted:', data);
-        alert(`Message sent!\nName: ${data.name}\nEmail: ${data.email}`);
+        // Check required fields
+        const requiredFields = [
+          'name',
+          'email',
+          'subject',
+          'message',
+          'privacy',
+        ];
+        const missingFields = requiredFields.filter((field) => !data[field]);
+
+        if (missingFields.length === 0) {
+          alert(
+            `Nachricht gesendet!\n\nName: ${data.name}\nE-Mail: ${data.email}\nBetreff: ${data.subject}\nNewsletter: ${data.newsletter ? 'Ja' : 'Nein'}`
+          );
+        } else {
+          alert(
+            `Bitte füllen Sie alle Pflichtfelder aus: ${missingFields.join(', ')}`
+          );
+        }
+      } else {
+        alert('Bitte korrigieren Sie die Fehler im Formular.');
       }
     },
     onChange: (event, data) => {
       console.log('Form changed:', data);
     },
+  });
+  container.appendChild(contactSection.getElement());
+  return container;
+};
+
+export const BerlinOffice = (args) => {
+  const container = document.createElement('div');
+  container.appendChild(createStatusBanner());
+  const contactSection = createContactSection({
+    ...args,
+    title: 'Berliner Niederlassung',
+    description: 'Besuchen Sie uns in der Hauptstadt',
+    latitude: 52.52,
+    longitude: 13.405,
+    locationName: 'Berlin Office',
+    contactInfo: {
+      companyName: 'Svarog Solutions Berlin',
+      street: 'Unter den Linden 1',
+      zipcode: '10117',
+      city: 'Berlin',
+      phone: '+49 30 12345678',
+      email: 'berlin@svarog-solutions.de',
+      hours: 'Montag - Freitag: 8:00 - 19:00 Uhr',
+    },
+  });
+  container.appendChild(contactSection.getElement());
+  return container;
+};
+
+export const OnlyPhoneAndEmail = (args) => {
+  const container = document.createElement('div');
+  container.appendChild(createStatusBanner());
+  const contactSection = createContactSection({
+    ...args,
+    title: 'Schnellkontakt',
+    description: 'Nur die wichtigsten Kontaktdaten',
+    contactInfo: {
+      phone: '+49 89 12345678',
+      email: 'schnell@contact.de',
+    },
+    showSubjectField: false,
+    showPrivacyCheckbox: false,
+    showNewsletterCheckbox: false,
   });
   container.appendChild(contactSection.getElement());
   return container;
