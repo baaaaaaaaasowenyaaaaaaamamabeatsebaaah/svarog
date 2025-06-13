@@ -110,6 +110,71 @@ export const getComponents = () => {
       ],
     },
     {
+      name: 'Tag',
+      category: 'Foundation',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.Default),
+        },
+        {
+          name: 'WithIcon',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.WithIcon),
+        },
+        {
+          name: 'WithCount',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.WithCount),
+        },
+        {
+          name: 'Selected',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.Selected),
+        },
+        {
+          name: 'Removable',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.Removable),
+        },
+        {
+          name: 'Disabled',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.Disabled),
+        },
+        {
+          name: 'Sizes',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.Sizes),
+        },
+        {
+          name: 'Variants',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.Variants),
+        },
+        {
+          name: 'FilterExample',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then(
+              (m) => m.FilterExample
+            ),
+        },
+        {
+          name: 'SkillTags',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then((m) => m.SkillTags),
+        },
+        {
+          name: 'InteractiveDemo',
+          module: () =>
+            import('../components/Tag/Tag.stories.js').then(
+              (m) => m.InteractiveDemo
+            ),
+        },
+      ],
+    },
+    {
       name: 'Button',
       category: 'Foundation',
       stories: [
@@ -445,6 +510,61 @@ export const getComponents = () => {
           module: () =>
             import('../components/Section/Section.stories.js').then(
               (m) => m.ComprehensiveExample
+            ),
+        },
+      ],
+    },
+    {
+      name: 'ProductGrid',
+      category: 'Layout',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/ProductGrid/ProductGrid.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithSkeletonLoading',
+          module: () =>
+            import('../components/ProductGrid/ProductGrid.stories.js').then(
+              (m) => m.WithSkeletonLoading
+            ),
+        },
+        {
+          name: 'WithLazyLoading',
+          module: () =>
+            import('../components/ProductGrid/ProductGrid.stories.js').then(
+              (m) => m.WithLazyLoading
+            ),
+        },
+        {
+          name: 'WithTagFiltering',
+          module: () =>
+            import('../components/ProductGrid/ProductGrid.stories.js').then(
+              (m) => m.WithTagFiltering
+            ),
+        },
+        {
+          name: 'CustomColumns',
+          module: () =>
+            import('../components/ProductGrid/ProductGrid.stories.js').then(
+              (m) => m.CustomColumns
+            ),
+        },
+        {
+          name: 'DynamicUpdates',
+          module: () =>
+            import('../components/ProductGrid/ProductGrid.stories.js').then(
+              (m) => m.DynamicUpdates
+            ),
+        },
+        {
+          name: 'ProgrammaticFilters',
+          module: () =>
+            import('../components/ProductGrid/ProductGrid.stories.js').then(
+              (m) => m.ProgrammaticFilters
             ),
         },
       ],

@@ -8,6 +8,7 @@
 // ---- LAYOUT COMPONENTS ----
 import Accordion from './components/Accordion/index.js';
 import Grid from './components/Grid/index.js';
+import ProductGrid from './components/ProductGrid/ProductGrid.js';
 import Section from './components/Section/index.js';
 import Header from './components/Header/index.js';
 import Footer from './components/Footer/index.js';
@@ -28,6 +29,7 @@ import StickyContactIcons from './components/StickyContactIcons/index.js';
 
 // ---- UI COMPONENTS ----
 import Button from './components/Button/index.js';
+import Tag from './components/Tag/Tag.js';
 import Typography from './components/Typography/index.js';
 import Logo from './components/Logo/index.js';
 import Card from './components/Card/index.js';
@@ -93,6 +95,7 @@ export {
   // Layout Components
   Accordion,
   Grid,
+  ProductGrid,
   Section,
   Header,
   Footer,
@@ -112,6 +115,7 @@ export {
 
   // UI Components
   Button,
+  Tag,
   Typography,
   Logo,
   Card,
@@ -172,6 +176,7 @@ export {
 export const Layout = {
   Accordion,
   Grid,
+  ProductGrid,
   Section,
   Header,
   Footer,
@@ -193,6 +198,7 @@ export const Nav = {
 
 export const UI = {
   Button,
+  Tag,
   Typography,
   Logo,
   Card,
@@ -268,6 +274,7 @@ const Svarog = {
   // Individual components (for backward compatibility)
   Accordion,
   Grid,
+  ProductGrid,
   Section,
   Header,
   Footer,
@@ -283,6 +290,7 @@ const Svarog = {
   Pagination,
   StickyContactIcons,
   Button,
+  Tag,
   Typography,
   Logo,
   Card,
