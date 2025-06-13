@@ -104,20 +104,6 @@ export const productCardStyles = css`
     margin-bottom: var(--space-1, 4px);
   }
 
-  /* Grid display for product cards */
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-10, 40px);
-    width: 100%;
-  }
-
-  /* Product card wrapper */
-  .product-card-wrapper {
-    display: flex;
-    flex-direction: column;
-  }
-
   /* Responsive adjustments */
   @media (max-width: 768px) {
     .product-card__actions {
@@ -134,18 +120,6 @@ export const productCardStyles = css`
 
     .product-card__price-info {
       text-align: center;
-    }
-  }
-
-  @media (max-width: 992px) {
-    .product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
-  }
-
-  @media (max-width: 576px) {
-    .product-grid {
-      grid-template-columns: 1fr;
     }
   }
 `;

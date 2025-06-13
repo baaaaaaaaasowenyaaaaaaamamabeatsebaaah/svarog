@@ -1,5 +1,6 @@
 // src/components/ProductCard/ProductCard.stories.js
 import ProductCard from './ProductCard.js';
+import Grid from '../Grid/Grid.js';
 
 // Direct import of images - webpack 5 handles this with Asset Modules
 import placeholderImage1 from '../../../.storybook/assets/iphone-placeholder/placeholder-iphone-1.png';
@@ -240,11 +241,18 @@ export const WithLegacyOnReserve = () => {
   return createWrapper(card.getElement());
 };
 
-// Simple product grid without Grid component dependency
+// Product Grid using Grid component
 export const ProductGrid = () => {
-  // Create a container for the grid
   const container = document.createElement('div');
-  container.className = 'product-grid';
+
+  // Add title
+  const title = document.createElement('h2');
+  title.textContent = 'Product Grid Example';
+  title.style.marginBottom = '1.5rem';
+  container.appendChild(title);
+
+  // Create the grid using Grid component
+  const grid = Grid({ gap: '1.5rem' });
 
   // Define product data
   const products = [
@@ -277,9 +285,18 @@ export const ProductGrid = () => {
       price: '449.99',
       priceInfo: '+ Versand',
     },
+    {
+      model: 'iPhone 12 Mini',
+      storage: '64GB',
+      color: 'Product RED',
+      condition: 'Like New',
+      batteryHealth: '96%',
+      price: '399.99',
+      priceInfo: 'Sonderangebot',
+    },
   ];
 
-  // Add products to the grid
+  // Add products to the grid using Grid.Column
   products.forEach((product) => {
     const card = ProductCard({
       imageUrl: getPhoneImage(product.model),
@@ -297,10 +314,18 @@ export const ProductGrid = () => {
       onClick: () => alert(`${product.model} reserved!`),
     });
 
-    const cardContainer = document.createElement('div');
-    cardContainer.appendChild(card.getElement());
-    container.appendChild(cardContainer);
+    // Create responsive column
+    const column = Grid.Column({
+      width: 3, // 3/12 (25%) on desktop by default
+      mobileWidth: 12, // Full width on mobile
+      tabletWidth: 6, // Half width on tablet
+      desktopWidth: 3, // Quarter width on desktop
+      children: card.getElement(),
+    });
+
+    grid.appendChild(column.getElement());
   });
 
+  container.appendChild(grid.getElement());
   return container;
 };

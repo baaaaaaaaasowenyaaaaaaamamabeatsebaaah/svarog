@@ -124,7 +124,6 @@ const createActionsElement = (
   const reserveButton = Button({
     text: buttonText,
     onClick,
-    variant: 'default',
     className: 'product-card__reserve-button',
     disabled: loading,
   }).getElement();

@@ -12,6 +12,11 @@ export const priceDisplayStyles = css`
     transition: all 0.3s ease;
   }
 
+  /* When no label is present, the value takes full space */
+  .price-display--no-label .price-display__value {
+    margin-left: 0;
+  }
+
   .price-display__label {
     font-weight: var(--font-weight-bold);
     margin-right: var(--space-3);

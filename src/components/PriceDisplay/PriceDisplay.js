@@ -39,18 +39,6 @@ const normalizePriceDisplayProps = (props) => {
 };
 
 /**
- * Validates price display-specific props
- * @param {Object} props - Price display properties
- */
-const validatePriceDisplayProps = (props) => {
-  if (!props.label) {
-    console.warn(
-      'PriceDisplay: label is required for proper component rendering'
-    );
-  }
-};
-
-/**
  * Creates price display DOM element
  * @param {Object} state - Price display state
  * @returns {HTMLElement} - Price display element
@@ -67,13 +55,8 @@ const renderPriceDisplay = (state) => {
     state.isHighlighted && 'price-display--highlighted',
     state.isPlaceholder && 'price-display--placeholder',
     state.isError && 'price-display--error',
+    !state.label && 'price-display--no-label',
   ].filter(Boolean);
-
-  // Create label element
-  const labelElement = createElement('span', {
-    classes: ['price-display__label'],
-    text: state.label,
-  });
 
   // Create value element
   const valueElement = createElement('span', {
@@ -90,15 +73,28 @@ const renderPriceDisplay = (state) => {
     valueElement.appendChild(loadingIndicator);
   }
 
+  // Create children array
+  const children = [];
+
+  // Only create label element if label is provided
+  if (state.label) {
+    const labelElement = createElement('span', {
+      classes: ['price-display__label'],
+      text: state.label,
+    });
+    children.push(labelElement);
+  }
+
+  children.push(valueElement);
+
   // Create the container
   const container = createElement('div', {
     classes: classNames,
-    children: [labelElement, valueElement],
+    children,
   });
 
   // Store elements for easier access in partial updates
   container._elements = {
-    labelElement,
     valueElement,
   };
 
@@ -114,11 +110,8 @@ const createPriceDisplay = (props) => {
   // Normalize props to handle both legacy and new prop names
   const normalizedProps = normalizePriceDisplayProps(props);
 
-  // Validate required props
+  // Validate required props (removed label requirement)
   validateProps(normalizedProps, createPriceDisplay.requiredProps);
-
-  // Validate price display-specific props
-  validatePriceDisplayProps(normalizedProps);
 
   // Initial state with defaults
   const initialState = {
@@ -276,8 +269,8 @@ const createPriceDisplay = (props) => {
   return priceDisplayComponent;
 };
 
-// Define required props for validation
-createPriceDisplay.requiredProps = ['label'];
+// Define required props for validation (empty array - no required props)
+createPriceDisplay.requiredProps = [];
 
 // Create the component with theme awareness
 const PriceDisplay = withThemeAwareness(
