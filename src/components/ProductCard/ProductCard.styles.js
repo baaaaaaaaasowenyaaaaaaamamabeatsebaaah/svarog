@@ -95,6 +95,15 @@ export const productCardStyles = css`
     font-size: var(--font-size-base, 16px);
   }
 
+  /* Price info styling */
+  .product-card__price-info {
+    font-size: var(--font-size-sm, 14px);
+    color: var(--color-text-secondary, #6b7280);
+    text-align: right;
+    margin-top: calc(var(--space-1) * -1); /* Pull closer to price */
+    margin-bottom: var(--space-1, 4px);
+  }
+
   /* Grid display for product cards */
   .product-grid {
     display: grid;
@@ -121,6 +130,10 @@ export const productCardStyles = css`
       width: 100%;
       text-align: center;
       margin-bottom: var(--space-2, 8px);
+    }
+
+    .product-card__price-info {
+      text-align: center;
     }
   }
 

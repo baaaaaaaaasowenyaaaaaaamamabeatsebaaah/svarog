@@ -26,7 +26,7 @@ const getPhoneImage = (model) => {
 // Create a wrapper for better showcasing
 const createWrapper = (child) => {
   const wrapper = document.createElement('div');
-  wrapper.style.width = '300px';
+  wrapper.style.width = '400px';
   wrapper.style.margin = '1rem';
   wrapper.appendChild(child);
   return wrapper;
@@ -54,6 +54,24 @@ export const DefaultProductCard = () => {
   return createWrapper(card.getElement());
 };
 
+export const WithPriceInfo = () => {
+  const card = ProductCard({
+    imageUrl: getPhoneImage('iPhone 13'),
+    title: 'iPhone 13',
+    productData: {
+      Storage: '128GB',
+      Color: 'Midnight',
+      Condition: 'Excellent',
+      'Battery Health': '98%',
+    },
+    price: '599.99',
+    priceInfo: 'inkl. MwSt.',
+    onClick: () => alert('Product reserved!'),
+  });
+
+  return createWrapper(card.getElement());
+};
+
 export const WithCustomCurrency = () => {
   const card = ProductCard({
     imageUrl: getPhoneImage('Samsung Galaxy S20'),
@@ -66,8 +84,28 @@ export const WithCustomCurrency = () => {
     },
     price: '459.99',
     currency: '$',
+    priceInfo: 'Excl. VAT',
     buttonText: 'Buy Now',
     onClick: () => alert('Product purchased!'),
+  });
+
+  return createWrapper(card.getElement());
+};
+
+export const WithShippingInfo = () => {
+  const card = ProductCard({
+    imageUrl: getPhoneImage('Google Pixel 6'),
+    title: 'Google Pixel 6',
+    productData: {
+      Storage: '128GB',
+      Color: 'Stormy Black',
+      Condition: 'Good',
+      'Battery Health': '89%',
+    },
+    price: '349.99',
+    priceInfo: '+ Versandkosten',
+    buttonText: 'Reserve',
+    onClick: () => alert('Product reserved!'),
   });
 
   return createWrapper(card.getElement());
@@ -85,6 +123,7 @@ export const WithLoadingPrice = () => {
     },
     price: 'Calculating...',
     loading: true,
+    priceInfo: 'Final price',
     buttonText: 'Reserve',
     onClick: () => alert('Cannot reserve while price is loading!'),
   });
@@ -105,6 +144,7 @@ export const WithHighlightedPrice = () => {
     },
     price: '449.99',
     priceHighlighted: true,
+    priceInfo: 'inkl. 19% MwSt.',
     buttonText: 'Buy Now',
     onClick: () => alert('Sale item purchased!'),
   });
@@ -112,7 +152,7 @@ export const WithHighlightedPrice = () => {
   return createWrapper(card.getElement());
 };
 
-export const DynamicPriceLoading = () => {
+export const DynamicPriceInfo = () => {
   const container = document.createElement('div');
   container.style.display = 'flex';
   container.style.flexDirection = 'column';
@@ -127,8 +167,8 @@ export const DynamicPriceLoading = () => {
       Condition: 'Excellent',
       'Battery Health': '99%',
     },
-    price: 'Loading price...',
-    loading: true,
+    price: '599.99',
+    priceInfo: 'inkl. MwSt.',
     onClick: () => alert('Product reserved!'),
   });
 
@@ -141,28 +181,20 @@ export const DynamicPriceLoading = () => {
   controls.style.gap = '10px';
   controls.style.paddingLeft = '1rem';
 
-  const loadPriceButton = document.createElement('button');
-  loadPriceButton.textContent = 'Load Price';
-  loadPriceButton.onclick = () => {
-    card.setPriceLoading(true);
-    setTimeout(() => {
-      card.setPriceLoading(false);
-      card.setPrice('599.99', false);
-    }, 1500);
+  const updatePriceInfoButton = document.createElement('button');
+  updatePriceInfoButton.textContent = 'Show Free Shipping';
+  updatePriceInfoButton.onclick = () => {
+    card.setPriceInfo('inkl. MwSt. + kostenloser Versand');
   };
 
-  const showSalePriceButton = document.createElement('button');
-  showSalePriceButton.textContent = 'Show Sale Price';
-  showSalePriceButton.onclick = () => {
-    card.setPriceLoading(true);
-    setTimeout(() => {
-      card.setPriceLoading(false);
-      card.setPrice('499.99', true); // Highlighted sale price
-    }, 1000);
+  const removePriceInfoButton = document.createElement('button');
+  removePriceInfoButton.textContent = 'Remove Price Info';
+  removePriceInfoButton.onclick = () => {
+    card.setPriceInfo('');
   };
 
-  controls.appendChild(loadPriceButton);
-  controls.appendChild(showSalePriceButton);
+  controls.appendChild(updatePriceInfoButton);
+  controls.appendChild(removePriceInfoButton);
   container.appendChild(controls);
 
   return container;
@@ -182,6 +214,7 @@ export const WithMultipleSpecs = () => {
       Special: 'Limited Edition',
     },
     price: '499.99',
+    priceInfo: 'inkl. 19% MwSt.',
     onClick: () => alert('Product reserved!'),
   });
 
@@ -200,6 +233,7 @@ export const WithLegacyOnReserve = () => {
       'Battery Health': '99%',
     },
     price: '599.99',
+    priceInfo: 'inkl. Steuer',
     onReserve: () => alert('Using deprecated onReserve prop!'),
   });
 
@@ -222,6 +256,7 @@ export const ProductGrid = () => {
       batteryHealth: '98%',
       price: '599.99',
       priceHighlighted: true,
+      priceInfo: 'inkl. MwSt.',
     },
     {
       model: 'Samsung Galaxy S21',
@@ -231,6 +266,7 @@ export const ProductGrid = () => {
       batteryHealth: '92%',
       price: '499.99',
       loading: true,
+      priceInfo: 'Berechne Preis...',
     },
     {
       model: 'Google Pixel 7',
@@ -239,6 +275,7 @@ export const ProductGrid = () => {
       condition: 'Good',
       batteryHealth: '90%',
       price: '449.99',
+      priceInfo: '+ Versand',
     },
   ];
 
@@ -256,6 +293,7 @@ export const ProductGrid = () => {
       price: product.loading ? 'Loading...' : product.price,
       loading: product.loading || false,
       priceHighlighted: product.priceHighlighted || false,
+      priceInfo: product.priceInfo,
       onClick: () => alert(`${product.model} reserved!`),
     });
 

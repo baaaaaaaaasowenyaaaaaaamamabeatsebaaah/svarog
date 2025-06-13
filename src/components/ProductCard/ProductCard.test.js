@@ -87,6 +87,65 @@ describe('ProductCard component', () => {
     expect(priceValue.textContent).toBe('$299.99');
   });
 
+  it('should render price info when provided', () => {
+    const priceInfo = 'inkl. MwSt.';
+    const productCard = ProductCard({
+      ...defaultProps,
+      priceInfo,
+    });
+    const element = productCard.getElement();
+    const priceInfoElement = element.querySelector('.product-card__price-info');
+
+    expect(priceInfoElement).not.toBeNull();
+    expect(priceInfoElement.textContent).toBe(priceInfo);
+  });
+
+  it('should not render price info when not provided', () => {
+    const productCard = ProductCard(defaultProps);
+    const element = productCard.getElement();
+    const priceInfoElement = element.querySelector('.product-card__price-info');
+
+    expect(priceInfoElement).toBeNull();
+  });
+
+  it('should update price info with setPriceInfo method', () => {
+    const productCard = ProductCard({
+      ...defaultProps,
+      priceInfo: 'inkl. MwSt.',
+    });
+    const element = productCard.getElement();
+
+    // Initial check
+    let priceInfoElement = element.querySelector('.product-card__price-info');
+    expect(priceInfoElement.textContent).toBe('inkl. MwSt.');
+
+    // Update price info
+    productCard.setPriceInfo('+ kostenloser Versand');
+
+    // Check updated text
+    priceInfoElement = element.querySelector('.product-card__price-info');
+    expect(priceInfoElement.textContent).toBe('+ kostenloser Versand');
+  });
+
+  it('should remove price info when setPriceInfo is called with empty string', () => {
+    const productCard = ProductCard({
+      ...defaultProps,
+      priceInfo: 'inkl. MwSt.',
+    });
+    const element = productCard.getElement();
+
+    // Initial check
+    let priceInfoElement = element.querySelector('.product-card__price-info');
+    expect(priceInfoElement).not.toBeNull();
+
+    // Remove price info
+    productCard.setPriceInfo('');
+
+    // Check it's removed
+    priceInfoElement = element.querySelector('.product-card__price-info');
+    expect(priceInfoElement).toBeNull();
+  });
+
   it('should render price with loading state', () => {
     const productCard = ProductCard({
       ...defaultProps,
@@ -265,7 +324,7 @@ describe('ProductCard component', () => {
     }).toThrow('ProductCard: price is required');
   });
 
-  it('should update the component with new props', () => {
+  it('should update the component with new props including priceInfo', () => {
     const productCard = ProductCard(defaultProps);
 
     // Initial state check
@@ -280,6 +339,7 @@ describe('ProductCard component', () => {
     const updatedProps = {
       title: 'Updated Phone',
       price: '399.99',
+      priceInfo: 'inkl. Steuer',
     };
 
     const updatedCard = productCard.update(updatedProps);
@@ -288,6 +348,7 @@ describe('ProductCard component', () => {
     // Check the updated component
     expect(updatedElement.textContent).toContain('Updated Phone');
     expect(updatedElement.textContent).toContain('399.99');
+    expect(updatedElement.textContent).toContain('inkl. Steuer');
   });
 
   it('should clean up resources when destroyed', () => {

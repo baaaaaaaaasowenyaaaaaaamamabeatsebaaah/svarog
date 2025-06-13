@@ -11,6 +11,7 @@ The ProductCard component provides a customizable card for displaying product in
 ✅ **Accessible** - Semantic HTML with proper ARIA attributes
 ✅ **Image Component Integration** - Uses the Image component for advanced image handling
 ✅ **PriceDisplay Integration** - Professional price presentation with loading states
+✅ **Price Info Support** - Display additional price information (tax, shipping, etc.)
 
 ## Usage
 
@@ -28,6 +29,7 @@ const productCard = ProductCard({
     'Battery Health': '98%',
   },
   price: '699.99',
+  priceInfo: 'inkl. MwSt.',
   onClick: () => console.log('Product reserved'),
 });
 
@@ -37,20 +39,21 @@ document.body.appendChild(productCard.getElement());
 
 ## Props
 
-| Prop             | Type           | Default    | Description                               |
-| ---------------- | -------------- | ---------- | ----------------------------------------- |
-| imageUrl         | string         | (Required) | URL to the product image                  |
-| fallbackImageUrl | string         | undefined  | Fallback image URL if primary fails       |
-| title            | string         | (Required) | Product title                             |
-| productData      | Object         | (Required) | Key-value pairs of product specifications |
-| price            | string\|number | (Required) | Product price                             |
-| currency         | string         | '€'        | Currency symbol                           |
-| buttonText       | string         | 'Reserve'  | Text for the reserve/buy button           |
-| onClick          | Function       | () => {}   | Callback function when button is clicked  |
-| onReserve        | Function       | -          | DEPRECATED: Use onClick instead           |
-| className        | string         | ''         | Additional CSS classes                    |
-| loading          | boolean        | false      | Whether price is loading                  |
-| priceHighlighted | boolean        | false      | Whether price should be highlighted       |
+| Prop             | Type           | Default    | Description                                 |
+| ---------------- | -------------- | ---------- | ------------------------------------------- |
+| imageUrl         | string         | (Required) | URL to the product image                    |
+| fallbackImageUrl | string         | undefined  | Fallback image URL if primary fails         |
+| title            | string         | (Required) | Product title                               |
+| productData      | Object         | (Required) | Key-value pairs of product specifications   |
+| price            | string\|number | (Required) | Product price                               |
+| currency         | string         | '€'        | Currency symbol                             |
+| buttonText       | string         | 'Reserve'  | Text for the reserve/buy button             |
+| onClick          | Function       | () => {}   | Callback function when button is clicked    |
+| onReserve        | Function       | -          | DEPRECATED: Use onClick instead             |
+| className        | string         | ''         | Additional CSS classes                      |
+| loading          | boolean        | false      | Whether price is loading                    |
+| priceHighlighted | boolean        | false      | Whether price should be highlighted         |
+| priceInfo        | string         | undefined  | Additional price info (e.g., "inkl. MwSt.") |
 
 ## Methods
 
@@ -69,6 +72,7 @@ Updates multiple product card properties at once.
 ```javascript
 productCard.update({
   price: '649.99',
+  priceInfo: 'inkl. 19% MwSt.',
   buttonText: 'Buy Now',
   onClick: () => console.log('Changed callback'),
 });
@@ -106,6 +110,18 @@ productCard.setPrice('599.99');
 productCard.setPrice('499.99', true);
 ```
 
+### setPriceInfo(newPriceInfo)
+
+Updates the price info text dynamically.
+
+```javascript
+// Update price info
+productCard.setPriceInfo('inkl. MwSt. + kostenloser Versand');
+
+// Remove price info
+productCard.setPriceInfo('');
+```
+
 ## Image Handling
 
 The ProductCard now uses the Image component internally, providing:
@@ -126,6 +142,7 @@ const productCard = ProductCard({
     /* ... */
   },
   price: '699.99',
+  priceInfo: 'inkl. MwSt.',
 });
 ```
 
@@ -137,6 +154,7 @@ The ProductCard now uses the PriceDisplay component internally, providing:
 - **Highlighting**: Emphasize special prices (sales, discounts)
 - **Error Handling**: Graceful error display
 - **Consistent Styling**: Matches other price displays in your app
+- **Price Info**: Additional information below the price
 
 ### Price States Example
 
@@ -146,6 +164,7 @@ const card = ProductCard({
   // ... other props
   price: 'Loading...',
   loading: true,
+  priceInfo: 'Final price',
 });
 
 // Highlighted price (e.g., sale)
@@ -153,6 +172,40 @@ const saleCard = ProductCard({
   // ... other props
   price: '499.99',
   priceHighlighted: true,
+  priceInfo: 'inkl. MwSt. - Sonderangebot',
+});
+```
+
+### Price Info Examples
+
+```javascript
+// Tax information
+ProductCard({
+  // ... other props
+  price: '699.99',
+  priceInfo: 'inkl. 19% MwSt.',
+});
+
+// Shipping information
+ProductCard({
+  // ... other props
+  price: '449.99',
+  priceInfo: '+ Versandkosten',
+});
+
+// Multiple information
+ProductCard({
+  // ... other props
+  price: '299.99',
+  priceInfo: 'inkl. MwSt. + kostenloser Versand',
+});
+
+// VAT exclusive pricing
+ProductCard({
+  // ... other props
+  price: '499.99',
+  currency: '$',
+  priceInfo: 'Excl. VAT',
 });
 ```
 
@@ -184,10 +237,12 @@ ProductCard styles can be customized using CSS variables. The component automati
   /* Colors */
   --color-primary: #0d6efd;
   --color-text-light: #6c757d;
+  --color-text-secondary: #6b7280;
   --color-gray-50: #f9fafb;
   --color-gray-100: #f8f9fa;
 
   /* Typography */
+  --font-size-sm: 14px;
   --font-size-xl: 1.25rem;
   --font-weight-medium: 500;
 }
@@ -196,6 +251,7 @@ ProductCard styles can be customized using CSS variables. The component automati
 .muchandy-theme {
   --color-primary: #ff5722;
   --color-text-light: #757575;
+  --color-text-secondary: #737373;
 }
 
 /* Custom overrides for ProductCard */
@@ -214,6 +270,12 @@ ProductCard styles can be customized using CSS variables. The component automati
   /* Custom price styling */
   font-size: 1.5rem;
   color: #0066cc;
+}
+
+/* Price info customization */
+.product-card__price-info {
+  font-style: italic;
+  color: #555;
 }
 ```
 
@@ -246,7 +308,7 @@ The ProductCard component internally uses:
 - **Card**: For the base card structure
 - **Image**: For product image display with fallback support
 - **Button**: For the reserve/buy action
-- **Typography**: For text elements
+- **Typography**: For text elements including price info
 - **PriceDisplay**: For price presentation with loading states
 
 ## Examples
@@ -266,6 +328,22 @@ const basicCard = ProductCard({
 });
 ```
 
+### With Price Information
+
+```javascript
+const cardWithTax = ProductCard({
+  imageUrl: 'https://example.com/phone.jpg',
+  title: 'iPhone 13 Pro',
+  productData: {
+    Storage: '128GB',
+    Color: 'Graphite',
+  },
+  price: '699.99',
+  priceInfo: 'inkl. 19% MwSt.',
+  onClick: () => console.log('Product reserved'),
+});
+```
+
 ### With Fallback Image
 
 ```javascript
@@ -278,6 +356,7 @@ const cardWithFallback = ProductCard({
     Color: 'Graphite',
   },
   price: '699.99',
+  priceInfo: 'inkl. MwSt.',
   onClick: () => console.log('Product reserved'),
 });
 ```
@@ -294,6 +373,7 @@ const customCard = ProductCard({
   },
   price: '799.99',
   currency: '$',
+  priceInfo: 'Excl. VAT',
   buttonText: 'Buy Now',
   onClick: () => console.log('Product purchased'),
 });
@@ -311,6 +391,7 @@ const loadingCard = ProductCard({
   },
   price: 'Loading...',
   loading: true, // Shows loading spinner for price
+  priceInfo: 'Final price',
   buttonText: 'Reserve',
   onClick: () => console.log('Product reserved'),
 });
@@ -319,6 +400,7 @@ const loadingCard = ProductCard({
 setTimeout(() => {
   loadingCard.setPriceLoading(false);
   loadingCard.setPrice('699.99', true); // With highlight
+  loadingCard.setPriceInfo('inkl. MwSt. - Sonderpreis!');
 }, 2000);
 ```
 
@@ -337,6 +419,7 @@ products.forEach((product) => {
     title: product.name,
     productData: product.specs,
     price: product.price,
+    priceInfo: product.includesTax ? 'inkl. MwSt.' : 'zzgl. MwSt.',
     onClick: () => handleReserve(product.id),
   });
 
@@ -358,6 +441,7 @@ const productCard = ProductCard({
     Color: 'Graphite',
   },
   price: '0.00',
+  priceInfo: 'Berechne Preis...',
   loading: true,
 });
 
@@ -366,6 +450,7 @@ document.body.appendChild(productCard.getElement());
 // Simulate fetching price from API
 async function fetchPrice() {
   productCard.setPriceLoading(true);
+  productCard.setPriceInfo('Berechne Preis...');
 
   try {
     const response = await fetch('/api/products/price');
@@ -373,9 +458,11 @@ async function fetchPrice() {
 
     productCard.setPriceLoading(false);
     productCard.setPrice(data.price, data.isOnSale);
+    productCard.setPriceInfo(data.includesTax ? 'inkl. MwSt.' : 'zzgl. MwSt.');
   } catch (error) {
     productCard.setPriceLoading(false);
     productCard.setPrice('Error', false);
+    productCard.setPriceInfo('Preis nicht verfügbar');
   }
 }
 
@@ -396,12 +483,20 @@ const card = ProductCard({
   title: 'Server-side Product',
   productData: { Storage: '256GB' },
   price: '499.99',
+  priceInfo: 'inkl. MwSt.',
 });
 
 // Styles will inject when component renders in browser
 ```
 
 ## Migration Notes
+
+### v2.3.0 Updates
+
+- **New Prop**: Added `priceInfo` prop for displaying additional price information
+- **New Method**: Added `setPriceInfo()` for dynamic price info updates
+- **Typography Integration**: Price info uses Typography component with caption variant
+- **Styling**: Price info appears below the price with appropriate spacing
 
 ### v2.2.0 Updates
 
@@ -462,6 +557,7 @@ The ProductCard component implements these accessibility features:
 - Keyboard focusable elements
 - Screen reader friendly markup
 - Product images include alt text (uses product title)
+- Price information is properly associated with the price
 
 ## Development
 
@@ -497,6 +593,10 @@ const priceDisplay = card
   .getElement()
   .querySelector('.product-card__price-display');
 console.log('PriceDisplay component present:', !!priceDisplay);
+
+// Check if price info is rendered
+const priceInfo = card.getElement().querySelector('.product-card__price-info');
+console.log('Price info present:', !!priceInfo);
 ```
 
 ---

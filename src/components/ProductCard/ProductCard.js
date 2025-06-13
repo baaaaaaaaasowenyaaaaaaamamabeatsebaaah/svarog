@@ -84,6 +84,7 @@ const createProductDataElement = (productData) => {
  * @param {Function} onClick - Callback function when reserve button is clicked
  * @param {boolean} loading - Whether price is loading
  * @param {boolean} priceHighlighted - Whether price should be highlighted
+ * @param {string} [priceInfo] - Additional price information (e.g., "inkl. Steuer")
  * @returns {Object} The actions element and component references
  */
 const createActionsElement = (
@@ -92,7 +93,8 @@ const createActionsElement = (
   buttonText,
   onClick,
   loading,
-  priceHighlighted
+  priceHighlighted,
+  priceInfo
 ) => {
   const container = createElement('div', {
     classes: 'product-card__actions',
@@ -107,6 +109,17 @@ const createActionsElement = (
   });
 
   const priceElement = priceComponent.getElement();
+  container.appendChild(priceElement);
+
+  // Add price info if provided
+  if (priceInfo) {
+    const priceInfoElement = Typography({
+      children: priceInfo,
+      className: 'product-card__price-info',
+      variant: 'caption',
+    }).getElement();
+    container.appendChild(priceInfoElement);
+  }
 
   const reserveButton = Button({
     text: buttonText,
@@ -116,7 +129,6 @@ const createActionsElement = (
     disabled: loading,
   }).getElement();
 
-  container.appendChild(priceElement);
   container.appendChild(reserveButton);
 
   return {
@@ -158,6 +170,7 @@ const migrateLegacyProps = (props) => {
  * @param {string} [props.className=''] - Additional CSS class names
  * @param {boolean} [props.loading=false] - Whether price is loading
  * @param {boolean} [props.priceHighlighted=false] - Whether price should be highlighted
+ * @param {string} [props.priceInfo] - Additional price information (e.g., "inkl. Steuer")
  * @returns {Object} ProductCard component API
  */
 const createProductCard = (props) => {
@@ -187,6 +200,7 @@ const createProductCard = (props) => {
     className = '',
     loading = false,
     priceHighlighted = false,
+    priceInfo,
   } = normalizedProps;
 
   const classNames = ['product-card'];
@@ -215,7 +229,8 @@ const createProductCard = (props) => {
     buttonText,
     onClick,
     loading,
-    priceHighlighted
+    priceHighlighted,
+    priceInfo
   );
   contentContainer.appendChild(actionsElement);
 
@@ -308,6 +323,15 @@ const createProductCard = (props) => {
         );
       }
       return this;
+    },
+
+    /**
+     * Update price info text
+     * @param {string} newPriceInfo - New price info text
+     * @returns {Object} Component for chaining
+     */
+    setPriceInfo(newPriceInfo) {
+      return this.update({ ...normalizedProps, priceInfo: newPriceInfo });
     },
 
     /**

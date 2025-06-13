@@ -2327,10 +2327,24 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'WithPriceInfo',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithPriceInfo
+            ),
+        },
+        {
           name: 'WithCustomCurrency',
           module: () =>
             import('../components/ProductCard/ProductCard.stories.js').then(
               (m) => m.WithCustomCurrency
+            ),
+        },
+        {
+          name: 'WithShippingInfo',
+          module: () =>
+            import('../components/ProductCard/ProductCard.stories.js').then(
+              (m) => m.WithShippingInfo
             ),
         },
         {
@@ -2348,10 +2362,10 @@ export const getComponents = () => {
             ),
         },
         {
-          name: 'DynamicPriceLoading',
+          name: 'DynamicPriceInfo',
           module: () =>
             import('../components/ProductCard/ProductCard.stories.js').then(
-              (m) => m.DynamicPriceLoading
+              (m) => m.DynamicPriceInfo
             ),
         },
         {
