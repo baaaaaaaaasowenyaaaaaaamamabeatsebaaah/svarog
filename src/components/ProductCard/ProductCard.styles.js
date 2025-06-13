@@ -46,11 +46,11 @@ export const productCardStyles = css`
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-2, 8px);
+    gap: var(--space-1, 4px);
   }
 
   .product-card__spec-item {
-    font-size: var(--font-size-xs, 12px);
+    font-size: var(--font-size-base, 16px);
     display: flex;
     justify-content: space-between;
   }
@@ -88,7 +88,11 @@ export const productCardStyles = css`
   }
 
   .product-card__price-display .price-display__value {
-    font-size: var(--font-size-4xl, 1.5rem);
+    font-size: var(--font-size-4xl, 24px);
+  }
+
+  .price-display--loading {
+    font-size: var(--font-size-base, 16px);
   }
 
   /* Grid display for product cards */

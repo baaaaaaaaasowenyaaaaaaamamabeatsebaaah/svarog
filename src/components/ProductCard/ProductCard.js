@@ -59,7 +59,6 @@ const createProductDataElement = (productData) => {
     const specLabel = Typography({
       children: `${key}:`,
       className: 'product-card__spec-label',
-      weight: 'medium',
     }).getElement();
 
     const specValue = Typography({
