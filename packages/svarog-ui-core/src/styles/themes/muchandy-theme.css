@@ -1,0 +1,559 @@
+/* src/styles/themes/muchandy-theme.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+.muchandy-theme {
+  /* Typography */
+  --font-family-primary: 'Montserrat', sans-serif;
+  --font-family-heading: 'Montserrat', sans-serif;
+  --font-family-base: 'Montserrat', sans-serif;
+
+  /* Colors - Brand */
+  --color-brand-primary: #ff7f50;
+  --color-brand-primary-dark: #cc643f;
+  --color-brand-primary-light: #ffa07a;
+  --color-brand-secondary: #4aa2d9;
+  --color-brand-secondary-dark: #3881b0;
+  --color-brand-secondary-light: #7cc0ed;
+
+  /* Component: Typography */
+  --typography-color: var(--color-text);
+  --typography-muted-color: var(--color-text-light);
+  --typography-margin-bottom: var(--space-4);
+  --typography-h1-size: var(--font-size-6xl);
+  --typography-h2-size: var(--font-size-4xl);
+  --typography-h3-size: var(--font-size-3xl);
+  --typography-h4-size: var(--font-size-2xl);
+  --typography-h5-size: var(--font-size-xl);
+  --typography-h6-size: var(--font-size-lg);
+  --typography-body-size: var(--font-size-base);
+  --typography-small-size: var(--font-size-sm);
+
+  /* Component: Link */
+  --link-margin-left: 0;
+  --link-margin-right: 0;
+  --link-color: var(--color-brand-secondary);
+  --link-transition: var(--transition-normal);
+  --link-hover-color: var(--color-brand-secondary-light);
+
+  /* Component: Button */
+  --button-bg: var(--color-transparent);
+  --button-color: var(--color-brand-primary);
+  --button-border: 2px solid var(--color-brand-primary);
+  --button-radius: 0;
+  --button-padding: var(--space-2) var(--space-5);
+  --button-font-size: var(--font-size-xl);
+  --button-font-family: var(--font-family-primary);
+  --button-font-weight: var(--font-weight-medium);
+  --button-transition: var(--transition-normal);
+  --button-shadow: none;
+
+  /* Hover state */
+  --button-hover-bg: var(--color-transparent);
+  --button-hover-border-color: var(--color-brand-primary-light);
+  --button-hover-color: var(--color-brand-primary-light);
+  --button-hover-shadow: none;
+  --button-hover-transform: var(--space-1);
+
+  /* Active state */
+  --button-active-bg: var(--color-brand-primary-dark);
+  --button-active-border-color: var(--color-brand-primary-dark);
+  --button-active-shadow: none;
+  --button-active-transform: none;
+
+  /* Disabled state */
+  --button-disabled-bg: var(--disabled-background);
+  --button-disabled-border-color: var(--disabled-background);
+  --button-disabled-color: var(--color-text-disabled);
+  --button-disabled-opacity: inherit;
+
+  /* Focus state */
+  --button-focus-shadow: inherit;
+
+  /* Primary button styles */
+  --button-primary-bg: var(--color-brand-primary);
+  --button-primary-color: var(--color-text-white);
+  --button-primary-active-bg: var(--color-brand-primary-dark);
+  --button-primary-hover-bg: var(--color-brand-primary-light);
+  --buton-primary-hover-bg: var(--color-brand-primary-light);
+  --button-primary-active-border-color: none;
+  --button-primary-border-color: none;
+  --button-primary-hover-border-color: none;
+  --button-primary-hover-color: var(--color-text-white);
+
+  /* Secondary button styles */
+  --button-secondary-bg: var(--color-brand-secondary);
+  --button-secondary-color: var(--color-text-white);
+  --button-secondary-hover-bg: var(--color-brand-secondary-light);
+  --button-secondary-active-bg: var(--color-brand-secondary-dark);
+  --button-secondary-hover-bg: var(--color-brand-secondary-light);
+  --button-secondary-active-border-color: none;
+  --button-secondary-border-color: none;
+  --button-secondary-hover-border-color: none;
+  --button-secondary-hover-color: var(--color-text-white);
+
+  /* Text button styles */
+  --button-text-color: var(--color-brand-primary);
+  --button-text-hover-color: var(--color-brand-primary-light);
+  --button-text-padding: inherit;
+
+  /* Small button styles */
+  --button-padding-sm: var(--space-1) var(--space-3);
+  --button-font-size-sm: var(--font-size-sm);
+  --button-radius-sm: none;
+
+  /* Large button styles */
+  --button-padding-lg: var(--space-3) var(--space-5);
+  --button-font-size-lg: var(--font-size-lg);
+  --button-radius-lg: none;
+
+  /* Icon button styles */
+  --button-icon-margin: var(--space-1);
+  --button-icon-padding: var(--space-1) var(--space-2);
+  --button-icon-radius: 0;
+  --button-icon-size: var(--font-size-xl);
+  --button-icon-size-lg: var(--font-size-lg);
+  --button-icon-size-sm: var(--font-size-sm);
+
+  /* Outlined button styles */
+  --button-outlined-color: var(--color-dark);
+  --button-outlined-hover-bg: var(--color-transparent);
+  --button-outlined-hover-color: var(--color-gray-600);
+  --button-outlined-border-color: none;
+  --button-outlined-hover-border-color: var(--color-gray-600);
+
+  /* Success button styles */
+  --button-success-bg: var(--color-success);
+  --button-success-color: var(--color-text-white);
+  --button-success-hover-bg: var(--color-success-light);
+  --button-success-border-color: none;
+  --button-success-hover-border-color: none;
+  --button-success-hover-color: var(--color-text-white);
+
+  /* Danger state */
+  --button-danger-bg: var(--color-danger);
+  --button-danger-color: var(--color-text-white);
+  --button-danger-hover-bg: var(--color-danger-light);
+  --button-danger-border-color: none;
+  --button-danger-hover-border-color: none;
+  --button-danger-hover-color: var(--color-text-white);
+
+  /* Component: Navigation */
+  --nav-bg: var(--color-bg);
+  --nav-border-bottom: 2px solid var(--color-brand-secondary);
+  --nav-dropdown-bg: var(--color-bg);
+  --nav-padding: var(--space-2);
+  --nav-margin-right: var(--space-2);
+  --nav-font-size: var(--font-size-xl);
+  --nav-line-height: 1.5;
+  --nav-active-font-weight: inherit;
+  --nav-focus-shadow: var(--focus-ring);
+  --nav-item-spacing: var(--space-10);
+  --nav-item-spacing-vertical: var(--space-2);
+  --nav-submenu-indent: 1;
+
+  /* Navigation link styles */
+  --nav-link-color: var(--color-text);
+  --nav-link-hover-color: var(--color-brand-secondary);
+  --nav-link-active-color: var(--color-brand-secondary);
+  --nav-link-font-size: var(--font-size-xl);
+  --nav-link-padding: 0;
+  --nav-link-radius: 0;
+  --nav-link-transition: var(--transition-normal);
+
+  /* Navigation burger styles */
+  --nav-burger-font-size: var(--font-size-2xl);
+  --nav-burger-color: var(--color-text);
+  --nav-burger-size: var(--font-size-2xl);
+  --nav-burger-margin-bottom: var(--space-2);
+
+  /* Navigation dropdown styles */
+  --nav-dropdown-border: 1px solid var(--color-border-light);
+  --nav-dropdown-link-padding: 0;
+  --nav-dropdown-padding: 0;
+  --nav-dropdown-radius: 0;
+  --nav-dropdown-shadow: var(--shadow-md);
+
+  /* Navigation mobile styles */
+  --nav-padding-mobile: var(--space-2) 0;
+  --nav-mobile-bg: var(--color-bg);
+  --nav-mobile-item-border: 1px solid var(--color-border-light);
+  --nav-mobile-link-padding: 0;
+  --nav-mobile-max-height: inherit;
+  --nav-mobile-padding: var(--space-4);
+  --nav-mobile-radius: 0;
+  --nav-mobile-shadow: none;
+  --nav-mobile-submenu-bg: var(--color-bg);
+  --nav-mobile-active-bg: var(--color-border-light);
+  --nav-mobile-hover-bg: var(--color-border-light);
+
+  /* Component: Section */
+  --section-bg: var(--color-bg);
+  --section-color: var(--color-text);
+  --section-padding: var(--space-4);
+  --section-gap: var(--space-3);
+  --section-content-max-width: var(--container-max-width);
+  --section-padding-tablet: var(--space-3);
+  --section-gap-tablet: var(--space-2);
+  --section-padding-mobile: var(--space-2);
+  --section-bg-minor: var(--color-bg);
+  --section-color-minor: var(--color-text-light);
+
+  /* Component: Logo */
+  --logo-width: 120px;
+  --logo-height: auto;
+  --logo-height-tablet: var(--logo-height);
+  --logo-hover-opacity: var(--hover-opacity);
+  --logo-max-height: var(--logo-height);
+  --logo-max-width: var(--logo-width);
+  --logo-width-tablet: var(--logo-width);
+
+  /* Component: Card */
+  --card-bg: var(--color-bg);
+  --card-color: var(--color-text);
+  --card-radius: 0;
+  --card-border: 1px solid var(--color-border-light);
+  --card-border-color: var(--color-border-medium);
+  --card-shadow: var(--shadow-md);
+  --card-padding: var(--space-6);
+  --card-hover-border-color: var(--color-border-medium);
+  --card-title-padding: 0 0 var(--space-6) 0;
+  --card-title-font-size: var(--font-size-4xl);
+  --card-title-font-weight: var(--font-weight-bold);
+  --card-title-border: 1px solid var(--color-border-light);
+  --card-title-margin-bottom: var(--space-6);
+  --card-content-padding: 0;
+  --card-footer-margin-top: var(--space-6);
+  --card-footer-padding: var(--space-6) 0 0 0;
+  --card-footer-bg: var(--color-gray-100);
+  --card-footer-border: 1px solid var(--color-border-light);
+  --card-footer-font-size: var(--font-size-sm);
+  --card-title-padding-mobile: var(--space-3);
+  --card-content-padding-mobile: var(--space-3);
+  --card-footer-padding-mobile: var(--space-2) var(--space-3);
+  --card-image-margin-bottom: var(--space-3);
+
+  /* Component: Input */
+  --input-margin-bottom: 0;
+  --input-padding: var(--space-2) var(--space-3);
+  --input-mobile-padding: var(--space-2);
+
+  --input-font-size: var(--font-size-sm);
+  --input-font-family: var(--font-family-primary);
+  --input-mobile-font-size: var(--font-size-xs);
+  --input-validation-font-size: var(--font-size-xs);
+
+  --input-bg: var(--color-bg);
+  --input-color: var(--color-text);
+  --input-placeholder-color: var(--color-text-lighter);
+  --input-focus-border-color: var(--color-brand-secondary-light);
+  --input-disabled-bg: var(--disabled-background);
+  --input-readonly-bg: var(--disabled-background);
+  --input-valid-border-color: var(--color-success-light);
+  --input-invalid-border-color: var(--color-danger-light);
+  --input-validation-color: var(--color-danger-light);
+  --input-valid-color: var(--color-success-light);
+
+  --input-border: 1px solid var(--color-border-medium);
+  --input-radius: 0;
+  --input-shadow: var(--shadow-none);
+  --input-focus-shadow: var(--focus-ring);
+  --input-transition: var(--transition-normal);
+  --input-disabled-opacity: var(--disabled-opacity);
+
+  /* Component: Select */
+  --select-margin-bottom: 0;
+  --select-padding: var(--space-2) var(--space-3);
+  --select-font-size: var(--font-size-sm);
+  --select-font-family: var(--font-family-base);
+  --select-color: var(--color-text);
+  --select-placeholder-color: var(--color-text-lighter);
+  --select-bg: var(--color-bg);
+  --select-border: 1px solid var(--select-border-color);
+  --select-border-color: var(--color-border-medium);
+  --select-radius: 0;
+  --select-shadow: var(--shadow-none);
+  --select-transition: var(--transition-normal);
+  --select-line-height: 1.5;
+
+  /* Arrow Indicator */
+  --select-arrow-size: var(--font-size-sm);
+  --select-arrow-margin: var(--space-2);
+  --select-arrow-border: 1px solid var(--select-arrow-color);
+  --select-arrow-color: var(--color-text);
+  --select-arrow-transition: var(--transition-normal);
+  --select-arrow-right: var(--space-4);
+
+  /* Dropdown */
+  --select-dropdown-bg: var(--color-bg);
+  --select-dropdown-border-color: var(--color-border-medium);
+  --select-dropdown-radius: 0;
+  --select-dropdown-z-index: var(--z-index-dropdown);
+  --select-dropdown-transition: var(--transition-normal);
+  --select-dropdown-shadow: var(--shadow-none);
+  --select-dropdown-max-height: var(--space-40);
+  --select-dropdown-mobile-max-height: var(--space-40);
+
+  /* Options */
+  --select-option-padding: var(--space-2) var(--space-3);
+  --select-option-transition: var(--transition-normal);
+  --select-option-hover-bg: var(--color-gray-200);
+  --select-option-selected-bg: var(--color-gray-200);
+  --select-option-selected-color: var(--color-text);
+  --select-option-disabled-color: var(--color-text-disabled);
+  --select-option-disabled-bg: var(--color-gray-200);
+
+  /* Group Headers */
+  --select-group-header-padding: var(--space-1) var(--space-3);
+  --select-group-header-font-weight: bold;
+  --select-group-header-color: var(--color-text);
+  --select-group-header-bg: var(--color-bg);
+  --select-group-header-font-size: var(--font-size-sm);
+  --select-group-header-border-bottom: 1px solid var(--color-border-light);
+  --select-group-header-border-top: 1px solid var(--color-border-light);
+
+  /* Multiple Selection Checkboxes */
+  --select-checkbox-size: var(--font-size-sm);
+  --select-checkbox-border: var(--color-border-medium);
+  --select-checkbox-radius: 0;
+  --select-checkbox-margin: var(--space-2);
+  --select-checkbox-check-border: var(--color-brand-secondary-light);
+
+  /* States */
+  --select-hover-border-color: var(--color-brand-secondary-light);
+  --select-focus-border-color: var(--color-brand-secondary-light);
+  --select-focus-shadow: var(--focus-ring);
+  --select-disabled-bg: var(--disabled-background);
+  --select-disabled-opacity: var(--disabled-opacity);
+  --select-valid-border-color: var(--color-success-light);
+  --select-invalid-border-color: var(--color-danger-light);
+
+  /* Validation Message */
+  --select-validation-font-size: var(--font-size-xs);
+  --select-validation-margin-top: var(--space-2);
+  --select-validation-color: var(--color-danger-light);
+  --select-validation-min-height: var(--space-4);
+  --select-valid-color: var(--color-success-light);
+
+  /* Mobile Adjustments */
+  --select-mobile-font-size: var(--font-size-xs);
+  --select-mobile-padding: var(--space-2);
+
+  /* Component: Checkbox */
+  --checkbox-bg: var(--color-bg);
+  --checkbox-border: 2px solid var(--color-border-medium);
+  --checkbox-radius: 0;
+  --checkbox-size: var(--font-size-sm);
+  --checkbox-color: var(--color-text);
+  --checkbox-indicator-margin: var(--space-2);
+  --checkbox-font-size: var(--font-size-sm);
+  --checkbox-font-family: var(--font-family-primary);
+  --checkbox-transition: var(--transition-normal);
+  --checkbox-padding: var(--space-1);
+  --checkbox-hover-border-color: var(--color-brand-secondary-light);
+  --checkbox-checked-bg: var(--color-brand-secondary);
+  --checkbox-checked-border-color: var(--color-brand-secondary);
+  --checkbox-focus-shadow: var(--focus-ring);
+  --checkbox-disabled-bg: var(--disabled-background);
+  --checkbox-disabled-border-color: var(--color-border-light);
+  --checkbox-disabled-color: var(--color-text-disabled);
+  --checkbox-valid-border-color: var(--color-success-light);
+  --checkbox-invalid-border-color: var(--color-danger-light);
+  --checkbox-validation-color: var(--color-danger-light);
+  --checkbox-validation-font-size: var(--font-size-xs);
+  --checkbox-margin-bottom: var(--space-3);
+  --checkbox-indicator-width: 4px;
+  --checkbox-indicator-height: 8px;
+  --checkbox-required-color: var(--color-danger-light);
+  --checkbox-indeterminate-bg: var(--color-brand-secondary-light);
+  --checkbox-indeterminate-border-color: var(--color-brand-secondary-light);
+  --checkbox-indeterminate-width: 8px;
+  --checkbox-indeterminate-height: 2px;
+  --checkbox-valid-color: var(--color-success-light);
+
+  /* Component: Radio */
+  --radio-bg: var(--color-bg);
+  --radio-border: 2px solid var(--color-border-medium);
+  --radio-size: 20px;
+  --radio-inner-size: 10px;
+  --radio-color: var(--color-text);
+  --radio-indicator-margin: var(--space-2);
+  --radio-font-size: var(--font-size-sm);
+  --radio-font-family: var(--font-family-primary);
+  --radio-transition: var(--transition-normal);
+  --radio-padding: var(--space-1);
+  --radio-hover-border-color: var(--color-brand-secondary-light);
+  --radio-checked-color: var(--color-brand-secondary);
+  --radio-checked-border-color: var(--color-brand-secondary);
+  --radio-focus-shadow: var(--focus-ring);
+  --radio-disabled-bg: var(--disabled-background);
+  --radio-disabled-border-color: var(--color-border-light);
+  --radio-disabled-color: var(--color-text-disabled);
+  --radio-disabled-checked-color: var(--color-text-light);
+  --radio-margin-bottom: var(--space-3);
+  --radio-required-color: var(--color-danger-light);
+
+  /* Component: Radio Group */
+  --radio-group-margin-bottom: var(--space-4);
+  --radio-group-padding: var(--space-3);
+  --radio-group-border: 1px solid var(--color-border-light);
+  --radio-group-radius: 0;
+  --radio-group-legend-font-size: var(--font-size-sm);
+  --radio-group-legend-color: var(--color-text);
+  --radio-group-font-family: var(--font-family-primary);
+  --radio-group-legend-font-weight: var(--font-weight-medium);
+  --radio-group-legend-padding: 0 var(--space-2);
+  --radio-group-legend-margin-bottom: var(--space-2);
+  --radio-group-required-color: var(--color-danger-light);
+  --radio-group-gap: var(--space-2);
+  --radio-group-valid-border-color: var(--color-success-light);
+  --radio-group-invalid-border-color: var(--color-danger-light);
+  --radio-group-validation-color: var(--color-danger-light);
+  --radio-group-validation-font-size: var(--font-size-xs);
+  --radio-group-disabled-opacity: var(--disabled-opacity);
+  --radio-group-disabled-bg: var(--color-gray-100);
+
+  /* Component: Form Group */
+  --form-group-margin-bottom: 0;
+  --form-group-label-font-size: var(--font-size-sm);
+  --form-group-label-color: var(--color-text);
+  --form-group-font-family: var(--font-family-base);
+  --form-group-label-font-weight: var(--font-weight-medium);
+  --form-group-label-margin-bottom: 0;
+  --form-group-required-color: var(--color-danger-light);
+  --form-group-help-font-size: var(--font-size-xs);
+  --form-group-help-color: var(--color-text-light);
+  --form-group-label-margin-right: var(--space-3);
+  --form-group-label-margin-left: var(--space-3);
+  --form-group-label-width: 30%;
+
+  /* Component: Form */
+  --form-label-width: 30%;
+  --form-section-margin-bottom: var(--space-6);
+  --form-section-title-font-size: var(--font-size-xl);
+  --form-section-title-color: var(--color-text);
+  --form-section-title-font-weight: var(--font-weight-semibold);
+  --form-section-title-margin-bottom: var(--space-3);
+  --form-section-title-border: 1px solid var(---border-color-light);
+  --form-section-description-font-size: var(--font-size-sm);
+  --form-section-description-color: var(--color-text-light);
+  --form-section-description-margin-bottom: var(--space-3);
+  --form-actions-gap: var(--space-2);
+  --form-actions-margin-top: 0;
+  --form-actions-justify: flex-end;
+
+  /* Component: PriceDisplay */
+  --price-display-bg: var(--color-bg-transparent);
+  --price-display-border: none;
+  --price-display-color: var(--color-brand-primary);
+}
+
+.muchandy-theme {
+  --header-bg: inherit;
+  /* TODO: Define value for 'header-bg-scrolled' in muchandy theme */
+  --header-bg-scrolled: inherit;
+  /* TODO: Define value for 'header-branding-gap' in muchandy theme */
+  --header-branding-gap: inherit;
+  /* TODO: Define value for 'header-color' in muchandy theme */
+  --header-color: inherit;
+  /* TODO: Define value for 'header-height' in muchandy theme */
+  --header-height: inherit;
+  /* TODO: Define value for 'header-height-mobile' in muchandy theme */
+  --header-height-mobile: inherit;
+  /* TODO: Define value for 'header-max-width' in muchandy theme */
+  --header-max-width: inherit;
+  /* TODO: Define value for 'header-padding' in muchandy theme */
+  --header-padding: inherit;
+  /* TODO: Define value for 'header-padding-mobile' in muchandy theme */
+  --header-padding-mobile: inherit;
+  /* TODO: Define value for 'header-shadow' in muchandy theme */
+  --header-shadow: inherit;
+  /* TODO: Define value for 'header-shadow-scrolled' in muchandy theme */
+  --header-shadow-scrolled: inherit;
+  /* TODO: Define value for 'header-title-size' in muchandy theme */
+  --header-title-size: inherit;
+  /* TODO: Define value for 'header-title-size-mobile' in muchandy theme */
+  --header-title-size-mobile: inherit;
+  /* TODO: Define value for 'header-title-weight' in muchandy theme */
+  --header-title-weight: inherit;
+  /* TODO: Define value for 'header-transition' in muchandy theme */
+  --header-transition: inherit;
+  /* TODO: Define value for 'header-transparent-color' in muchandy theme */
+  --header-transparent-color: inherit;
+  /* TODO: Define value for 'header-z-index' in muchandy theme */
+  --header-z-index: inherit;
+
+  /* TODO: Define value for 'collapsible-header-collapsed-height' in muchandy theme */
+  --collapsible-header-collapsed-height: inherit;
+  /* TODO: Define value for 'collapsible-header-contact-bg' in muchandy theme */
+  --collapsible-header-contact-bg: inherit;
+  /* TODO: Define value for 'collapsible-header-contact-transition' in muchandy theme */
+  --collapsible-header-contact-transition: inherit;
+  /* TODO: Define value for 'collapsible-header-height' in muchandy theme */
+  --collapsible-header-height: inherit;
+  /* TODO: Define value for 'collapsible-header-logo-transition' in muchandy theme */
+  --collapsible-header-logo-transition: inherit;
+  /* TODO: Define value for 'collapsible-header-mobile-height' in muchandy theme */
+  --collapsible-header-mobile-height: inherit;
+  /* TODO: Define value for 'collapsible-header-shadow' in muchandy theme */
+  --collapsible-header-shadow: inherit;
+  /* TODO: Define value for 'collapsible-header-transition' in muchandy theme */
+  --collapsible-header-transition: inherit;
+  /* TODO: Define value for 'color-bg-secondary' in muchandy theme */
+  --color-bg-secondary: inherit;
+  /* TODO: Define value for 'color-border' in muchandy theme */
+  --color-border: inherit;
+  /* TODO: Define value for 'color-gray-50' in muchandy theme */
+  --color-gray-50: inherit;
+  /* TODO: Define value for 'contact-info-color' in muchandy theme */
+  --contact-info-color: inherit;
+  /* TODO: Define value for 'contact-info-font-size' in muchandy theme */
+  --contact-info-font-size: inherit;
+  /* TODO: Define value for 'contact-info-gap' in muchandy theme */
+  --contact-info-gap: inherit;
+  /* TODO: Define value for 'contact-info-hover-color' in muchandy theme */
+  --contact-info-hover-color: inherit;
+  /* TODO: Define value for 'contact-info-icon-size' in muchandy theme */
+  --contact-info-icon-size: inherit;
+  /* TODO: Define value for 'contact-info-item-gap' in muchandy theme */
+  --contact-info-item-gap: inherit;
+  /* TODO: Define value for 'contact-info-mobile-gap' in muchandy theme */
+  --contact-info-mobile-gap: inherit;
+  /* TODO: Define value for 'font-family-mono' in muchandy theme */
+  --font-family-mono: inherit;
+  /* TODO: Define value for 'footer-bg' in muchandy theme */
+  --footer-bg: inherit;
+  /* TODO: Define value for 'footer-link-hover' in muchandy theme */
+  --footer-link-hover: inherit;
+  /* TODO: Define value for 'footer-text' in muchandy theme */
+  --footer-text: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-bg' in muchandy theme */
+  --sticky-contact-icons-bg: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-color' in muchandy theme */
+  --sticky-contact-icons-color: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-gap' in muchandy theme */
+  --sticky-contact-icons-gap: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-hover-color' in muchandy theme */
+  --sticky-contact-icons-hover-color: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-icon-size' in muchandy theme */
+  --sticky-contact-icons-icon-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-bottom' in muchandy theme */
+  --sticky-contact-icons-mobile-bottom: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-icon-size' in muchandy theme */
+  --sticky-contact-icons-mobile-icon-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-right' in muchandy theme */
+  --sticky-contact-icons-mobile-right: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-mobile-size' in muchandy theme */
+  --sticky-contact-icons-mobile-size: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-padding' in muchandy theme */
+  --sticky-contact-icons-padding: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-right' in muchandy theme */
+  --sticky-contact-icons-right: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-shadow' in muchandy theme */
+  --sticky-contact-icons-shadow: inherit;
+  /* TODO: Define value for 'sticky-contact-icons-size' in muchandy theme */
+  --sticky-contact-icons-size: inherit;
+  /* TODO: Define value for 'transition-duration' in muchandy theme */
+  --transition-duration: inherit;
+  /* TODO: Define value for 'transition-timing' in muchandy theme */
+  --transition-timing: inherit;
+}
