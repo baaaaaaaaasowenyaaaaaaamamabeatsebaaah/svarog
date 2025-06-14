@@ -1519,6 +1519,75 @@ export const getComponents = () => {
         },
       ],
     },
+    {
+      name: 'Breadcrumb',
+      category: 'Navigation',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'CustomSeparator',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.CustomSeparator
+            ),
+        },
+        {
+          name: 'WithClickHandlers',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.WithClickHandlers
+            ),
+        },
+        {
+          name: 'TruncatedLong',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.TruncatedLong
+            ),
+        },
+        {
+          name: 'ShortPath',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.ShortPath
+            ),
+        },
+        {
+          name: 'SingleItem',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.SingleItem
+            ),
+        },
+        {
+          name: 'WithEmojis',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.WithEmojis
+            ),
+        },
+        {
+          name: 'CustomClassName',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.CustomClassName
+            ),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import('../components/Breadcrumb/Breadcrumb.stories.js').then(
+              (m) => m.Interactive
+            ),
+        },
+      ],
+    },
 
     // =========================================
     // MEDIA COMPONENTS

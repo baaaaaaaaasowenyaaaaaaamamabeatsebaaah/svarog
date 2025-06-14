@@ -25,6 +25,7 @@ import Navigation from './components/Navigation/index.js';
 import Link from './components/Link/index.js';
 import Tabs from './components/Tabs/index.js';
 import Pagination from './components/Pagination/index.js';
+import Breadcrumb from './components/Breadcrumb/Breadcrumb.js';
 import StickyContactIcons from './components/StickyContactIcons/index.js';
 
 // ---- UI COMPONENTS ----
@@ -114,6 +115,7 @@ export {
   Link,
   Tabs,
   Pagination,
+  Breadcrumb,
   StickyContactIcons,
 
   // UI Components
@@ -199,6 +201,7 @@ export const Nav = {
   Link,
   Tabs,
   Pagination,
+  Breadcrumb,
   StickyContactIcons,
 };
 
@@ -297,6 +300,7 @@ const Svarog = {
   Link,
   Tabs,
   Pagination,
+  Breadcrumb,
   StickyContactIcons,
   Button,
   Tag,
