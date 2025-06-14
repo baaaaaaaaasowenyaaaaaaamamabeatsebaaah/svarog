@@ -9,7 +9,7 @@ export const productCardStyles = css`
   }
 
   .product-card:hover {
-    transform: translateY(var(--space-1, -4px));
+    cursor: pointer;
   }
 
   /* Override card content padding */
@@ -37,6 +37,7 @@ export const productCardStyles = css`
     display: flex;
     flex-direction: column;
     gap: var(--space-3, 12px);
+    height: 100%;
   }
 
   /* Product specifications */
@@ -70,7 +71,10 @@ export const productCardStyles = css`
   .product-card__actions {
     display: flex;
     flex-direction: column;
+    height: 100%;
     align-items: stretch;
+    justify-content: space-between;
+    margin-top: var(--space-3, 12px);
     gap: var(--space-2, 8px);
   }
 
@@ -95,18 +99,13 @@ export const productCardStyles = css`
     font-size: var(--font-size-base, 16px);
   }
 
-  /* Grid display for product cards */
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-10, 40px);
-    width: 100%;
-  }
-
-  /* Product card wrapper */
-  .product-card-wrapper {
-    display: flex;
-    flex-direction: column;
+  /* Price info styling */
+  .product-card__price-info {
+    font-size: var(--font-size-sm, 14px);
+    color: var(--color-text-secondary, #6b7280);
+    text-align: right;
+    margin-top: calc(var(--space-1) * -1); /* Pull closer to price */
+    margin-bottom: var(--space-1, 4px);
   }
 
   /* Responsive adjustments */
@@ -122,17 +121,9 @@ export const productCardStyles = css`
       text-align: center;
       margin-bottom: var(--space-2, 8px);
     }
-  }
 
-  @media (max-width: 992px) {
-    .product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
-  }
-
-  @media (max-width: 576px) {
-    .product-grid {
-      grid-template-columns: 1fr;
+    .product-card__price-info {
+      text-align: center;
     }
   }
 `;

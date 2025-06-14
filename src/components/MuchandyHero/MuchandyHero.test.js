@@ -64,8 +64,11 @@ describe('MuchandyHero', () => {
       });
       const element = hero.getElement();
 
-      // Browser adds quotes around URLs
-      expect(element.style.backgroundImage).toBe('url("test-image.jpg")');
+      // Check CSS custom property instead of style.backgroundImage
+      const bgImageVar = element.style.getPropertyValue(
+        '--muchandy-hero-bg-image'
+      );
+      expect(bgImageVar).toBe('url(test-image.jpg)');
     });
 
     it('should handle legacy backgroundImage prop for backward compatibility', () => {
@@ -79,8 +82,11 @@ describe('MuchandyHero', () => {
       });
       const element = hero.getElement();
 
-      // Browser adds quotes around URLs
-      expect(element.style.backgroundImage).toBe('url("legacy-image.jpg")');
+      // Check CSS custom property instead of style.backgroundImage
+      const bgImageVar = element.style.getPropertyValue(
+        '--muchandy-hero-bg-image'
+      );
+      expect(bgImageVar).toBe('url(legacy-image.jpg)');
       expect(console.warn).toHaveBeenCalledWith(
         'MuchandyHero: "backgroundImage" prop is deprecated, use "backgroundImageUrl" instead'
       );
@@ -238,10 +244,12 @@ describe('MuchandyHero', () => {
         'MuchandyHero: "setBackgroundImage" method is deprecated, use "setBackgroundImageUrl" instead'
       );
 
-      // Verify the method works via the new method
+      // Verify the method works via CSS custom property
       const element = hero.getElement();
-      // Browser adds quotes around URLs
-      expect(element.style.backgroundImage).toBe('url("test-image.jpg")');
+      const bgImageVar = element.style.getPropertyValue(
+        '--muchandy-hero-bg-image'
+      );
+      expect(bgImageVar).toBe('url(test-image.jpg)');
 
       // Restore console.warn
       console.warn = originalWarn;
@@ -274,8 +282,11 @@ describe('MuchandyHero', () => {
 
       hero.setBackgroundImageUrl('new-image.jpg');
 
-      // Browser adds quotes around URLs
-      expect(element.style.backgroundImage).toBe('url("new-image.jpg")');
+      // Check CSS custom property instead of style.backgroundImage
+      const bgImageVar = element.style.getPropertyValue(
+        '--muchandy-hero-bg-image'
+      );
+      expect(bgImageVar).toBe('url(new-image.jpg)');
     });
 
     it('should perform partial title updates', () => {
@@ -329,9 +340,11 @@ describe('MuchandyHero', () => {
         'MuchandyHero: "backgroundImage" prop is deprecated, use "backgroundImageUrl" instead'
       );
 
-      // Check that element was updated correctly
-      // Browser adds quotes around URLs
-      expect(element.style.backgroundImage).toBe('url("legacy-update.jpg")');
+      // Check CSS custom property instead of style.backgroundImage
+      const bgImageVar = element.style.getPropertyValue(
+        '--muchandy-hero-bg-image'
+      );
+      expect(bgImageVar).toBe('url(legacy-update.jpg)');
 
       // Restore console.warn
       console.warn = originalWarn;
@@ -515,6 +528,75 @@ describe('MuchandyHero', () => {
 
       expect(element._components.repairForm).toBe(mockForms.repairForm);
       expect(element._components.buybackForm).toBe(mockForms.buybackForm);
+    });
+  });
+
+  describe('CSS Custom Properties', () => {
+    it('should handle blur intensity CSS variable correctly', () => {
+      const hero = MuchandyHero({
+        ...mockForms,
+        blurIntensity: 8,
+      });
+      const element = hero.getElement();
+
+      const blurVar = element.style.getPropertyValue('--muchandy-hero-blur');
+      expect(blurVar).toBe('8px');
+    });
+
+    it('should handle overlay opacity CSS variable correctly', () => {
+      const hero = MuchandyHero({
+        ...mockForms,
+        overlayOpacity: 0.5,
+      });
+      const element = hero.getElement();
+
+      const overlayVar = element.style.getPropertyValue(
+        '--muchandy-hero-overlay'
+      );
+      expect(overlayVar).toBe('rgba(0, 0, 0, 0.5)');
+    });
+
+    it('should update blur intensity dynamically', () => {
+      const hero = MuchandyHero(mockForms);
+      const element = hero.getElement();
+
+      hero.setBlurIntensity(12);
+
+      const blurVar = element.style.getPropertyValue('--muchandy-hero-blur');
+      expect(blurVar).toBe('12px');
+    });
+
+    it('should update overlay opacity dynamically', () => {
+      const hero = MuchandyHero(mockForms);
+      const element = hero.getElement();
+
+      hero.setOverlayOpacity(0.7);
+
+      const overlayVar = element.style.getPropertyValue(
+        '--muchandy-hero-overlay'
+      );
+      expect(overlayVar).toBe('rgba(0, 0, 0, 0.7)');
+    });
+
+    it('should clear background image when empty string is provided', () => {
+      const hero = MuchandyHero({
+        ...mockForms,
+        backgroundImageUrl: 'test-image.jpg',
+      });
+      const element = hero.getElement();
+
+      // First verify it's set
+      let bgImageVar = element.style.getPropertyValue(
+        '--muchandy-hero-bg-image'
+      );
+      expect(bgImageVar).toBe('url(test-image.jpg)');
+
+      // Clear it
+      hero.setBackgroundImageUrl('');
+
+      // Verify it's cleared
+      bgImageVar = element.style.getPropertyValue('--muchandy-hero-bg-image');
+      expect(bgImageVar).toBe('');
     });
   });
 });

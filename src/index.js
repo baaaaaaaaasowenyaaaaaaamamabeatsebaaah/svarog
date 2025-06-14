@@ -8,6 +8,7 @@
 // ---- LAYOUT COMPONENTS ----
 import Accordion from './components/Accordion/index.js';
 import Grid from './components/Grid/index.js';
+import ProductGrid from './components/ProductGrid/ProductGrid.js';
 import Section from './components/Section/index.js';
 import Header from './components/Header/index.js';
 import Footer from './components/Footer/index.js';
@@ -24,11 +25,14 @@ import Navigation from './components/Navigation/index.js';
 import Link from './components/Link/index.js';
 import Tabs from './components/Tabs/index.js';
 import Pagination from './components/Pagination/index.js';
+import Breadcrumb from './components/Breadcrumb/Breadcrumb.js';
 import StickyContactIcons from './components/StickyContactIcons/index.js';
 
 // ---- UI COMPONENTS ----
 import Button from './components/Button/index.js';
+import Tag from './components/Tag/Tag.js';
 import Typography from './components/Typography/index.js';
+import RichText from './components/RichText/RichText.js';
 import Logo from './components/Logo/index.js';
 import Card from './components/Card/index.js';
 import Rating from './components/Rating/index.js';
@@ -36,10 +40,12 @@ import StepsIndicator from './components/StepsIndicator/index.js';
 import PriceDisplay from './components/PriceDisplay/index.js';
 import ContactInfo from './components/ContactInfo/index.js';
 import ProductCard from './components/ProductCard/index.js';
+import ProductDetail from './components/ProductDetail/ProductDetail.js';
 import Image from './components/Image/index.js';
 import Modal from './components/Modal/index.js';
 import BackToTop from './components/BackToTop/index.js';
 import CookieConsent from './components/CookieConsent/index.js';
+import ImageSlider from './components/ImageSlider/ImageSlider.js';
 
 // ---- FORM COMPONENTS ----
 import Input from './components/Input/index.js';
@@ -93,6 +99,7 @@ export {
   // Layout Components
   Accordion,
   Grid,
+  ProductGrid,
   Section,
   Header,
   Footer,
@@ -108,11 +115,14 @@ export {
   Link,
   Tabs,
   Pagination,
+  Breadcrumb,
   StickyContactIcons,
 
   // UI Components
   Button,
+  Tag,
   Typography,
+  RichText,
   Logo,
   Card,
   Rating,
@@ -120,10 +130,12 @@ export {
   PriceDisplay,
   ContactInfo,
   ProductCard,
+  ProductDetail,
   Image,
   Modal,
   BackToTop,
   CookieConsent,
+  ImageSlider,
 
   // Form Components
   Input,
@@ -172,6 +184,7 @@ export {
 export const Layout = {
   Accordion,
   Grid,
+  ProductGrid,
   Section,
   Header,
   Footer,
@@ -188,12 +201,15 @@ export const Nav = {
   Link,
   Tabs,
   Pagination,
+  Breadcrumb,
   StickyContactIcons,
 };
 
 export const UI = {
   Button,
+  Tag,
   Typography,
+  RichText,
   Logo,
   Card,
   Rating,
@@ -201,10 +217,12 @@ export const UI = {
   PriceDisplay,
   ContactInfo,
   ProductCard,
+  ProductDetail,
   Image,
   Modal,
   BackToTop,
   CookieConsent,
+  ImageSlider,
 };
 
 export const Forms = {
@@ -268,6 +286,7 @@ const Svarog = {
   // Individual components (for backward compatibility)
   Accordion,
   Grid,
+  ProductGrid,
   Section,
   Header,
   Footer,
@@ -281,9 +300,12 @@ const Svarog = {
   Link,
   Tabs,
   Pagination,
+  Breadcrumb,
   StickyContactIcons,
   Button,
+  Tag,
   Typography,
+  RichText,
   Logo,
   Card,
   Rating,
@@ -291,10 +313,12 @@ const Svarog = {
   PriceDisplay,
   ContactInfo,
   ProductCard,
+  ProductDetail,
   Image,
   Modal,
   BackToTop,
   CookieConsent,
+  ImageSlider,
   Input,
   Select,
   Checkbox,

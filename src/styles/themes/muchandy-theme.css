@@ -52,7 +52,7 @@
   --button-hover-border-color: var(--color-brand-primary-light);
   --button-hover-color: var(--color-brand-primary-light);
   --button-hover-shadow: none;
-  --button-hover-transform: -4px;
+  --button-hover-transform: var(--space-1);
 
   /* Active state */
   --button-active-bg: var(--color-brand-primary-dark);

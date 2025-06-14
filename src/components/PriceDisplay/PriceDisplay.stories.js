@@ -34,6 +34,12 @@ export default {
 
 export const Default = () => {
   return PriceDisplay({
+    value: '€29.99',
+  });
+};
+
+export const WithLabel = () => {
+  return PriceDisplay({
     label: 'Price:',
     value: '€29.99',
   });
@@ -41,7 +47,6 @@ export const Default = () => {
 
 export const Loading = () => {
   return PriceDisplay({
-    label: 'Price:',
     value: 'Loading price...',
     loading: true,
   });
@@ -49,7 +54,6 @@ export const Loading = () => {
 
 export const Highlighted = () => {
   return PriceDisplay({
-    label: 'Price:',
     value: '€29.99',
     isHighlighted: true,
   });
@@ -72,9 +76,8 @@ export const DynamicUpdate = () => {
 
   // Initial price display with placeholder
   const priceDisplay = PriceDisplay({
-    label: 'Price:',
     value: 'Select options to see price',
-    isPlaceholder: true, // Mark as placeholder to apply the same styling as loading
+    isPlaceholder: true,
   });
 
   container.appendChild(priceDisplay.getElement());
@@ -162,11 +165,39 @@ export const DifferentPrices = () => {
   return container;
 };
 
-// Let's add a new story to show the error state
 export const ErrorState = () => {
   return PriceDisplay({
-    label: 'Price:',
     value: 'Error loading price',
     isError: true,
   });
+};
+
+export const ComparisonGrid = () => {
+  // Create container for grid
+  const container = document.createElement('div');
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  container.style.gap = '20px';
+  container.style.padding = '20px';
+
+  // Create price displays without labels
+  const prices = [
+    { value: '€29.99', isHighlighted: false },
+    { value: '€49.99', isHighlighted: true },
+    { value: '€79.99', isHighlighted: false },
+  ];
+
+  prices.forEach((priceConfig) => {
+    const priceCard = document.createElement('div');
+    priceCard.style.textAlign = 'center';
+    priceCard.style.padding = '10px';
+    priceCard.style.border = '1px solid #ddd';
+
+    const priceDisplay = PriceDisplay(priceConfig);
+    priceCard.appendChild(priceDisplay.getElement());
+
+    container.appendChild(priceCard);
+  });
+
+  return container;
 };

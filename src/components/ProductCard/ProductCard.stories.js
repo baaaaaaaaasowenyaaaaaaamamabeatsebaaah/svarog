@@ -1,5 +1,6 @@
 // src/components/ProductCard/ProductCard.stories.js
 import ProductCard from './ProductCard.js';
+import Grid from '../Grid/Grid.js';
 
 // Direct import of images - webpack 5 handles this with Asset Modules
 import placeholderImage1 from '../../../.storybook/assets/iphone-placeholder/placeholder-iphone-1.png';
@@ -26,7 +27,7 @@ const getPhoneImage = (model) => {
 // Create a wrapper for better showcasing
 const createWrapper = (child) => {
   const wrapper = document.createElement('div');
-  wrapper.style.width = '300px';
+  wrapper.style.width = '400px';
   wrapper.style.margin = '1rem';
   wrapper.appendChild(child);
   return wrapper;
@@ -54,6 +55,24 @@ export const DefaultProductCard = () => {
   return createWrapper(card.getElement());
 };
 
+export const WithPriceInfo = () => {
+  const card = ProductCard({
+    imageUrl: getPhoneImage('iPhone 13'),
+    title: 'iPhone 13',
+    productData: {
+      Storage: '128GB',
+      Color: 'Midnight',
+      Condition: 'Excellent',
+      'Battery Health': '98%',
+    },
+    price: '599.99',
+    priceInfo: 'inkl. MwSt.',
+    onClick: () => alert('Product reserved!'),
+  });
+
+  return createWrapper(card.getElement());
+};
+
 export const WithCustomCurrency = () => {
   const card = ProductCard({
     imageUrl: getPhoneImage('Samsung Galaxy S20'),
@@ -66,8 +85,28 @@ export const WithCustomCurrency = () => {
     },
     price: '459.99',
     currency: '$',
+    priceInfo: 'Excl. VAT',
     buttonText: 'Buy Now',
     onClick: () => alert('Product purchased!'),
+  });
+
+  return createWrapper(card.getElement());
+};
+
+export const WithShippingInfo = () => {
+  const card = ProductCard({
+    imageUrl: getPhoneImage('Google Pixel 6'),
+    title: 'Google Pixel 6',
+    productData: {
+      Storage: '128GB',
+      Color: 'Stormy Black',
+      Condition: 'Good',
+      'Battery Health': '89%',
+    },
+    price: '349.99',
+    priceInfo: '+ Versandkosten',
+    buttonText: 'Reserve',
+    onClick: () => alert('Product reserved!'),
   });
 
   return createWrapper(card.getElement());
@@ -85,6 +124,7 @@ export const WithLoadingPrice = () => {
     },
     price: 'Calculating...',
     loading: true,
+    priceInfo: 'Final price',
     buttonText: 'Reserve',
     onClick: () => alert('Cannot reserve while price is loading!'),
   });
@@ -105,6 +145,7 @@ export const WithHighlightedPrice = () => {
     },
     price: '449.99',
     priceHighlighted: true,
+    priceInfo: 'inkl. 19% MwSt.',
     buttonText: 'Buy Now',
     onClick: () => alert('Sale item purchased!'),
   });
@@ -112,7 +153,7 @@ export const WithHighlightedPrice = () => {
   return createWrapper(card.getElement());
 };
 
-export const DynamicPriceLoading = () => {
+export const DynamicPriceInfo = () => {
   const container = document.createElement('div');
   container.style.display = 'flex';
   container.style.flexDirection = 'column';
@@ -127,8 +168,8 @@ export const DynamicPriceLoading = () => {
       Condition: 'Excellent',
       'Battery Health': '99%',
     },
-    price: 'Loading price...',
-    loading: true,
+    price: '599.99',
+    priceInfo: 'inkl. MwSt.',
     onClick: () => alert('Product reserved!'),
   });
 
@@ -141,28 +182,20 @@ export const DynamicPriceLoading = () => {
   controls.style.gap = '10px';
   controls.style.paddingLeft = '1rem';
 
-  const loadPriceButton = document.createElement('button');
-  loadPriceButton.textContent = 'Load Price';
-  loadPriceButton.onclick = () => {
-    card.setPriceLoading(true);
-    setTimeout(() => {
-      card.setPriceLoading(false);
-      card.setPrice('599.99', false);
-    }, 1500);
+  const updatePriceInfoButton = document.createElement('button');
+  updatePriceInfoButton.textContent = 'Show Free Shipping';
+  updatePriceInfoButton.onclick = () => {
+    card.setPriceInfo('inkl. MwSt. + kostenloser Versand');
   };
 
-  const showSalePriceButton = document.createElement('button');
-  showSalePriceButton.textContent = 'Show Sale Price';
-  showSalePriceButton.onclick = () => {
-    card.setPriceLoading(true);
-    setTimeout(() => {
-      card.setPriceLoading(false);
-      card.setPrice('499.99', true); // Highlighted sale price
-    }, 1000);
+  const removePriceInfoButton = document.createElement('button');
+  removePriceInfoButton.textContent = 'Remove Price Info';
+  removePriceInfoButton.onclick = () => {
+    card.setPriceInfo('');
   };
 
-  controls.appendChild(loadPriceButton);
-  controls.appendChild(showSalePriceButton);
+  controls.appendChild(updatePriceInfoButton);
+  controls.appendChild(removePriceInfoButton);
   container.appendChild(controls);
 
   return container;
@@ -182,6 +215,7 @@ export const WithMultipleSpecs = () => {
       Special: 'Limited Edition',
     },
     price: '499.99',
+    priceInfo: 'inkl. 19% MwSt.',
     onClick: () => alert('Product reserved!'),
   });
 
@@ -200,17 +234,25 @@ export const WithLegacyOnReserve = () => {
       'Battery Health': '99%',
     },
     price: '599.99',
+    priceInfo: 'inkl. Steuer',
     onReserve: () => alert('Using deprecated onReserve prop!'),
   });
 
   return createWrapper(card.getElement());
 };
 
-// Simple product grid without Grid component dependency
+// Product Grid using Grid component
 export const ProductGrid = () => {
-  // Create a container for the grid
   const container = document.createElement('div');
-  container.className = 'product-grid';
+
+  // Add title
+  const title = document.createElement('h2');
+  title.textContent = 'Product Grid Example';
+  title.style.marginBottom = '1.5rem';
+  container.appendChild(title);
+
+  // Create the grid using Grid component
+  const grid = Grid({ gap: '1.5rem' });
 
   // Define product data
   const products = [
@@ -222,6 +264,7 @@ export const ProductGrid = () => {
       batteryHealth: '98%',
       price: '599.99',
       priceHighlighted: true,
+      priceInfo: 'inkl. MwSt.',
     },
     {
       model: 'Samsung Galaxy S21',
@@ -231,6 +274,7 @@ export const ProductGrid = () => {
       batteryHealth: '92%',
       price: '499.99',
       loading: true,
+      priceInfo: 'Berechne Preis...',
     },
     {
       model: 'Google Pixel 7',
@@ -239,10 +283,20 @@ export const ProductGrid = () => {
       condition: 'Good',
       batteryHealth: '90%',
       price: '449.99',
+      priceInfo: '+ Versand',
+    },
+    {
+      model: 'iPhone 12 Mini',
+      storage: '64GB',
+      color: 'Product RED',
+      condition: 'Like New',
+      batteryHealth: '96%',
+      price: '399.99',
+      priceInfo: 'Sonderangebot',
     },
   ];
 
-  // Add products to the grid
+  // Add products to the grid using Grid.Column
   products.forEach((product) => {
     const card = ProductCard({
       imageUrl: getPhoneImage(product.model),
@@ -256,13 +310,22 @@ export const ProductGrid = () => {
       price: product.loading ? 'Loading...' : product.price,
       loading: product.loading || false,
       priceHighlighted: product.priceHighlighted || false,
+      priceInfo: product.priceInfo,
       onClick: () => alert(`${product.model} reserved!`),
     });
 
-    const cardContainer = document.createElement('div');
-    cardContainer.appendChild(card.getElement());
-    container.appendChild(cardContainer);
+    // Create responsive column
+    const column = Grid.Column({
+      width: 3, // 3/12 (25%) on desktop by default
+      mobileWidth: 12, // Full width on mobile
+      tabletWidth: 6, // Half width on tablet
+      desktopWidth: 3, // Quarter width on desktop
+      children: card.getElement(),
+    });
+
+    grid.appendChild(column.getElement());
   });
 
+  container.appendChild(grid.getElement());
   return container;
 };
