@@ -23,7 +23,15 @@ vi.mock('../../utils/componentFactory.js', () => ({
         toggle: vi.fn(),
         contains: vi.fn(() => false),
       },
-      style: {},
+      // Proper style mock with setProperty method
+      style: {
+        setProperty: vi.fn(),
+        getPropertyValue: vi.fn(() => ''),
+        removeProperty: vi.fn(),
+        cssText: '',
+        length: 0,
+        parentRule: null,
+      },
       textContent: options.text || '',
       innerHTML: '',
       parentNode: null,
@@ -74,7 +82,40 @@ vi.mock('../../utils/composition.js', () => ({
   withThemeAwareness: vi.fn((component) => component),
 }));
 
-// Mock component dependencies
+vi.mock('../Grid/index.js', () => {
+  const mockGridColumn = {
+    getElement: () => ({
+      className: 'grid-column',
+      style: {
+        setProperty: vi.fn(),
+        getPropertyValue: vi.fn(() => ''),
+        removeProperty: vi.fn(),
+      },
+    }),
+    destroy: vi.fn(),
+  };
+
+  const mockGrid = {
+    getElement: () => ({
+      className: 'grid',
+      appendChild: vi.fn(),
+      style: {
+        setProperty: vi.fn(),
+        getPropertyValue: vi.fn(() => ''),
+        removeProperty: vi.fn(),
+      },
+    }),
+    appendChild: vi.fn(),
+    destroy: vi.fn(),
+  };
+
+  const mockGridFactory = vi.fn(() => mockGrid);
+  mockGridFactory.Column = vi.fn(() => mockGridColumn);
+
+  return { default: mockGridFactory };
+});
+
+// Mock component dependencies with accessible mock functions
 const mockImageSlider = {
   getElement: () => ({ className: 'image-slider' }),
   destroy: vi.fn(),
@@ -131,11 +172,13 @@ import Typography from '../Typography/index.js';
 import PriceDisplay from '../PriceDisplay/index.js';
 import Button from '../Button/index.js';
 import Tag from '../Tag/index.js';
+import Grid from '../Grid/index.js';
 
 describe('ProductDetail component', () => {
   const defaultProps = {
     title: 'Test Product',
     price: '299.99',
+    currency: '€', // Add default currency to ensure it's always in state
     images: [
       { imageUrl: 'https://example.com/image1.jpg', alt: 'Product view 1' },
       { imageUrl: 'https://example.com/image2.jpg', alt: 'Product view 2' },
@@ -144,6 +187,16 @@ describe('ProductDetail component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Clear accessible mock functions
+    mockImageSlider.destroy.mockClear();
+    mockImageSlider.goToSlide.mockClear();
+    mockImageSlider.getCurrentIndex.mockClear();
+    mockPriceDisplay.setValue.mockClear();
+    mockPriceDisplay.setLoading.mockClear();
+    mockPriceDisplay.destroy.mockClear();
+    mockButton.update.mockClear();
+    mockButton.destroy.mockClear();
   });
 
   it('should create a product detail element', () => {
@@ -277,18 +330,23 @@ describe('ProductDetail component', () => {
     });
     productDetail.getElement();
 
-    expect(Tag).toHaveBeenCalledWith({
+    // Check that Tag was called twice
+    expect(Tag).toHaveBeenCalledTimes(2);
+
+    // Check first tag (Featured)
+    expect(Tag).toHaveBeenNthCalledWith(1, {
       label: 'Featured',
       variant: 'primary',
       size: 'sm',
       onClick: tags[0].onClick,
     });
 
-    expect(Tag).toHaveBeenCalledWith({
+    // Check second tag (Sale) - component passes undefined when no onClick
+    expect(Tag).toHaveBeenNthCalledWith(2, {
       label: 'Sale',
       variant: 'danger',
       size: 'sm',
-      onClick: null,
+      onClick: undefined, // Component passes undefined, not null
     });
   });
 
@@ -591,5 +649,31 @@ describe('ProductDetail component', () => {
         showArrows: false,
       })
     );
+  });
+
+  it('should create grid with responsive gap', () => {
+    const productDetail = ProductDetail(defaultProps);
+    productDetail.getElement();
+
+    expect(Grid).toHaveBeenCalledWith({
+      gap: '2rem', // Default for SSR
+      className: 'product-detail__grid',
+    });
+  });
+
+  it('should create grid columns with proper responsive props', () => {
+    const productDetail = ProductDetail(defaultProps);
+    productDetail.getElement();
+
+    // Should create two columns (gallery and content)
+    expect(Grid.Column).toHaveBeenCalledTimes(2);
+
+    // Gallery column
+    expect(Grid.Column).toHaveBeenCalledWith({
+      width: 12,
+      tabletWidth: 6,
+      desktopWidth: 6,
+      children: expect.any(Object),
+    });
   });
 });

@@ -1,120 +1,124 @@
 // src/utils/baseComponent.js
 
 /**
- * Creates a base component with standard lifecycle
- * @param {Function} renderFn - Function that returns element structure
+ * Creates a base component with common functionality
+ * @param {Function} renderFunction - Function that renders the component
  * @returns {Function} Component factory function
  */
-export const createBaseComponent = (renderFn) => {
-  return (props = {}) => {
+export const createBaseComponent = (renderFunction) => {
+  return (initialProps = {}) => {
     // Component state
-    const state = { ...props };
+    let state = { ...initialProps };
     let element = null;
-    let isDestroyed = false;
+    let destroyed = false;
 
-    // Create the element by calling render function
-    const render = () => {
-      if (isDestroyed) {
-        console.warn('Attempted to render destroyed component');
-        return null;
+    /**
+     * Builds the component element
+     * @returns {HTMLElement} Component element
+     */
+    const buildElement = () => {
+      if (destroyed) return null;
+
+      try {
+        return renderFunction(state);
+      } catch (error) {
+        console.error('Error rendering component:', error);
+        throw error;
+      }
+    };
+
+    /**
+     * Gets the current element, creating it if necessary
+     * @returns {HTMLElement} Component element
+     */
+    const getElement = () => {
+      if (destroyed) {
+        throw new Error('Component has been destroyed');
       }
 
-      return renderFn(state);
+      if (!element) {
+        element = buildElement();
+      }
+
+      return element;
     };
 
-    // Initialize on first render
-    element = render();
+    /**
+     * Updates component properties
+     * @param {Object} newProps - New properties to merge
+     * @returns {Object} Component instance for chaining
+     */
+    const update = (newProps) => {
+      if (destroyed) return this;
 
-    // Public API
-    const component = {
-      /**
-       * Get the component element
-       * @returns {HTMLElement} Component element
-       */
-      getElement() {
-        return element;
-      },
+      // Merge new props with existing state
+      const updatedState = { ...state, ...newProps };
 
-      /**
-       * Update component with new props
-       * @param {Object} newProps - New properties
-       * @returns {Object} Component (for chaining)
-       */
-      update(newProps) {
-        if (isDestroyed) {
-          console.warn('Attempted to update destroyed component');
-          return component;
+      // Check if we need a full rerender or can do partial update
+      if (
+        typeof this.shouldRerender === 'function' &&
+        this.shouldRerender(newProps)
+      ) {
+        // Full rerender needed
+        state = updatedState;
+        const oldElement = element;
+        element = buildElement();
+
+        // Replace in DOM if the old element was inserted
+        if (oldElement && oldElement.parentNode) {
+          oldElement.parentNode.replaceChild(element, oldElement);
         }
+      } else if (typeof this.partialUpdate === 'function' && element) {
+        // Partial update possible
+        state = updatedState;
+        this.partialUpdate(element, newProps);
+      } else {
+        // Fallback to full rerender
+        state = updatedState;
+        const oldElement = element;
+        element = buildElement();
 
-        // Store old state before updating
-        const oldState = { ...state };
-
-        // Update state
-        Object.assign(state, newProps);
-
-        // Check for custom update behavior first
-        if (component.shouldRerender && component.shouldRerender(newProps)) {
-          // Full rerender requested
-          const oldElement = element;
-          element = render();
-          if (oldElement && oldElement.parentNode) {
-            oldElement.parentNode.replaceChild(element, oldElement);
-          }
-        } else if (component.partialUpdate) {
-          // Use partial update (either shouldRerender returned false or doesn't exist)
-          component.partialUpdate(element, newProps, oldState);
-        } else {
-          // No partial update available, do full rerender
-          const oldElement = element;
-          element = render();
-          if (oldElement && oldElement.parentNode) {
-            oldElement.parentNode.replaceChild(element, oldElement);
-          }
+        // Replace in DOM if the old element was inserted
+        if (oldElement && oldElement.parentNode) {
+          oldElement.parentNode.replaceChild(element, oldElement);
         }
+      }
 
-        return component;
-      },
-
-      /**
-       * Clean up resources
-       */
-      destroy() {
-        if (isDestroyed) {
-          return;
-        }
-
-        isDestroyed = true;
-
-        // Remove event listeners
-        if (element && element._listeners) {
-          Object.entries(element._listeners).forEach(([event, handler]) => {
-            element.removeEventListener(event, handler);
-          });
-          element._listeners = {};
-        }
-
-        // Allow child components to clean up their resources
-        if (element && element._components) {
-          Object.values(element._components).forEach((childComponent) => {
-            if (
-              childComponent &&
-              typeof childComponent.destroy === 'function'
-            ) {
-              try {
-                childComponent.destroy();
-              } catch (error) {
-                console.warn('Error destroying child component:', error);
-              }
-            }
-          });
-          element._components = {};
-        }
-
-        // Allow GC to reclaim element
-        element = null;
-      },
+      return this;
     };
 
-    return component;
+    /**
+     * Gets current component state
+     * @returns {Object} Current state
+     */
+    const getState = () => ({ ...state });
+
+    /**
+     * Destroys the component and cleans up resources
+     */
+    const destroy = () => {
+      if (destroyed) return;
+
+      destroyed = true;
+
+      // Remove element from DOM
+      if (element && element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+
+      // Clear references
+      element = null;
+      state = null;
+    };
+
+    // Return the component API
+    const componentAPI = {
+      getElement,
+      update,
+      getState,
+      destroy,
+    };
+
+    return componentAPI;
   };
 };

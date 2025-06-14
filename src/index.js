@@ -31,6 +31,7 @@ import StickyContactIcons from './components/StickyContactIcons/index.js';
 import Button from './components/Button/index.js';
 import Tag from './components/Tag/Tag.js';
 import Typography from './components/Typography/index.js';
+import RichText from './components/RichText/RichText.js';
 import Logo from './components/Logo/index.js';
 import Card from './components/Card/index.js';
 import Rating from './components/Rating/index.js';
@@ -119,6 +120,7 @@ export {
   Button,
   Tag,
   Typography,
+  RichText,
   Logo,
   Card,
   Rating,
@@ -204,6 +206,7 @@ export const UI = {
   Button,
   Tag,
   Typography,
+  RichText,
   Logo,
   Card,
   Rating,
@@ -298,6 +301,7 @@ const Svarog = {
   Button,
   Tag,
   Typography,
+  RichText,
   Logo,
   Card,
   Rating,
