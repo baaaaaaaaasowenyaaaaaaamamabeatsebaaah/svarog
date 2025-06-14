@@ -9,7 +9,7 @@ export const productCardStyles = css`
   }
 
   .product-card:hover {
-    transform: translateY(var(--space-1, -4px));
+    cursor: pointer;
   }
 
   /* Override card content padding */
@@ -37,6 +37,7 @@ export const productCardStyles = css`
     display: flex;
     flex-direction: column;
     gap: var(--space-3, 12px);
+    height: 100%;
   }
 
   /* Product specifications */
@@ -70,7 +71,10 @@ export const productCardStyles = css`
   .product-card__actions {
     display: flex;
     flex-direction: column;
+    height: 100%;
     align-items: stretch;
+    justify-content: space-between;
+    margin-top: var(--space-3, 12px);
     gap: var(--space-2, 8px);
   }
 
