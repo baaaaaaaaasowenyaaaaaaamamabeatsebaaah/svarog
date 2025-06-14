@@ -9,7 +9,7 @@ export const productCardStyles = css`
   }
 
   .product-card:hover {
-    transform: translateY(var(--space-1, -4px));
+    cursor: pointer;
   }
 
   /* Override card content padding */
@@ -37,6 +37,7 @@ export const productCardStyles = css`
     display: flex;
     flex-direction: column;
     gap: var(--space-3, 12px);
+    height: 100%;
   }
 
   /* Product specifications */
@@ -46,11 +47,11 @@ export const productCardStyles = css`
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-2, 8px);
+    gap: var(--space-1, 4px);
   }
 
   .product-card__spec-item {
-    font-size: var(--font-size-xs, 12px);
+    font-size: var(--font-size-base, 16px);
     display: flex;
     justify-content: space-between;
   }
@@ -70,7 +71,10 @@ export const productCardStyles = css`
   .product-card__actions {
     display: flex;
     flex-direction: column;
+    height: 100%;
     align-items: stretch;
+    justify-content: space-between;
+    margin-top: var(--space-3, 12px);
     gap: var(--space-2, 8px);
   }
 
@@ -88,21 +92,20 @@ export const productCardStyles = css`
   }
 
   .product-card__price-display .price-display__value {
-    font-size: var(--font-size-4xl, 1.5rem);
+    font-size: var(--font-size-4xl, 24px);
   }
 
-  /* Grid display for product cards */
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-10, 40px);
-    width: 100%;
+  .price-display--loading {
+    font-size: var(--font-size-base, 16px);
   }
 
-  /* Product card wrapper */
-  .product-card-wrapper {
-    display: flex;
-    flex-direction: column;
+  /* Price info styling */
+  .product-card__price-info {
+    font-size: var(--font-size-sm, 14px);
+    color: var(--color-text-secondary, #6b7280);
+    text-align: right;
+    margin-top: calc(var(--space-1) * -1); /* Pull closer to price */
+    margin-bottom: var(--space-1, 4px);
   }
 
   /* Responsive adjustments */
@@ -118,17 +121,9 @@ export const productCardStyles = css`
       text-align: center;
       margin-bottom: var(--space-2, 8px);
     }
-  }
 
-  @media (max-width: 992px) {
-    .product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
-  }
-
-  @media (max-width: 576px) {
-    .product-grid {
-      grid-template-columns: 1fr;
+    .product-card__price-info {
+      text-align: center;
     }
   }
 `;

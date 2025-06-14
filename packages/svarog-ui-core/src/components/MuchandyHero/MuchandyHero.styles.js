@@ -5,18 +5,49 @@ export const muchandyHeroStyles = css`
   /* PERFORMANCE OPTIMIZATION: Efficient CSS with minimal specificity */
   .muchandy-hero {
     position: relative;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: var(--color-bg-dark);
     width: 100%;
     padding: var(--space-8) 0;
     padding-left: 64px;
     padding-right: 64px;
+    /* Remove direct background styles - will use pseudo-element */
+    background-color: var(--color-bg-dark);
+    overflow: hidden; /* Contain the blurred edges */
     /* Performance optimizations */
-    will-change: background-image;
     backface-visibility: hidden;
     transform: translateZ(0); /* Force hardware acceleration */
+  }
+
+  /* Blurred background using pseudo-element for performance */
+  .muchandy-hero::before {
+    content: '';
+    position: absolute;
+    top: -20px; /* Extend beyond edges to hide blur artifacts */
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background-image: var(--muchandy-hero-bg-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Blur effect with customizable intensity */
+    filter: blur(var(--muchandy-hero-blur, 4px));
+    /* Performance optimizations */
+    will-change: filter, transform;
+    transform: translateZ(0) scale(1.1); /* Scale to hide blur edges */
+    z-index: -1;
+  }
+
+  /* Optional overlay for better text readability */
+  .muchandy-hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--muchandy-hero-overlay, rgba(0, 0, 0, 0.3));
+    z-index: 0;
+    pointer-events: none;
   }
 
   /* Grid layout with optimal performance */
@@ -24,6 +55,9 @@ export const muchandyHeroStyles = css`
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: 12px;
+    /* Ensure content is above background */
+    position: relative;
+    z-index: 1;
     /* Performance optimization for grid */
     contain: layout style;
   }
@@ -41,7 +75,7 @@ export const muchandyHeroStyles = css`
     font-weight: var(--font-weight-bold);
     margin-bottom: var(--space-4);
     color: var(--color-brand-secondary);
-    line-height: 1.2; /* Better line height for titles with breaks */
+    line-height: 1.2;
     /* Text rendering optimizations */
     text-rendering: optimizeLegibility;
     font-display: swap;
@@ -68,6 +102,25 @@ export const muchandyHeroStyles = css`
     border-radius: 0;
     /* Performance optimization */
     contain: layout style;
+  }
+
+  /* Blur intensity modifiers */
+  .muchandy-hero--blur-light::before {
+    filter: blur(4px);
+  }
+
+  .muchandy-hero--blur-heavy::before {
+    filter: blur(12px);
+  }
+
+  .muchandy-hero--blur-extreme::before {
+    filter: blur(20px);
+  }
+
+  /* No blur modifier */
+  .muchandy-hero--no-blur::before {
+    filter: none;
+    transform: translateZ(0) scale(1); /* Reset scale */
   }
 
   /* Form wrapper optimization */
@@ -143,6 +196,11 @@ export const muchandyHeroStyles = css`
       padding-right: 32px;
     }
 
+    /* Reduce blur on mobile for performance */
+    .muchandy-hero::before {
+      filter: blur(var(--muchandy-hero-blur-mobile, 5px));
+    }
+
     .muchandy-hero__content-column {
       grid-column: 1 / span 12 !important;
       min-height: 600px; /* Reduced height for mobile */
@@ -173,6 +231,11 @@ export const muchandyHeroStyles = css`
       padding-right: 16px;
       padding-top: var(--space-6);
       padding-bottom: var(--space-6);
+    }
+
+    /* Further reduce blur on small devices */
+    .muchandy-hero::before {
+      filter: blur(3px);
     }
 
     .muchandy-hero__content-column {
@@ -210,10 +273,21 @@ export const muchandyHeroStyles = css`
     .muchandy-hero__subtitle {
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     }
+
+    /* Increase overlay for better contrast */
+    .muchandy-hero::after {
+      background: var(--muchandy-hero-overlay, rgba(0, 0, 0, 0.5));
+    }
   }
 
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
+    .muchandy-hero::before {
+      /* Disable blur animation but keep static blur */
+      filter: blur(var(--muchandy-hero-blur, 8px));
+      transition: none !important;
+    }
+
     .muchandy-hero,
     .muchandy-hero *,
     .muchandy-hero *::before,
@@ -227,10 +301,15 @@ export const muchandyHeroStyles = css`
   /* Print optimizations */
   @media print {
     .muchandy-hero {
-      background-image: none !important;
       background-color: white !important;
       color: black !important;
       padding: var(--space-4);
+    }
+
+    /* Remove blur and background in print */
+    .muchandy-hero::before,
+    .muchandy-hero::after {
+      display: none !important;
     }
 
     .muchandy-hero__title,

@@ -61,7 +61,6 @@ export const typographyStyles = css`
 
   .typography--span,
   .typography--div {
-    font-size: var(--font-size-base);
     line-height: var(--line-height-normal);
   }
 

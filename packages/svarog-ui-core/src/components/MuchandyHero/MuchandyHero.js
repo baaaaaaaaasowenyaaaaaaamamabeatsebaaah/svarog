@@ -1,6 +1,5 @@
 // src/components/MuchandyHero/MuchandyHero.js
 
-// REMOVE: import './MuchandyHero.css';
 import {
   createElement,
   validateProps,
@@ -9,8 +8,6 @@ import {
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
 import Tabs from '../Tabs/Tabs.js';
-
-// ADD: CSS injection imports
 import { createStyleInjector } from '../../utils/styleInjection.js';
 import { muchandyHeroStyles } from './MuchandyHero.styles.js';
 
@@ -64,16 +61,24 @@ const createTabConfiguration = (state) => {
 
 /**
  * ALGORITHMIC OPTIMIZATION: Efficient Style Application
- * Applies styles using optimized DOM operations
+ * Applies styles using optimized DOM operations and CSS custom properties
  * @private
  */
-const applyContainerStyles = (container, backgroundImageUrl) => {
-  // Handle both setting and clearing background images
+const applyContainerStyles = (container, backgroundImageUrl, blurIntensity) => {
+  // Use CSS custom property for background image
   if (backgroundImageUrl) {
-    container.style.backgroundImage = `url(${backgroundImageUrl})`;
+    container.style.setProperty(
+      '--muchandy-hero-bg-image',
+      `url(${backgroundImageUrl})`
+    );
   } else {
     // Clear background image when empty string is passed
-    container.style.backgroundImage = '';
+    container.style.removeProperty('--muchandy-hero-bg-image');
+  }
+
+  // Set blur intensity if provided
+  if (blurIntensity !== undefined) {
+    container.style.setProperty('--muchandy-hero-blur', `${blurIntensity}px`);
   }
 };
 
@@ -109,12 +114,45 @@ const renderMuchandyHero = (state) => {
   injectMuchandyHeroStyles(muchandyHeroStyles);
 
   // Create main container with efficient class handling
+  const classes = ['muchandy-hero'];
+
+  // Add blur modifier class if specified
+  if (state.blurIntensity === 0) {
+    classes.push('muchandy-hero--no-blur');
+  } else if (state.blurIntensity && state.blurIntensity <= 4) {
+    classes.push('muchandy-hero--blur-light');
+  } else if (
+    state.blurIntensity &&
+    state.blurIntensity >= 12 &&
+    state.blurIntensity < 20
+  ) {
+    classes.push('muchandy-hero--blur-heavy');
+  } else if (state.blurIntensity && state.blurIntensity >= 20) {
+    classes.push('muchandy-hero--blur-extreme');
+  }
+
+  if (state.className) {
+    classes.push(state.className);
+  }
+
   const container = createElement('div', {
-    classes: ['muchandy-hero', state.className].filter(Boolean),
+    classes: classes.filter(Boolean),
   });
 
-  // Apply background styles efficiently
-  applyContainerStyles(container, state.backgroundImageUrl);
+  // Apply background styles efficiently with blur support
+  applyContainerStyles(
+    container,
+    state.backgroundImageUrl,
+    state.blurIntensity
+  );
+
+  // Apply overlay opacity if provided
+  if (state.overlayOpacity !== undefined) {
+    container.style.setProperty(
+      '--muchandy-hero-overlay',
+      `rgba(0, 0, 0, ${state.overlayOpacity})`
+    );
+  }
 
   // Create grid structure efficiently
   const gridContainer = createElement('div', {
@@ -228,6 +266,8 @@ const createDefaultConfig = () => ({
   subtitle: 'Jetzt Preis berechnen.',
   defaultTab: 'repair',
   className: '',
+  blurIntensity: 4, // Default blur intensity in pixels
+  overlayOpacity: 0.3, // Default overlay opacity
 });
 
 /**
@@ -308,10 +348,33 @@ const createMuchandyHero = (props) => {
 
     console.log('MuchandyHero partialUpdate called with:', newProps);
 
-    // Update background image efficiently
-    if (newProps.backgroundImageUrl !== undefined) {
+    // Update background image and blur efficiently
+    if (
+      newProps.backgroundImageUrl !== undefined ||
+      newProps.blurIntensity !== undefined
+    ) {
       console.log('Updating background image to:', newProps.backgroundImageUrl);
-      applyContainerStyles(element, newProps.backgroundImageUrl);
+      console.log('Updating blur intensity to:', newProps.blurIntensity);
+
+      const bgUrl =
+        newProps.backgroundImageUrl !== undefined
+          ? newProps.backgroundImageUrl
+          : element._currentState?.backgroundImageUrl;
+
+      const blur =
+        newProps.blurIntensity !== undefined
+          ? newProps.blurIntensity
+          : element._currentState?.blurIntensity;
+
+      applyContainerStyles(element, bgUrl, blur);
+    }
+
+    // Update overlay opacity if provided
+    if (newProps.overlayOpacity !== undefined) {
+      element.style.setProperty(
+        '--muchandy-hero-overlay',
+        `rgba(0, 0, 0, ${newProps.overlayOpacity})`
+      );
     }
 
     // Update title efficiently
@@ -332,12 +395,37 @@ const createMuchandyHero = (props) => {
       }
     }
 
-    // Update className efficiently
-    if (newProps.className !== undefined) {
-      // Remove old custom classes, keep muchandy-hero
-      element.className = ['muchandy-hero', newProps.className]
-        .filter(Boolean)
-        .join(' ');
+    // Update className efficiently with blur modifiers
+    if (
+      newProps.className !== undefined ||
+      newProps.blurIntensity !== undefined
+    ) {
+      const classes = ['muchandy-hero'];
+
+      // Add blur modifier class
+      const blur =
+        newProps.blurIntensity !== undefined
+          ? newProps.blurIntensity
+          : element._currentState?.blurIntensity;
+      if (blur === 0) {
+        classes.push('muchandy-hero--no-blur');
+      } else if (blur && blur <= 4) {
+        classes.push('muchandy-hero--blur-light');
+      } else if (blur && blur >= 12 && blur < 20) {
+        classes.push('muchandy-hero--blur-heavy');
+      } else if (blur && blur >= 20) {
+        classes.push('muchandy-hero--blur-extreme');
+      }
+
+      const customClass =
+        newProps.className !== undefined
+          ? newProps.className
+          : element._currentState?.className;
+      if (customClass) {
+        classes.push(customClass);
+      }
+
+      element.className = classes.filter(Boolean).join(' ');
       console.log('Updated className to:', element.className);
     }
   };
@@ -395,6 +483,14 @@ const createMuchandyHero = (props) => {
 
   muchandyHero.setSubtitle = function (subtitle) {
     return this.setState({ subtitle });
+  };
+
+  muchandyHero.setBlurIntensity = function (blurIntensity) {
+    return this.setState({ blurIntensity });
+  };
+
+  muchandyHero.setOverlayOpacity = function (overlayOpacity) {
+    return this.setState({ overlayOpacity });
   };
 
   muchandyHero.getCurrentState = function () {
