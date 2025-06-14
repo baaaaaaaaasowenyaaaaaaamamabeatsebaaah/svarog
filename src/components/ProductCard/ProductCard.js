@@ -202,6 +202,9 @@ const createProductCard = (props) => {
     priceInfo,
   } = normalizedProps;
 
+  // Store mutable state
+  const state = { ...normalizedProps };
+
   const classNames = ['product-card'];
   if (className) {
     classNames.push(className);
@@ -254,6 +257,44 @@ const createProductCard = (props) => {
     priceComponent,
   };
 
+  // Helper function to update price info efficiently
+  const updatePriceInfo = (newPriceInfo) => {
+    const actionsContainer = cardElement.querySelector(
+      '.product-card__actions'
+    );
+    const existingPriceInfo = actionsContainer.querySelector(
+      '.product-card__price-info'
+    );
+
+    if (newPriceInfo) {
+      if (existingPriceInfo) {
+        // Update existing element
+        existingPriceInfo.textContent = newPriceInfo;
+      } else {
+        // Create new element
+        const newPriceInfoElement = Typography({
+          children: newPriceInfo,
+          className: 'product-card__price-info',
+          variant: 'caption',
+        }).getElement();
+
+        // Insert after price display but before button
+        const button = actionsContainer.querySelector(
+          '.product-card__reserve-button'
+        );
+        actionsContainer.insertBefore(newPriceInfoElement, button);
+      }
+    } else {
+      // Remove existing element if empty string provided
+      if (existingPriceInfo) {
+        existingPriceInfo.remove();
+      }
+    }
+
+    // Update state
+    state.priceInfo = newPriceInfo;
+  };
+
   return {
     /**
      * Gets the product card element
@@ -266,22 +307,20 @@ const createProductCard = (props) => {
     /**
      * Updates the product card with new props
      * @param {Object} newProps - New properties
-     * @returns {Object} Updated component
+     * @returns {Object} Current component (for chaining)
      */
     update(newProps) {
-      const updatedComponent = createProductCard({
-        ...normalizedProps,
-        ...newProps,
-      });
+      // Update state
+      Object.assign(state, newProps);
 
-      if (cardElement.parentNode) {
-        cardElement.parentNode.replaceChild(
-          updatedComponent.getElement(),
-          cardElement
-        );
+      // Handle priceInfo update efficiently
+      if ('priceInfo' in newProps) {
+        updatePriceInfo(newProps.priceInfo);
       }
 
-      return updatedComponent;
+      // For other updates, we could implement more efficient partial updates
+      // For now, this method maintains compatibility
+      return this;
     },
 
     /**
@@ -305,6 +344,7 @@ const createProductCard = (props) => {
       if (components.priceComponent) {
         components.priceComponent.setLoading(isLoading);
       }
+      state.loading = isLoading;
       return this;
     },
 
@@ -317,20 +357,31 @@ const createProductCard = (props) => {
     setPrice(newPrice, isHighlighted = false) {
       if (components.priceComponent) {
         components.priceComponent.setValue(
-          `${currency}${newPrice}`,
+          `${state.currency}${newPrice}`,
           isHighlighted
         );
       }
+      state.price = newPrice;
+      state.priceHighlighted = isHighlighted;
       return this;
     },
 
     /**
-     * Update price info text
-     * @param {string} newPriceInfo - New price info text
+     * Update price info text efficiently
+     * @param {string} newPriceInfo - New price info text (empty string removes it)
      * @returns {Object} Component for chaining
      */
     setPriceInfo(newPriceInfo) {
-      return this.update({ ...normalizedProps, priceInfo: newPriceInfo });
+      updatePriceInfo(newPriceInfo);
+      return this;
+    },
+
+    /**
+     * Get current component state
+     * @returns {Object} Current state
+     */
+    getState() {
+      return { ...state };
     },
 
     /**

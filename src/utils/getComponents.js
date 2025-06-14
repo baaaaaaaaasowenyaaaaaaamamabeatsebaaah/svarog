@@ -2340,6 +2340,89 @@ export const getComponents = () => {
       ],
     },
     {
+      name: 'ImageSlider',
+      category: 'Media',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithThumbnails',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.WithThumbnails
+            ),
+        },
+        {
+          name: 'ProductDetail',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.ProductDetail
+            ),
+        },
+        {
+          name: 'MinimalArrows',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.MinimalArrows
+            ),
+        },
+        {
+          name: 'DotsOnly',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.DotsOnly
+            ),
+        },
+        {
+          name: 'NoLoop',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.NoLoop
+            ),
+        },
+        {
+          name: 'SingleImage',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.SingleImage
+            ),
+        },
+        {
+          name: 'WithCustomStyling',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.WithCustomStyling
+            ),
+        },
+        {
+          name: 'WithChangeCallback',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.WithChangeCallback
+            ),
+        },
+        {
+          name: 'MobileOptimized',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.MobileOptimized
+            ),
+        },
+        {
+          name: 'Gallery',
+          module: () =>
+            import('../components/ImageSlider/ImageSlider.stories.js').then(
+              (m) => m.Gallery
+            ),
+        },
+      ],
+    },
+    {
       name: 'PriceDisplay',
       category: 'Commerce',
       stories: [

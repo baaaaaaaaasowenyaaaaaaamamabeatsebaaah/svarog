@@ -42,6 +42,7 @@ import Image from './components/Image/index.js';
 import Modal from './components/Modal/index.js';
 import BackToTop from './components/BackToTop/index.js';
 import CookieConsent from './components/CookieConsent/index.js';
+import ImageSlider from './components/ImageSlider/ImageSlider.js';
 
 // ---- FORM COMPONENTS ----
 import Input from './components/Input/index.js';
@@ -128,6 +129,7 @@ export {
   Modal,
   BackToTop,
   CookieConsent,
+  ImageSlider,
 
   // Form Components
   Input,
@@ -211,6 +213,7 @@ export const UI = {
   Modal,
   BackToTop,
   CookieConsent,
+  ImageSlider,
 };
 
 export const Forms = {
@@ -303,6 +306,7 @@ const Svarog = {
   Modal,
   BackToTop,
   CookieConsent,
+  ImageSlider,
   Input,
   Select,
   Checkbox,
