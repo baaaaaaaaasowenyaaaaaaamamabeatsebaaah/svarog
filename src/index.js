@@ -38,6 +38,7 @@ import StepsIndicator from './components/StepsIndicator/index.js';
 import PriceDisplay from './components/PriceDisplay/index.js';
 import ContactInfo from './components/ContactInfo/index.js';
 import ProductCard from './components/ProductCard/index.js';
+import ProductDetail from './components/ProductDetail/ProductDetail.js';
 import Image from './components/Image/index.js';
 import Modal from './components/Modal/index.js';
 import BackToTop from './components/BackToTop/index.js';
@@ -125,6 +126,7 @@ export {
   PriceDisplay,
   ContactInfo,
   ProductCard,
+  ProductDetail,
   Image,
   Modal,
   BackToTop,
@@ -209,6 +211,7 @@ export const UI = {
   PriceDisplay,
   ContactInfo,
   ProductCard,
+  ProductDetail,
   Image,
   Modal,
   BackToTop,
@@ -302,6 +305,7 @@ const Svarog = {
   PriceDisplay,
   ContactInfo,
   ProductCard,
+  ProductDetail,
   Image,
   Modal,
   BackToTop,

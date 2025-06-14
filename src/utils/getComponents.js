@@ -2519,6 +2519,96 @@ export const getComponents = () => {
       ],
     },
     {
+      name: 'ProductDetail',
+      category: 'Commerce',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'WithPriceInfo',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.WithPriceInfo
+            ),
+        },
+        {
+          name: 'WithAdditionalButtons',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.WithAdditionalButtons
+            ),
+        },
+        {
+          name: 'LoadingState',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.LoadingState
+            ),
+        },
+        {
+          name: 'NoImages',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.NoImages
+            ),
+        },
+        {
+          name: 'SingleImage',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.SingleImage
+            ),
+        },
+        {
+          name: 'MinimalConfiguration',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.MinimalConfiguration
+            ),
+        },
+        {
+          name: 'CustomCurrency',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.CustomCurrency
+            ),
+        },
+        {
+          name: 'InteractiveDemo',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.InteractiveDemo
+            ),
+        },
+        {
+          name: 'MobilePreview',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.MobilePreview
+            ),
+        },
+        {
+          name: 'LuxuryProduct',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.LuxuryProduct
+            ),
+        },
+        {
+          name: 'ImprovedUXFlow',
+          module: () =>
+            import('../components/ProductDetail/ProductDetail.stories.js').then(
+              (m) => m.ImprovedUXFlow
+            ),
+        },
+      ],
+    },
+    {
       name: 'ProductCard',
       category: 'Commerce',
       stories: [
