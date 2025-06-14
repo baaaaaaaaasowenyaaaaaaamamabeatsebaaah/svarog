@@ -8,7 +8,7 @@
 import './styles/baseStyles.js';
 
 // =========================================
-// COMPONENT EXPORTS
+// COMPONENT EXPORTS (48 components found)
 // =========================================
 export { default as Accordion } from './components/Accordion/index.js';
 export { default as BackToTop } from './components/BackToTop/index.js';
@@ -71,7 +71,7 @@ export {
   removeStyles,
 } from './utils/styleInjection.js';
 
-// Theme management
+// Theme management (using copied themeManager with all functions)
 export {
   themeManager,
   getThemeNames,
@@ -134,8 +134,11 @@ export { isTestEnvironment } from './utils/environment.js';
 // Logger
 export { logger } from './utils/logger.js';
 
-// Constants
+// =========================================
+// CONSTANTS
+// =========================================
 export { THEMES } from './constants/themes.js';
 
-// Note: Development utilities (getComponents, getPrototypes) are excluded
-// from the core package to avoid .stories.js dependencies.
+// Note: Development utilities like getComponents and getPrototypes are not included
+// in the core package to avoid .stories.js dependencies. Use them from the main
+// source for development purposes.

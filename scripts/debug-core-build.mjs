@@ -100,7 +100,7 @@ if (existsSync(componentsDir)) {
   console.log('❌ components/ directory not found');
 }
 
-// Check index.js
+// Check index.js with IMPROVED DETECTION
 const indexPath = resolve(srcDir, 'index.js');
 if (existsSync(indexPath)) {
   const indexContent = readFileSync(indexPath, 'utf-8');
@@ -108,27 +108,66 @@ if (existsSync(indexPath)) {
   console.log('\n📄 Index.js analysis:');
   console.log(`   Size: ${(statSync(indexPath).size / 1024).toFixed(1)}KB`);
 
-  // Check for problematic exports
-  const hasGetComponents = indexContent.includes('getComponents');
-  const hasGetPrototypes = indexContent.includes('getPrototypes');
+  // FIXED: Check for actual export statements, not just any mention
+  const exportLines = indexContent
+    .split('\n')
+    .filter((line) => line.trim().startsWith('export'))
+    .filter((line) => !line.trim().startsWith('//')) // Exclude commented lines
+    .join('\n');
 
-  if (hasGetComponents || hasGetPrototypes) {
+  const hasGetComponentsExport = exportLines.includes('getComponents');
+  const hasGetPrototypesExport = exportLines.includes('getPrototypes');
+
+  if (hasGetComponentsExport || hasGetPrototypesExport) {
     console.log('   🚨 Contains exports that will cause build errors:');
-    if (hasGetComponents) console.log('     - getComponents export found');
-    if (hasGetPrototypes) console.log('     - getPrototypes export found');
+    if (hasGetComponentsExport)
+      console.log('     - getComponents export found');
+    if (hasGetPrototypesExport)
+      console.log('     - getPrototypes export found');
     console.log(
       '   💡 Update index.js to remove these development utility exports'
     );
   } else {
     console.log('   ✅ No problematic exports found');
+
+    // Check if they're mentioned only in comments (which is fine)
+    const hasGetComponentsComment =
+      indexContent.includes('getComponents') && !hasGetComponentsExport;
+    const hasGetPrototypesComment =
+      indexContent.includes('getPrototypes') && !hasGetPrototypesExport;
+
+    if (hasGetComponentsComment || hasGetPrototypesComment) {
+      console.log(
+        '   📝 Note: Development utilities mentioned in comments only (safe)'
+      );
+    }
   }
 } else {
   console.log('❌ index.js not found');
 }
 
-console.log('\n📋 Recommendations:');
-console.log(
-  '1. If development utilities are present, run the fixed prepare script'
-);
-console.log("2. Ensure index.js doesn't export getComponents/getPrototypes");
-console.log('3. Then run: npm run build:core');
+console.log('\n📋 Status:');
+if (existsSync(indexPath)) {
+  const indexContent = readFileSync(indexPath, 'utf-8');
+  const exportLines = indexContent
+    .split('\n')
+    .filter((line) => line.trim().startsWith('export'))
+    .filter((line) => !line.trim().startsWith('//'))
+    .join('\n');
+
+  const hasProblematicExports =
+    exportLines.includes('getComponents') ||
+    exportLines.includes('getPrototypes');
+
+  if (hasProblematicExports) {
+    console.log('❌ Build will FAIL - problematic exports detected');
+    console.log(
+      '💡 Fix: Remove getComponents/getPrototypes exports from index.js'
+    );
+  } else {
+    console.log('✅ Ready to build - no problematic exports detected');
+    console.log('▶️  Next step: npm run build:core');
+  }
+} else {
+  console.log('❌ Cannot determine build readiness - index.js missing');
+}
