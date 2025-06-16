@@ -17,10 +17,8 @@ const injectPageStyles = createStyleInjector('Page');
  */
 const migrateLegacyProps = (props) => {
   const migrated = { ...props };
-
   // No legacy props to migrate yet, but following the pattern
   // for future compatibility
-
   return migrated;
 };
 
@@ -243,15 +241,17 @@ const renderPage = (state) => {
     return container;
   }
 
-  // Skip to main content link for accessibility
-  const skipLink = createElement('a', {
-    classes: ['page__skip-link'],
-    attributes: {
-      href: '#main-content',
-    },
-  });
-  skipLink.textContent = 'Skip to main content';
-  container.appendChild(skipLink);
+  // Optional skip to main content link for accessibility
+  if (state.includeSkipLink !== false) {
+    const skipLink = createElement('a', {
+      classes: ['page__skip-link'],
+      attributes: {
+        href: '#main-content',
+      },
+    });
+    skipLink.textContent = 'Skip to main content';
+    container.appendChild(skipLink);
+  }
 
   // Create page sections
   const header = createPageHeader(state.header, state.componentMapper);
@@ -298,6 +298,7 @@ const createPage = (props) => {
     footer: standardizedProps.footer,
     componentMapper: standardizedProps.componentMapper,
     seo: standardizedProps.seo,
+    includeSkipLink: standardizedProps.includeSkipLink,
   };
 
   // Create base component
@@ -603,8 +604,12 @@ const createPage = (props) => {
       const element = this.getElement();
       const issues = [];
 
-      // Check for skip link
-      if (!element.querySelector('.page__skip-link')) {
+      // Check for skip link (only if enabled)
+      const state = this.getState();
+      if (
+        state.includeSkipLink !== false &&
+        !element.querySelector('.page__skip-link')
+      ) {
         issues.push('Missing skip to main content link');
       }
 

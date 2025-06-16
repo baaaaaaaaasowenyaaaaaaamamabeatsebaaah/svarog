@@ -2,57 +2,57 @@
 import { css } from '../../utils/styleInjection.js';
 
 export const pageStyles = css`
-  /* Page Container */
+  /* Page Container - Clean wrapper with minimal structure */
   .page {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
 
-  /* Skip Link for Accessibility */
+  /* Skip Link for Accessibility - Hidden by default, visible on focus */
   .page__skip-link {
     position: absolute;
     top: -40px;
     left: 6px;
     background: #000;
     color: #fff;
-    padding: 8px;
+    padding: 8px 12px;
     text-decoration: none;
     z-index: 9999;
     border-radius: 4px;
     font-size: 14px;
+    font-weight: 500;
+    transition: top 0.3s;
   }
 
   .page__skip-link:focus {
     top: 6px;
   }
 
-  /* Header Section */
+  /* Header Section - No spacing, just structure */
   .page__header {
     flex-shrink: 0;
   }
 
-  /* Main Content Section */
+  /* Main Content Section - Flexible, no padding imposed */
   .page__main {
     flex: 1;
     min-height: 50vh;
-    padding: 1rem;
   }
 
-  /* Footer Section */
+  /* Footer Section - No spacing, just structure */
   .page__footer {
     flex-shrink: 0;
     margin-top: auto;
   }
 
-  /* Loading State */
+  /* Loading State - Centered with minimal styling */
   .page__loading {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 50vh;
-    padding: 2rem;
     text-align: center;
   }
 
@@ -81,7 +81,7 @@ export const pageStyles = css`
     margin: 0;
   }
 
-  /* Error State */
+  /* Error State - Self-contained with own spacing */
   .page__error {
     display: flex;
     flex-direction: column;
@@ -94,6 +94,9 @@ export const pageStyles = css`
     border: 1px solid #fed7d7;
     border-radius: 8px;
     margin: 1rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .page__error-title {
@@ -125,6 +128,7 @@ export const pageStyles = css`
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    font-weight: 500;
     transition: background-color 0.2s ease;
   }
 
@@ -137,20 +141,22 @@ export const pageStyles = css`
     outline-offset: 2px;
   }
 
-  /* Responsive Design */
+  /* Responsive Design - Minimal adjustments */
   @media (max-width: 768px) {
-    .page__main {
-      padding: 0.5rem;
-    }
-
     .page__loading,
     .page__error {
       min-height: 40vh;
       padding: 1rem;
+      margin: 0.5rem;
     }
 
     .page__error-title {
       font-size: 1.25rem;
+    }
+
+    .page__skip-link {
+      font-size: 12px;
+      padding: 6px 10px;
     }
   }
 
@@ -164,15 +170,22 @@ export const pageStyles = css`
     .page__error {
       border-color: currentColor;
     }
+
+    .page__skip-link {
+      background: #000;
+      color: #fff;
+    }
   }
 
   /* Reduced Motion Support */
   @media (prefers-reduced-motion: reduce) {
     .page__loading-spinner {
       animation: none;
+      border: 4px solid #007bff;
     }
 
-    .page__error-retry {
+    .page__error-retry,
+    .page__skip-link {
       transition: none;
     }
   }
@@ -204,6 +217,11 @@ export const pageStyles = css`
 
     .page__error-code {
       color: #666;
+    }
+
+    .page__skip-link {
+      background: #fff;
+      color: #000;
     }
   }
 
