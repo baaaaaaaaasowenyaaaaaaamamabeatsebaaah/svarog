@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.7](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.6...svarog-ui-core@2.7.7) (2025-06-16)
+
+### Bug Fixes
+
+- collapsibleheader ([38acb69](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/38acb696fd8e30258d16faa16b56f2c5d4138ef2))
+
 ## [2.7.6](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.5...svarog-ui-core@2.7.6) (2025-06-16)
 
 ### Bug Fixes
