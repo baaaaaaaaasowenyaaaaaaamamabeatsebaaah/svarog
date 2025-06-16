@@ -1,11 +1,12 @@
 # CollapsibleHeader Component
 
-The CollapsibleHeader component provides a responsive, collapsible header with navigation, contact information, and optional sticky contact icons that appear when scrolling. **Now featuring CSS injection for zero-configuration usage across all environments.**
+The CollapsibleHeader component provides a responsive, collapsible header with navigation, contact information, and **automatic logo switching** that appears when scrolling. **Now featuring CSS injection for zero-configuration usage across all environments.**
 
 ## ✨ Key Features
 
 - **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere
 - **Automatic Style Injection** - No separate CSS imports needed
+- **Intelligent Logo Switching** - Automatically switches between full and compact logos
 - **SSR Compatible** - Styles inject safely in browser only
 - **Tree Shakeable** - Only loads styles for used components
 - **Performance Optimized** - Styles are cached and deduped
@@ -15,7 +16,7 @@ The CollapsibleHeader component provides a responsive, collapsible header with n
 ```javascript
 import { CollapsibleHeaderContainer } from '@svarog-ui/core';
 
-// Create a header container with all features - styles inject automatically!
+// Create a header container with logo switching - styles inject automatically!
 const header = CollapsibleHeaderContainer({
   siteName: 'Company Name',
   navigation: {
@@ -30,14 +31,34 @@ const header = CollapsibleHeaderContainer({
     phone: '123-456-7890',
     email: 'info@example.com',
   },
-  logo: '/path/to/logo.svg',
-  compactLogo: '/path/to/compact-logo.svg',
+  logo: '/path/to/full-logo.svg', // ✅ Full logo for expanded state
+  compactLogo: '/path/to/compact-logo.svg', // ✅ Compact logo for collapsed/mobile
   collapseThreshold: 100,
   showStickyIcons: true,
 });
 
-// Add to DOM - styles are automatically injected
+// Add to DOM - styles and logo switching work automatically
 document.body.appendChild(header.getElement());
+```
+
+## Logo Switching Behavior
+
+The header **automatically switches logos** based on state:
+
+- **Expanded Desktop**: Uses `logo` prop (full logo)
+- **Collapsed Desktop**: Uses `compactLogo` prop
+- **Mobile**: Uses `compactLogo` prop
+- **No Logo Provided**: Falls back to `siteName` text
+
+```javascript
+// Logo switching example
+const header = CollapsibleHeaderContainer({
+  logo: '/assets/full-brand-logo.svg', // Shown when expanded
+  compactLogo: '/assets/icon-only.svg', // Shown when collapsed/mobile
+  // ... other props
+});
+
+// Logo switches automatically on scroll/resize - no manual intervention needed!
 ```
 
 ## Migration from CSS Imports
@@ -69,8 +90,8 @@ Manages the CollapsibleHeader state based on scroll position and window size.
 | siteName            | string   | ""         | Site name to display (if no logo provided)           |
 | navigation          | object   | _required_ | Navigation configuration with items array            |
 | contactInfo         | object   | _required_ | Contact information with location, phone, and email  |
-| logo                | string   | ""         | URL to logo image                                    |
-| compactLogo         | string   | logo value | URL to compact logo for collapsed state              |
+| **logo**            | string   | ""         | **URL to full logo image (expanded state)**          |
+| **compactLogo**     | string   | logo value | **URL to compact logo (collapsed/mobile state)**     |
 | callButtonText      | string   | "Anrufen"  | Text for the call button                             |
 | onCallClick         | function | null       | Callback for call button click                       |
 | className           | string   | ""         | Additional CSS classes                               |
@@ -84,18 +105,18 @@ Presentational component that renders the header UI.
 
 #### Props
 
-| Prop           | Type     | Default    | Description                                     |
-| -------------- | -------- | ---------- | ----------------------------------------------- |
-| siteName       | string   | ""         | Site name to display                            |
-| navigation     | object   | _required_ | Navigation configuration with items array       |
-| contactInfo    | object   | _required_ | Contact information with location, phone, email |
-| logo           | string   | ""         | URL to logo image                               |
-| compactLogo    | string   | logo value | URL to compact logo for collapsed state         |
-| callButtonText | string   | "Anrufen"  | Text for the call button                        |
-| onCallClick    | function | null       | Callback for call button click                  |
-| className      | string   | ""         | Additional CSS classes                          |
-| isCollapsed    | boolean  | false      | Whether the header is in collapsed state        |
-| isMobile       | boolean  | false      | Whether the header is in mobile view            |
+| Prop            | Type     | Default    | Description                                     |
+| --------------- | -------- | ---------- | ----------------------------------------------- |
+| siteName        | string   | ""         | Site name to display                            |
+| navigation      | object   | _required_ | Navigation configuration with items array       |
+| contactInfo     | object   | _required_ | Contact information with location, phone, email |
+| **logo**        | string   | ""         | **URL to full logo image**                      |
+| **compactLogo** | string   | logo value | **URL to compact logo for collapsed state**     |
+| callButtonText  | string   | "Anrufen"  | Text for the call button                        |
+| onCallClick     | function | null       | Callback for call button click                  |
+| className       | string   | ""         | Additional CSS classes                          |
+| isCollapsed     | boolean  | false      | Whether the header is in collapsed state        |
+| isMobile        | boolean  | false      | Whether the header is in mobile view            |
 
 ## Methods
 
@@ -109,12 +130,12 @@ const headerElement = header.getElement();
 
 ### update(props)
 
-Updates the header with new properties.
+Updates the header with new properties. **Logo switching happens automatically.**
 
 ```javascript
 header.update({
-  isCollapsed: true,
-  logo: '/path/to/new-logo.svg',
+  isCollapsed: true, // ✅ Automatically switches to compactLogo
+  logo: '/new-full-logo.svg', // ✅ Updates full logo
 });
 ```
 
@@ -141,6 +162,62 @@ Returns the current state of the component. Useful for testing or debugging.
 ```javascript
 const currentState = header.getState();
 console.log(currentState.isCollapsed); // Check if header is currently collapsed
+console.log(currentState.isMobile); // Check if in mobile mode
+```
+
+## CSS Customization
+
+CollapsibleHeader styles can be customized using CSS variables:
+
+```css
+:root {
+  /* Header dimensions */
+  --collapsible-header-height: 160px;
+  --collapsible-header-collapsed-height: 120px;
+  --collapsible-header-mobile-height: 80px;
+
+  /* Animation */
+  --collapsible-header-transition: transform 0.3s ease, height 0.3s ease;
+  --collapsible-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --collapsible-header-logo-transition: transform 0.3s ease;
+
+  /* Contact area */
+  --collapsible-header-contact-bg: var(--color-bg);
+  --collapsible-header-contact-transition: height 0.3s ease, opacity 0.3s ease;
+}
+```
+
+### Logo Sizing Customization
+
+**Logo sizes are controlled via CSS variables** (automatically applied):
+
+```css
+/* Full logo sizing (expanded state) */
+.collapsible-header .header-logo--full {
+  --logo-width: 120px;
+  --logo-height: auto;
+}
+
+/* Compact logo sizing (collapsed/mobile state) */
+.collapsible-header .header-logo--compact {
+  --logo-width: 100px;
+  --logo-height: auto;
+}
+
+/* Mobile overrides */
+@media (max-width: 768px) {
+  .collapsible-header .header-logo--full,
+  .collapsible-header .header-logo--compact {
+    --logo-width: 100px; /* Both logos smaller on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .collapsible-header .header-logo--full,
+  .collapsible-header .header-logo--compact {
+    --logo-width: 90px; /* Even smaller on tiny screens */
+  }
+}
 ```
 
 ## Accessibility Features
@@ -166,8 +243,8 @@ The component includes several performance optimizations:
 - **Automatic Style Injection**: Styles are injected once and cached automatically
 - **Zero Duplication**: Multiple instances share the same injected styles
 - **SSR Safe**: Style injection is safely skipped on server-side
+- **Smart Logo Switching**: Full re-render ensures correct logo is always displayed
 - Debounced scroll and resize event handlers to prevent excessive DOM operations
-- Partial updates that avoid full re-renders when changing simple properties
 - Efficient DOM manipulation with minimal changes
 - Lazy creation of sticky icons only when they're needed
 - Smart state tracking to prevent unnecessary updates
@@ -176,18 +253,21 @@ The component includes several performance optimizations:
 
 The header automatically adapts to different screen sizes:
 
-- On desktop: Full header with contact info that collapses on scroll
-- On mobile (< 768px): Compact header with mobile menu toggle
+- **Desktop Expanded**: Full header with full logo and contact info
+- **Desktop Collapsed**: Compact header with compact logo, no contact info
+- **Mobile**: Compact header with compact logo and mobile menu toggle
+- **Logo Switching**: Automatic based on state (expanded/collapsed/mobile)
 - Sticky contact icons appear when header is collapsed or on mobile
 
 ## Examples
 
-### Basic Header with Logo
+### Basic Header with Logo Switching
 
 ```javascript
 const basicHeader = CollapsibleHeaderContainer({
   siteName: 'Company Name',
-  logo: '/path/to/logo.svg',
+  logo: '/assets/full-company-logo.svg', // ✅ Full logo
+  compactLogo: '/assets/company-icon.svg', // ✅ Compact logo
   navigation: {
     items: [
       { id: 'home', label: 'Home', href: '#' },
@@ -201,15 +281,19 @@ const basicHeader = CollapsibleHeaderContainer({
     email: 'info@example.com',
   },
 });
+
+// Logo switches automatically:
+// - Shows full-company-logo.svg when expanded
+// - Shows company-icon.svg when collapsed or mobile
 ```
 
-### Header with Different Logos
+### Header with Same Logo (No Switching)
 
 ```javascript
-const headerWithDifferentLogos = CollapsibleHeaderContainer({
+const singleLogoHeader = CollapsibleHeaderContainer({
   siteName: 'Company Name',
-  logo: '/path/to/full-logo.svg',
-  compactLogo: '/path/to/icon-logo.svg',
+  logo: '/assets/logo.svg',
+  // compactLogo not provided - uses same logo for all states
   navigation: {
     items: [
       { id: 'home', label: 'Home', href: '#' },
@@ -222,6 +306,8 @@ const headerWithDifferentLogos = CollapsibleHeaderContainer({
     email: 'info@example.com',
   },
 });
+
+// Uses same logo for all states, only size changes via CSS
 ```
 
 ### Header without Sticky Icons
@@ -229,6 +315,8 @@ const headerWithDifferentLogos = CollapsibleHeaderContainer({
 ```javascript
 const headerWithoutIcons = CollapsibleHeaderContainer({
   siteName: 'Company Name',
+  logo: '/assets/full-logo.svg',
+  compactLogo: '/assets/compact-logo.svg',
   navigation: {
     items: [
       { id: 'home', label: 'Home', href: '#' },
@@ -240,7 +328,7 @@ const headerWithoutIcons = CollapsibleHeaderContainer({
     phone: '123-456-7890',
     email: 'info@example.com',
   },
-  showStickyIcons: false,
+  showStickyIcons: false, // ✅ Disable sticky icons
 });
 ```
 
@@ -249,6 +337,8 @@ const headerWithoutIcons = CollapsibleHeaderContainer({
 ```javascript
 const headerWithCustomCall = CollapsibleHeaderContainer({
   siteName: 'Company Name',
+  logo: '/assets/full-logo.svg',
+  compactLogo: '/assets/icon-logo.svg',
   navigation: {
     items: [
       { id: 'home', label: 'Home', href: '#' },
@@ -268,26 +358,43 @@ const headerWithCustomCall = CollapsibleHeaderContainer({
 });
 ```
 
-## CSS Customization
+## Debugging Logo Switching
 
-CollapsibleHeader styles can be customized using CSS variables:
+If logo switching isn't working:
 
-```css
-:root {
-  /* Header dimensions */
-  --collapsible-header-height: 160px;
-  --collapsible-header-collapsed-height: 120px;
-  --collapsible-header-mobile-height: 80px;
+### 1. Verify Different Logo URLs
 
-  /* Animation */
-  --collapsible-header-transition: transform 0.3s ease, height 0.3s ease;
-  --collapsible-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --collapsible-header-logo-transition: transform 0.3s ease;
+```javascript
+const header = CollapsibleHeaderContainer({
+  logo: '/path/to/FULL-logo.svg', // ✅ Must be different
+  compactLogo: '/path/to/ICON-logo.svg', // ✅ Must be different
+  // ...
+});
+```
 
-  /* Contact area */
-  --collapsible-header-contact-bg: var(--color-bg);
-  --collapsible-header-contact-transition: height 0.3s ease, opacity 0.3s ease;
-}
+### 2. Check Browser DevTools
+
+- **Network tab**: Verify both logo files load successfully
+- **Elements tab**: Look for `.header-logo--full` and `.header-logo--compact` classes
+- **Console**: Check for any JavaScript errors
+
+### 3. Test Manual State Changes
+
+```javascript
+// Force collapse to test logo switching
+header.update({ isCollapsed: true });
+
+// Check current state
+console.log(header.getState());
+```
+
+### 4. Verify CSS Variables
+
+```javascript
+// Check computed logo width
+const logoContainer = document.querySelector('.logo-container');
+const width = getComputedStyle(logoContainer).getPropertyValue('--logo-width');
+console.log('Logo width:', width);
 ```
 
 ## Accessibility Customization
@@ -321,12 +428,21 @@ The component uses a modern CSS injection system that:
 3. **Works across all environments** (Node.js, browsers, bundlers)
 4. **Optimizes performance** by sharing styles between component instances
 
+### Logo Switching Implementation
+
+Logo switching uses the **KISS principle**:
+
+1. **Simple State Logic**: `shouldUseCompactLogo = isMobile || isCollapsed`
+2. **CSS Variable Sizing**: Logos sized via `--logo-width` and `--logo-height`
+3. **Full Re-render**: Always rebuilds when logo state changes (reliable)
+4. **Class-Based**: Uses `.header-logo--full` and `.header-logo--compact` classes
+
 ### File Structure
 
 ```
 src/components/CollapsibleHeader/
-├── CollapsibleHeader.js           # Main component with style injection
-├── CollapsibleHeader.styles.js    # Component-specific styles
+├── CollapsibleHeader.js           # Main component with logo switching
+├── CollapsibleHeader.styles.js    # Component-specific styles + logo sizing
 ├── CollapsibleHeaderContainer.js  # Container with scroll/resize logic
 ├── CollapsibleHeader.test.js      # Comprehensive tests
 ├── CollapsibleHeader.stories.js   # Storybook stories
@@ -358,6 +474,7 @@ Please update your code to use the new standardized prop names. The component wi
 The component includes comprehensive tests that verify:
 
 - Component rendering with various prop combinations
+- **Logo switching behavior** in different states
 - State management and updates
 - Event handling and user interactions
 - Accessibility compliance
@@ -378,26 +495,27 @@ The component includes comprehensive tests that verify:
 1. **Remove CSS imports** from your component files
 2. **Update component usage** - no changes needed, styles inject automatically
 3. **Remove CSS build configuration** if no longer needed
-4. **Test in all environments** to ensure everything works
+4. **Test logo switching** to ensure both logos load correctly
 
-### From Inline Styles
+### From Manual Logo Management
 
-1. **Replace inline styles** with the CSS injection pattern
-2. **Move styles** to dedicated `.styles.js` files
-3. **Use CSS variables** for theming and customization
-4. **Leverage modern CSS features** for better maintainability
+1. **Use `logo` and `compactLogo` props** instead of manual switching
+2. **Remove custom logo switching logic** - now handled automatically
+3. **Update CSS** to use new logo sizing variables if needed
+4. **Test responsive behavior** across different screen sizes
 
 ## Contributing
 
 When contributing to this component:
 
 1. **Follow the CSS injection pattern** for any new styles
-2. **Add comprehensive tests** for new features
-3. **Update documentation** for any API changes
-4. **Ensure accessibility compliance** for all modifications
-5. **Test across environments** (Node.js, browsers, SSR)
-6. **Use modern JavaScript features** appropriately
-7. **Maintain performance optimizations** and add new ones where beneficial
+2. **Maintain logo switching simplicity** - avoid over-engineering
+3. **Add comprehensive tests** for new features
+4. **Update documentation** for any API changes
+5. **Ensure accessibility compliance** for all modifications
+6. **Test across environments** (Node.js, browsers, SSR)
+7. **Use modern JavaScript features** appropriately
+8. **Maintain performance optimizations** and add new ones where beneficial
 
 ## Support
 
@@ -407,3 +525,5 @@ For issues, questions, or contributions:
 - Review the Storybook stories for interactive demos
 - Consult the main Svarog UI documentation
 - Open an issue with detailed reproduction steps
+
+**Logo switching not working?** Check that your `logo` and `compactLogo` props point to **different image files** and verify both load successfully in the browser Network tab.

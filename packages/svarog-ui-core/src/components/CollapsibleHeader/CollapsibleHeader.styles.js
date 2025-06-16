@@ -18,7 +18,7 @@ export const collapsibleHeaderStyles = css`
   }
 
   /* ====================
-       2. Base Layout 
+       2. Base Layout
        ==================== */
   .collapsible-header {
     position: sticky;
@@ -45,7 +45,7 @@ export const collapsibleHeaderStyles = css`
   }
 
   /* ====================
-       3. Logo Styles
+       3. Logo Styles - CSS Variable Approach
        ==================== */
   .collapsible-header__logo {
     display: flex;
@@ -55,16 +55,23 @@ export const collapsibleHeaderStyles = css`
     transition: var(--collapsible-header-logo-transition);
   }
 
-  /* Logo size and behavior */
-  .collapsible-header .logo-container {
-    width: 120px;
-    height: auto;
+  /* Full logo size (desktop, expanded) */
+  .collapsible-header .header-logo--full {
+    --logo-width: 120px;
+    --logo-height: auto;
   }
 
-  .collapsible-header .logo-image {
-    width: 120px;
-    height: auto;
-    max-height: none;
+  /* Compact logo size (collapsed or mobile) */
+  .collapsible-header .header-logo--compact {
+    --logo-width: 120px;
+    --logo-height: auto;
+  }
+
+  /* Apply logo container sizing */
+  .collapsible-header .logo-container {
+    width: var(--logo-width, 120px);
+    height: var(--logo-height, auto);
+    transition: all 0.3s ease;
   }
 
   /* ====================
@@ -140,9 +147,9 @@ export const collapsibleHeaderStyles = css`
     align-items: center;
   }
 
-  /* Small logo in collapsed state */
+  /* Scale down logo container slightly in collapsed state */
   .collapsible-header--collapsed .collapsible-header__logo {
-    transform: scale(0.85);
+    transform: scale(0.95);
   }
 
   /* ====================
@@ -201,8 +208,7 @@ export const collapsibleHeaderStyles = css`
       margin: 0 16px; /* Smaller margin on mobile */
       display: flex;
       flex-direction: row;
-      /* Replace space-between with fixed positioning for critical elements */
-      position: relative; /* Set relative positioning for absolute child elements */
+      position: relative;
     }
 
     /* Fixed position for logo on mobile */
@@ -224,14 +230,16 @@ export const collapsibleHeaderStyles = css`
       z-index: 3;
     }
 
-    /* Set logos to 100px on mobile */
-    .collapsible-header--mobile .logo-container,
-    .collapsible-header--mobile .logo-image,
-    .collapsible-header .logo-container,
-    .collapsible-header .logo-image {
-      width: 100px;
-      height: auto;
-      transition: none; /* Disable transitions for mobile logo */
+    /* Set logos to smaller size on mobile using CSS variables */
+    .collapsible-header .header-logo--full,
+    .collapsible-header .header-logo--compact {
+      --logo-width: 100px;
+      --logo-height: auto;
+    }
+
+    /* Override any transform scaling on mobile */
+    .collapsible-header__logo {
+      transform: translateY(-50%) !important;
     }
 
     /* Hide contact info on mobile */
@@ -259,14 +267,6 @@ export const collapsibleHeaderStyles = css`
     /* Hide call button on mobile */
     .collapsible-header__call-button {
       display: none;
-    }
-
-    /* Override collapsed state transforms for mobile */
-    .collapsible-header--mobile.collapsible-header--collapsed
-      .collapsible-header__logo,
-    .collapsible-header--collapsed.collapsible-header--mobile
-      .collapsible-header__logo {
-      transform: translateY(-50%); /* Only center vertically, don't scale */
     }
 
     /* Make sure burger menu appears on the right */
@@ -339,6 +339,13 @@ export const collapsibleHeaderStyles = css`
   @media (max-width: 480px) {
     .collapsible-header__container {
       margin: 0 12px; /* Even smaller margin on very small screens */
+    }
+
+    /* Even smaller logos on very small screens */
+    .collapsible-header .header-logo--full,
+    .collapsible-header .header-logo--compact {
+      --logo-width: 90px;
+      --logo-height: auto;
     }
   }
 `;

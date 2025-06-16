@@ -67,6 +67,29 @@ const validateCollapsibleHeaderProps = (props) => {
 };
 
 /**
+ * Gets logo configuration based on current state - KISS approach
+ * @param {Object} state - Current component state
+ * @returns {Object} Logo configuration
+ * @private
+ */
+const getLogoConfig = (state) => {
+  const shouldUseCompactLogo = state.isMobile || state.isCollapsed;
+  const logoSrc = shouldUseCompactLogo ? state.compactLogo : state.logo;
+
+  // Use CSS variables for size control - more flexible than props
+  const logoClass = shouldUseCompactLogo
+    ? 'header-logo header-logo--compact'
+    : 'header-logo header-logo--full';
+
+  return {
+    imageUrl: logoSrc, // ✅ Use correct prop name
+    alt: state.siteName || 'Logo',
+    responsive: true,
+    className: logoClass,
+  };
+};
+
+/**
  * Creates CollapsibleHeader DOM element
  * @param {Object} state - CollapsibleHeader state
  * @returns {HTMLElement} - CollapsibleHeader element
@@ -101,23 +124,15 @@ const renderCollapsibleHeader = (state) => {
     classes: ['collapsible-header__container'],
   });
 
-  // Create logo container (left-aligned and vertically centered)
+  // Create logo container
   const logoContainer = createElement('div', {
     classes: ['collapsible-header__logo'],
   });
 
-  // Determine which logo to use based on state
-  const shouldUseCompactLogo = isMobile || isCollapsed;
-  const logoToUse = shouldUseCompactLogo ? state.compactLogo : state.logo;
-
-  // Add logo to logo container
-  if (logoToUse) {
-    const logoComponent = Logo({
-      src: logoToUse,
-      alt: siteName || 'Logo',
-      responsive: true,
-      width: isMobile ? 100 : 120,
-    });
+  // Add logo with proper configuration - KISS approach
+  if (state.logo) {
+    const logoConfig = getLogoConfig(state);
+    const logoComponent = Logo(logoConfig);
 
     const logoLink = Link({
       children: logoComponent.getElement(),
@@ -244,54 +259,11 @@ const createCollapsibleHeader = (props) => {
   const component = createBaseComponent(renderCollapsibleHeader)(initialState);
 
   /**
-   * We maintain a separate state object (componentState) for efficient partial updates.
-   * While the baseComponent has its own internal state used for full re-renders,
-   * this additional state allows us to:
-   * 1. Track the current state for partial DOM updates without triggering full re-renders
-   * 2. Provide a getState() method that clients can use to inspect component state
-   * 3. Support complex state transitions that don't require complete DOM rebuilding
+   * Component state for tracking
    * @type {Object}
    * @private
    */
   let componentState = { ...initialState };
-
-  /**
-   * Update logo based on current state
-   * @param {HTMLElement} element - The header element
-   * @param {Object} state - Current component state
-   * @private
-   */
-  const updateLogo = (element, state) => {
-    const shouldUseCompactLogo = state.isMobile || state.isCollapsed;
-    const logoSrc = shouldUseCompactLogo ? state.compactLogo : state.logo;
-
-    // Find and update logo image
-    const logoImg = element.querySelector('.logo-image');
-    if (logoImg && logoImg.src !== logoSrc) {
-      logoImg.src = logoSrc;
-
-      // Update width based on mobile state
-      const logoContainer = element.querySelector('.logo-container');
-      if (logoContainer) {
-        logoContainer.style.width = state.isMobile ? '100px' : '120px';
-      }
-    }
-  };
-
-  /**
-   * Update call button visibility based on mobile state
-   * @param {HTMLElement} element - The header element
-   * @param {Object} state - Current component state
-   * @private
-   */
-  const updateCallButtonVisibility = (element, state) => {
-    const callButtonContainer = element.querySelector(
-      '.collapsible-header__call-button'
-    );
-    if (callButtonContainer) {
-      callButtonContainer.style.display = state.isMobile ? 'none' : 'block';
-    }
-  };
 
   // Create extended component with additional properties
   const headerComponent = {
@@ -307,7 +279,7 @@ const createCollapsibleHeader = (props) => {
     },
 
     /**
-     * Update component with new props
+     * Update component with new props - KISS approach
      * @param {Object} newProps - New properties to update
      * @returns {Object} Component instance for chaining
      * @public
@@ -319,75 +291,21 @@ const createCollapsibleHeader = (props) => {
       // Update our stored state
       componentState = { ...componentState, ...standardizedNewProps };
 
-      // Check if we should do a full re-render
-      if (this.shouldRerender(standardizedNewProps)) {
-        // Let the base component handle the complete re-render
-        return component.update(standardizedNewProps);
-      }
-
-      const element = this.getElement();
-
-      // Handle partial updates
-      if (standardizedNewProps.isCollapsed !== undefined) {
-        element.classList.toggle(
-          'collapsible-header--collapsed',
-          standardizedNewProps.isCollapsed
-        );
-
-        // Update logo based on collapsed state
-        if (element.querySelector('.logo-image')) {
-          updateLogo(element, componentState);
-        }
-      }
-
-      if (standardizedNewProps.isMobile !== undefined) {
-        element.classList.toggle(
-          'collapsible-header--mobile',
-          standardizedNewProps.isMobile
-        );
-
-        // Update logo based on mobile state
-        if (element.querySelector('.logo-image')) {
-          updateLogo(element, componentState);
-        }
-
-        // Update call button visibility
-        updateCallButtonVisibility(element, componentState);
-      }
-
-      // Update className if provided
-      if (standardizedNewProps.className !== undefined) {
-        // Remove old custom class if it exists
-        if (componentState.className) {
-          element.classList.remove(componentState.className);
-        }
-
-        // Add new custom class if provided
-        if (standardizedNewProps.className) {
-          element.classList.add(standardizedNewProps.className);
-        }
-      }
-
-      return this;
+      // For logo switching, always do full re-render - KISS principle
+      // This ensures the correct logo is always used
+      return component.update(standardizedNewProps);
     },
 
     /**
      * Determines if component should fully re-render
+     * Always return true for logo-related changes - KISS approach
      * @param {Object} newProps - New properties
      * @returns {boolean} Whether a full re-render is required
      * @public
      */
     shouldRerender(newProps) {
-      // These props require a full re-render
-      return [
-        'navigation',
-        'contactInfo',
-        'logo',
-        'compactLogo',
-        'siteName',
-        'callButtonText',
-        'onCallClick',
-      ].some((prop) => newProps[prop] !== undefined);
+      // Always re-render when any significant prop changes - KISS
+      return Object.keys(newProps).length > 0;
     },
   };
 

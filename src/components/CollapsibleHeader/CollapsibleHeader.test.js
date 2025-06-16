@@ -102,7 +102,7 @@ describe('CollapsibleHeader Components', () => {
 
     it('should update collapsed state via update method', () => {
       const header = CollapsibleHeader(defaultProps);
-      const element = header.getElement();
+      let element = header.getElement();
 
       // Initially not collapsed
       expect(element.classList.contains('collapsible-header--collapsed')).toBe(
@@ -112,10 +112,86 @@ describe('CollapsibleHeader Components', () => {
       // Update to collapsed state
       header.update({ isCollapsed: true });
 
+      // ✅ Get the updated element after re-render (KISS approach does full re-render)
+      element = header.getElement();
+
       // Should be collapsed
       expect(element.classList.contains('collapsible-header--collapsed')).toBe(
         true
       );
+    });
+
+    it('should update mobile state via update method', () => {
+      const header = CollapsibleHeader(defaultProps);
+      let element = header.getElement();
+
+      // Initially not mobile
+      expect(element.classList.contains('collapsible-header--mobile')).toBe(
+        false
+      );
+
+      // Update to mobile state
+      header.update({ isMobile: true });
+
+      // ✅ Get the updated element after re-render
+      element = header.getElement();
+
+      // Should be mobile
+      expect(element.classList.contains('collapsible-header--mobile')).toBe(
+        true
+      );
+    });
+
+    it('should switch logos when collapsed state changes', () => {
+      const headerWithDifferentLogos = CollapsibleHeader({
+        ...defaultProps,
+        logo: 'full-logo.svg',
+        compactLogo: 'compact-logo.svg',
+      });
+
+      let element = headerWithDifferentLogos.getElement();
+
+      // Initially should use full logo
+      const initialLogoImg = element.querySelector('.logo-container img');
+      expect(initialLogoImg.src).toContain('full-logo.svg');
+
+      // Update to collapsed state
+      headerWithDifferentLogos.update({ isCollapsed: true });
+
+      // ✅ Get updated element and check logo switched
+      element = headerWithDifferentLogos.getElement();
+      const collapsedLogoImg = element.querySelector('.logo-container img');
+      expect(collapsedLogoImg.src).toContain('compact-logo.svg');
+
+      // Switch back to expanded
+      headerWithDifferentLogos.update({ isCollapsed: false });
+
+      // ✅ Get updated element and check logo switched back
+      element = headerWithDifferentLogos.getElement();
+      const expandedLogoImg = element.querySelector('.logo-container img');
+      expect(expandedLogoImg.src).toContain('full-logo.svg');
+    });
+
+    it('should switch logos when mobile state changes', () => {
+      const headerWithDifferentLogos = CollapsibleHeader({
+        ...defaultProps,
+        logo: 'full-logo.svg',
+        compactLogo: 'compact-logo.svg',
+      });
+
+      let element = headerWithDifferentLogos.getElement();
+
+      // Initially should use full logo
+      const initialLogoImg = element.querySelector('.logo-container img');
+      expect(initialLogoImg.src).toContain('full-logo.svg');
+
+      // Update to mobile state
+      headerWithDifferentLogos.update({ isMobile: true });
+
+      // ✅ Get updated element and check logo switched to compact
+      element = headerWithDifferentLogos.getElement();
+      const mobileLogoImg = element.querySelector('.logo-container img');
+      expect(mobileLogoImg.src).toContain('compact-logo.svg');
     });
 
     it('should support onCallClick prop', () => {
@@ -185,6 +261,52 @@ describe('CollapsibleHeader Components', () => {
           },
         });
       }).toThrow(/navigation\.items/i);
+    });
+
+    it('should handle updates with multiple state changes', () => {
+      const header = CollapsibleHeader(defaultProps);
+      let element = header.getElement();
+
+      // Initially in normal state
+      expect(element.classList.contains('collapsible-header--collapsed')).toBe(
+        false
+      );
+      expect(element.classList.contains('collapsible-header--mobile')).toBe(
+        false
+      );
+
+      // Update both collapsed and mobile state at once
+      header.update({ isCollapsed: true, isMobile: true });
+
+      // ✅ Get updated element after re-render
+      element = header.getElement();
+
+      // Should have both classes
+      expect(element.classList.contains('collapsible-header--collapsed')).toBe(
+        true
+      );
+      expect(element.classList.contains('collapsible-header--mobile')).toBe(
+        true
+      );
+    });
+
+    it('should maintain state consistency across updates', () => {
+      const header = CollapsibleHeader(defaultProps);
+
+      // Update state
+      header.update({ isCollapsed: true, className: 'custom-class' });
+
+      // Check that getState returns updated values
+      const state = header.getState();
+      expect(state.isCollapsed).toBe(true);
+      expect(state.className).toBe('custom-class');
+
+      // Element should reflect the state
+      const element = header.getElement();
+      expect(element.classList.contains('collapsible-header--collapsed')).toBe(
+        true
+      );
+      expect(element.classList.contains('custom-class')).toBe(true);
     });
   });
 
@@ -341,6 +463,38 @@ describe('CollapsibleHeader Components', () => {
       Object.defineProperty(window, 'innerWidth', {
         value: originalInnerWidth,
       });
+
+      // Clean up
+      try {
+        document.body.removeChild(header.getElement());
+      } catch (_e) {
+        // Ignore errors if already removed
+      }
+    });
+
+    it('should update logo when container state changes', () => {
+      const header = CollapsibleHeaderContainer({
+        ...defaultProps,
+        logo: 'full-logo.svg',
+        compactLogo: 'compact-logo.svg',
+        collapseThreshold: 50,
+      });
+
+      let element = header.getElement();
+      document.body.appendChild(element);
+
+      // Initially should use full logo
+      const initialLogoImg = element.querySelector('.logo-container img');
+      expect(initialLogoImg.src).toContain('full-logo.svg');
+
+      // Simulate scroll past threshold
+      Object.defineProperty(window, 'scrollY', { value: 100 });
+      header.handleScroll();
+
+      // ✅ Get updated element after state change
+      element = header.getElement();
+      const collapsedLogoImg = element.querySelector('.logo-container img');
+      expect(collapsedLogoImg.src).toContain('compact-logo.svg');
 
       // Clean up
       try {
