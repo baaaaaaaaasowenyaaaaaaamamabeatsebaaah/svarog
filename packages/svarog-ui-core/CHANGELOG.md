@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.8](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.7...svarog-ui-core@2.7.8) (2025-06-16)
+
+### Bug Fixes
+
+- page ([84eb173](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/84eb1736f86e2385c1899e8207e2507b57579c60))
+
 ## [2.7.7](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.6...svarog-ui-core@2.7.7) (2025-06-16)
 
 ### Bug Fixes
