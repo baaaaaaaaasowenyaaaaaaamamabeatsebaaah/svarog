@@ -6,6 +6,7 @@
 
 // Auto-inject base styles when core is imported
 import './styles/baseStyles.js';
+import './styles/baseVariables.js';
 
 // =========================================
 // COMPONENT EXPORTS (48 components found)

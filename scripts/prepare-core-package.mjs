@@ -210,6 +210,7 @@ function generateDynamicIndex() {
 
 // Auto-inject base styles when core is imported
 import './styles/baseStyles.js';
+import './styles/baseVariables.js';
 
 // =========================================
 // COMPONENT EXPORTS (${components.length} components found)
@@ -303,7 +304,8 @@ ${hasThemesConstant ? `export { THEMES } from './constants/themes.js';` : `// TH
 
 // Note: Development utilities like getComponents and getPrototypes are not included
 // in the core package to avoid .stories.js dependencies. Use them from the main
-// source for development purposes.`;
+// source for development purposes.
+`;
 
   const indexPath = resolve(corePackageDir, 'src/index.js');
   writeFileSync(indexPath, indexContent);
