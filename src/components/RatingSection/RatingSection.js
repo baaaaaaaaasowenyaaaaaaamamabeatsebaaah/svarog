@@ -47,17 +47,26 @@ const mockData = {
   },
 };
 
-// Smart config loading: try local first, fallback to production
-let apiConfig;
-try {
-  // Try local config (development)
-  apiConfig = (await import('../../config/api.config.local.js')).apiConfig;
-  console.log('🔑 RatingSection: Using local API config');
-} catch {
-  // Fallback to production config
-  apiConfig = (await import('../../config/api.config.js')).apiConfig;
-  console.log('🌍 RatingSection: Using production API config');
-}
+/**
+ * Load API config with fallback (lazy loading for testing compatibility)
+ * @returns {Promise<Object>} API configuration
+ */
+const loadApiConfig = async () => {
+  try {
+    const { apiConfig } = await import('../../config/api.config.local.js');
+    console.log('🔑 RatingSection: Using local API config');
+    return apiConfig;
+  } catch {
+    try {
+      const { apiConfig } = await import('../../config/api.config.js');
+      console.log('🌍 RatingSection: Using production API config');
+      return apiConfig;
+    } catch {
+      console.warn('⚠️ RatingSection: No API config found, using mock data');
+      return { googleMaps: {}, facebook: {} };
+    }
+  }
+};
 
 /**
  * Fetch data from cache or API
@@ -113,6 +122,7 @@ const isValidApiKey = (key) => {
  */
 const fetchGoogleRating = (placeId) =>
   getCachedData(`google_${placeId}`, async () => {
+    const apiConfig = await loadApiConfig();
     const hasValidKey = isValidApiKey(apiConfig.googleMaps?.apiKey);
 
     if (!hasValidKey) {
@@ -135,6 +145,7 @@ const fetchGoogleRating = (placeId) =>
  */
 const fetchFacebookRating = (pageId) =>
   getCachedData(`facebook_${pageId}`, async () => {
+    const apiConfig = await loadApiConfig();
     const hasValidToken = isValidApiKey(apiConfig.facebook?.accessToken);
 
     if (!hasValidToken) {
@@ -331,8 +342,8 @@ const createRatingSection = (props = {}) => {
   const baseComponent =
     createBaseComponent(renderRatingSection)(normalizedProps);
 
-  // Extended component with additional methods
-  return {
+  // Create extended component with additional methods
+  const extendedComponent = {
     ...baseComponent,
 
     /**
@@ -340,7 +351,9 @@ const createRatingSection = (props = {}) => {
      * @returns {Promise} Promise that resolves when refresh is complete
      */
     async refresh() {
-      const state = this.getState ? this.getState() : normalizedProps;
+      const state = baseComponent.getState
+        ? baseComponent.getState()
+        : normalizedProps;
 
       // Clear cache for this component's data
       [
@@ -351,7 +364,14 @@ const createRatingSection = (props = {}) => {
         .forEach((key) => apiCache.delete(key));
 
       // Re-render component
-      return this.update({});
+      baseComponent.update({});
+      // Override baseComponent methods to return extendedComponent for chaining
+      extendedComponent.update = (newProps) => {
+        baseComponent.update(newProps);
+        return extendedComponent;
+      };
+
+      return extendedComponent;
     },
 
     /**
@@ -360,7 +380,8 @@ const createRatingSection = (props = {}) => {
      * @returns {Object} Component for chaining
      */
     setGooglePlaceId(placeId) {
-      return this.update({ googlePlaceId: placeId });
+      baseComponent.update({ googlePlaceId: placeId });
+      return extendedComponent;
     },
 
     /**
@@ -369,7 +390,8 @@ const createRatingSection = (props = {}) => {
      * @returns {Object} Component for chaining
      */
     setFacebookPageId(pageId) {
-      return this.update({ facebookPageId: pageId });
+      baseComponent.update({ facebookPageId: pageId });
+      return extendedComponent;
     },
 
     /**
@@ -378,7 +400,8 @@ const createRatingSection = (props = {}) => {
      * @returns {Object} Component for chaining
      */
     setShowWertgarantie(show) {
-      return this.update({ showWertgarantie: show });
+      baseComponent.update({ showWertgarantie: show });
+      return extendedComponent;
     },
 
     /**
@@ -386,7 +409,9 @@ const createRatingSection = (props = {}) => {
      * @returns {Object} Cache information
      */
     getCacheStatus() {
-      const state = this.getState ? this.getState() : normalizedProps;
+      const state = baseComponent.getState
+        ? baseComponent.getState()
+        : normalizedProps;
       const now = Date.now();
 
       const getCacheInfo = (key) => {
@@ -410,6 +435,8 @@ const createRatingSection = (props = {}) => {
       };
     },
   };
+
+  return extendedComponent;
 };
 
 // Required props for validation

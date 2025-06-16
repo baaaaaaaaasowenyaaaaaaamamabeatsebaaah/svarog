@@ -7,6 +7,7 @@
 
 // ---- LAYOUT COMPONENTS ----
 import Accordion from './components/Accordion/index.js';
+import FAQSection from './components/FAQSection/FAQSection.js';
 import Grid from './components/Grid/index.js';
 import ProductGrid from './components/ProductGrid/ProductGrid.js';
 import Section from './components/Section/index.js';
@@ -99,6 +100,7 @@ import {
 export {
   // Layout Components
   Accordion,
+  FAQSection,
   Grid,
   ProductGrid,
   Section,
@@ -185,6 +187,7 @@ export {
 
 export const Layout = {
   Accordion,
+  FAQSection,
   Grid,
   ProductGrid,
   Section,
@@ -288,6 +291,7 @@ const Svarog = {
 
   // Individual components (for backward compatibility)
   Accordion,
+  FAQSection,
   Grid,
   ProductGrid,
   Section,

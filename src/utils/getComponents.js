@@ -1329,6 +1329,110 @@ export const getComponents = () => {
       ],
     },
     {
+      name: 'FAQSection',
+      category: 'Layout',
+      stories: [
+        {
+          name: 'Default',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.Default
+            ),
+        },
+        {
+          name: 'BasicFAQ',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.BasicFAQ
+            ),
+        },
+        {
+          name: 'WithoutTitle',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.WithoutTitle
+            ),
+        },
+        {
+          name: 'MultipleMode',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.MultipleMode
+            ),
+        },
+        {
+          name: 'DifferentIconTypes',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.DifferentIconTypes
+            ),
+        },
+        {
+          name: 'DifferentVariants',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.DifferentVariants
+            ),
+        },
+        {
+          name: 'SectionStyling',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.SectionStyling
+            ),
+        },
+        {
+          name: 'ProgrammaticControl',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.ProgrammaticControl
+            ),
+        },
+        {
+          name: 'DynamicFAQs',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.DynamicFAQs
+            ),
+        },
+        {
+          name: 'SearchExample',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.SearchExample
+            ),
+        },
+        {
+          name: 'WithCallback',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.WithCallback
+            ),
+        },
+        {
+          name: 'CustomerSupportFAQ',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.CustomerSupportFAQ
+            ),
+        },
+        {
+          name: 'TechnicalFAQ',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.TechnicalFAQ
+            ),
+        },
+        {
+          name: 'ComprehensiveExample',
+          module: () =>
+            import('../components/FAQSection/FAQSection.stories.js').then(
+              (m) => m.ComprehensiveExample
+            ),
+        },
+      ],
+    },
+    {
       name: 'ProductGrid',
       category: 'Layout',
       stories: [

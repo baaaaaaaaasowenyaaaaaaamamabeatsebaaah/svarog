@@ -7,7 +7,7 @@ export const accordionStyles = css`
     width: 100%;
     border: var(--accordion-border, 1px solid var(--color-border-light));
     border-radius: var(--accordion-radius, 0);
-    background: var(--accordion-bg, var(--color-bg));
+    background: var(--accordion-bg, var(--color-transparent));
     overflow: hidden;
   }
 
