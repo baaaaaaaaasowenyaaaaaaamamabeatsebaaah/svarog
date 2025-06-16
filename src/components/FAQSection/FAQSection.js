@@ -78,8 +78,9 @@ const createFAQSection = (props = {}) => {
     onChange: props.onChange || null,
   };
 
-  // Internal accordion reference
+  // Internal component references - CONCISE cleanup management
   let accordionComponent = null;
+  let sectionComponent = null;
 
   /**
    * Renders the FAQ section based on current state
@@ -110,7 +111,7 @@ const createFAQSection = (props = {}) => {
     });
 
     // Create section wrapper
-    const section = Section({
+    sectionComponent = Section({
       id: currentState.id,
       title: currentState.title,
       description: currentState.description,
@@ -121,7 +122,7 @@ const createFAQSection = (props = {}) => {
       children: [accordionComponent.getElement()],
     });
 
-    return section.getElement();
+    return sectionComponent.getElement();
   };
 
   // Create base component
@@ -347,6 +348,29 @@ const createFAQSection = (props = {}) => {
             faq.answer.toLowerCase().includes(searchTerm);
           return questionMatch || answerMatch;
         });
+    },
+
+    /**
+     * CONCISE CLEANUP - Override destroy for proper component cleanup
+     * Following Svarog principles: Economy of Expression + Algorithmic Elegance
+     */
+    destroy() {
+      // Get element reference before cleanup
+      const element = this.getElement();
+
+      // Clean up internal components in dependency order - CONCISE
+      accordionComponent?.destroy();
+      sectionComponent?.destroy();
+
+      // Remove element from DOM if it has a parent - CRITICAL for test
+      element?.parentNode?.removeChild(element);
+
+      // Nullify references - prevent memory leaks
+      accordionComponent = null;
+      sectionComponent = null;
+
+      // Call base destroy for final cleanup
+      baseComponent.destroy();
     },
   };
 
