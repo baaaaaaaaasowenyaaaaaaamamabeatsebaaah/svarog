@@ -45,12 +45,21 @@ export default (env, argv) => {
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
-          type: 'asset/resource',
+          type: 'asset',
+          generator: {
+            filename: isProduction
+              ? 'assets/[name].[contenthash][ext]'
+              : 'assets/[name][ext]',
+          },
+          parser: {
+            dataUrlCondition: {
+              maxSize: 10 * 1024, // 10kb - inline smaller assets
+            },
+          },
         },
       ],
     },
     plugins: [
-      // Ignore ALL markdown files everywhere
       new webpack.IgnorePlugin({
         resourceRegExp: /\.md$/,
       }),
@@ -58,11 +67,7 @@ export default (env, argv) => {
         'process.env.GOOGLE_MAPS_API_KEY': JSON.stringify(
           process.env.GOOGLE_MAPS_API_KEY || ''
         ),
-        'process.env.NODE_ENV': JSON.stringify(
-          process.env.NODE_ENV || 'development'
-        ),
       }),
-      // Ignore specific markdown files in theme packages
       new webpack.IgnorePlugin({
         resourceRegExp: /\/(CHANGELOG|LICENSE|README)\.md$/,
         contextRegExp: /@svarog-ui/,
@@ -104,8 +109,25 @@ export default (env, argv) => {
       ? {
           splitChunks: {
             chunks: 'all',
+            cacheGroups: {
+              vendor: {
+                test: /[\\/]node_modules[\\/]/,
+                name: 'vendors',
+                chunks: 'all',
+              },
+              common: {
+                name: 'common',
+                minChunks: 2,
+                chunks: 'all',
+                enforce: true,
+              },
+            },
           },
         }
       : {},
+    // Silence asset size warnings for large images - handle manually
+    performance: {
+      hints: false,
+    },
   };
 };

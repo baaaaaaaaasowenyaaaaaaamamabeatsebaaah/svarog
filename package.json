@@ -51,7 +51,9 @@
     "link:local": "npm run build:all && cd packages/svarog-ui-core && npm link && cd ../svarog-ui && npm link && cd ../@svarog-ui/theme-default && npm link",
     "test:integration": "npm run build:all && node scripts/test-integration.mjs",
     "fix:peer-deps": "node scripts/fix-peer-deps.mjs",
-    "preversion": "npm run fix:peer-deps"
+    "preversion": "npm run fix:peer-deps",
+    "check-images": "node scripts/optimizeImages.mjs",
+    "build:storybook": "webpack --config .storybook/webpack.config.js --mode production"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
