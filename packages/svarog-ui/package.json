@@ -1,6 +1,6 @@
 {
   "name": "svarog-ui",
-  "version": "5.7.1",
+  "version": "5.7.2",
   "description": "Complete Svarog UI with default theme",
   "main": "dist/index.js",
   "module": "src/index.js",
@@ -18,8 +18,8 @@
     "build": "node ../../scripts/build-main.mjs"
   },
   "dependencies": {
-    "@svarog-ui/theme-default": "1.10.1",
-    "svarog-ui-core": "2.7.1"
+    "@svarog-ui/theme-default": ">=1.10.1 <2.0.0",
+    "svarog-ui-core": "2.7.2"
   },
   "gitHead": "07cfb3bdf309e6b7ce409f7304108628e76a79b1"
 }
