@@ -212,7 +212,6 @@ function generateDynamicIndex() {
 import './styles/baseVariables.js'; // ← FIRST: CSS variables
 import './styles/baseStyles.js'; // ← SECOND: Base styles that use variables
 
-
 // =========================================
 // COMPONENT EXPORTS (${components.length} components found)
 // =========================================
