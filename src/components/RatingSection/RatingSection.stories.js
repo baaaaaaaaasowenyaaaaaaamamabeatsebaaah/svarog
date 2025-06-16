@@ -13,6 +13,10 @@ try {
   console.log('🌍 RatingSection: Using production API config');
 }
 
+// Extract API credentials for props
+const getGoogleApiKey = () => apiConfig.googleMaps?.apiKey;
+const getFacebookAccessToken = () => apiConfig.facebook?.accessToken;
+
 const createStatusBanner = () => {
   const hasGoogleKey =
     apiConfig.googleMaps?.apiKey &&
@@ -85,8 +89,10 @@ export const Complete = () => {
 
   const ratingSection = RatingSection({
     title: 'Kundenbewertungen',
-    googlePlaceId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg', // Example Google Place ID
-    facebookPageId: '1234567890', // Example Facebook Page ID
+    googlePlaceId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
+    facebookPageId: '1234567890',
+    googleApiKey: getGoogleApiKey(), // ← Clean prop passing
+    facebookAccessToken: getFacebookAccessToken(), // ← Clean prop passing
     showWertgarantie: true,
     wertgarantieImageUrl: 'https://picsum.photos/200/80',
     onLoadComplete: (platform, data) => {
@@ -109,6 +115,7 @@ export const GoogleOnly = () => {
   const ratingSection = RatingSection({
     title: 'Google Bewertungen',
     googlePlaceId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
+    googleApiKey: getGoogleApiKey(), // ← Only Google API key
     showWertgarantie: true,
     wertgarantieImageUrl: 'https://picsum.photos/200/80',
   });
@@ -125,8 +132,9 @@ export const FacebookOnly = () => {
   const ratingSection = RatingSection({
     title: 'Facebook Bewertungen',
     facebookPageId: '1234567890',
+    facebookAccessToken: getFacebookAccessToken(), // ← Only Facebook token
     showWertgarantie: true,
-    wertgarantieImageUrl: '/https://picsum.photos/200/80',
+    wertgarantieImageUrl: 'https://picsum.photos/200/80',
   });
 
   container.appendChild(ratingSection.getElement());
@@ -142,24 +150,9 @@ export const WithoutWertgarantie = () => {
     title: 'Bewertungen ohne Siegel',
     googlePlaceId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
     facebookPageId: '1234567890',
+    googleApiKey: getGoogleApiKey(),
+    facebookAccessToken: getFacebookAccessToken(),
     showWertgarantie: false,
-  });
-
-  container.appendChild(ratingSection.getElement());
-  return container;
-};
-
-// Custom Wertgarantie image
-export const CustomWertgarantie = () => {
-  const container = document.createElement('div');
-  container.appendChild(createStatusBanner());
-
-  const ratingSection = RatingSection({
-    title: 'Bewertungen mit Custom Siegel',
-    googlePlaceId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
-    facebookPageId: '1234567890',
-    showWertgarantie: true,
-    wertgarantieImageUrl: '/https://picsum.photos/200/80',
   });
 
   container.appendChild(ratingSection.getElement());
@@ -171,10 +164,31 @@ export const Interactive = () => {
   const container = document.createElement('div');
   container.appendChild(createStatusBanner());
 
+  // Status display
+  const statusDisplay = document.createElement('div');
+  statusDisplay.style.cssText = `
+    grid-column: 1 / -1;
+    padding: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    font-size: 14px;
+    min-height: 20px;
+    margin-bottom: 16px;
+  `;
+
+  const updateStatus = (message) => {
+    statusDisplay.textContent = message;
+    setTimeout(() => {
+      statusDisplay.textContent = '';
+    }, 5000);
+  };
+
   const currentRatingSection = RatingSection({
     title: 'Interaktive Bewertungen',
     googlePlaceId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
     facebookPageId: '1234567890',
+    googleApiKey: getGoogleApiKey(),
+    facebookAccessToken: getFacebookAccessToken(),
     showWertgarantie: true,
     wertgarantieImageUrl: 'https://picsum.photos/200/80',
     onLoadComplete: (platform, _data) => {
@@ -263,24 +277,6 @@ export const Interactive = () => {
     cursor: pointer;
   `;
 
-  // Status display
-  const statusDisplay = document.createElement('div');
-  statusDisplay.style.cssText = `
-    grid-column: 1 / -1;
-    padding: 8px;
-    background: #e9ecef;
-    border-radius: 4px;
-    font-size: 14px;
-    min-height: 20px;
-  `;
-
-  const updateStatus = (message) => {
-    statusDisplay.textContent = message;
-    setTimeout(() => {
-      statusDisplay.textContent = '';
-    }, 5000);
-  };
-
   // Event handlers
   updateBtn.onclick = () => {
     currentRatingSection.update({
@@ -288,6 +284,8 @@ export const Interactive = () => {
       googlePlaceId: googleInput.value || null,
       facebookPageId: facebookInput.value || null,
       showWertgarantie: wertgarantieToggle.checked,
+      googleApiKey: getGoogleApiKey(),
+      facebookAccessToken: getFacebookAccessToken(),
     });
     updateStatus('Konfiguration aktualisiert');
   };
@@ -310,96 +308,5 @@ export const Interactive = () => {
   container.appendChild(controls);
   container.appendChild(currentRatingSection.getElement());
 
-  return container;
-};
-
-// Error handling demo
-export const ErrorHandling = () => {
-  const container = document.createElement('div');
-  container.appendChild(createStatusBanner());
-
-  const info = document.createElement('div');
-  info.style.cssText = `
-    background: #fff3cd;
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 16px;
-    font-size: 14px;
-    border: 1px solid #ffeaa7;
-  `;
-  info.innerHTML = `
-    <strong>Error Handling Demo</strong><br>
-    Diese Story verwendet absichtlich ungültige IDs um Fehlerbehandlung zu demonstrieren.
-  `;
-
-  const ratingSection = RatingSection({
-    title: 'Fehlerbehandlung Demo',
-    googlePlaceId: 'invalid_place_id_123',
-    facebookPageId: 'invalid_page_id_456',
-    showWertgarantie: true,
-    wertgarantieImageUrl: 'https://picsum.photos/200/80',
-    onError: (platform, error) => {
-      console.log(`Demo error for ${platform}:`, error.message);
-    },
-  });
-
-  container.appendChild(info);
-  container.appendChild(ratingSection.getElement());
-  return container;
-};
-
-// Performance monitoring
-export const PerformanceMonitoring = () => {
-  const container = document.createElement('div');
-  container.appendChild(createStatusBanner());
-
-  const metricsDisplay = document.createElement('div');
-  metricsDisplay.style.cssText = `
-    background: #e7f3ff;
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 16px;
-    font-size: 14px;
-    border: 1px solid #bee5eb;
-  `;
-
-  const startTime = Date.now();
-  const loadTimes = {};
-
-  const updateMetrics = () => {
-    const cacheStatus = ratingSection.getCacheStatus();
-    metricsDisplay.innerHTML = `
-      <strong>Performance Metrics</strong><br>
-      <strong>Load Times:</strong><br>
-      Google: ${loadTimes.google || 'Loading...'}ms<br>
-      Facebook: ${loadTimes.facebook || 'Loading...'}ms<br>
-      <strong>Cache Status:</strong><br>
-      Google: ${cacheStatus.google ? (cacheStatus.google.cached ? `Cached (${Math.round(cacheStatus.google.age / 1000)}s alt)` : 'Not cached') : 'N/A'}<br>
-      Facebook: ${cacheStatus.facebook ? (cacheStatus.facebook.cached ? `Cached (${Math.round(cacheStatus.facebook.age / 1000)}s alt)` : 'Not cached') : 'N/A'}
-    `;
-  };
-
-  const ratingSection = RatingSection({
-    title: 'Performance Monitoring',
-    googlePlaceId: 'ChIJ9ZsAL_p1nkcRaVYZabonLbg',
-    facebookPageId: '1234567890',
-    showWertgarantie: true,
-    wertgarantieImageUrl: 'https://picsum.photos/200/80',
-    onLoadComplete: (platform, _data) => {
-      loadTimes[platform] = Date.now() - startTime;
-      updateMetrics();
-    },
-    onError: (platform, error) => {
-      loadTimes[platform] = `Error: ${error.message}`;
-      updateMetrics();
-    },
-  });
-
-  // Update metrics every second
-  setInterval(updateMetrics, 1000);
-  updateMetrics();
-
-  container.appendChild(metricsDisplay);
-  container.appendChild(ratingSection.getElement());
   return container;
 };

@@ -1803,17 +1803,17 @@ export const getComponents = () => {
             ),
         },
         {
+          name: 'WithoutWertgarantie',
+          module: () =>
+            import('../components/RatingSection/RatingSection.stories.js').then(
+              (m) => m.WithoutWertgarantie
+            ),
+        },
+        {
           name: 'Interactive',
           module: () =>
             import('../components/RatingSection/RatingSection.stories.js').then(
               (m) => m.Interactive
-            ),
-        },
-        {
-          name: 'ErrorHandling',
-          module: () =>
-            import('../components/RatingSection/RatingSection.stories.js').then(
-              (m) => m.ErrorHandling
             ),
         },
       ],

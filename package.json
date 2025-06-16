@@ -52,8 +52,7 @@
     "test:integration": "npm run build:all && node scripts/test-integration.mjs",
     "fix:peer-deps": "node scripts/fix-peer-deps.mjs",
     "preversion": "npm run fix:peer-deps",
-    "check-images": "node scripts/optimizeImages.mjs",
-    "build:storybook": "webpack --config .storybook/webpack.config.js --mode production"
+    "check-images": "node scripts/optimizeImages.mjs"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

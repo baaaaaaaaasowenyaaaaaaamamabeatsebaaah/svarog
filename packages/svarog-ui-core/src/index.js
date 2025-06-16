@@ -9,7 +9,7 @@ import './styles/baseVariables.js'; // ← FIRST: CSS variables
 import './styles/baseStyles.js'; // ← SECOND: Base styles that use variables
 
 // =========================================
-// COMPONENT EXPORTS (48 components found)
+// COMPONENT EXPORTS (50 components found)
 // =========================================
 export { default as Accordion } from './components/Accordion/index.js';
 export { default as BackToTop } from './components/BackToTop/index.js';
@@ -25,6 +25,7 @@ export { default as ConditionSelector } from './components/ConditionSelector/ind
 export { default as ContactInfo } from './components/ContactInfo/index.js';
 export { default as ContactSection } from './components/ContactSection/index.js';
 export { default as CookieConsent } from './components/CookieConsent/index.js';
+export { default as FAQSection } from './components/FAQSection/index.js';
 export { default as Footer } from './components/Footer/index.js';
 export { default as Form } from './components/Form/index.js';
 export { default as Grid } from './components/Grid/index.js';
@@ -49,6 +50,7 @@ export { default as ProductDetail } from './components/ProductDetail/index.js';
 export { default as ProductGrid } from './components/ProductGrid/index.js';
 export { default as Radio } from './components/Radio/index.js';
 export { default as Rating } from './components/Rating/index.js';
+export { default as RatingSection } from './components/RatingSection/index.js';
 export { default as RichText } from './components/RichText/index.js';
 export { default as Section } from './components/Section/index.js';
 export { default as Select } from './components/Select/index.js';

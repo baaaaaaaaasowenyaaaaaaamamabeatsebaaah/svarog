@@ -169,7 +169,7 @@ const createCollapsibleHeaderContainer = (props) => {
       iconElement.style.position = 'fixed';
       const headerHeight = header.getElement().offsetHeight || 300;
       iconElement.style.top = `${headerHeight + 200}px`;
-      iconElement.style.right = '16px';
+      iconElement.style.right = '0px';
       iconElement.style.bottom = 'auto';
       iconElement.style.flexDirection = 'column';
     }

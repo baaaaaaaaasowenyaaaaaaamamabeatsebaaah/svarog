@@ -1,4 +1,4 @@
-// src/components/RatingSection/RatingSection.js
+// src/components/RatingSection/RatingSection.js - Clean like Map
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import { createStyleInjector } from '../../utils/styleInjection.js';
@@ -15,8 +15,6 @@ const injectRatingSectionStyles = createStyleInjector('RatingSection');
 
 // Constants
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-// In-memory cache for API responses
 const apiCache = new Map();
 
 // Mock data for development and demo purposes
@@ -48,31 +46,7 @@ const mockData = {
 };
 
 /**
- * Load API config with fallback (lazy loading for testing compatibility)
- * @returns {Promise<Object>} API configuration
- */
-const loadApiConfig = async () => {
-  try {
-    const { apiConfig } = await import('../../config/api.config.local.js');
-    console.log('🔑 RatingSection: Using local API config');
-    return apiConfig;
-  } catch {
-    try {
-      const { apiConfig } = await import('../../config/api.config.js');
-      console.log('🌍 RatingSection: Using production API config');
-      return apiConfig;
-    } catch {
-      console.warn('⚠️ RatingSection: No API config found, using mock data');
-      return { googleMaps: {}, facebook: {} };
-    }
-  }
-};
-
-/**
  * Fetch data from cache or API
- * @param {string} cacheKey - Unique cache key
- * @param {Function} fetchFunction - Function to fetch data
- * @returns {Promise} Cached or fresh data
  */
 const getCachedData = async (cacheKey, fetchFunction) => {
   const cached = apiCache.get(cacheKey);
@@ -87,7 +61,6 @@ const getCachedData = async (cacheKey, fetchFunction) => {
     apiCache.set(cacheKey, { data, timestamp: now });
     return data;
   } catch (error) {
-    // Return cached data if available, even if expired
     if (cached) {
       console.warn(
         `[RatingSection] API failed for ${cacheKey}, using cached data:`,
@@ -101,8 +74,6 @@ const getCachedData = async (cacheKey, fetchFunction) => {
 
 /**
  * Check if API key is valid (not a placeholder)
- * @param {string} key - API key to validate
- * @returns {boolean} Whether key is valid
  */
 const isValidApiKey = (key) => {
   const invalidKeys = [
@@ -118,12 +89,12 @@ const isValidApiKey = (key) => {
 /**
  * Fetch Google Places rating data with caching
  * @param {string} placeId - Google Place ID
+ * @param {string} apiKey - Google Maps API key (from props)
  * @returns {Promise<Object>} Google rating data
  */
-const fetchGoogleRating = (placeId) =>
+const fetchGoogleRating = (placeId, apiKey) =>
   getCachedData(`google_${placeId}`, async () => {
-    const apiConfig = await loadApiConfig();
-    const hasValidKey = isValidApiKey(apiConfig.googleMaps?.apiKey);
+    const hasValidKey = isValidApiKey(apiKey);
 
     if (!hasValidKey) {
       console.log('🔑 RatingSection: No valid Google API key, using mock data');
@@ -141,12 +112,12 @@ const fetchGoogleRating = (placeId) =>
 /**
  * Fetch Facebook page rating data with caching
  * @param {string} pageId - Facebook Page ID
+ * @param {string} accessToken - Facebook access token (from props)
  * @returns {Promise<Object>} Facebook rating data
  */
-const fetchFacebookRating = (pageId) =>
+const fetchFacebookRating = (pageId, accessToken) =>
   getCachedData(`facebook_${pageId}`, async () => {
-    const apiConfig = await loadApiConfig();
-    const hasValidToken = isValidApiKey(apiConfig.facebook?.accessToken);
+    const hasValidToken = isValidApiKey(accessToken);
 
     if (!hasValidToken) {
       console.log('🔑 RatingSection: No valid Facebook token, using mock data');
@@ -163,8 +134,6 @@ const fetchFacebookRating = (pageId) =>
 
 /**
  * Create loading state element
- * @param {string} platform - Platform name (google/facebook)
- * @returns {HTMLElement} Loading element
  */
 const createLoadingElement = (platform) => {
   const loadingContainer = createElement('div', {
@@ -188,9 +157,6 @@ const createLoadingElement = (platform) => {
 
 /**
  * Create error state element
- * @param {string} platform - Platform name
- * @param {Error} error - Error object
- * @returns {HTMLElement} Error element
  */
 const createErrorElement = (platform, _error) => {
   const errorContainer = createElement('div', {
@@ -214,10 +180,12 @@ const createErrorElement = (platform, _error) => {
 };
 
 /**
- * Creates a RatingSection component with 3 columns using Grid
+ * Creates a RatingSection component with API keys as props
  * @param {Object} props - Component properties
  * @param {string} props.googlePlaceId - Google Place ID for fetching ratings
  * @param {string} props.facebookPageId - Facebook Page ID for fetching ratings
+ * @param {string} [props.googleApiKey] - Google Maps API key (passed as prop)
+ * @param {string} [props.facebookAccessToken] - Facebook access token (passed as prop)
  * @param {string} [props.wertgarantieImageUrl] - URL for Wertgarantie logo
  * @param {string} [props.title] - Section title
  * @param {boolean} [props.showWertgarantie=true] - Whether to show Wertgarantie logo
@@ -243,10 +211,6 @@ const createRatingSection = (props = {}) => {
 
   /**
    * Create rating column with async data loading
-   * @param {string} platform - Platform (google/facebook)
-   * @param {string} id - Platform ID
-   * @param {Object} state - Component state
-   * @returns {Object} Grid column with rating
    */
   const createRatingColumn = (platform, id, state) => {
     const content = createLoadingElement(platform);
@@ -256,11 +220,17 @@ const createRatingSection = (props = {}) => {
       children: content,
     });
 
+    // Get API credentials from props
+    const apiKey =
+      platform === 'google' ? state.googleApiKey : state.facebookAccessToken;
+
     // Fetch data based on platform
     const fetchFunction =
-      platform === 'google' ? fetchGoogleRating : fetchFacebookRating;
+      platform === 'google'
+        ? () => fetchGoogleRating(id, apiKey)
+        : () => fetchFacebookRating(id, apiKey);
 
-    fetchFunction(id)
+    fetchFunction()
       .then((data) => {
         const rating = Rating(data);
         column.update({ children: rating.getElement() });
@@ -284,8 +254,6 @@ const createRatingSection = (props = {}) => {
 
   /**
    * Create Wertgarantie column
-   * @param {Object} state - Component state
-   * @returns {Object} Grid column with Wertgarantie logo
    */
   const createWertgarantieColumn = (state) => {
     const wertgarantieImage = Image({
@@ -304,8 +272,6 @@ const createRatingSection = (props = {}) => {
 
   /**
    * Render the rating section using Grid
-   * @param {Object} state - Component state
-   * @returns {HTMLElement} Section element
    */
   const renderRatingSection = (state) => {
     // Inject styles
@@ -348,7 +314,6 @@ const createRatingSection = (props = {}) => {
 
     /**
      * Refresh ratings data
-     * @returns {Promise} Promise that resolves when refresh is complete
      */
     async refresh() {
       const state = baseComponent.getState
@@ -365,19 +330,11 @@ const createRatingSection = (props = {}) => {
 
       // Re-render component
       baseComponent.update({});
-      // Override baseComponent methods to return extendedComponent for chaining
-      extendedComponent.update = (newProps) => {
-        baseComponent.update(newProps);
-        return extendedComponent;
-      };
-
       return extendedComponent;
     },
 
     /**
      * Update Google Place ID and refresh data
-     * @param {string} placeId - New Google Place ID
-     * @returns {Object} Component for chaining
      */
     setGooglePlaceId(placeId) {
       baseComponent.update({ googlePlaceId: placeId });
@@ -386,8 +343,6 @@ const createRatingSection = (props = {}) => {
 
     /**
      * Update Facebook Page ID and refresh data
-     * @param {string} pageId - New Facebook Page ID
-     * @returns {Object} Component for chaining
      */
     setFacebookPageId(pageId) {
       baseComponent.update({ facebookPageId: pageId });
@@ -396,8 +351,6 @@ const createRatingSection = (props = {}) => {
 
     /**
      * Toggle Wertgarantie logo visibility
-     * @param {boolean} show - Whether to show the logo
-     * @returns {Object} Component for chaining
      */
     setShowWertgarantie(show) {
       baseComponent.update({ showWertgarantie: show });
@@ -406,7 +359,6 @@ const createRatingSection = (props = {}) => {
 
     /**
      * Get current cache status
-     * @returns {Object} Cache information
      */
     getCacheStatus() {
       const state = baseComponent.getState
@@ -434,6 +386,12 @@ const createRatingSection = (props = {}) => {
           : null,
       };
     },
+  };
+
+  // Override baseComponent methods to return extendedComponent for chaining
+  extendedComponent.update = (newProps) => {
+    baseComponent.update(newProps);
+    return extendedComponent;
   };
 
   return extendedComponent;
