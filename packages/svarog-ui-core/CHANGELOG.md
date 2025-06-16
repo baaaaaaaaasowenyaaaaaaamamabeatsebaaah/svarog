@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.4](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.3...svarog-ui-core@2.7.4) (2025-06-16)
+
+### Bug Fixes
+
+- themeManager ([7453036](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/74530364b98c1192ddc5de8334b483af8cace3ac))
+
 ## [2.7.3](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.2...svarog-ui-core@2.7.3) (2025-06-16)
 
 ### Bug Fixes
