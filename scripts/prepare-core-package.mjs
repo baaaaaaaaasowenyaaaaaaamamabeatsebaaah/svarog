@@ -209,8 +209,9 @@ function generateDynamicIndex() {
  */
 
 // Auto-inject base styles when core is imported
-import './styles/baseStyles.js';
-import './styles/baseVariables.js';
+import './styles/baseVariables.js'; // ← FIRST: CSS variables
+import './styles/baseStyles.js'; // ← SECOND: Base styles that use variables
+
 
 // =========================================
 // COMPONENT EXPORTS (${components.length} components found)

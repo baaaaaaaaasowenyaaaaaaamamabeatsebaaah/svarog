@@ -1,4 +1,5 @@
-import { css } from '../utils/styleInjection.js';
+// packages/svarog-ui-core/src/styles/baseVariables.js
+import { injectStyles, css } from '../utils/styleInjection.js';
 
 export const baseVariables = css`
   :root {
@@ -147,3 +148,12 @@ export const baseVariables = css`
     --container-padding-mobile: 16px;
   }
 `;
+
+// Auto-inject base variables when module is imported
+// This ensures variables are available before any component styles
+if (typeof document !== 'undefined') {
+  injectStyles('svarog-base-variables', baseVariables, {
+    priority: 'base',
+    media: 'all',
+  });
+}

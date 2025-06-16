@@ -42,7 +42,10 @@
   },
   "sideEffects": [
     "src/styles/baseStyles.js",
-    "src/index.js"
+    "src/styles/baseVariables.js",
+    "src/index.js",
+    "src/styles/**/*.js",
+    "**/*.css"
   ],
   "gitHead": "07cfb3bdf309e6b7ce409f7304108628e76a79b1"
 }
