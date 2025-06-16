@@ -1,4 +1,4 @@
-// src/components/Head/Head.js
+// src/components/Head/Head.js - Enhanced Version with Favicon & PWA Support
 import {
   createElement,
   validateProps,
@@ -26,45 +26,121 @@ const validateHeadProps = (props) => {
 };
 
 /**
- * Sanitizes and truncates title
- * @param {string} title - Original title
- * @returns {string} Sanitized title
+ * Creates favicon links for different platforms and resolutions
+ * @param {Object} faviconConfig - Favicon configuration
+ * @returns {Array} Array of favicon link configurations
  */
-const sanitizeTitle = (title) => {
-  return title.length > 60 ? `${title.substring(0, 57)}...` : title;
+const createFaviconLinks = (faviconConfig) => {
+  if (!faviconConfig) return [];
+
+  const { basePath = '/favicon', format = 'png' } = faviconConfig;
+
+  return [
+    // Standard favicon
+    { rel: 'icon', type: `image/${format}`, href: `${basePath}.${format}` },
+
+    // Apple Touch Icons
+    {
+      rel: 'apple-touch-icon',
+      sizes: '180x180',
+      href: `${basePath}-180x180.${format}`,
+    },
+    {
+      rel: 'apple-touch-icon',
+      sizes: '167x167',
+      href: `${basePath}-167x167.${format}`,
+    },
+    {
+      rel: 'apple-touch-icon',
+      sizes: '152x152',
+      href: `${basePath}-152x152.${format}`,
+    },
+    {
+      rel: 'apple-touch-icon',
+      sizes: '120x120',
+      href: `${basePath}-120x120.${format}`,
+    },
+
+    // Android/Chrome Icons
+    {
+      rel: 'icon',
+      type: `image/${format}`,
+      sizes: '192x192',
+      href: `${basePath}-192x192.${format}`,
+    },
+    {
+      rel: 'icon',
+      type: `image/${format}`,
+      sizes: '512x512',
+      href: `${basePath}-512x512.${format}`,
+    },
+    {
+      rel: 'icon',
+      type: `image/${format}`,
+      sizes: '32x32',
+      href: `${basePath}-32x32.${format}`,
+    },
+    {
+      rel: 'icon',
+      type: `image/${format}`,
+      sizes: '16x16',
+      href: `${basePath}-16x16.${format}`,
+    },
+  ];
 };
 
 /**
- * Sanitizes and truncates description
- * @param {string} description - Original description
- * @returns {string} Sanitized description
+ * Creates PWA manifest link and related meta tags
+ * @param {Object} pwaConfig - PWA configuration
+ * @returns {Object} PWA links and meta tags
  */
-const sanitizeDescription = (description) => {
-  return description.length > 160
-    ? `${description.substring(0, 157)}...`
-    : description;
+const createPWAElements = (pwaConfig) => {
+  if (!pwaConfig) return { links: [], metaTags: [] };
+
+  const {
+    manifestUrl = '/site.webmanifest',
+    themeColor = '#ffffff',
+    appleStatusBarStyle = 'default',
+  } = pwaConfig;
+
+  const links = [{ rel: 'manifest', href: manifestUrl }];
+
+  const metaTags = [
+    // Apple Web App
+    { name: 'apple-mobile-web-app-capable', content: 'yes' },
+    {
+      name: 'apple-mobile-web-app-status-bar-style',
+      content: appleStatusBarStyle,
+    },
+    { name: 'apple-mobile-web-app-title', content: pwaConfig.appName || 'App' },
+
+    // Microsoft
+    { name: 'msapplication-TileColor', content: themeColor },
+    { name: 'msapplication-config', content: '/browserconfig.xml' },
+
+    // Theme colors
+    { name: 'theme-color', content: themeColor },
+    { name: 'msapplication-navbutton-color', content: themeColor },
+  ];
+
+  return { links, metaTags };
 };
 
 /**
  * Creates and appends meta tags to container
  * @param {HTMLElement} container - Container element
- * @param {Array<Object>} tags - Meta tags to create
+ * @param {Array} tags - Meta tags to create
  */
 const createAndAppendMetaTags = (container, tags) => {
   tags.forEach((tag) => {
-    if (!tag || !Object.keys(tag).length) {
-      return;
-    }
-
-    const metaTag = createElement('meta', {
-      attributes: tag,
-    });
+    if (!tag || !Object.keys(tag).length) return;
+    const metaTag = createElement('meta', { attributes: tag });
     container.appendChild(metaTag);
   });
 };
 
 /**
- * Renders head DOM element structure
+ * Renders head DOM element structure with favicon and PWA support
  * @param {Object} state - Component state
  * @returns {HTMLElement} Head container element
  */
@@ -74,7 +150,6 @@ const renderHead = (state) => {
     style: { display: 'none' },
   });
 
-  // Store state on the element for access in render method
   container._state = state;
 
   // Core SEO Meta Tags
@@ -91,8 +166,11 @@ const renderHead = (state) => {
       name: 'viewport',
       content: 'width=device-width, initial-scale=1, minimum-scale=1',
     },
-    { name: 'theme-color', content: state.themeColor || '#ffffff' },
   ].filter(Boolean);
+
+  // Add PWA elements
+  const pwaMeta = createPWAElements(state.pwa);
+  metaTags.push(...pwaMeta.metaTags);
 
   // Add Open Graph meta tags if enabled
   if (state.openGraph) {
@@ -107,7 +185,7 @@ const renderHead = (state) => {
       { property: 'og:url', content: openGraph.url || state.canonicalUrl },
       { property: 'og:image', content: openGraph.image },
       { property: 'og:site_name', content: openGraph.siteName },
-    ].filter((tag) => tag.content); // Only include tags with content
+    ].filter((tag) => tag.content);
 
     metaTags.push(...ogTags);
   }
@@ -125,13 +203,13 @@ const renderHead = (state) => {
       },
       { name: 'twitter:image', content: twitterCard.image },
       { name: 'twitter:creator', content: twitterCard.creator },
-    ].filter((tag) => tag.content); // Only include tags with content
+    ].filter((tag) => tag.content);
 
     metaTags.push(...twitterTags);
   }
 
   // Add alternate language links
-  if (state.alternateLanguages && state.alternateLanguages.length) {
+  if (state.alternateLanguages?.length) {
     state.alternateLanguages.forEach((altLang) => {
       if (altLang.hreflang && altLang.href) {
         const linkTag = createElement('link', {
@@ -150,85 +228,80 @@ const renderHead = (state) => {
   const performanceTags = [
     { 'http-equiv': 'x-ua-compatible', content: 'IE=edge' },
     { name: 'format-detection', content: 'telephone=no' },
-  ];
-
-  // Core Web Vitals Preparation
-  const webVitalsTags = [
     { name: 'generator', content: 'Svarog Component Library' },
     { name: 'mobile-web-app-capable', content: 'yes' },
-    { name: 'apple-mobile-web-app-capable', content: 'yes' },
   ];
-
-  // Add any additional custom meta tags
-  const additionalTags = state.additionalMeta || [];
 
   // Create meta tags
   createAndAppendMetaTags(container, metaTags);
   createAndAppendMetaTags(container, performanceTags);
-  createAndAppendMetaTags(container, webVitalsTags);
-  createAndAppendMetaTags(container, additionalTags);
+  createAndAppendMetaTags(container, state.additionalMeta || []);
 
   // Title Tag
-  const titleTag = createElement('title', {
-    text: state.title,
-  });
-  container.appendChild(titleTag);
+  container.appendChild(createElement('title', { text: state.title }));
 
-  // Optional Canonical URL
+  // Favicon Links
+  const faviconLinks = createFaviconLinks(state.favicon);
+  faviconLinks.forEach((linkAttr) => {
+    container.appendChild(createElement('link', { attributes: linkAttr }));
+  });
+
+  // PWA Links
+  pwaMeta.links.forEach((linkAttr) => {
+    container.appendChild(createElement('link', { attributes: linkAttr }));
+  });
+
+  // Canonical URL
   if (state.canonicalUrl) {
-    const canonicalLink = createElement('link', {
-      attributes: {
-        rel: 'canonical',
-        href: state.canonicalUrl,
-      },
-    });
-    container.appendChild(canonicalLink);
+    container.appendChild(
+      createElement('link', {
+        attributes: { rel: 'canonical', href: state.canonicalUrl },
+      })
+    );
   }
 
   // Language Tag
-  const htmlLangTag = createElement('meta', {
-    attributes: {
-      'http-equiv': 'content-language',
-      content: state.lang,
-    },
-  });
-  container.appendChild(htmlLangTag);
+  container.appendChild(
+    createElement('meta', {
+      attributes: { 'http-equiv': 'content-language', content: state.lang },
+    })
+  );
 
   // Structured Data (JSON-LD)
   if (state.schema) {
-    const schemaScript = createElement('script', {
-      attributes: {
-        type: 'application/ld+json',
-      },
-      text: JSON.stringify(state.schema),
-    });
-    container.appendChild(schemaScript);
+    container.appendChild(
+      createElement('script', {
+        attributes: { type: 'application/ld+json' },
+        text: JSON.stringify(state.schema),
+      })
+    );
   }
 
   return container;
 };
 
 /**
- * Create a Head component for SEO optimization
+ * Create a Head component for SEO optimization with favicon and PWA support
  * @param {Object} props - Head properties
  * @returns {Object} Head component with standard API
  */
-const createHead = (props) => {
-  // Validate required props
+export const createHead = (props) => {
   validateProps(props, createHead.requiredProps, 'Head');
-
-  // Additional head-specific validation
   validateHeadProps(props);
 
-  // Process and sanitize props
   const initialState = {
-    title: sanitizeTitle(props.title),
-    description: sanitizeDescription(props.description),
+    title:
+      props.title.length > 60
+        ? `${props.title.substring(0, 57)}...`
+        : props.title,
+    description:
+      props.description.length > 160
+        ? `${props.description.substring(0, 157)}...`
+        : props.description,
     lang: props.lang || 'en',
     canonicalUrl: props.canonicalUrl || '',
     schema: props.schema || null,
-    keywords: (props.keywords || []).slice(0, 10), // Limit keywords
-    themeColor: props.themeColor || '#ffffff',
+    keywords: (props.keywords || []).slice(0, 10),
     robots: {
       index: props.robots?.index !== false ? 'index' : 'noindex',
       follow: props.robots?.follow !== false ? 'follow' : 'nofollow',
@@ -237,85 +310,41 @@ const createHead = (props) => {
     twitterCard: props.twitterCard || null,
     alternateLanguages: props.alternateLanguages || [],
     additionalMeta: props.additionalMeta || [],
+    favicon: props.favicon || null,
+    pwa: props.pwa || null,
   };
 
-  // Create base component
   const headComponent = createBaseComponent(renderHead)(initialState);
 
-  // Extend with additional methods
-
-  /**
-   * Render SEO metadata to document head
-   * @returns {Object} Component instance for chaining
-   */
   headComponent.render = function () {
-    // Get the current element
     const headElement = this.getElement();
-
-    // Remove existing SEO metadata
     const existingMetadata = document.querySelector('.seo-head');
-    if (existingMetadata) {
-      existingMetadata.remove();
-    }
+    if (existingMetadata) existingMetadata.remove();
 
-    // Append new metadata to document head
     document.head.appendChild(headElement);
-
-    // Set document language - access state directly from the component
-    const state = this.getElement()._state || {};
-    document.documentElement.lang = state.lang || 'en';
-
+    document.documentElement.lang = this.getElement()._state?.lang || 'en';
     return this;
   };
 
-  /**
-   * Determines if component should completely re-render on props change
-   * @param {Object} newProps - New properties
-   * @returns {boolean} Whether to do a full re-render
-   */
-  headComponent.shouldRerender = function () {
-    // Always re-render for Head component as it's not performance critical
-    // and the DOM structure is relatively simple
-    return true;
-  };
+  headComponent.shouldRerender = () => true;
 
-  /**
-   * Add additional meta tag
-   * @param {Object} metaProps - Properties for the meta tag
-   * @returns {Object} Component instance for chaining
-   */
   headComponent.addMeta = function (metaProps) {
     const headElement = this.getElement();
-    const metaTag = createElement('meta', {
-      attributes: metaProps,
-    });
+    const metaTag = createElement('meta', { attributes: metaProps });
     headElement.appendChild(metaTag);
     return this;
   };
 
-  /**
-   * Add structured data schema
-   * @param {Object} schema - JSON-LD schema object
-   * @returns {Object} Component instance for chaining
-   */
   headComponent.addSchema = function (schema) {
     const headElement = this.getElement();
     const schemaScript = createElement('script', {
-      attributes: {
-        type: 'application/ld+json',
-      },
+      attributes: { type: 'application/ld+json' },
       text: JSON.stringify(schema),
     });
     headElement.appendChild(schemaScript);
     return this;
   };
 
-  /**
-   * Updates a specific meta tag
-   * @param {string} name - Name or property of the meta tag to update
-   * @param {string} content - New content value
-   * @returns {Object} Component instance for chaining
-   */
   headComponent.updateMeta = function (name, content) {
     const headElement = this.getElement();
     const metaTag =
@@ -325,63 +354,91 @@ const createHead = (props) => {
     if (metaTag) {
       metaTag.setAttribute('content', content);
     } else {
-      // If meta tag doesn't exist, create it
       this.addMeta({ name, content });
     }
-
     return this;
   };
 
-  /**
-   * Sets the document theme color
-   * @param {string} color - Hex color code
-   * @returns {Object} Component instance for chaining
-   */
   headComponent.setThemeColor = function (color) {
+    const state = this.getElement()._state;
+    if (state?.pwa) {
+      this.update({ pwa: { ...state.pwa, themeColor: color } });
+    }
     return this.updateMeta('theme-color', color);
   };
 
-  /**
-   * Respond to theme changes
-   * @param {string} newTheme - New theme name
-   */
-  headComponent.onThemeChange = function (newTheme) {
-    // Theme-specific adjustments could be made here
-    // For example, updating theme-color meta tag based on the theme
-    console.debug(`Head: theme changed to ${newTheme}`);
-  };
-
-  /**
-   * Set GDPR/CCPA cookie consent preferences
-   * @param {Object} preferences - Consent preferences
-   * @returns {Object} Component instance for chaining
-   */
-  headComponent.setConsentPreferences = function (preferences) {
-    // Add cookie consent meta tags
-    const consentTags = [];
-
-    if (preferences.advertising === false) {
-      consentTags.push({ name: 'robots', content: 'noai, noimageai' });
-    }
-
-    if (preferences.analytics === false) {
-      consentTags.push({ name: 'googlebot', content: 'noanalytics' });
-    }
-
-    consentTags.forEach((tag) => this.addMeta(tag));
-
+  headComponent.setFavicon = function (faviconConfig) {
+    this.update({ favicon: faviconConfig });
     return this;
   };
 
-  // Add alternate language version
+  headComponent.setPWA = function (pwaConfig) {
+    this.update({ pwa: pwaConfig });
+    return this;
+  };
+
+  headComponent.generateManifest = function (manifestConfig = {}) {
+    const state = this.getElement()._state || {};
+    const {
+      name = state.title,
+      shortName = name?.substring(0, 12),
+      description = state.description,
+      startUrl = '/',
+      display = 'standalone',
+      backgroundColor = '#ffffff',
+      themeColor = '#000000',
+      orientation = 'portrait-primary',
+      scope = '/',
+      icons = [],
+    } = manifestConfig;
+
+    return {
+      name,
+      short_name: shortName,
+      description,
+      start_url: startUrl,
+      display,
+      background_color: backgroundColor,
+      theme_color: themeColor,
+      orientation,
+      scope,
+      icons: icons.length
+        ? icons
+        : [
+            {
+              src: '/favicon-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+            },
+            {
+              src: '/favicon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+            },
+          ],
+    };
+  };
+
+  headComponent.onThemeChange = function (newTheme) {
+    console.debug(`Head: theme changed to ${newTheme}`);
+  };
+
+  headComponent.setConsentPreferences = function (preferences) {
+    const consentTags = [];
+    if (preferences.advertising === false) {
+      consentTags.push({ name: 'robots', content: 'noai, noimageai' });
+    }
+    if (preferences.analytics === false) {
+      consentTags.push({ name: 'googlebot', content: 'noanalytics' });
+    }
+    consentTags.forEach((tag) => this.addMeta(tag));
+    return this;
+  };
+
   headComponent.addAlternateLanguage = function (hreflang, href) {
     const headElement = this.getElement();
     const linkTag = createElement('link', {
-      attributes: {
-        rel: 'alternate',
-        hreflang,
-        href,
-      },
+      attributes: { rel: 'alternate', hreflang, href },
     });
     headElement.appendChild(linkTag);
     return this;
@@ -390,11 +447,8 @@ const createHead = (props) => {
   return headComponent;
 };
 
-// Define required props for validation
 createHead.requiredProps = ['title', 'description'];
 
-// Create the component with theme awareness
 const HeadComponent = withThemeAwareness(createComponent('Head', createHead));
 
-// Export as a factory function
 export default HeadComponent;

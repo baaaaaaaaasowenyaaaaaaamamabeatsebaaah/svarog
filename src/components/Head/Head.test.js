@@ -233,11 +233,14 @@ describe('Head Component', () => {
     expect(altLinks[0].getAttribute('href')).toBe('https://example.com/es');
   });
 
-  it('should set theme color', () => {
+  it('should set theme color via PWA configuration', () => {
     const head = Head({
-      title: 'Theme Color Test',
-      description: 'Testing theme color',
-      themeColor: '#ff0000',
+      title: 'PWA Theme Color Test',
+      description: 'Testing PWA theme color',
+      pwa: {
+        themeColor: '#ff0000',
+        appName: 'Test App',
+      },
     });
 
     head.render();
