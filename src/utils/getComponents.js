@@ -1674,6 +1674,47 @@ export const getComponents = () => {
       ],
     },
     {
+      name: 'RatingSection',
+      category: 'Media',
+      stories: [
+        {
+          name: 'Complete',
+          module: () =>
+            import('../components/RatingSection/RatingSection.stories.js').then(
+              (m) => m.Complete
+            ),
+        },
+        {
+          name: 'GoogleOnly',
+          module: () =>
+            import('../components/RatingSection/RatingSection.stories.js').then(
+              (m) => m.GoogleOnly
+            ),
+        },
+        {
+          name: 'FacebookOnly',
+          module: () =>
+            import('../components/RatingSection/RatingSection.stories.js').then(
+              (m) => m.FacebookOnly
+            ),
+        },
+        {
+          name: 'Interactive',
+          module: () =>
+            import('../components/RatingSection/RatingSection.stories.js').then(
+              (m) => m.Interactive
+            ),
+        },
+        {
+          name: 'ErrorHandling',
+          module: () =>
+            import('../components/RatingSection/RatingSection.stories.js').then(
+              (m) => m.ErrorHandling
+            ),
+        },
+      ],
+    },
+    {
       name: 'Rating',
       category: 'Media',
       stories: [

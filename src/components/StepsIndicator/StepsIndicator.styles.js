@@ -93,7 +93,7 @@ export const stepsIndicatorStyles = css`
     color: var(--color-gray-400);
     font-size: var(--font-size-sm);
     font-weight: 600;
-    border: 2px solid var(--color-gray-200);
+    border-inline: 2px solid var(--color-gray-200);
   }
 
   /* Step label */
@@ -113,9 +113,8 @@ export const stepsIndicatorStyles = css`
   /* Active state - with borders */
   .steps-indicator__step--active .steps-indicator__number {
     background-color: var(--color-brand-secondary-light);
-    border: 2px solid var(--color-brand-secondary-light);
+    border-inline: 2px solid var(--color-brand-secondary-light);
     color: var(--color-white);
-    transform: scale(1.05);
   }
 
   .steps-indicator__step--active .steps-indicator__label {
@@ -191,55 +190,6 @@ export const stepsIndicatorStyles = css`
     .steps-indicator__label {
       font-size: var(--font-size-xs);
       max-width: 80px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .steps-indicator {
-      margin-left: var(--space-4);
-    }
-
-    .steps-indicator__progress-bar {
-      flex-direction: column;
-      width: var(--space-2);
-      height: auto;
-      position: absolute;
-      left: 17px;
-      top: 14px;
-      bottom: 0;
-      margin: 0;
-    }
-
-    .steps-indicator__section {
-      width: 100%;
-      height: auto;
-      flex: 1;
-    }
-
-    .steps-indicator__steps {
-      position: relative;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-8);
-    }
-
-    .steps-indicator__step {
-      flex-direction: row;
-      align-items: center;
-      text-align: left;
-      width: auto;
-      max-width: none;
-    }
-
-    .steps-indicator__number-container {
-      position: static;
-      transform: none;
-      margin-right: var(--space-3);
-    }
-
-    .steps-indicator__label {
-      margin-top: 0;
-      max-width: none;
     }
   }
 `;

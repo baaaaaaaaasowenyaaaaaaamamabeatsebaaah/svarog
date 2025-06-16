@@ -36,6 +36,7 @@ import RichText from './components/RichText/RichText.js';
 import Logo from './components/Logo/index.js';
 import Card from './components/Card/index.js';
 import Rating from './components/Rating/index.js';
+import RatingSection from './components/RatingSection/RatingSection.js';
 import StepsIndicator from './components/StepsIndicator/index.js';
 import PriceDisplay from './components/PriceDisplay/index.js';
 import ContactInfo from './components/ContactInfo/index.js';
@@ -126,6 +127,7 @@ export {
   Logo,
   Card,
   Rating,
+  RatingSection,
   StepsIndicator,
   PriceDisplay,
   ContactInfo,
@@ -213,6 +215,7 @@ export const UI = {
   Logo,
   Card,
   Rating,
+  RatingSection,
   StepsIndicator,
   PriceDisplay,
   ContactInfo,
@@ -309,6 +312,7 @@ const Svarog = {
   Logo,
   Card,
   Rating,
+  RatingSection,
   StepsIndicator,
   PriceDisplay,
   ContactInfo,
