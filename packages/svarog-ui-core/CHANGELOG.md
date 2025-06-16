@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.6](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.5...svarog-ui-core@2.7.6) (2025-06-16)
+
+### Bug Fixes
+
+- ratingsection ([05f7900](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/05f79002be7d827522c6278a23127aa284d06178))
+
+### Features
+
+- enhance head component ([a858a7f](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/a858a7f1045785d0df62876f2aae320dbb4aa359))
+
 ## [2.7.5](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.4...svarog-ui-core@2.7.5) (2025-06-16)
 
 ### Bug Fixes
