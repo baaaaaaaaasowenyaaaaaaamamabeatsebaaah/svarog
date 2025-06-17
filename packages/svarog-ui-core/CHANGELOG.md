@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.11](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.10...svarog-ui-core@2.7.11) (2025-06-17)
+
+### Bug Fixes
+
+- missing exports ([24e77d9](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/24e77d97b9ad6756a686ffd7f36f561f8801d34b))
+
 ## [2.7.10](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.9...svarog-ui-core@2.7.10) (2025-06-17)
 
 ### Bug Fixes
