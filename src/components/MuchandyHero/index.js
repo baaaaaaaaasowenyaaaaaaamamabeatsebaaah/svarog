@@ -2,5 +2,5 @@
 import MuchandyHero from './MuchandyHero.js';
 import MuchandyHeroContainer from './MuchandyHeroContainer.js';
 
-export default MuchandyHeroContainer;
-export { MuchandyHero, MuchandyHeroContainer };
+export default MuchandyHero;
+export { MuchandyHeroContainer, MuchandyHero };
