@@ -22,6 +22,122 @@ const corePackageDir = resolve(rootDir, 'packages/svarog-ui-core');
 const FILES_TO_PRESERVE = ['package.json', 'README.md', 'LICENSE.md'];
 
 /**
+ * Parse a JavaScript file to extract export information
+ * @param {string} filePath - Path to the JavaScript file
+ * @returns {Object} Export information { hasDefault, defaultName, named: string[] }
+ */
+function parseExports(filePath) {
+  try {
+    const content = readFileSync(filePath, 'utf-8');
+    const exports = {
+      hasDefault: false,
+      defaultName: null,
+      named: [],
+    };
+
+    // Check for default export and try to get its name
+    const defaultAsMatch = content.match(
+      /export\s*{\s*default\s+as\s+(\w+)\s*}/
+    );
+    if (defaultAsMatch) {
+      exports.hasDefault = true;
+      exports.defaultName = defaultAsMatch[1];
+    } else if (/export\s+default\s+/.test(content)) {
+      exports.hasDefault = true;
+      // Try to infer the default export name from the component directory
+      const componentName = dirname(filePath).split('/').pop();
+      exports.defaultName = componentName;
+    }
+
+    // Find named exports - both direct and re-exports
+    // Pattern 1: export { Name1, Name2 } from './somewhere'
+    const reExportPattern = /export\s*{\s*([^}]+)\s*}\s*from/g;
+    let match;
+    while ((match = reExportPattern.exec(content)) !== null) {
+      const namedExports = match[1]
+        .split(',')
+        .map((exp) => exp.trim())
+        .filter((exp) => exp && !exp.startsWith('default'))
+        .map((exp) => {
+          // Handle "Name as Alias" syntax
+          const parts = exp.split(/\s+as\s+/);
+          return parts[parts.length - 1];
+        });
+      exports.named.push(...namedExports);
+    }
+
+    // Pattern 2: export const/let/var Name = ...
+    const directExportPattern =
+      /export\s+(?:const|let|var|function|class)\s+([A-Za-z_$][A-Za-z0-9_$]*)/g;
+    while ((match = directExportPattern.exec(content)) !== null) {
+      exports.named.push(match[1]);
+    }
+
+    // Pattern 3: export { Name1, Name2 } (without from)
+    const namedExportPattern = /export\s*{\s*([^}]+)\s*}(?!\s*from)/g;
+    while ((match = namedExportPattern.exec(content)) !== null) {
+      const namedExports = match[1]
+        .split(',')
+        .map((exp) => exp.trim())
+        .filter((exp) => exp && !exp.startsWith('default'))
+        .map((exp) => {
+          const parts = exp.split(/\s+as\s+/);
+          return parts[parts.length - 1];
+        });
+      exports.named.push(...namedExports);
+    }
+
+    // Remove duplicates and filter out the default export name if it exists
+    exports.named = [...new Set(exports.named)].filter(
+      (name) => name !== exports.defaultName
+    );
+
+    return exports;
+  } catch (error) {
+    console.warn(
+      `  ⚠️  Could not parse exports from ${relative(rootDir, filePath)}: ${error.message}`
+    );
+    return { hasDefault: true, defaultName: null, named: [] };
+  }
+}
+
+/**
+ * Get all exports from utility files
+ * @param {string} utilsDir - Path to utils directory
+ * @returns {Set<string>} Set of all utility export names
+ */
+function getUtilityExports(utilsDir) {
+  const utilityExports = new Set();
+
+  const utilFiles = [
+    'styleInjection.js',
+    'themeManager.js',
+    'componentFactory.js',
+    'baseComponent.js',
+    'performance.js',
+    'validation.js',
+    'seoManager.js',
+    'FormContainer.js',
+    'composition.js',
+    'environment.js',
+    'logger.js',
+  ];
+
+  utilFiles.forEach((utilFile) => {
+    const filePath = resolve(utilsDir, utilFile);
+    if (existsSync(filePath)) {
+      const exports = parseExports(filePath);
+      if (exports.hasDefault && utilFile === 'FormContainer.js') {
+        utilityExports.add('FormContainer');
+      }
+      exports.named.forEach((name) => utilityExports.add(name));
+    }
+  });
+
+  return utilityExports;
+}
+
+/**
  * Validate source directories exist
  */
 const validateSourceDirectories = () => {
@@ -34,8 +150,8 @@ const validateSourceDirectories = () => {
   const requiredFiles = [
     resolve(rootDir, 'src/styles/baseVariables.js'),
     resolve(rootDir, 'src/styles/baseStyles.js'),
-    resolve(rootDir, 'src/utils/themeManager.js'), // This MUST exist
-    resolve(rootDir, 'src/utils/styleInjection.js'), // This MUST exist
+    resolve(rootDir, 'src/utils/themeManager.js'),
+    resolve(rootDir, 'src/utils/styleInjection.js'),
   ];
 
   requiredDirs.forEach((dir) => {
@@ -148,15 +264,26 @@ function copyRecursive(src, dest, options = {}) {
  * Generate dynamic index.js based on actual components found
  */
 function generateDynamicIndex() {
-  console.log('\n📝 Generating dynamic index.js...');
+  console.log('\n📝 Generating dynamic index.js with all exports...');
 
   const componentsDir = resolve(corePackageDir, 'src/components');
-  const components = [];
+  const utilsDir = resolve(corePackageDir, 'src/utils');
+
+  // First, get all utility exports to check for conflicts
+  const utilityExports = getUtilityExports(utilsDir);
+  console.log(
+    `  ℹ️  Found ${utilityExports.size} utility exports to check for conflicts`
+  );
+
+  const componentExports = [];
+  let totalExports = 0;
+  const conflictingExports = [];
 
   if (existsSync(componentsDir)) {
     const componentDirs = readdirSync(componentsDir, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name);
+      .map((entry) => entry.name)
+      .sort(); // Sort alphabetically for consistent output
 
     componentDirs.forEach((componentName) => {
       const componentIndexPath = resolve(
@@ -164,16 +291,55 @@ function generateDynamicIndex() {
         componentName,
         'index.js'
       );
+
       if (existsSync(componentIndexPath)) {
-        components.push(componentName);
+        const exports = parseExports(componentIndexPath);
+
+        // Generate export statements
+        const exportStatements = [];
+
+        if (exports.hasDefault) {
+          exportStatements.push(
+            `export { default as ${componentName} } from './components/${componentName}/index.js';`
+          );
+          totalExports++;
+        }
+
+        // Filter out named exports that conflict with utility exports
+        const filteredNamedExports = exports.named.filter((name) => {
+          if (utilityExports.has(name)) {
+            conflictingExports.push({ component: componentName, name });
+            console.log(
+              `  ⚠️  Skipping ${name} from ${componentName} (conflicts with utility export)`
+            );
+            return false;
+          }
+          return true;
+        });
+
+        if (filteredNamedExports.length > 0) {
+          const namedExportsStr = filteredNamedExports.join(', ');
+          exportStatements.push(
+            `export { ${namedExportsStr} } from './components/${componentName}/index.js';`
+          );
+          totalExports += filteredNamedExports.length;
+
+          // Log components with additional named exports
+          console.log(
+            `  ✓ Component ${componentName} has additional named exports: ${namedExportsStr}`
+          );
+        }
+
+        if (exportStatements.length > 0) {
+          componentExports.push(exportStatements.join('\n'));
+        }
       } else {
         console.warn(`  ⚠️  Component ${componentName} missing index.js`);
       }
     });
   }
 
-  // Check which utilities actually exist (excluding development utilities)
-  const utilsDir = resolve(corePackageDir, 'src/utils');
+  // Check which utilities actually exist
   const availableUtils = [];
   const utilFiles = [
     'styleInjection.js',
@@ -187,7 +353,6 @@ function generateDynamicIndex() {
     'composition.js',
     'environment.js',
     'logger.js',
-    // Note: getComponents.js and getPrototypes.js are excluded - they're development utilities
   ];
 
   utilFiles.forEach((utilFile) => {
@@ -202,6 +367,15 @@ function generateDynamicIndex() {
   const constantsDir = resolve(corePackageDir, 'src/constants');
   const hasThemesConstant = existsSync(resolve(constantsDir, 'themes.js'));
 
+  // Add a comment about conflicting exports if any were found
+  const conflictComment =
+    conflictingExports.length > 0
+      ? `
+// Note: The following exports were skipped due to conflicts with utility exports:
+${conflictingExports.map(({ component, name }) => `// - ${name} from ${component} (use the one from utils/validation.js instead)`).join('\n')}
+`
+      : '';
+
   const indexContent = `/**
  * @file Main library entry point for Svarog UI Core
  * @description Self-contained package with all copied components and utilities
@@ -213,15 +387,10 @@ import './styles/baseVariables.js'; // ← FIRST: CSS variables
 import './styles/baseStyles.js'; // ← SECOND: Base styles that use variables
 
 // =========================================
-// COMPONENT EXPORTS (${components.length} components found)
+// COMPONENT EXPORTS (${totalExports} total exports)
 // =========================================
-${components
-  .map(
-    (component) =>
-      `export { default as ${component} } from './components/${component}/index.js';`
-  )
-  .join('\n')}
-
+${componentExports.join('\n')}
+${conflictComment}
 // =========================================
 // UTILITY EXPORTS
 // =========================================
@@ -310,8 +479,12 @@ ${hasThemesConstant ? `export { THEMES } from './constants/themes.js';` : `// TH
   const indexPath = resolve(corePackageDir, 'src/index.js');
   writeFileSync(indexPath, indexContent);
   console.log(
-    `  ✓ Generated index.js with ${components.length} components and ${availableUtils.length} utilities`
+    `  ✓ Generated index.js with ${totalExports} total exports and ${availableUtils.length} utilities`
   );
+
+  if (conflictingExports.length > 0) {
+    console.log(`  ℹ️  Resolved ${conflictingExports.length} export conflicts`);
+  }
 }
 
 /**
@@ -363,8 +536,8 @@ async function prepareCore() {
       '.test.',
       '.spec.',
       '__tests__',
-      'getComponents.js', // Development utility - exclude from core
-      'getPrototypes.js', // Development utility - exclude from core
+      'getComponents.js',
+      'getPrototypes.js',
     ],
     include: ['.js'],
   });
