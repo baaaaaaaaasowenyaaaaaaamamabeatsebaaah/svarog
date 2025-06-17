@@ -243,7 +243,7 @@ const renderPhoneRepairForm = (state) => {
     label: state.labels.priceLabel,
     value: state.priceDisplayText,
     isPlaceholder: !state.currentPrice,
-    isLoading: state.loadingStates.price,
+    loading: state.loadingStates.price,
     isError: !!state.error.price,
     isHighlighted: true,
   });
@@ -563,7 +563,7 @@ const createPhoneRepairForm = (props) => {
       components.priceDisplay?.update({
         value: displayText,
         isPlaceholder: !newProps.currentPrice && !currentState.currentPrice,
-        isLoading:
+        loading:
           newProps.loadingStates?.price ?? currentState.loadingStates.price,
         isError: !!(newProps.error?.price || currentState.error.price),
       });

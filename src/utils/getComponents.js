@@ -3217,6 +3217,55 @@ export const getComponents = () => {
               (m) => m.WithDynamicUpdates
             ),
         },
+        {
+          name: 'WithAPIDelay',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithAPIDelay
+            ),
+        },
+        {
+          name: 'WithDifferentLoadingTimes',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithDifferentLoadingTimes
+            ),
+        },
+        {
+          name: 'WithCustomLoadingComponent',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithCustomLoadingComponent
+            ),
+        },
+        {
+          name: 'WithAPIError',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithAPIError
+            ),
+        },
+        {
+          name: 'WithCustomErrorComponent',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithCustomErrorComponent
+            ),
+        },
+        {
+          name: 'WithRetryableError',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithRetryableError
+            ),
+        },
+        {
+          name: 'RealisticProductionScenario',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.RealisticProductionScenario
+            ),
+        },
       ],
     },
 
