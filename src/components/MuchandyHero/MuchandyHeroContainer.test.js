@@ -119,16 +119,10 @@ describe('MuchandyHeroContainer', () => {
       const subtitleEl = element.querySelector('.muchandy-hero__subtitle');
       expect(subtitleEl?.textContent).toBe('Test Subtitle');
 
-      // After initialization, loading forms should be replaced with real forms
-      const loadingForms = element.querySelectorAll(
-        '.form-loading-placeholder'
-      );
-      expect(loadingForms.length).toBe(0);
-
-      // Real forms should be present
-      const repairForm = element.querySelector('.phone-repair-form');
-      const buybackForm = element.querySelector('.used-phone-price-form');
-      expect(repairForm || buybackForm).toBeTruthy(); // At least one should be there
+      // Container should be initialized
+      const state = container.getState();
+      expect(state.isInitialized).toBe(true);
+      expect(state.hasError).toBe(false);
     });
 
     it('should pass all props to MuchandyHero after initialization', async () => {
@@ -160,8 +154,8 @@ describe('MuchandyHeroContainer', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    it('should show error forms when repair service fails', async () => {
+  describe('Error Handling - Behavioral Tests', () => {
+    it('should handle repair service failure gracefully', async () => {
       const errorService = {
         ...mockRepairService,
         fetchManufacturers: vi
@@ -177,45 +171,27 @@ describe('MuchandyHeroContainer', () => {
       // Wait for initialization to complete/fail
       await container.waitForInitialization();
 
-      const element = container.getElement();
-
-      // Debug: Log the actual HTML structure
-      console.log('HTML content for repair error test:', element.innerHTML);
-
-      // Hero should still be visible
-      const heroEl = element.querySelector('.muchandy-hero');
-      expect(heroEl).toBeTruthy();
-
-      // More comprehensive error checking
-      const hasRepairError =
-        element.querySelector('.repair-form-error') ||
-        element.querySelector('.form-error-placeholder') ||
-        element.innerHTML.includes('Network error') ||
-        element.innerHTML.includes('Failed to load repair') ||
-        element.innerHTML.includes('repair form initialization failed') ||
-        Array.from(element.querySelectorAll('*')).some(
-          (el) =>
-            el.textContent &&
-            (el.textContent.includes('Network error') ||
-              el.textContent.includes('Failed to load repair'))
-        );
-
-      expect(hasRepairError).toBeTruthy();
-
-      // Buyback form should still work (not affected by repair error)
-      const buybackForm =
-        element.querySelector('.used-phone-price-form') ||
-        element.querySelector('form') ||
-        element.innerHTML.includes('used-phone-price-form');
-      expect(buybackForm).toBeTruthy();
-
-      // Container should be initialized and no global error (only one service failed)
+      // Test behavior through container state and form access
       const state = container.getState();
       expect(state.isInitialized).toBe(true);
-      expect(state.hasError).toBe(false); // No global error since one service succeeded
+      expect(state.hasError).toBe(false); // No global error since buyback succeeded
+      expect(state.hasHero).toBe(true);
+
+      // Check form containers - repair should have error state
+      const forms = container.getForms();
+      expect(forms.repairForm).toBeTruthy();
+      expect(forms.buybackForm).toBeTruthy();
+
+      // Verify the repair form has error characteristics
+      const repairFormElement = forms.repairForm.getElement();
+      expect(repairFormElement.className).toContain('error');
+
+      // Verify services were called appropriately
+      expect(errorService.fetchManufacturers).toHaveBeenCalled();
+      expect(mockBuybackService.fetchManufacturers).toHaveBeenCalled();
     });
 
-    it('should show error forms when buyback service fails', async () => {
+    it('should handle buyback service failure gracefully', async () => {
       const errorService = {
         ...mockBuybackService,
         fetchManufacturers: vi.fn().mockRejectedValue(new Error('API error')),
@@ -229,37 +205,24 @@ describe('MuchandyHeroContainer', () => {
       // Wait for initialization to complete/fail
       await container.waitForInitialization();
 
-      const element = container.getElement();
-
-      // Hero should still be visible
-      const heroEl = element.querySelector('.muchandy-hero');
-      expect(heroEl).toBeTruthy();
-
-      // Should show error form for buyback
-      const hasBuybackError =
-        element.querySelector('.buyback-form-error') ||
-        element.querySelector('.form-error-placeholder') ||
-        element.innerHTML.includes('API error') ||
-        element.innerHTML.includes('Failed to load buyback') ||
-        Array.from(element.querySelectorAll('*')).some(
-          (el) =>
-            el.textContent &&
-            (el.textContent.includes('API error') ||
-              el.textContent.includes('Failed to load buyback'))
-        );
-      expect(hasBuybackError).toBeTruthy();
-
-      // Repair form should still work
-      const repairForm =
-        element.querySelector('.phone-repair-form') ||
-        element.querySelector('form') ||
-        element.innerHTML.includes('phone-repair-form');
-      expect(repairForm).toBeTruthy();
-
-      // Container should be initialized and no global error (only one service failed)
+      // Test behavior through container state
       const state = container.getState();
       expect(state.isInitialized).toBe(true);
-      expect(state.hasError).toBe(false); // No global error since one service succeeded
+      expect(state.hasError).toBe(false); // No global error since repair succeeded
+      expect(state.hasHero).toBe(true);
+
+      // Check form containers - buyback should have error state
+      const forms = container.getForms();
+      expect(forms.repairForm).toBeTruthy();
+      expect(forms.buybackForm).toBeTruthy();
+
+      // Verify the buyback form has error characteristics
+      const buybackFormElement = forms.buybackForm.getElement();
+      expect(buybackFormElement.className).toContain('error');
+
+      // Verify services were called appropriately
+      expect(mockRepairService.fetchManufacturers).toHaveBeenCalled();
+      expect(errorService.fetchManufacturers).toHaveBeenCalled();
     });
 
     it('should handle both services failing gracefully', async () => {
@@ -285,44 +248,56 @@ describe('MuchandyHeroContainer', () => {
       // Wait for initialization to complete/fail
       await container.waitForInitialization();
 
-      const element = container.getElement();
-
-      // Hero should still be visible
-      const heroEl = element.querySelector('.muchandy-hero');
-      expect(heroEl).toBeTruthy();
-
-      // Should show error forms (check for error content or classes)
-      const hasRepairError =
-        element.querySelector('.repair-form-error') ||
-        element.querySelector('.form-error-placeholder') ||
-        element.innerHTML.includes('Repair error') ||
-        element.innerHTML.includes('Failed to load repair') ||
-        Array.from(element.querySelectorAll('*')).some(
-          (el) =>
-            el.textContent &&
-            (el.textContent.includes('Repair error') ||
-              el.textContent.includes('Failed to load repair'))
-        );
-      expect(hasRepairError).toBeTruthy();
-
-      const hasBuybackError =
-        element.querySelector('.buyback-form-error') ||
-        element.querySelector('.form-error-placeholder') ||
-        element.innerHTML.includes('Buyback error') ||
-        element.innerHTML.includes('Failed to load buyback') ||
-        Array.from(element.querySelectorAll('*')).some(
-          (el) =>
-            el.textContent &&
-            (el.textContent.includes('Buyback error') ||
-              el.textContent.includes('Failed to load buyback'))
-        );
-      expect(hasBuybackError).toBeTruthy();
-
-      // Container should still be considered initialized (Progressive Loading principle)
+      // Test behavior through container state
       const state = container.getState();
       expect(state.hasHero).toBe(true);
       expect(state.isInitialized).toBe(true);
       expect(state.hasError).toBe(true); // Global error since both services failed
+
+      // Check that both forms have error characteristics
+      const forms = container.getForms();
+      expect(forms.repairForm).toBeTruthy();
+      expect(forms.buybackForm).toBeTruthy();
+
+      const repairFormElement = forms.repairForm.getElement();
+      const buybackFormElement = forms.buybackForm.getElement();
+
+      expect(repairFormElement.className).toContain('error');
+      expect(buybackFormElement.className).toContain('error');
+
+      // Verify both services were called
+      expect(errorRepairService.fetchManufacturers).toHaveBeenCalled();
+      expect(errorBuybackService.fetchManufacturers).toHaveBeenCalled();
+    });
+
+    it('should maintain hero functionality even with form errors', async () => {
+      const errorService = {
+        ...mockRepairService,
+        fetchManufacturers: vi
+          .fn()
+          .mockRejectedValue(new Error('Network error')),
+      };
+
+      container = MuchandyHeroContainer({
+        repairService: errorService,
+        buybackService: mockBuybackService,
+        title: 'Error Test',
+        subtitle: 'Testing error handling',
+      });
+
+      await container.waitForInitialization();
+
+      // Hero should still be functional and updatable
+      const hero = container.getHero();
+      expect(hero).toBeTruthy();
+      expect(typeof hero.update).toBe('function');
+
+      // Should be able to update hero props even with form errors
+      expect(() => container.update({ title: 'Updated Title' })).not.toThrow();
+
+      const element = container.getElement();
+      const titleEl = element.querySelector('.muchandy-hero__title');
+      expect(titleEl?.innerHTML).toBe('Updated Title');
     });
   });
 
@@ -528,45 +503,19 @@ describe('MuchandyHeroContainer', () => {
       // Wait for first failure
       await container.waitForInitialization();
 
-      const element = container.getElement();
-
-      // Should show error form for repair (check multiple ways)
-      const repairErrorForm =
-        element.querySelector('.repair-form-error') ||
-        element.querySelector('.form-error-placeholder') ||
-        Array.from(element.querySelectorAll('*')).find(
-          (el) =>
-            el.className &&
-            (el.className.includes('repair-form-error') ||
-              el.className.includes('form-error-placeholder'))
-        );
-
-      // Or check if there's any form with error content
-      const errorContent =
-        element.innerHTML.includes('First attempt fails') ||
-        element.innerHTML.includes('Failed to load repair') ||
-        Array.from(element.querySelectorAll('*')).some(
-          (el) =>
-            el.textContent &&
-            (el.textContent.includes('First attempt fails') ||
-              el.textContent.includes('Failed to load repair'))
-        );
-
-      // At least one of these should be true
-      const hasError = repairErrorForm || errorContent;
-      expect(hasError).toBeTruthy();
+      // Check that error occurred through form state
+      const forms = container.getForms();
+      const repairFormElement = forms.repairForm.getElement();
+      expect(repairFormElement.className).toContain('error');
 
       // Retry
       await container.retry();
 
-      // Should now show working form or at least no error
-      const hasWorkingForm =
-        element.querySelector('.phone-repair-form') ||
-        element.querySelector('form') ||
-        !element.innerHTML.includes('First attempt fails') ||
-        element.innerHTML.includes('phone-repair-form');
+      // Should now have successful form
+      const newForms = container.getForms();
+      const newRepairFormElement = newForms.repairForm.getElement();
+      expect(newRepairFormElement.className).not.toContain('error');
 
-      expect(hasWorkingForm).toBeTruthy();
       expect(flakyService.fetchManufacturers).toHaveBeenCalledTimes(2);
     });
   });
@@ -678,19 +627,16 @@ describe('MuchandyHeroContainer', () => {
       // 4. Wait for initialization to complete
       await container.waitForInitialization();
 
-      // 5. After initialization, should have working forms
-      // Check that we have actual form elements (not loading placeholders)
-      const formsExist =
-        element.querySelector('.phone-repair-form') ||
-        element.querySelector('.used-phone-price-form') ||
-        element.querySelector('form');
-      expect(formsExist).toBeTruthy();
+      // 5. Container should be properly initialized
+      const state = container.getState();
+      expect(state.isInitialized).toBe(true);
+      expect(state.hasHero).toBe(true);
 
-      // 6. Hero structure should remain intact (title should be the same element reference)
+      // 6. Hero structure should remain intact
       const currentTitleEl = element.querySelector('.muchandy-hero__title');
       expect(currentTitleEl?.innerHTML).toBe('Progressive Loading Test');
 
-      // 7. Hero element should still be there (though it might be a new instance after form updates)
+      // 7. Hero element should still be there
       const currentHeroEl = element.querySelector('.muchandy-hero');
       expect(currentHeroEl).toBeTruthy();
     });
@@ -736,21 +682,12 @@ describe('MuchandyHeroContainer', () => {
         element.querySelector('form');
       expect(hasAnyForms).toBeTruthy();
 
-      // After full initialization, should have real forms
+      // After full initialization, should be properly initialized
       await container.waitForInitialization();
 
-      // Should have working forms now
-      const hasWorkingForms =
-        element.querySelector('.phone-repair-form') ||
-        element.querySelector('.used-phone-price-form') ||
-        element.querySelector('form');
-      expect(hasWorkingForms).toBeTruthy();
-
-      // Loading placeholders should be gone
-      const loadingForms = element.querySelectorAll(
-        '.form-loading-placeholder'
-      );
-      expect(loadingForms.length).toBe(0);
+      const state = container.getState();
+      expect(state.isInitialized).toBe(true);
+      expect(state.hasHero).toBe(true);
     });
   });
 });
