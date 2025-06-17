@@ -14,7 +14,9 @@ import Section from './components/Section/index.js';
 import Header from './components/Header/index.js';
 import Footer from './components/Footer/index.js';
 import Hero from './components/Hero/index.js';
-import MuchandyHero from './components/MuchandyHero/index.js';
+import MuchandyHero, {
+  MuchandyHeroContainer,
+} from './components/MuchandyHero/index.js';
 import CollapsibleHeader, {
   CollapsibleHeaderContainer,
 } from './components/CollapsibleHeader/index.js';
@@ -108,6 +110,7 @@ export {
   Footer,
   Hero,
   MuchandyHero,
+  MuchandyHeroContainer,
   CollapsibleHeader,
   CollapsibleHeaderContainer,
   Page,
@@ -195,6 +198,7 @@ export const Layout = {
   Footer,
   Hero,
   MuchandyHero,
+  MuchandyHeroContainer,
   CollapsibleHeader,
   CollapsibleHeaderContainer,
   Page,
@@ -299,6 +303,7 @@ const Svarog = {
   Footer,
   Hero,
   MuchandyHero,
+  MuchandyHeroContainer,
   CollapsibleHeader,
   CollapsibleHeaderContainer,
   ContactSection,
