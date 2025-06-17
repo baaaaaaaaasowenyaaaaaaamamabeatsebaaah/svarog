@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.12](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.11...svarog-ui-core@2.7.12) (2025-06-17)
+
+### Bug Fixes
+
+- depricated props ([2130979](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/commit/2130979958a241d587e5ce5c740307a3c817f54b))
+
 ## [2.7.11](https://github.com/baaaaaaaaasowenyaaaaaaamamabeatsebaaah/svarog/compare/svarog-ui-core@2.7.10...svarog-ui-core@2.7.11) (2025-06-17)
 
 ### Bug Fixes
