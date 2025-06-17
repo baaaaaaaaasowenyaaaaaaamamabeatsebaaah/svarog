@@ -201,7 +201,6 @@ const renderCollapsibleHeader = (state) => {
 
       const callButton = Button({
         text: callButtonText,
-        variant: 'default',
         onClick: handleCallClick,
       });
 

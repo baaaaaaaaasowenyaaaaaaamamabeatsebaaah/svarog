@@ -1,4 +1,4 @@
-// src/components/Logo/Logo.js
+// src/components/Logo/Logo.js - FIXED VERSION
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { createElement } from '../../utils/componentFactory.js';
 import Image from '../Image/index.js';
@@ -68,10 +68,10 @@ const createLogo = (props = {}) => {
       classes: containerClasses,
     });
 
-    // Create logo image using Image component
+    // ✅ FIX: Create logo image using CORRECT prop names
     const image = Image({
-      src: state.imageUrl, // Use old prop for backward compatibility with Image component
-      fallbackSrc: state.fallbackImageUrl, // Use old prop for backward compatibility
+      imageUrl: state.imageUrl, // ✅ Use correct prop name
+      fallbackImageUrl: state.fallbackImageUrl, // ✅ Use correct prop name
       alt: state.alt,
       onClick: state.onClick,
       responsive: true, // Always make image responsive
