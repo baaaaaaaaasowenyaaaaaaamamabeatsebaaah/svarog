@@ -6,16 +6,13 @@ import { mockPhoneRepairData } from '../../../__mocks__/phoneRepairData.js';
 import { mockPhoneBuybackData } from '../../../__mocks__/phoneBuybackData.js';
 import { switchTheme } from '../../utils/themeManager.js';
 
-// Import the container - try both ways to ensure it works
-import createMuchandyHeroContainer from './MuchandyHeroContainer.js';
 // Also import from index to ensure proper module registration
 import { MuchandyHeroContainer } from './index.js';
 
 import muchandyHeroBg from '../../../.storybook/assets/muchandy-hero-bg.png';
 
 // Use the imported function
-const MuchandyHeroContainerFactory =
-  createMuchandyHeroContainer || MuchandyHeroContainer;
+const MuchandyHeroContainerFactory = MuchandyHeroContainer;
 
 export default {
   title: 'Components/MuchandyHero',

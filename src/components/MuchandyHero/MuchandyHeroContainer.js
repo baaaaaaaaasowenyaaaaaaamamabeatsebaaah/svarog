@@ -9,7 +9,7 @@ import { createElement } from '../../utils/componentFactory.js';
  * @param {Object} props - Container properties
  * @returns {Object} Container component API
  */
-const createMuchandyHeroContainer = (props) => {
+const MuchandyHeroContainer = (props) => {
   const {
     repairService,
     buybackService,
@@ -27,8 +27,6 @@ const createMuchandyHeroContainer = (props) => {
     usedPhoneHref,
     repairFormLabels,
     buybackFormLabels,
-    loadingComponent,
-    errorComponent,
     ...otherProps
   } = props;
 
@@ -550,4 +548,4 @@ const createMuchandyHeroContainer = (props) => {
 };
 
 // Export as default
-export default createMuchandyHeroContainer;
+export default MuchandyHeroContainer;
