@@ -450,7 +450,7 @@ const createUsedPhonePriceForm = (props) => {
     onConditionChange: props.onConditionChange,
     onSubmit: props.onSubmit,
     hasError: Object.values(props.error || {}).some(Boolean),
-    isLoading: Object.values(loadingStates).some(Boolean),
+    loading: Object.values(loadingStates).some(Boolean),
     animationEnabled: props.animationEnabled !== false,
   };
 
@@ -690,7 +690,7 @@ const createUsedPhonePriceForm = (props) => {
     if (newProps.isLoading !== undefined) {
       element.classList.toggle(
         'used-phone-price-form--loading',
-        newProps.isLoading
+        newProps.loading
       );
     }
   };
@@ -700,7 +700,7 @@ const createUsedPhonePriceForm = (props) => {
     const mergedLoading = { ...currentState.loadingStates, ...loadingState };
     return this.setState({
       loadingStates: mergedLoading,
-      isLoading: Object.values(mergedLoading).some(Boolean),
+      loading: Object.values(mergedLoading).some(Boolean),
     });
   };
 

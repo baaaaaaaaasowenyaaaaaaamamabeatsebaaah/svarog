@@ -585,6 +585,244 @@ export const WithLegacyBackgroundImageProp = (args) => {
   return hero.getElement();
 };
 
+export const WithFormPropUpdates = (args) => {
+  // Create container for demonstration
+  const container = document.createElement('div');
+  container.style.maxWidth = '1200px';
+
+  // Add description
+  const description = document.createElement('div');
+  description.style.cssText = `
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  `;
+  description.innerHTML = `
+    <h3 style="margin-top: 0;">Form Update Methods Demo</h3>
+    <p>This demonstrates the updateRepairForm and updateBuybackForm methods.</p>
+    <p><strong>Note:</strong> The basic PhoneRepairForm and UsedPhonePriceForm components don't support updates,
+    so this example shows how the MuchandyHero handles that gracefully.</p>
+  `;
+  container.appendChild(description);
+
+  // Create forms with initial labels configuration
+  const { repairForm, buybackForm } = createOptimizedForms();
+
+  // Create hero
+  const hero = createHero({
+    ...args,
+    repairForm,
+    buybackForm,
+    title: 'Form Updates<br>Demo',
+    subtitle: 'Demonstrating form update methods',
+  });
+
+  container.appendChild(hero.getElement());
+
+  // Add status display
+  const statusDiv = document.createElement('div');
+  statusDiv.style.cssText = `
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 4px;
+  `;
+  statusDiv.innerHTML = `
+    <h4 style="margin-top: 0;">Update Status:</h4>
+    <p>The console will show warnings when trying to update forms that don't support updates.</p>
+    <p>This is expected behavior - the MuchandyHero component handles missing update methods gracefully.</p>
+  `;
+  container.appendChild(statusDiv);
+
+  // Demonstrate update attempts
+  setTimeout(() => {
+    console.log('Attempting to update repair form...');
+    hero.updateRepairForm({
+      labels: { submitButtonText: 'Book Repair Appointment' },
+    });
+
+    console.log('Attempting to update buyback form...');
+    hero.updateBuybackForm({
+      labels: { submitButtonText: 'Get Instant Quote' },
+    });
+
+    // Also demonstrate that hero updates still work
+    console.log('Updating hero title and subtitle...');
+    hero.setTitle('Forms Updated<br>Successfully');
+    hero.setSubtitle('Hero updates work regardless of form support');
+  }, 1000);
+
+  return container;
+};
+
+export const WithUpdatableForms = (args) => {
+  const container = document.createElement('div');
+  container.style.maxWidth = '1200px';
+
+  // Add description
+  const description = document.createElement('div');
+  description.style.cssText = `
+    background: #e8f5e9;
+    border: 1px solid #66bb6a;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  `;
+  description.innerHTML = `
+    <h3 style="margin-top: 0;">Updatable Forms Demo</h3>
+    <p>This example uses enhanced form components that support dynamic updates.</p>
+    <p>Click the buttons below to update form properties in real-time.</p>
+  `;
+  container.appendChild(description);
+
+  // Create enhanced forms with update support
+  const createUpdatableForm = (type) => {
+    const formEl = document.createElement('div');
+    formEl.className = `${type}-form-updatable`;
+    formEl.style.cssText = `
+      padding: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      min-height: 200px;
+    `;
+
+    const state = {
+      labels: {
+        title: type === 'repair' ? 'Phone Repair Service' : 'Sell Your Phone',
+        submitButtonText: type === 'repair' ? 'Schedule Repair' : 'Get Quote',
+      },
+      disabled: false,
+    };
+
+    const render = () => {
+      formEl.innerHTML = `
+        <h4 style="color: white; margin: 0 0 15px 0;">${state.labels.title}</h4>
+        <p style="color: rgba(255,255,255,0.8); margin: 0 0 20px 0;">
+          This is a demo ${type} form with update support.
+        </p>
+        <button style="
+          padding: 10px 20px;
+          background: ${state.disabled ? '#666' : '#ff6b00'};
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: ${state.disabled ? 'not-allowed' : 'pointer'};
+        " ${state.disabled ? 'disabled' : ''}>
+          ${state.labels.submitButtonText}
+        </button>
+      `;
+    };
+
+    render();
+
+    return {
+      getElement: () => formEl,
+      update: (props) => {
+        if (props.labels) {
+          state.labels = { ...state.labels, ...props.labels };
+        }
+        if (props.disabled !== undefined) {
+          state.disabled = props.disabled;
+        }
+        render();
+        console.log(`${type} form updated with:`, props);
+      },
+      destroy: () => formEl.remove(),
+    };
+  };
+
+  const repairForm = createUpdatableForm('repair');
+  const buybackForm = createUpdatableForm('buyback');
+
+  const hero = MuchandyHero({
+    ...args,
+    repairForm,
+    buybackForm,
+    title: 'Updatable Forms<br>Demo',
+    subtitle: 'Forms that support dynamic updates',
+  });
+
+  container.appendChild(hero.getElement());
+
+  // Add controls
+  const controls = document.createElement('div');
+  controls.style.cssText = `
+    background: #f3f4f6;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 4px;
+  `;
+  controls.innerHTML = `
+    <h4 style="margin-top: 0;">Form Controls:</h4>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button id="update-repair-title" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">
+        Update Repair Title
+      </button>
+      <button id="update-buyback-title" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">
+        Update Buyback Title
+      </button>
+      <button id="toggle-forms" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">
+        Toggle Forms Disabled
+      </button>
+      <button id="update-hero" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">
+        Update Hero Title
+      </button>
+    </div>
+  `;
+  container.appendChild(controls);
+
+  // Add event handlers
+  let formsDisabled = false;
+  let repairTitleIndex = 0;
+  let buybackTitleIndex = 0;
+
+  const repairTitles = [
+    'Phone Repair Service',
+    'Expert Repair',
+    'Quick Fix Service',
+  ];
+  const buybackTitles = [
+    'Sell Your Phone',
+    'Instant Buyback',
+    'Cash for Phones',
+  ];
+
+  controls
+    .querySelector('#update-repair-title')
+    .addEventListener('click', () => {
+      repairTitleIndex = (repairTitleIndex + 1) % repairTitles.length;
+      hero.updateRepairForm({
+        labels: { title: repairTitles[repairTitleIndex] },
+      });
+    });
+
+  controls
+    .querySelector('#update-buyback-title')
+    .addEventListener('click', () => {
+      buybackTitleIndex = (buybackTitleIndex + 1) % buybackTitles.length;
+      hero.updateBuybackForm({
+        labels: { title: buybackTitles[buybackTitleIndex] },
+      });
+    });
+
+  controls.querySelector('#toggle-forms').addEventListener('click', (e) => {
+    formsDisabled = !formsDisabled;
+    hero.updateRepairForm({ disabled: formsDisabled });
+    hero.updateBuybackForm({ disabled: formsDisabled });
+    e.target.textContent = formsDisabled ? 'Enable Forms' : 'Disable Forms';
+  });
+
+  controls.querySelector('#update-hero').addEventListener('click', () => {
+    hero.setTitle('Updated<br>Hero Title');
+    hero.setSubtitle('Forms have been customized!');
+  });
+
+  return container;
+};
+
 export const WithAPIDelay = () => {
   const container = document.createElement('div');
   container.style.maxWidth = '1200px';
@@ -961,18 +1199,18 @@ export const RealisticProductionScenario = () => {
     padding: 10px 15px;
     margin-bottom: 20px;
     border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  `;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+ `;
   statusBar.innerHTML = `
-    <div>
-      <strong>Production Scenario</strong> - Simulating real API behavior
-    </div>
-    <div id="status-text" style="color: #6b7280;">
-      Initializing services...
-    </div>
-  `;
+   <div>
+     <strong>Production Scenario</strong> - Simulating real API behavior
+   </div>
+   <div id="status-text" style="color: #6b7280;">
+     Initializing services...
+   </div>
+ `;
   container.appendChild(statusBar);
 
   const updateStatus = (text, color = '#6b7280') => {
@@ -1115,181 +1353,5 @@ export const RealisticProductionScenario = () => {
   });
 
   container.appendChild(heroContainer.getElement());
-  return container;
-};
-
-export const WithFormPropUpdates = (args) => {
-  // Create container for demonstration
-  const container = document.createElement('div');
-  container.style.maxWidth = '1200px';
-
-  // Add controls
-  const controlsDiv = document.createElement('div');
-  controlsDiv.style.cssText = `
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-  `;
-  controlsDiv.innerHTML = `
-    <h3 style="margin-top: 0;">Form Props Update Demo</h3>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
-      <button id="update-repair-labels" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Repair Labels</button>
-      <button id="update-buyback-labels" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Buyback Labels</button>
-      <button id="toggle-steps" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Toggle Steps Indicator</button>
-      <button id="update-both" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Both Forms</button>
-    </div>
-    <div id="status-display" style="padding: 10px; background: #e8f4f8; border: 1px solid #bee5eb; border-radius: 4px; font-size: 14px;">
-      Status: Ready for updates
-    </div>
-  `;
-  container.appendChild(controlsDiv);
-
-  // Create status update function
-  const updateStatus = (message) => {
-    const statusEl = controlsDiv.querySelector('#status-display');
-    if (statusEl) {
-      const timestamp = new Date().toLocaleTimeString();
-      statusEl.innerHTML = `Status [${timestamp}]: ${message}`;
-    }
-  };
-
-  // Create forms with update support
-  const { repairForm, buybackForm } = createOptimizedForms({
-    formOptions: {
-      // These forms have update methods
-      enableUpdates: true,
-    },
-  });
-
-  const hero = createHero({
-    ...args,
-    repairForm,
-    buybackForm,
-    title: 'Form Updates<br>Demo',
-    subtitle: 'Click buttons to update form properties.',
-  });
-
-  container.appendChild(hero.getElement());
-
-  // State tracking
-  let stepsVisible = true;
-  let labelsUpdated = false;
-
-  // Update Repair Labels Button
-  const updateRepairBtn = controlsDiv.querySelector('#update-repair-labels');
-  if (updateRepairBtn) {
-    updateRepairBtn.addEventListener('click', () => {
-      const newLabels = labelsUpdated
-        ? {
-            manufacturerPlaceholder: 'Hersteller auswählen',
-            devicePlaceholder: 'Zuerst Hersteller auswählen',
-            servicePlaceholder: 'Zuerst Modell auswählen',
-            scheduleButtonText: 'Jetzt Termin vereinbaren',
-            priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
-          }
-        : {
-            manufacturerPlaceholder: 'Choose Brand',
-            devicePlaceholder: 'Select Your Model',
-            servicePlaceholder: 'What Needs Repair?',
-            scheduleButtonText: 'Book Repair Now',
-            priceLabel: 'Estimated Cost:',
-          };
-
-      hero.updateRepairForm({
-        labels: newLabels,
-      });
-
-      labelsUpdated = !labelsUpdated;
-      updateStatus(
-        `Repair form labels updated to ${labelsUpdated ? 'English' : 'German'}`
-      );
-    });
-  }
-
-  // Update Buyback Labels Button
-  const updateBuybackBtn = controlsDiv.querySelector('#update-buyback-labels');
-  if (updateBuybackBtn) {
-    updateBuybackBtn.addEventListener('click', () => {
-      const newLabels = labelsUpdated
-        ? {
-            manufacturerPlaceholder: 'Hersteller auswählen',
-            devicePlaceholder: 'Zuerst Hersteller auswählen',
-            conditionNewLabel: 'Neu',
-            conditionGoodLabel: 'Gut',
-            conditionFairLabel: 'Akzeptabel',
-            conditionPoorLabel: 'Beschädigt',
-            submitButtonText: 'Verkaufen',
-            priceLabel: 'Unser Angebot:',
-          }
-        : {
-            manufacturerPlaceholder: 'Select Brand',
-            devicePlaceholder: 'Choose Model',
-            conditionNewLabel: 'Like New',
-            conditionGoodLabel: 'Excellent',
-            conditionFairLabel: 'Good',
-            conditionPoorLabel: 'Poor',
-            submitButtonText: 'Sell Now',
-            priceLabel: 'Our Offer:',
-          };
-
-      hero.setBuybackFormProps({
-        labels: newLabels,
-      });
-
-      updateStatus(
-        `Buyback form labels updated to ${labelsUpdated ? 'German' : 'English'}`
-      );
-    });
-  }
-
-  // Toggle Steps Button
-  const toggleStepsBtn = controlsDiv.querySelector('#toggle-steps');
-  if (toggleStepsBtn) {
-    toggleStepsBtn.addEventListener('click', () => {
-      stepsVisible = !stepsVisible;
-
-      // Update both forms' steps visibility
-      hero.updateRepairForm({
-        showStepsIndicator: stepsVisible,
-      });
-
-      hero.updateBuybackForm({
-        showStepsIndicator: stepsVisible,
-      });
-
-      updateStatus(
-        `Steps indicator ${stepsVisible ? 'shown' : 'hidden'} in both forms`
-      );
-      toggleStepsBtn.textContent = stepsVisible ? 'Hide Steps' : 'Show Steps';
-    });
-  }
-
-  // Update Both Button
-  const updateBothBtn = controlsDiv.querySelector('#update-both');
-  if (updateBothBtn) {
-    updateBothBtn.addEventListener('click', () => {
-      // Chain multiple updates
-      hero
-        .setTitle('Updated<br>Hero Title')
-        .setSubtitle('Forms have been customized!')
-        .updateRepairForm({
-          className: 'custom-repair-form',
-          labels: {
-            usedPhoneText: 'Check out our certified used phones!',
-          },
-        })
-        .updateBuybackForm({
-          className: 'custom-buyback-form',
-          animationEnabled: true,
-        });
-
-      updateStatus(
-        'Updated hero title, subtitle, and both forms with custom classes'
-      );
-    });
-  }
-
   return container;
 };

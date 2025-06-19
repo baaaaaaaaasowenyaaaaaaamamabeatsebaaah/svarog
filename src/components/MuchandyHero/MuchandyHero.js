@@ -193,7 +193,7 @@ const renderMuchandyHero = (state) => {
   // Create tabs component with optimized configuration
   const tabsComponent = Tabs({
     tabs: tabsData,
-    defaultValue: defaultActiveTab,
+    defaultValue: defaultActiveTab, // <- use defaultValue instead
     className: 'muchandy-hero__tabs',
     variant: 'border',
     align: 'center',
@@ -268,6 +268,8 @@ const createDefaultConfig = () => ({
   className: '',
   blurIntensity: 4, // Default blur intensity in pixels
   overlayOpacity: 0.3, // Default overlay opacity
+  repairFormLabels: {}, // Support for repair form labels
+  buybackFormLabels: {}, // Support for buyback form labels
 });
 
 /**
@@ -497,44 +499,44 @@ const createMuchandyHero = (props) => {
     return { ...currentState };
   };
 
-  // NEW: Convenience methods for updating form props
+  // Form update methods with graceful fallback and error handling
   muchandyHero.updateRepairForm = function (props) {
-    const element = this.getElement();
-    const repairForm =
-      element?._components?.repairForm || currentState.repairForm;
-
-    if (repairForm && typeof repairForm.update === 'function') {
-      try {
-        repairForm.update(props);
+    try {
+      if (
+        currentState.repairForm &&
+        typeof currentState.repairForm.update === 'function'
+      ) {
         console.log('MuchandyHero: Updated repair form with:', props);
-      } catch (error) {
-        console.error('MuchandyHero: Error updating repair form:', error);
+        currentState.repairForm.update(props);
+      } else {
+        console.warn('MuchandyHero: Repair form does not support updates');
       }
-    } else {
-      console.warn('MuchandyHero: Repair form does not support updates');
+    } catch (error) {
+      console.error('MuchandyHero: Error updating repair form:', error);
+      // Don't re-throw - handle gracefully
     }
     return this;
   };
 
   muchandyHero.updateBuybackForm = function (props) {
-    const element = this.getElement();
-    const buybackForm =
-      element?._components?.buybackForm || currentState.buybackForm;
-
-    if (buybackForm && typeof buybackForm.update === 'function') {
-      try {
-        buybackForm.update(props);
+    try {
+      if (
+        currentState.buybackForm &&
+        typeof currentState.buybackForm.update === 'function'
+      ) {
         console.log('MuchandyHero: Updated buyback form with:', props);
-      } catch (error) {
-        console.error('MuchandyHero: Error updating buyback form:', error);
+        currentState.buybackForm.update(props);
+      } else {
+        console.warn('MuchandyHero: Buyback form does not support updates');
       }
-    } else {
-      console.warn('MuchandyHero: Buyback form does not support updates');
+    } catch (error) {
+      console.error('MuchandyHero: Error updating buyback form:', error);
+      // Don't re-throw - handle gracefully
     }
     return this;
   };
 
-  // Aliases for consistency with naming conventions
+  // Alias methods for backward compatibility with tests
   muchandyHero.setRepairFormProps = muchandyHero.updateRepairForm;
   muchandyHero.setBuybackFormProps = muchandyHero.updateBuybackForm;
 

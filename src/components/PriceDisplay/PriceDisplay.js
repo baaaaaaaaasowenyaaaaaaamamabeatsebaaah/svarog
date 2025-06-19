@@ -228,8 +228,8 @@ const createPriceDisplay = (props) => {
     });
   };
 
-  priceDisplayComponent.setLoading = (isLoading) => {
-    return priceDisplayComponent.update({ loading: isLoading });
+  priceDisplayComponent.setLoading = (loading) => {
+    return priceDisplayComponent.update({ loading });
   };
 
   priceDisplayComponent.setPlaceholder = (isPlaceholder) => {

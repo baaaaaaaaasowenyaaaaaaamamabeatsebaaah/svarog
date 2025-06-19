@@ -599,8 +599,6 @@ describe('MuchandyHero', () => {
       expect(bgImageVar).toBe('');
     });
   });
-  // Add these test cases to MuchandyHero.test.js
-
   describe('Form Update Methods', () => {
     it('should provide updateRepairForm method', () => {
       const hero = MuchandyHero(mockForms);
@@ -667,15 +665,36 @@ describe('MuchandyHero', () => {
     });
 
     it('should handle forms without update method gracefully', () => {
-      // Use the basic mockForms which don't have update methods
-      const hero = MuchandyHero(mockForms);
+      // Create forms specifically without update methods
+      const formsWithoutUpdate = {
+        repairForm: {
+          getElement: () => {
+            const element = document.createElement('div');
+            element.className = 'phone-repair-form';
+            return element;
+          },
+          destroy: () => {},
+          // Explicitly no update method
+        },
+        buybackForm: {
+          getElement: () => {
+            const element = document.createElement('div');
+            element.className = 'used-phone-price-form';
+            return element;
+          },
+          destroy: () => {},
+          // Explicitly no update method
+        },
+      };
 
-      // Mock console.warn
+      const hero = MuchandyHero(formsWithoutUpdate);
+
+      // Spy on console.warn
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      // Should not throw when forms don't have update method
-      expect(() => hero.updateRepairForm({ test: 'props' })).not.toThrow();
-      expect(() => hero.updateBuybackForm({ test: 'props' })).not.toThrow();
+      // Try to update forms
+      hero.updateRepairForm({ test: 'props' });
+      hero.updateBuybackForm({ test: 'props' });
 
       // Should warn about missing update support
       expect(warnSpy).toHaveBeenCalledTimes(2);
