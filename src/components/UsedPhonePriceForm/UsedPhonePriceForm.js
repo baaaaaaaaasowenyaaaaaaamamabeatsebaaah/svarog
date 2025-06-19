@@ -236,8 +236,8 @@ const renderUsedPhonePriceForm = (state) => {
     options: manufacturerOptions,
     value: state.selectedManufacturer,
     loading: state.loadingStates.manufacturers,
-    loadingText: 'Loading manufacturers...',
-    emptyText: 'No manufacturers available',
+    loadingText: state.labels.manufacturerLoadingText,
+    emptyText: state.labels.manufacturerEmptyText,
     onChange: (event, value) => {
       if (typeof state.onManufacturerChange === 'function') {
         setTimeout(() => state.onManufacturerChange(value), 0);
@@ -257,10 +257,10 @@ const renderUsedPhonePriceForm = (state) => {
     value: state.selectedDevice,
     disabled: !state.selectedManufacturer,
     loading: state.loadingStates.devices,
-    loadingText: 'Loading devices...',
+    loadingText: state.labels.deviceLoadingText,
     emptyText: state.selectedManufacturer
-      ? 'No devices available for this manufacturer'
-      : 'Please select a manufacturer first',
+      ? state.labels.deviceEmptyText
+      : state.labels.deviceWaitingText,
     onChange: (event, value) => {
       if (typeof state.onDeviceChange === 'function') {
         setTimeout(() => state.onDeviceChange(value), 0);
@@ -270,12 +270,28 @@ const renderUsedPhonePriceForm = (state) => {
   });
   form.appendChild(components.deviceSelect.getElement());
 
-  // Create condition selector
+  // Create condition selector with improved UX logic
+  // Show appropriate waiting text based on selection state
+  let conditionDisabled = true;
+  let conditionWaitingText = '';
+
+  if (!state.selectedManufacturer) {
+    // If no manufacturer selected, show same message as device
+    conditionWaitingText = state.labels.deviceWaitingText;
+  } else if (!state.selectedDevice) {
+    // If manufacturer selected but no device, show condition waiting text
+    conditionWaitingText = state.labels.conditionWaitingText;
+  } else {
+    // If device selected, enable condition selector
+    conditionDisabled = false;
+  }
+
   components.conditionSelector = ConditionSelector({
     conditions: state.conditions,
     selectedId: state.selectedCondition,
     loading: state.loadingStates.conditions || false,
-    disabled: !state.selectedDevice,
+    disabled: conditionDisabled,
+    waitingText: conditionWaitingText,
     onChange: (conditionId) => {
       if (typeof state.onConditionChange === 'function') {
         setTimeout(() => state.onConditionChange(conditionId), 0);
@@ -365,7 +381,13 @@ const createDefaultLabels = () => {
     deviceStep: 'Modell',
     conditionStep: 'Zustand',
     manufacturerPlaceholder: 'Hersteller auswählen',
-    devicePlaceholder: 'Zuerst Hersteller auswählen',
+    devicePlaceholder: 'Modell auswählen',
+    manufacturerLoadingText: 'Hersteller werden geladen...',
+    deviceLoadingText: 'Modelle werden geladen...',
+    manufacturerEmptyText: 'Keine Hersteller verfügbar',
+    deviceEmptyText: 'Keine Modelle für diesen Hersteller verfügbar',
+    deviceWaitingText: 'Bitte zuerst Hersteller auswählen',
+    conditionWaitingText: 'Bitte zuerst Modell auswählen',
     initialPriceText: 'Bitte wählen Sie Hersteller, Modell und Zustand',
     loadingPriceText: 'Preis wird geladen...',
     priceLabel: 'Unser Angebot:',
@@ -552,27 +574,43 @@ const createUsedPhonePriceForm = (props) => {
         disabled: !manufacturerSelected,
         value: newProps.selectedDevice ?? currentState.selectedDevice,
         emptyText: manufacturerSelected
-          ? 'No devices available for this manufacturer'
-          : 'Please select a manufacturer first',
+          ? currentState.labels.deviceEmptyText
+          : currentState.labels.deviceWaitingText,
       });
     }
 
-    // Update condition selector
+    // Update condition selector with improved UX logic
     if (
       newProps.conditions !== undefined ||
       loadingStates.conditions !== undefined ||
       newProps.selectedDevice !== undefined ||
-      newProps.selectedCondition !== undefined
+      newProps.selectedCondition !== undefined ||
+      newProps.selectedManufacturer !== undefined
     ) {
       const conditionLoading =
         loadingStates.conditions ?? currentState.loadingStates.conditions;
       const deviceSelected =
         newProps.selectedDevice ?? currentState.selectedDevice;
+      const manufacturerSelected =
+        newProps.selectedManufacturer ?? currentState.selectedManufacturer;
+
+      // Improved UX: determine appropriate waiting text
+      let conditionDisabled = true;
+      let conditionWaitingText = '';
+
+      if (!manufacturerSelected) {
+        conditionWaitingText = currentState.labels.deviceWaitingText;
+      } else if (!deviceSelected) {
+        conditionWaitingText = currentState.labels.conditionWaitingText;
+      } else {
+        conditionDisabled = false;
+      }
 
       components.conditionSelector?.update({
         conditions: newProps.conditions || currentState.conditions,
         loading: conditionLoading,
-        disabled: !deviceSelected,
+        disabled: conditionDisabled,
+        waitingText: conditionWaitingText,
         selectedId:
           newProps.selectedCondition ?? currentState.selectedCondition,
       });

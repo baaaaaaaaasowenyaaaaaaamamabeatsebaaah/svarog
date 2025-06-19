@@ -51,7 +51,7 @@ const renderPriceDisplay = (state) => {
   const classNames = [
     'price-display',
     state.className,
-    state.isLoading && 'price-display--loading',
+    state.loading && 'price-display--loading',
     state.isHighlighted && 'price-display--highlighted',
     state.isPlaceholder && 'price-display--placeholder',
     state.isError && 'price-display--error',
@@ -65,7 +65,7 @@ const renderPriceDisplay = (state) => {
   });
 
   // Add loading indicator if loading
-  if (state.isLoading) {
+  if (state.loading) {
     const loadingIndicator = createElement('span', {
       classes: ['price-display__loading-indicator'],
     });
@@ -117,7 +117,7 @@ const createPriceDisplay = (props) => {
   const initialState = {
     label: normalizedProps.label || '',
     value: normalizedProps.value || '',
-    isLoading: normalizedProps.isLoading || false,
+    loading: normalizedProps.loading || false,
     isHighlighted: normalizedProps.isHighlighted || false,
     isPlaceholder: normalizedProps.isPlaceholder || false,
     isError: normalizedProps.isError || false,
@@ -189,10 +189,10 @@ const createPriceDisplay = (props) => {
     }
 
     // Handle loading state changes
-    if (normalizedNewProps.isLoading !== undefined) {
+    if (normalizedNewProps.loading !== undefined) {
       element.classList.toggle(
         'price-display--loading',
-        normalizedNewProps.isLoading
+        normalizedNewProps.loading
       );
 
       // Remove existing loading indicator if any
@@ -204,7 +204,7 @@ const createPriceDisplay = (props) => {
       }
 
       // Add new loading indicator if loading
-      if (normalizedNewProps.isLoading) {
+      if (normalizedNewProps.loading) {
         const loadingIndicator = createElement('span', {
           classes: ['price-display__loading-indicator'],
         });

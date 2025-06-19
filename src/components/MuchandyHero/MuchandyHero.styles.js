@@ -126,6 +126,7 @@ export const muchandyHeroStyles = css`
   /* Form wrapper optimization */
   .muchandy-hero__form-wrapper {
     /* Optimize for potential visibility changes */
+    padding-bottom: var(--space-1);
     contain: layout style paint;
   }
 

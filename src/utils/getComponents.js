@@ -2585,6 +2585,34 @@ export const getComponents = () => {
               '../components/ConditionSelector/ConditionSelector.stories.js'
             ).then((m) => m.CustomStyling),
         },
+        {
+          name: 'WithCustomIcons',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.WithCustomIcons),
+        },
+        {
+          name: 'WithoutIcons',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.WithoutIcons),
+        },
+        {
+          name: 'ToggleIcons',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.ToggleIcons),
+        },
+        {
+          name: 'MixedIconTypes',
+          module: () =>
+            import(
+              '../components/ConditionSelector/ConditionSelector.stories.js'
+            ).then((m) => m.MixedIconTypes),
+        },
       ],
     },
     {

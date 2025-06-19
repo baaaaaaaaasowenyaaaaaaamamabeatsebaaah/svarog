@@ -193,7 +193,7 @@ const renderMuchandyHero = (state) => {
   // Create tabs component with optimized configuration
   const tabsComponent = Tabs({
     tabs: tabsData,
-    defaultValue: defaultActiveTab, // <- use defaultValue instead
+    defaultValue: defaultActiveTab,
     className: 'muchandy-hero__tabs',
     variant: 'border',
     align: 'center',

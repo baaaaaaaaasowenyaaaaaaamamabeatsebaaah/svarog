@@ -6,12 +6,14 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
-import { createStyleInjector } from '../../utils/styleInjection.js';
-import { phoneRepairFormStyles } from './PhoneRepairForm.styles.js';
 import Button from '../Button/Button.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
+
+// CSS injection imports
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { phoneRepairFormStyles } from './PhoneRepairForm.styles.js';
 
 // Create style injector for PhoneRepairForm component
 const injectPhoneRepairFormStyles = createStyleInjector('PhoneRepairForm');
@@ -181,8 +183,8 @@ const renderPhoneRepairForm = (state) => {
     options: manufacturerOptions,
     value: state.selectedManufacturer,
     loading: state.loadingStates.manufacturers,
-    loadingText: 'Loading manufacturers...',
-    emptyText: 'No manufacturers available',
+    loadingText: state.labels.manufacturerLoadingText,
+    emptyText: state.labels.manufacturerEmptyText,
     onChange: (event, value) => {
       if (typeof state.onManufacturerChange === 'function') {
         setTimeout(() => state.onManufacturerChange(value), 0);
@@ -202,10 +204,10 @@ const renderPhoneRepairForm = (state) => {
     value: state.selectedDevice,
     disabled: !state.selectedManufacturer,
     loading: state.loadingStates.devices,
-    loadingText: 'Loading devices...',
+    loadingText: state.labels.deviceLoadingText,
     emptyText: state.selectedManufacturer
-      ? 'No devices available for this manufacturer'
-      : 'Please select a manufacturer first',
+      ? state.labels.deviceEmptyText
+      : state.labels.deviceWaitingText,
     onChange: (event, value) => {
       if (typeof state.onDeviceChange === 'function') {
         setTimeout(() => state.onDeviceChange(value), 0);
@@ -225,10 +227,10 @@ const renderPhoneRepairForm = (state) => {
     value: state.selectedAction,
     disabled: !state.selectedDevice,
     loading: state.loadingStates.actions,
-    loadingText: 'Loading services...',
+    loadingText: state.labels.serviceLoadingText,
     emptyText: state.selectedDevice
-      ? 'No services available for this device'
-      : 'Please select a device first',
+      ? state.labels.serviceEmptyText
+      : state.labels.serviceWaitingText,
     onChange: (event, value) => {
       if (typeof state.onActionChange === 'function') {
         setTimeout(() => state.onActionChange(value), 0);
@@ -334,8 +336,16 @@ const createDefaultLabels = () => {
     deviceStep: 'Modell',
     serviceStep: 'Service',
     manufacturerPlaceholder: 'Hersteller auswählen',
-    devicePlaceholder: 'Zuerst Hersteller auswählen',
-    servicePlaceholder: 'Zuerst Modell auswählen',
+    devicePlaceholder: 'Modell auswählen',
+    servicePlaceholder: 'Service auswählen',
+    manufacturerLoadingText: 'Hersteller werden geladen...',
+    deviceLoadingText: 'Modelle werden geladen...',
+    serviceLoadingText: 'Services werden geladen...',
+    manufacturerEmptyText: 'Keine Hersteller verfügbar',
+    deviceEmptyText: 'Keine Modelle für diesen Hersteller verfügbar',
+    serviceEmptyText: 'Keine Services für dieses Modell verfügbar',
+    deviceWaitingText: 'Bitte zuerst Hersteller auswählen',
+    serviceWaitingText: 'Bitte zuerst Modell auswählen',
     initialPriceText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
     loadingPriceText: 'Preis wird geladen...',
     priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
@@ -516,8 +526,8 @@ const createPhoneRepairForm = (props) => {
         disabled: !manufacturerSelected,
         value: newProps.selectedDevice ?? currentState.selectedDevice,
         emptyText: manufacturerSelected
-          ? 'No devices available for this manufacturer'
-          : 'Please select a manufacturer first',
+          ? currentState.labels.deviceEmptyText
+          : currentState.labels.deviceWaitingText,
       });
     }
 
@@ -542,8 +552,8 @@ const createPhoneRepairForm = (props) => {
         disabled: !deviceSelected,
         value: newProps.selectedAction ?? currentState.selectedAction,
         emptyText: deviceSelected
-          ? 'No services available for this device'
-          : 'Please select a device first',
+          ? currentState.labels.serviceEmptyText
+          : currentState.labels.serviceWaitingText,
       });
     }
 
