@@ -243,7 +243,7 @@ const createUsedPhonePriceFormContainer = (props) => {
       return {
         ...containerState,
         formContainerState: container.state,
-        loading: container.isLoading(),
+        loading: container.loading(),
         hasErrors: container.hasErrors(),
       };
     },

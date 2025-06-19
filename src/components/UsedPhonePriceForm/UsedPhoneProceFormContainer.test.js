@@ -234,7 +234,7 @@ describe('UsedPhonePriceFormContainer', () => {
     expect(containerState).toHaveProperty('currentCondition');
     expect(containerState).toHaveProperty('lastSuccessfulState');
     expect(containerState).toHaveProperty('formContainerState');
-    expect(containerState).toHaveProperty('isLoading');
+    expect(containerState).toHaveProperty('loading');
     expect(containerState).toHaveProperty('hasErrors');
   });
 

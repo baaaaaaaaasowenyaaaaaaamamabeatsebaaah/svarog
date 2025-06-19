@@ -42,11 +42,11 @@ export default class FormContainer {
   /**
    * Set loading state for a specific key
    * @param {string} key - Resource key
-   * @param {boolean} isLoading - Whether the resource is loading
+   * @param {boolean} loading - Whether the resource is loading
    */
-  setLoading(key, isLoading) {
+  setLoading(key, loading) {
     return this.setState({
-      loading: { ...this.state.loading, [key]: isLoading },
+      loading: { ...this.state.loading, [key]: loading },
       error: { ...this.state.error, [key]: null }, // Clear errors when loading
     });
   }
@@ -87,10 +87,22 @@ export default class FormContainer {
   }
 
   /**
-   * Check if any resources are loading
+   * DEPRECATED: Use loading() instead
+   * @deprecated
    * @returns {boolean} Whether any resources are loading
    */
   isLoading() {
+    console.warn(
+      'FormContainer: isLoading() is deprecated, use loading() instead'
+    );
+    return this.loading();
+  }
+
+  /**
+   * Check if any resources are loading
+   * @returns {boolean} Whether any resources are loading
+   */
+  loading() {
     return Object.values(this.state.loading).some(Boolean);
   }
 
