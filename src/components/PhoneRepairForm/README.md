@@ -1,6 +1,6 @@
 # PhoneRepairForm Component
 
-The PhoneRepairForm component provides a multi-step interface for users to select a phone manufacturer, device model, and repair service to get pricing information. It features async loading, error handling, and optimized user experience with CSS injection for zero-configuration styling.
+The PhoneRepairForm component provides a multi-step interface for users to select a phone manufacturer, device model, and repair service to get pricing information. It features async loading, error handling, algorithmic optimizations, and CSS injection for zero-configuration styling.
 
 ## Key Features
 
@@ -15,19 +15,30 @@ The PhoneRepairForm component provides a multi-step interface for users to selec
 - **Theme awareness**: Responds to theme changes
 - **CSS Injection**: Zero-configuration styling that works everywhere
 - **SSR Compatible**: Safe for server-side rendering environments
+- **Algorithmic Optimizations**: O(1) lookups, mathematical calculations, and memoized transformations
 
 ## CSS Injection Architecture
 
 This component uses the modern CSS injection pattern:
 
-✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere  
-✅ **Zero Configuration** - Users just import and use components  
-✅ **SSR Compatible** - Styles inject safely in browser only  
-✅ **Tree Shakeable** - Only loads styles for used components  
-✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere
+✅ **Zero Configuration** - Users just import and use components
+✅ **SSR Compatible** - Styles inject safely in browser only
+✅ **Tree Shakeable** - Only loads styles for used components
+✅ **Performance Optimized** - Styles are cached and deduped
 ✅ **Developer Experience** - No separate CSS imports to remember
 
 The component automatically injects its styles on first render using the `createStyleInjector` utility.
+
+## Performance Optimizations
+
+The PhoneRepairForm includes several algorithmic optimizations:
+
+- **O(1) Lookup Maps**: Fast name resolution using Map data structures
+- **Memoized Transformations**: Cached option transformations with WeakMap
+- **Mathematical Step Progression**: Efficient step calculation using arithmetic
+- **Bitwise Validation**: Ultra-fast form validation using bitwise operations
+- **Partial Updates**: Only updates changed components instead of full re-renders
 
 ## Usage
 
@@ -222,6 +233,34 @@ The service object passed to PhoneRepairFormContainer must implement:
 - `getFormState()` - Get current form state
 - `destroy()` - Clean up resources
 
+## Callback Data Formats
+
+### onScheduleClick Callback Data
+
+```javascript
+{
+  manufacturer: {
+    id: "1",
+    name: "Apple"
+  },
+  device: {
+    id: "3",
+    name: "iPhone 13"
+  },
+  service: {
+    id: "7",
+    name: "Display Reparatur"
+  },
+  price: {
+    price: 26900,
+    deviceName: "iPhone 13",
+    actionName: "Display Reparatur",
+    manufacturerName: "Apple"
+  },
+  timestamp: "2024-06-19T10:30:00.000Z"
+}
+```
+
 ## Examples
 
 ### Basic Implementation
@@ -401,6 +440,29 @@ src/components/PhoneRepairForm/
 - **Memory leak prevention**: Proper cleanup with style injection management
 - **O(1) operations**: Optimized lookup maps for name resolution
 - **Mathematical algorithms**: Step progression and validation logic
+- **Memoized transformations**: Cached select option transformations
+
+## Migration from Legacy Props
+
+If upgrading from an older version:
+
+### Prop Migration
+
+```javascript
+// Before
+const form = PhoneRepairForm({
+  usedPhoneUrl: 'https://example.com/used', // ❌ Deprecated
+  loading: { devices: true }, // ❌ Deprecated
+});
+
+// After
+const form = PhoneRepairForm({
+  usedPhoneHref: 'https://example.com/used', // ✅ New prop name
+  loadingStates: { devices: true }, // ✅ New prop name
+});
+```
+
+The component provides warnings in the console for deprecated props and automatically migrates them internally for backward compatibility.
 
 ## Migration from CSS Imports
 

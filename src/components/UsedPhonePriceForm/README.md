@@ -11,6 +11,7 @@ The UsedPhonePriceForm component provides a multi-step interface for users to se
 - **Condition selector**: Visual condition picker with descriptions
 - **Steps indicator**: Visual progress through the form
 - **Price display**: Real-time price updates with formatting
+- **Form animations**: Smooth transitions between states
 - **Responsive design**: Works on desktop and mobile
 - **Accessibility**: Full keyboard navigation and screen reader support
 - **Theme awareness**: Responds to theme changes
@@ -21,14 +22,26 @@ The UsedPhonePriceForm component provides a multi-step interface for users to se
 
 This component uses **CSS injection** for styling, which provides several benefits:
 
-✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere  
-✅ **Zero Configuration** - Users just import and use components  
-✅ **SSR Compatible** - Styles inject safely in browser only  
-✅ **Tree Shakeable** - Only loads styles for used components  
-✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere
+✅ **Zero Configuration** - Users just import and use components
+✅ **SSR Compatible** - Styles inject safely in browser only
+✅ **Tree Shakeable** - Only loads styles for used components
+✅ **Performance Optimized** - Styles are cached and deduped
 ✅ **Developer Experience** - No separate CSS imports to remember
 
 The component automatically injects its styles when first rendered, and styles are cached to prevent duplicate injections.
+
+## Performance Optimizations
+
+The UsedPhonePriceForm includes several algorithmic optimizations:
+
+- **O(1) Lookup Maps**: Fast name resolution using Map data structures
+- **Memoized Transformations**: Cached option transformations with WeakMap
+- **Mathematical Step Progression**: Efficient step calculation using arithmetic
+- **Bitwise Validation**: Ultra-fast form validation using bitwise operations
+- **Partial Updates**: Only updates changed components instead of full re-renders
+- **CSS Injection Caching**: Styles are injected once and cached automatically
+- **Animation Optimization**: Mathematical timing for smooth animations
 
 ## Usage
 
@@ -121,6 +134,12 @@ document.body.appendChild(priceForm.getElement());
 | onConditionChange    | Function | null    | Callback when condition changes `(conditionId) => {}`                 |
 | onSubmit             | Function | null    | Callback when form is submitted `(formData) => {}`                    |
 
+### Deprecated Props
+
+| Deprecated Prop | New Prop      | Type   | Description                     |
+| --------------- | ------------- | ------ | ------------------------------- |
+| loading         | loadingStates | Object | Loading states for each element |
+
 ### UsedPhonePriceFormContainer Props
 
 | Prop               | Type     | Required | Description                                        |
@@ -133,6 +152,7 @@ document.body.appendChild(priceForm.getElement());
 | loadingStates      | Object   | No       | Loading states object                              |
 | loading            | Object   | No       | Alias for loadingStates (deprecated)               |
 | showStepsIndicator | boolean  | No       | Whether to show the step indicator (default: true) |
+| animationEnabled   | boolean  | No       | Whether to enable form animations (default: true)  |
 
 ### Service Interface
 
@@ -239,6 +259,35 @@ The service object passed to UsedPhonePriceFormContainer must implement:
 - `getFormState()` - Get current form state
 - `destroy()` - Clean up resources
 
+## Callback Data Formats
+
+### onSubmit Callback Data
+
+```javascript
+{
+  manufacturerId: "1",
+  deviceId: "3",
+  conditionId: "2",
+  price: 39900,
+  manufacturerName: "Apple",
+  deviceName: "iPhone 13",
+  conditionName: "Good",
+  timestamp: "2024-06-19T10:30:00.000Z"
+}
+```
+
+## Form Animations
+
+The component supports several animation types:
+
+- **Step transitions**: Smooth progression between form steps
+- **Submit animation**: Visual feedback when submitting
+- **Error animations**: Shake effect on validation errors
+- **Price highlight**: Emphasizes price updates
+- **Theme transitions**: Smooth theme changes
+
+Animations can be disabled by setting `animationEnabled: false`.
+
 ## Examples
 
 ### Basic Implementation
@@ -320,6 +369,26 @@ const container = createUsedPhonePriceFormContainer({
 });
 ```
 
+### Without Steps Indicator
+
+```javascript
+const container = createUsedPhonePriceFormContainer({
+  service: myService,
+  showStepsIndicator: false, // Hide the steps indicator
+  onSubmit: handleSubmit,
+});
+```
+
+### With Disabled Animations
+
+```javascript
+const container = createUsedPhonePriceFormContainer({
+  service: myService,
+  animationEnabled: false, // Disable all animations
+  onSubmit: handleSubmit,
+});
+```
+
 ### Manual State Management
 
 ```javascript
@@ -346,17 +415,6 @@ loadManufacturers().then((manufacturers) => {
   form.setManufacturers(manufacturers);
 });
 ```
-
-## Performance Optimizations
-
-The UsedPhonePriceForm includes several algorithmic optimizations:
-
-- **O(1) Lookup Maps**: Fast name resolution using Map data structures
-- **Memoized Transformations**: Cached option transformations with WeakMap
-- **Mathematical Step Progression**: Efficient step calculation using arithmetic
-- **Bitwise Validation**: Ultra-fast form validation using bitwise operations
-- **Partial Updates**: Only updates changed components instead of full re-renders
-- **CSS Injection Caching**: Styles are injected once and cached automatically
 
 ## Styling Customization
 
@@ -421,11 +479,31 @@ src/components/UsedPhonePriceForm/
 ├── UsedPhonePriceForm.styles.js       # Component-specific styles
 ├── UsedPhonePriceFormContainer.js     # Container for API management
 ├── UsedPhonePriceForm.test.js         # Component tests
-├── UsedPhoneProceFormContainer.test.js # Container tests
+├── UsedPhonePriceFormContainer.test.js # Container tests
 ├── UsedPhonePriceForm.stories.js      # Storybook stories
 ├── README.md                          # This file
 └── index.js                           # Exports
 ```
+
+## Migration from Legacy Props
+
+If you're upgrading from an older version:
+
+### Prop Migration
+
+```javascript
+// Before
+const form = UsedPhonePriceForm({
+  loading: { devices: true }, // ❌ Deprecated
+});
+
+// After
+const form = UsedPhonePriceForm({
+  loadingStates: { devices: true }, // ✅ New prop name
+});
+```
+
+The component provides automatic migration for backward compatibility and will show warnings in the console for deprecated props.
 
 ## Migration from CSS Imports
 
@@ -439,6 +517,7 @@ If you're upgrading from a version that used CSS imports, no changes are needed 
 - Clear error messaging
 - Semantic HTML structure
 - Proper form labels and descriptions
+- Live regions for dynamic updates
 
 ## Browser Support
 
@@ -456,3 +535,7 @@ If you're upgrading from a version that used CSS imports, no changes are needed 
 - Memory leak prevention with proper cleanup
 - Algorithmic optimizations for fast operations
 - Automatic style caching and deduplication
+- O(1) lookup operations for instant name resolution
+- Memoized transformations to prevent redundant calculations
+- Bitwise validation for ultra-fast form state checks
+- Mathematical animations for smooth transitions
