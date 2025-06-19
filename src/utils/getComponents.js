@@ -3294,6 +3294,13 @@ export const getComponents = () => {
               (m) => m.RealisticProductionScenario
             ),
         },
+        {
+          name: 'WithFormPropUpdates',
+          module: () =>
+            import('../components/MuchandyHero/MuchandyHero.stories.js').then(
+              (m) => m.WithFormPropUpdates
+            ),
+        },
       ],
     },
 

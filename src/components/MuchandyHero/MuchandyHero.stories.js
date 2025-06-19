@@ -1117,3 +1117,179 @@ export const RealisticProductionScenario = () => {
   container.appendChild(heroContainer.getElement());
   return container;
 };
+
+export const WithFormPropUpdates = (args) => {
+  // Create container for demonstration
+  const container = document.createElement('div');
+  container.style.maxWidth = '1200px';
+
+  // Add controls
+  const controlsDiv = document.createElement('div');
+  controlsDiv.style.cssText = `
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  `;
+  controlsDiv.innerHTML = `
+    <h3 style="margin-top: 0;">Form Props Update Demo</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+      <button id="update-repair-labels" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Repair Labels</button>
+      <button id="update-buyback-labels" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Buyback Labels</button>
+      <button id="toggle-steps" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Toggle Steps Indicator</button>
+      <button id="update-both" style="padding: 8px 12px; border: 1px solid #ccc; background: white; cursor: pointer;">Update Both Forms</button>
+    </div>
+    <div id="status-display" style="padding: 10px; background: #e8f4f8; border: 1px solid #bee5eb; border-radius: 4px; font-size: 14px;">
+      Status: Ready for updates
+    </div>
+  `;
+  container.appendChild(controlsDiv);
+
+  // Create status update function
+  const updateStatus = (message) => {
+    const statusEl = controlsDiv.querySelector('#status-display');
+    if (statusEl) {
+      const timestamp = new Date().toLocaleTimeString();
+      statusEl.innerHTML = `Status [${timestamp}]: ${message}`;
+    }
+  };
+
+  // Create forms with update support
+  const { repairForm, buybackForm } = createOptimizedForms({
+    formOptions: {
+      // These forms have update methods
+      enableUpdates: true,
+    },
+  });
+
+  const hero = createHero({
+    ...args,
+    repairForm,
+    buybackForm,
+    title: 'Form Updates<br>Demo',
+    subtitle: 'Click buttons to update form properties.',
+  });
+
+  container.appendChild(hero.getElement());
+
+  // State tracking
+  let stepsVisible = true;
+  let labelsUpdated = false;
+
+  // Update Repair Labels Button
+  const updateRepairBtn = controlsDiv.querySelector('#update-repair-labels');
+  if (updateRepairBtn) {
+    updateRepairBtn.addEventListener('click', () => {
+      const newLabels = labelsUpdated
+        ? {
+            manufacturerPlaceholder: 'Hersteller auswählen',
+            devicePlaceholder: 'Zuerst Hersteller auswählen',
+            servicePlaceholder: 'Zuerst Modell auswählen',
+            scheduleButtonText: 'Jetzt Termin vereinbaren',
+            priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
+          }
+        : {
+            manufacturerPlaceholder: 'Choose Brand',
+            devicePlaceholder: 'Select Your Model',
+            servicePlaceholder: 'What Needs Repair?',
+            scheduleButtonText: 'Book Repair Now',
+            priceLabel: 'Estimated Cost:',
+          };
+
+      hero.updateRepairForm({
+        labels: newLabels,
+      });
+
+      labelsUpdated = !labelsUpdated;
+      updateStatus(
+        `Repair form labels updated to ${labelsUpdated ? 'English' : 'German'}`
+      );
+    });
+  }
+
+  // Update Buyback Labels Button
+  const updateBuybackBtn = controlsDiv.querySelector('#update-buyback-labels');
+  if (updateBuybackBtn) {
+    updateBuybackBtn.addEventListener('click', () => {
+      const newLabels = labelsUpdated
+        ? {
+            manufacturerPlaceholder: 'Hersteller auswählen',
+            devicePlaceholder: 'Zuerst Hersteller auswählen',
+            conditionNewLabel: 'Neu',
+            conditionGoodLabel: 'Gut',
+            conditionFairLabel: 'Akzeptabel',
+            conditionPoorLabel: 'Beschädigt',
+            submitButtonText: 'Verkaufen',
+            priceLabel: 'Unser Angebot:',
+          }
+        : {
+            manufacturerPlaceholder: 'Select Brand',
+            devicePlaceholder: 'Choose Model',
+            conditionNewLabel: 'Like New',
+            conditionGoodLabel: 'Excellent',
+            conditionFairLabel: 'Good',
+            conditionPoorLabel: 'Poor',
+            submitButtonText: 'Sell Now',
+            priceLabel: 'Our Offer:',
+          };
+
+      hero.setBuybackFormProps({
+        labels: newLabels,
+      });
+
+      updateStatus(
+        `Buyback form labels updated to ${labelsUpdated ? 'German' : 'English'}`
+      );
+    });
+  }
+
+  // Toggle Steps Button
+  const toggleStepsBtn = controlsDiv.querySelector('#toggle-steps');
+  if (toggleStepsBtn) {
+    toggleStepsBtn.addEventListener('click', () => {
+      stepsVisible = !stepsVisible;
+
+      // Update both forms' steps visibility
+      hero.updateRepairForm({
+        showStepsIndicator: stepsVisible,
+      });
+
+      hero.updateBuybackForm({
+        showStepsIndicator: stepsVisible,
+      });
+
+      updateStatus(
+        `Steps indicator ${stepsVisible ? 'shown' : 'hidden'} in both forms`
+      );
+      toggleStepsBtn.textContent = stepsVisible ? 'Hide Steps' : 'Show Steps';
+    });
+  }
+
+  // Update Both Button
+  const updateBothBtn = controlsDiv.querySelector('#update-both');
+  if (updateBothBtn) {
+    updateBothBtn.addEventListener('click', () => {
+      // Chain multiple updates
+      hero
+        .setTitle('Updated<br>Hero Title')
+        .setSubtitle('Forms have been customized!')
+        .updateRepairForm({
+          className: 'custom-repair-form',
+          labels: {
+            usedPhoneText: 'Check out our certified used phones!',
+          },
+        })
+        .updateBuybackForm({
+          className: 'custom-buyback-form',
+          animationEnabled: true,
+        });
+
+      updateStatus(
+        'Updated hero title, subtitle, and both forms with custom classes'
+      );
+    });
+  }
+
+  return container;
+};

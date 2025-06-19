@@ -599,4 +599,161 @@ describe('MuchandyHero', () => {
       expect(bgImageVar).toBe('');
     });
   });
+  // Add these test cases to MuchandyHero.test.js
+
+  describe('Form Update Methods', () => {
+    it('should provide updateRepairForm method', () => {
+      const hero = MuchandyHero(mockForms);
+
+      expect(typeof hero.updateRepairForm).toBe('function');
+      expect(typeof hero.setRepairFormProps).toBe('function');
+      expect(hero.updateRepairForm).toBe(hero.setRepairFormProps); // Should be aliases
+    });
+
+    it('should provide updateBuybackForm method', () => {
+      const hero = MuchandyHero(mockForms);
+
+      expect(typeof hero.updateBuybackForm).toBe('function');
+      expect(typeof hero.setBuybackFormProps).toBe('function');
+      expect(hero.updateBuybackForm).toBe(hero.setBuybackFormProps); // Should be aliases
+    });
+
+    it('should update repair form when update method is available', () => {
+      // Create mock forms with update method
+      const updateSpy = vi.fn();
+      const enhancedMockForms = {
+        repairForm: {
+          ...mockForms.repairForm,
+          update: updateSpy,
+        },
+        buybackForm: mockForms.buybackForm,
+      };
+
+      const hero = MuchandyHero(enhancedMockForms);
+      const testProps = {
+        labels: { scheduleButtonText: 'Book Now' },
+        className: 'custom-repair',
+      };
+
+      // Update repair form
+      hero.updateRepairForm(testProps);
+
+      // Verify update was called with correct props
+      expect(updateSpy).toHaveBeenCalledWith(testProps);
+    });
+
+    it('should update buyback form when update method is available', () => {
+      // Create mock forms with update method
+      const updateSpy = vi.fn();
+      const enhancedMockForms = {
+        repairForm: mockForms.repairForm,
+        buybackForm: {
+          ...mockForms.buybackForm,
+          update: updateSpy,
+        },
+      };
+
+      const hero = MuchandyHero(enhancedMockForms);
+      const testProps = {
+        labels: { submitButtonText: 'Sell Now' },
+        showStepsIndicator: false,
+      };
+
+      // Update buyback form
+      hero.setBuybackFormProps(testProps);
+
+      // Verify update was called with correct props
+      expect(updateSpy).toHaveBeenCalledWith(testProps);
+    });
+
+    it('should handle forms without update method gracefully', () => {
+      // Use the basic mockForms which don't have update methods
+      const hero = MuchandyHero(mockForms);
+
+      // Mock console.warn
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      // Should not throw when forms don't have update method
+      expect(() => hero.updateRepairForm({ test: 'props' })).not.toThrow();
+      expect(() => hero.updateBuybackForm({ test: 'props' })).not.toThrow();
+
+      // Should warn about missing update support
+      expect(warnSpy).toHaveBeenCalledTimes(2);
+      expect(warnSpy).toHaveBeenCalledWith(
+        'MuchandyHero: Repair form does not support updates'
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        'MuchandyHero: Buyback form does not support updates'
+      );
+
+      warnSpy.mockRestore();
+    });
+
+    it('should handle update errors gracefully', () => {
+      // Create mock form with update method that throws
+      const errorForm = {
+        ...mockForms.repairForm,
+        update: () => {
+          throw new Error('Update failed');
+        },
+      };
+
+      const enhancedMockForms = {
+        repairForm: errorForm,
+        buybackForm: mockForms.buybackForm,
+      };
+
+      const hero = MuchandyHero(enhancedMockForms);
+
+      // Mock console.error
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      // Should not throw even if form update fails
+      expect(() => hero.updateRepairForm({ test: 'props' })).not.toThrow();
+
+      // Should log the error
+      expect(errorSpy).toHaveBeenCalledWith(
+        'MuchandyHero: Error updating repair form:',
+        expect.any(Error)
+      );
+
+      errorSpy.mockRestore();
+    });
+
+    it('should return the component instance for chaining', () => {
+      const updateRepairSpy = vi.fn();
+      const updateBuybackSpy = vi.fn();
+
+      const enhancedMockForms = {
+        repairForm: {
+          ...mockForms.repairForm,
+          update: updateRepairSpy,
+        },
+        buybackForm: {
+          ...mockForms.buybackForm,
+          update: updateBuybackSpy,
+        },
+      };
+
+      const hero = MuchandyHero(enhancedMockForms);
+
+      // Test method chaining
+      const result = hero
+        .updateRepairForm({ labels: { test: 'repair' } })
+        .updateBuybackForm({ labels: { test: 'buyback' } })
+        .setTitle('Chained Updates')
+        .setSubtitle('All methods work together');
+
+      // Should return the hero instance for chaining
+      expect(result).toBe(hero);
+
+      // All updates should have been applied
+      expect(updateRepairSpy).toHaveBeenCalled();
+      expect(updateBuybackSpy).toHaveBeenCalled();
+
+      const state = hero.getCurrentState();
+      expect(state.title).toBe('Chained Updates');
+      expect(state.subtitle).toBe('All methods work together');
+    });
+  });
 });

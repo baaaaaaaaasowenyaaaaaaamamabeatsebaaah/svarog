@@ -497,6 +497,47 @@ const createMuchandyHero = (props) => {
     return { ...currentState };
   };
 
+  // NEW: Convenience methods for updating form props
+  muchandyHero.updateRepairForm = function (props) {
+    const element = this.getElement();
+    const repairForm =
+      element?._components?.repairForm || currentState.repairForm;
+
+    if (repairForm && typeof repairForm.update === 'function') {
+      try {
+        repairForm.update(props);
+        console.log('MuchandyHero: Updated repair form with:', props);
+      } catch (error) {
+        console.error('MuchandyHero: Error updating repair form:', error);
+      }
+    } else {
+      console.warn('MuchandyHero: Repair form does not support updates');
+    }
+    return this;
+  };
+
+  muchandyHero.updateBuybackForm = function (props) {
+    const element = this.getElement();
+    const buybackForm =
+      element?._components?.buybackForm || currentState.buybackForm;
+
+    if (buybackForm && typeof buybackForm.update === 'function') {
+      try {
+        buybackForm.update(props);
+        console.log('MuchandyHero: Updated buyback form with:', props);
+      } catch (error) {
+        console.error('MuchandyHero: Error updating buyback form:', error);
+      }
+    } else {
+      console.warn('MuchandyHero: Buyback form does not support updates');
+    }
+    return this;
+  };
+
+  // Aliases for consistency with naming conventions
+  muchandyHero.setRepairFormProps = muchandyHero.updateRepairForm;
+  muchandyHero.setBuybackFormProps = muchandyHero.updateBuybackForm;
+
   // Enhanced update method with validation
   muchandyHero.update = function (newProps) {
     try {
