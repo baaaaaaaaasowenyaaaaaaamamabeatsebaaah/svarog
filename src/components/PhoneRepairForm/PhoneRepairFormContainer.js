@@ -260,7 +260,7 @@ const createPhoneRepairFormContainer = (props) => {
       return {
         ...containerState,
         formContainerState: container.state,
-        isLoading: container.isLoading(),
+        loading: container.isLoading(),
         hasErrors: container.hasErrors(),
       };
     },
