@@ -10,13 +10,16 @@ The ConditionSelector component provides a user interface for selecting from a l
 - **Legacy Props Support**: Maintains backward compatibility with deprecated props
 - **Loading States**: Visual feedback during async operations
 - **Theme Awareness**: Automatically responds to theme changes
+- **Flexible Icons**: Support for emoji, SVG, and image icons with automatic fallbacks
+- **Icon Toggle**: Option to show or hide icons entirely
+- **Image Component Integration**: Uses Svarog's Image component for robust image handling
 
 ## Usage
 
 ```javascript
 import { ConditionSelector } from '@svarog-ui/core';
 
-// Create a condition selector with options
+// Create a condition selector with default icons
 const conditionSelector = ConditionSelector({
   conditions: [
     {
@@ -29,7 +32,6 @@ const conditionSelector = ConditionSelector({
       name: 'Good',
       description: 'Minor signs of wear but fully functional',
     },
-    { id: 3, name: 'Fair', description: 'Visible signs of use but works well' },
   ],
   onChange: (conditionId) => console.log('Selected:', conditionId),
 });
@@ -40,13 +42,14 @@ document.body.appendChild(conditionSelector.getElement());
 
 ## Props
 
-| Prop       | Type     | Default | Description                                                          |
-| ---------- | -------- | ------- | -------------------------------------------------------------------- |
-| conditions | Array    | []      | Array of condition objects with id, name, and description properties |
-| onChange   | Function | null    | Callback function that receives the selected condition id            |
-| selectedId | String   | ''      | ID of the initially selected condition                               |
-| loading    | Boolean  | false   | Whether the component is in a loading state                          |
-| className  | String   | ''      | Additional CSS classes to apply to the component                     |
+| Prop       | Type     | Default | Description                                                       |
+| ---------- | -------- | ------- | ----------------------------------------------------------------- |
+| conditions | Array    | []      | Array of condition objects with id, name, and optional properties |
+| onChange   | Function | null    | Callback function that receives the selected condition id         |
+| selectedId | String   | ''      | ID of the initially selected condition                            |
+| loading    | Boolean  | false   | Whether the component is in a loading state                       |
+| showIcons  | Boolean  | true    | Whether to show icons for conditions                              |
+| className  | String   | ''      | Additional CSS classes to apply to the component                  |
 
 ## Deprecated Props
 
@@ -61,11 +64,33 @@ Each condition in the `conditions` array should have this structure:
 
 ```javascript
 {
-  id: Number or String,   // Unique identifier
-  name: String,           // Display name
-  description: String     // Optional description
+  id: Number or String,      // Unique identifier (required)
+  name: String,              // Display name (required)
+  description: String,       // Optional description
+  icon: String,              // Optional custom emoji/text icon
+  imageUrl: String,          // Optional image URL for icon
+  svgIcon: String            // Optional SVG markup for icon
 }
 ```
+
+### Icon Priority
+
+Icons are displayed based on the following priority:
+
+1. `imageUrl` - If provided, displays an image using the Image component
+2. `svgIcon` - If provided, renders SVG markup
+3. `icon` - If provided, displays text/emoji
+4. Default icons based on condition name (if none above provided)
+
+### Default Icon Mapping
+
+When no custom icon is provided, the component uses these defaults based on the condition name:
+
+- Names containing "new" or "neu" → ✨
+- Names containing "good" or "gut" → 👍
+- Names containing "fair" or "akzeptabel" → 👌
+- Names containing "poor" or "schlecht" → 🔧
+- All other names → 📱
 
 ## Methods
 
@@ -108,6 +133,15 @@ Updates which condition is selected.
 conditionSelector.setSelectedCondition(2); // Select condition with ID 2
 ```
 
+### setShowIcons(show)
+
+Toggle the visibility of icons.
+
+```javascript
+conditionSelector.setShowIcons(false); // Hide all icons
+conditionSelector.setShowIcons(true); // Show icons again
+```
+
 ### update(props)
 
 Updates multiple component properties at once.
@@ -117,6 +151,7 @@ conditionSelector.update({
   conditions: newConditions,
   selectedId: '3',
   loading: false,
+  showIcons: true,
 });
 ```
 
@@ -127,69 +162,6 @@ Cleans up event listeners and resources. Call when removing the component.
 ```javascript
 conditionSelector.destroy();
 ```
-
-## Styling
-
-### Automatic Style Injection
-
-The component automatically injects its styles when first rendered. No separate CSS imports are needed.
-
-### CSS Custom Properties
-
-The component uses CSS custom properties for theming:
-
-```css
-:root {
-  /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 1rem;
-
-  /* Colors */
-  --color-bg: #ffffff;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-brand-secondary: #3b82f6;
-  --color-text-light: #6b7280;
-
-  /* Typography */
-  --font-size-base: 1rem;
-  --font-size-sm: 0.875rem;
-  --font-size-xl: 1.25rem;
-  --font-weight-bold: 600;
-}
-```
-
-### Custom Styling
-
-Apply custom styles by targeting the component's CSS classes:
-
-```css
-/* Custom styling example */
-.my-condition-selector .condition-option__label {
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.my-condition-selector .condition-option--selected .condition-option__label {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-```
-
-## Accessibility Features
-
-- **Radio Button Semantics**: Uses proper radio button implementation for single selection
-- **ARIA Labels**: Comprehensive labeling for screen readers
-- **Keyboard Navigation**: Full keyboard accessibility
-- **Focus Management**: Proper focus indication and management
-- **Loading State Indication**: Screen reader announcements for loading states
-
-## Browser Compatibility
-
-- Works in all modern browsers
-- SSR compatible (no CSS import errors in Node.js)
-- Falls back gracefully if JavaScript is disabled
 
 ## Examples
 
@@ -209,102 +181,159 @@ const selector = ConditionSelector({
 });
 ```
 
-### With Pre-selected Condition
+### With Custom Icons
+
+```javascript
+const conditionsWithIcons = [
+  {
+    id: 1,
+    name: 'Premium',
+    description: 'Top quality',
+    icon: '💎', // Emoji icon
+  },
+  {
+    id: 2,
+    name: 'Standard',
+    description: 'Regular quality',
+    svgIcon: '<svg viewBox="0 0 24 24">...</svg>', // SVG icon
+  },
+  {
+    id: 3,
+    name: 'Budget',
+    description: 'Economic option',
+    imageUrl: 'https://picsum.photos/28/28?random=1', // Image icon
+  },
+];
+
+const selector = ConditionSelector({
+  conditions: conditionsWithIcons,
+  onChange: handleSelection,
+});
+```
+
+### Without Icons
 
 ```javascript
 const selector = ConditionSelector({
   conditions,
-  selectedId: '2', // 'Like New' is pre-selected
-  onChange: (id) => console.log(`Changed selection to: ${id}`),
+  showIcons: false, // No icons will be displayed
+  onChange: handleSelection,
 });
 ```
 
-### Loading State
+### Dynamic Icon Toggle
 
 ```javascript
+// Create selector with icons
 const selector = ConditionSelector({
   conditions,
-  loading: true, // Show loading state
+  showIcons: true,
+  onChange: handleSelection,
 });
 
-// Later, when data is ready:
-selector.setLoading(false);
+// Later, hide icons based on user preference
+selector.setShowIcons(false);
+
+// Show them again
+selector.setShowIcons(true);
 ```
 
-### Dynamic Updates
+### Mixed Icon Types
 
 ```javascript
-// Create selector with initial conditions
-const selector = ConditionSelector({
-  conditions: initialConditions,
-  onChange: handleConditionChange,
-});
+const mixedConditions = [
+  {
+    id: 1,
+    name: 'New',
+    // No icon specified - will use default ✨
+  },
+  {
+    id: 2,
+    name: 'Certified',
+    icon: '✓', // Text icon
+  },
+  {
+    id: 3,
+    name: 'Warranty',
+    svgIcon: '<svg>...</svg>', // SVG markup
+  },
+  {
+    id: 4,
+    name: 'Special',
+    imageUrl: 'https://picsum.photos/28/28?random=2', // Image URL
+  },
+];
+```
 
-// Later, update with new conditions
-selector.updateConditions(newConditions, '3');
+## Styling
 
-// Or update just the selection
-selector.setSelectedCondition('2');
+### CSS Custom Properties
+
+The component uses CSS custom properties for theming:
+
+```css
+:root {
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.25rem;
+
+  /* Colors */
+  --color-bg: #ffffff;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-brand-secondary: #3b82f6;
+  --color-text-light: #6b7280;
+
+  /* Typography */
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-weight-bold: 600;
+}
 ```
 
 ### Custom Styling
 
-```javascript
-const selector = ConditionSelector({
-  conditions,
-  className: 'my-custom-selector',
-  onChange: handleSelection,
-});
+Apply custom styles by targeting the component's CSS classes:
 
-// Add custom styles
-const style = document.createElement('style');
-style.textContent = `
-  .my-custom-selector .condition-option__label {
-    border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .my-custom-selector .condition-option:hover .condition-option__label {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  }
-`;
-document.head.appendChild(style);
+```css
+/* Custom icon styling */
+.my-condition-selector .condition-option__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+}
+
+/* Custom selected state */
+.my-condition-selector .condition-option--selected .condition-option__icon {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Style for no-icon mode */
+.my-condition-selector.condition-selector--no-icons .condition-option__label {
+  padding-left: 24px;
+}
+
+/* Custom image icon styling */
+.my-condition-selector .condition-option__icon-image {
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
 ```
 
-## Migration from Previous Versions
+## Accessibility Features
 
-### Legacy Props
-
-The component automatically migrates legacy props:
-
-```javascript
-// Old way (still works with warnings)
-const selector = ConditionSelector({
-  conditions,
-  onSelect: handleSelection, // Migrated to onChange
-  isLoading: true, // Migrated to loading
-});
-
-// New way (recommended)
-const selector = ConditionSelector({
-  conditions,
-  onChange: handleSelection,
-  loading: true,
-});
-```
-
-### CSS Import Removal
-
-If upgrading from a version that required CSS imports:
-
-```javascript
-// Remove this line:
-// import 'svarog-ui/dist/ConditionSelector.css';
-
-// Just import the component - styles are automatic:
-import { ConditionSelector } from 'svarog-ui';
-```
+- **Radio Button Semantics**: Uses proper radio button implementation for single selection
+- **ARIA Labels**: Comprehensive labeling for screen readers
+- **Keyboard Navigation**: Full keyboard accessibility
+- **Focus Management**: Proper focus indication and management
+- **Loading State Indication**: Screen reader announcements for loading states
+- **Icon Accessibility**: Icons marked as decorative with `aria-hidden="true"`
 
 ## Performance
 
@@ -312,6 +341,40 @@ import { ConditionSelector } from 'svarog-ui';
 - **Style Deduplication**: Multiple instances share the same stylesheet
 - **Memory Management**: Proper cleanup of event listeners and references
 - **Optimized Rendering**: Minimal DOM updates on prop changes
+- **Image Component Benefits**: Automatic lazy loading, error handling, and fallback support
+
+## Migration from Previous Versions
+
+If upgrading from a version without icon support:
+
+```javascript
+// Old conditions (still work)
+const conditions = [{ id: 1, name: 'New', description: 'Brand new' }];
+
+// New with custom icons
+const conditions = [
+  {
+    id: 1,
+    name: 'New',
+    description: 'Brand new',
+    icon: '🌟', // Optional custom icon
+  },
+];
+
+// Hide icons entirely (new feature)
+const selector = ConditionSelector({
+  conditions,
+  showIcons: false,
+});
+```
+
+## Integration with Other Components
+
+The ConditionSelector integrates seamlessly with other Svarog components:
+
+- **Image Component**: Used internally for image icons, providing automatic error handling and lazy loading
+- **Theme System**: Responds to theme changes automatically
+- **Form Components**: Can be used within form contexts for device condition selection
 
 ## Testing
 
@@ -331,5 +394,47 @@ describe('ConditionSelector', () => {
     );
     expect(injectedStyle).toBeTruthy();
   });
+
+  it('should handle image icons properly', () => {
+    const conditions = [
+      {
+        id: 1,
+        name: 'Test',
+        imageUrl: 'https://picsum.photos/28/28',
+      },
+    ];
+
+    const selector = ConditionSelector({ conditions });
+    const element = selector.getElement();
+
+    const img = element.querySelector('.condition-option__icon-image img');
+    expect(img).toBeTruthy();
+    expect(img.src).toContain('picsum.photos');
+  });
 });
 ```
+
+## File Structure
+
+```
+src/components/ConditionSelector/
+├── ConditionSelector.js           # Component with CSS injection
+├── ConditionSelector.styles.js    # Component styles (auto-injected)
+├── ConditionSelector.test.js      # Tests
+├── ConditionSelector.stories.js   # Storybook stories
+├── README.md                      # This documentation
+└── index.js                       # Export file
+```
+
+## Implementation Details
+
+This component uses the **CSS Injection Pattern** and follows our [Unified Vanilla JavaScript Development Principles](../../docs/principles.md):
+
+1. **Algorithmic Elegance**: Smart icon priority system with fallbacks
+2. **Zero Configuration**: No build setup or CSS imports required
+3. **Performance Optimized**: Styles cached and injected once per component type
+4. **SSR Safe**: Injection only occurs in browser environment
+5. **Modern Architecture**: Factory function pattern with clean lifecycle management
+6. **Component Reuse**: Leverages existing Image component for consistency
+
+The component automatically injects its styles when first used, ensuring they're available without any manual setup.

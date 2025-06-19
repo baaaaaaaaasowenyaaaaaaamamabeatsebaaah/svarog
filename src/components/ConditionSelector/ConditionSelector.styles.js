@@ -53,6 +53,31 @@ export const conditionSelectorStyles = css`
     margin-right: var(--space-3);
     font-size: var(--font-size-xl);
     min-width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  /* Custom image icon styling */
+  .condition-option__icon-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* SVG icon styling */
+  .condition-option__icon--svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .condition-option__icon--svg svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* No icons mode */
+  .condition-selector--no-icons .condition-option__label {
+    padding-left: var(--space-4);
   }
 
   .condition-option__content {
@@ -84,6 +109,19 @@ export const conditionSelectorStyles = css`
 
     .condition-option__icon {
       margin-right: var(--space-2);
+      min-width: 24px;
+      height: 24px;
+      font-size: var(--font-size-lg);
+    }
+
+    .condition-option__icon-image,
+    .condition-option__icon--svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .condition-selector--no-icons .condition-option__label {
+      padding-left: var(--space-3);
     }
   }
 `;

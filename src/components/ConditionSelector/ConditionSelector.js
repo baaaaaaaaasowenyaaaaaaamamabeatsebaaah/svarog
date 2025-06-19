@@ -6,6 +6,7 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import Image from '../Image/Image.js';
 
 // CSS injection imports
 import { createStyleInjector } from '../../utils/styleInjection.js';
@@ -78,6 +79,11 @@ const validateConditionSelectorProps = (props) => {
       );
     }
   }
+
+  // Validate showIcons prop
+  if (props.showIcons !== undefined && typeof props.showIcons !== 'boolean') {
+    throw new Error('ConditionSelector: showIcons must be a boolean');
+  }
 };
 
 /**
@@ -85,7 +91,7 @@ const validateConditionSelectorProps = (props) => {
  * @param {string} conditionName - Name of the condition
  * @returns {string} Icon representation
  */
-const getConditionIcon = (conditionName) => {
+const getDefaultConditionIcon = (conditionName) => {
   const lowerName = conditionName.toLowerCase();
 
   if (lowerName.includes('new') || lowerName.includes('neu')) {
@@ -99,6 +105,52 @@ const getConditionIcon = (conditionName) => {
   }
 
   return '📱';
+};
+
+/**
+ * Creates the icon element based on condition configuration
+ * @param {Object} condition - Condition data
+ * @param {boolean} showIcons - Whether to show icons
+ * @returns {HTMLElement|null} Icon element or null
+ */
+const createConditionIcon = (condition, showIcons) => {
+  if (!showIcons) return null;
+
+  const iconContainer = createElement('span', {
+    classes: 'condition-option__icon',
+    attributes: {
+      'aria-hidden': 'true',
+    },
+  });
+
+  // Check for custom image URL
+  if (condition.imageUrl) {
+    const imageComponent = Image({
+      imageUrl: condition.imageUrl,
+      alt: '',
+      className: 'condition-option__icon-image',
+      responsive: false,
+    });
+    iconContainer.appendChild(imageComponent.getElement());
+    return iconContainer;
+  }
+
+  // Check for SVG icon
+  if (condition.svgIcon) {
+    iconContainer.innerHTML = condition.svgIcon;
+    iconContainer.classList.add('condition-option__icon--svg');
+    return iconContainer;
+  }
+
+  // Check for custom text/emoji icon
+  if (condition.icon) {
+    iconContainer.textContent = condition.icon;
+    return iconContainer;
+  }
+
+  // Use default icon based on name
+  iconContainer.textContent = getDefaultConditionIcon(condition.name);
+  return iconContainer;
 };
 
 /**
@@ -139,9 +191,15 @@ const handleConditionSelect = (state, conditionId) => {
  * @param {Object} condition - Condition data
  * @param {string} selectedId - Currently selected condition ID
  * @param {Function} clickHandler - Click handler function
+ * @param {boolean} showIcons - Whether to show icons
  * @returns {HTMLElement} Condition option element
  */
-const createConditionOption = (condition, selectedId, clickHandler) => {
+const createConditionOption = (
+  condition,
+  selectedId,
+  clickHandler,
+  showIcons
+) => {
   const isSelected = condition.id.toString() === selectedId.toString();
   const conditionId = `condition-${condition.id}`;
 
@@ -184,14 +242,11 @@ const createConditionOption = (condition, selectedId, clickHandler) => {
   // Store reference to the handler for cleanup
   optionLabel._conditionClickHandler = clickHandler;
 
-  // Create icon
-  const icon = createElement('span', {
-    classes: 'condition-option__icon',
-    text: getConditionIcon(condition.name),
-    attributes: {
-      'aria-hidden': 'true',
-    },
-  });
+  // Create icon if enabled
+  const icon = createConditionIcon(condition, showIcons);
+  if (icon) {
+    optionLabel.appendChild(icon);
+  }
 
   // Create content container
   const content = createElement('div', {
@@ -219,7 +274,6 @@ const createConditionOption = (condition, selectedId, clickHandler) => {
   // Assemble the elements
   content.appendChild(title);
   content.appendChild(description);
-  optionLabel.appendChild(icon);
   optionLabel.appendChild(content);
   optionContainer.appendChild(radioInput);
   optionContainer.appendChild(optionLabel);
@@ -236,13 +290,14 @@ const renderConditionSelector = (state) => {
   // Inject styles on first render
   injectConditionSelectorStyles(conditionSelectorStyles);
 
-  const { conditions, selectedId, loading, className } = state;
+  const { conditions, selectedId, loading, className, showIcons } = state;
 
   // Create container with appropriate classes
   const classes = [
     'condition-selector',
     className,
     loading ? 'condition-selector--loading' : '',
+    !showIcons ? 'condition-selector--no-icons' : '',
   ].filter(Boolean);
 
   const container = createElement('div', {
@@ -282,7 +337,12 @@ const renderConditionSelector = (state) => {
     // Create a closure for this specific condition's click handler
     const clickHandler = () => handleConditionSelect(state, condition.id);
 
-    const option = createConditionOption(condition, selectedId, clickHandler);
+    const option = createConditionOption(
+      condition,
+      selectedId,
+      clickHandler,
+      showIcons
+    );
     optionsContainer.appendChild(option);
   });
 
@@ -297,12 +357,13 @@ const renderConditionSelector = (state) => {
 /**
  * Create a ConditionSelector component
  * @param {Object} props - ConditionSelector properties
- * @param {Array<{id: (string|number), name: string, description?: string}>} [props.conditions=[]] - Array of condition objects
+ * @param {Array<{id: (string|number), name: string, description?: string, icon?: string, imageUrl?: string, svgIcon?: string}>} [props.conditions=[]] - Array of condition objects
  * @param {Function} [props.onChange=null] - Callback when a condition is selected
  * @param {Function} [props.onSelect=null] - (Deprecated) Callback when a condition is selected
  * @param {string|number} [props.selectedId=''] - ID of the currently selected condition
  * @param {boolean} [props.loading=false] - Whether the component is in loading state
  * @param {boolean} [props.isLoading=false] - (Deprecated) Whether the component is in loading state
+ * @param {boolean} [props.showIcons=true] - Whether to show icons
  * @param {string} [props.className=''] - Additional CSS class names
  * @returns {Object} ConditionSelector component
  */
@@ -322,6 +383,10 @@ const createConditionSelector = (props) => {
       ? normalizedProps.selectedId.toString()
       : '',
     loading: normalizedProps.loading || false,
+    showIcons:
+      normalizedProps.showIcons !== undefined
+        ? normalizedProps.showIcons
+        : true,
     className: normalizedProps.className || '',
   };
 
@@ -342,6 +407,7 @@ const createConditionSelector = (props) => {
       'loading',
       'isLoading',
       'selectedId',
+      'showIcons',
     ].some((prop) => normalizedNewProps[prop] !== undefined);
   };
 
@@ -366,6 +432,10 @@ const createConditionSelector = (props) => {
 
   conditionSelector.setSelectedCondition = function (conditionId) {
     return this.update({ selectedId: conditionId.toString() });
+  };
+
+  conditionSelector.setShowIcons = function (show) {
+    return this.update({ showIcons: show });
   };
 
   // Add custom destroy method to ensure proper cleanup

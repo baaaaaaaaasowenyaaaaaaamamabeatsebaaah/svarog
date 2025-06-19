@@ -14,7 +14,7 @@ export default {
   },
 };
 
-// Sample condition data
+// Sample condition data with default icons
 const sampleConditions = [
   {
     id: 1,
@@ -42,6 +42,34 @@ const sampleConditions = [
   },
 ];
 
+// Sample conditions with custom icons
+const conditionsWithCustomIcons = [
+  {
+    id: 1,
+    name: 'New',
+    description: 'Brand new condition',
+    icon: '🌟', // Custom emoji
+  },
+  {
+    id: 2,
+    name: 'Good',
+    description: 'Good condition',
+    icon: '✅', // Custom emoji
+  },
+  {
+    id: 3,
+    name: 'Fair',
+    description: 'Fair condition',
+    svgIcon: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`, // SVG icon
+  },
+  {
+    id: 4,
+    name: 'Poor',
+    description: 'Poor condition',
+    imageUrl: 'https://picsum.photos/28/28?random=1', // Image icon
+  },
+];
+
 // Basic story with default options
 export const Default = () => {
   return ConditionSelector({
@@ -59,6 +87,23 @@ export const WithSelectedCondition = () => {
   });
 };
 
+// Story with custom icons
+export const WithCustomIcons = () => {
+  return ConditionSelector({
+    conditions: conditionsWithCustomIcons,
+    onChange: (conditionId) => console.log('Selected condition:', conditionId),
+  });
+};
+
+// Story without icons
+export const WithoutIcons = () => {
+  return ConditionSelector({
+    conditions: sampleConditions,
+    showIcons: false,
+    onChange: (conditionId) => console.log('Selected condition:', conditionId),
+  });
+};
+
 // Story with loading state
 export const LoadingState = () => {
   return ConditionSelector({
@@ -68,16 +113,128 @@ export const LoadingState = () => {
   });
 };
 
-// Story showing legacy props for backward compatibility
-export const UsingLegacyProps = () => {
+// Story showing icon toggle functionality
+export const ToggleIcons = () => {
+  const container = document.createElement('div');
+  container.style.maxWidth = '600px';
+
+  // Add toggle button
+  const toggleButton = document.createElement('button');
+  toggleButton.textContent = 'Toggle Icons';
+  toggleButton.style.marginBottom = '16px';
+  toggleButton.style.padding = '8px 16px';
+  toggleButton.style.border = '1px solid #ccc';
+  toggleButton.style.borderRadius = '4px';
+  toggleButton.style.cursor = 'pointer';
+
+  // Create condition selector
+  const conditionSelector = ConditionSelector({
+    conditions: conditionsWithCustomIcons,
+    onChange: (conditionId) => console.log('Selected condition:', conditionId),
+  });
+
+  let iconsVisible = true;
+  toggleButton.onclick = () => {
+    iconsVisible = !iconsVisible;
+    conditionSelector.setShowIcons(iconsVisible);
+    toggleButton.textContent = iconsVisible ? 'Hide Icons' : 'Show Icons';
+  };
+
+  container.appendChild(toggleButton);
+  container.appendChild(conditionSelector.getElement());
+
+  return container;
+};
+
+// Story with mixed icon types
+export const MixedIconTypes = () => {
+  const mixedConditions = [
+    {
+      id: 1,
+      name: 'Premium',
+      description: 'Premium quality',
+      icon: '💎', // Emoji icon
+    },
+    {
+      id: 2,
+      name: 'Standard',
+      description: 'Standard quality',
+      // No icon specified - will use default based on name
+    },
+    {
+      id: 3,
+      name: 'Custom SVG',
+      description: 'With custom SVG icon',
+      svgIcon:
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+    },
+    {
+      id: 4,
+      name: 'With Image',
+      description: 'Custom image icon',
+      imageUrl: 'https://picsum.photos/28/28?random=2',
+    },
+  ];
+
   return ConditionSelector({
-    conditions: sampleConditions,
-    onSelect: (conditionId) => console.log('Selected condition:', conditionId),
-    isLoading: false,
+    conditions: mixedConditions,
+    onChange: (conditionId) => console.log('Selected condition:', conditionId),
   });
 };
 
-// Story with interactive selection
+// Story showing all states
+export const AllStates = () => {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+  container.style.gap = '32px';
+
+  // Regular state with icons
+  const regularContainer = document.createElement('div');
+  const regularTitle = document.createElement('h3');
+  regularTitle.textContent = 'With Icons';
+  regularContainer.appendChild(regularTitle);
+
+  const regularSelector = ConditionSelector({
+    conditions: sampleConditions,
+    onChange: (id) => console.log('Selected:', id),
+  });
+  regularContainer.appendChild(regularSelector.getElement());
+
+  // Without icons
+  const noIconsContainer = document.createElement('div');
+  const noIconsTitle = document.createElement('h3');
+  noIconsTitle.textContent = 'Without Icons';
+  noIconsContainer.appendChild(noIconsTitle);
+
+  const noIconsSelector = ConditionSelector({
+    conditions: sampleConditions,
+    showIcons: false,
+    onChange: (id) => console.log('Selected:', id),
+  });
+  noIconsContainer.appendChild(noIconsSelector.getElement());
+
+  // Custom icons
+  const customContainer = document.createElement('div');
+  const customTitle = document.createElement('h3');
+  customTitle.textContent = 'Custom Icons';
+  customContainer.appendChild(customTitle);
+
+  const customSelector = ConditionSelector({
+    conditions: conditionsWithCustomIcons,
+    selectedId: '2',
+    onChange: (id) => console.log('Selected:', id),
+  });
+  customContainer.appendChild(customSelector.getElement());
+
+  // Add all containers
+  container.appendChild(regularContainer);
+  container.appendChild(noIconsContainer);
+  container.appendChild(customContainer);
+
+  return container;
+};
+
 export const Interactive = () => {
   // Create container for demonstration
   const container = document.createElement('div');
@@ -125,73 +282,7 @@ export const Interactive = () => {
   return container;
 };
 
-// Display all the different conditions with different states
-export const AllStates = () => {
-  const container = document.createElement('div');
-  container.style.display = 'flex';
-  container.style.flexDirection = 'column';
-  container.style.gap = '32px';
-
-  // Regular state
-  const regularContainer = document.createElement('div');
-  const regularTitle = document.createElement('h3');
-  regularTitle.textContent = 'Regular State';
-  regularContainer.appendChild(regularTitle);
-
-  const regularSelector = ConditionSelector({
-    conditions: sampleConditions,
-    onChange: (id) => console.log('Selected:', id),
-  });
-  regularContainer.appendChild(regularSelector.getElement());
-
-  // Selected state
-  const selectedContainer = document.createElement('div');
-  const selectedTitle = document.createElement('h3');
-  selectedTitle.textContent = 'With Selection';
-  selectedContainer.appendChild(selectedTitle);
-
-  const selectedSelector = ConditionSelector({
-    conditions: sampleConditions,
-    selectedId: '3', // Fair condition
-    onChange: (id) => console.log('Selected:', id),
-  });
-  selectedContainer.appendChild(selectedSelector.getElement());
-
-  // Loading state
-  const loadingContainer = document.createElement('div');
-  const loadingTitle = document.createElement('h3');
-  loadingTitle.textContent = 'Loading State';
-  loadingContainer.appendChild(loadingTitle);
-
-  const loadingSelector = ConditionSelector({
-    conditions: sampleConditions,
-    loading: true,
-    onChange: (id) => console.log('Selected:', id),
-  });
-  loadingContainer.appendChild(loadingSelector.getElement());
-
-  // Empty state
-  const emptyContainer = document.createElement('div');
-  const emptyTitle = document.createElement('h3');
-  emptyTitle.textContent = 'Empty State';
-  emptyContainer.appendChild(emptyTitle);
-
-  const emptySelector = ConditionSelector({
-    conditions: [],
-    onChange: (id) => console.log('Selected:', id),
-  });
-  emptyContainer.appendChild(emptySelector.getElement());
-
-  // Add all containers
-  container.appendChild(regularContainer);
-  container.appendChild(selectedContainer);
-  container.appendChild(loadingContainer);
-  container.appendChild(emptyContainer);
-
-  return container;
-};
-
-// Story with custom styling
+// Story with custom styling (RESTORED)
 export const CustomStyling = () => {
   const container = document.createElement('div');
   container.style.maxWidth = '600px';
@@ -204,23 +295,23 @@ export const CustomStyling = () => {
       transition: all 0.3s ease;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    
+
     .custom-condition-selector .condition-option__label:hover {
       border-color: #3182ce;
       transform: translateY(-2px);
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    
+
     .custom-condition-selector .condition-option--selected .condition-option__label {
       border-color: #3182ce;
       background-color: #ebf8ff;
     }
-    
+
     .custom-condition-selector .condition-option__title {
       font-size: 18px;
       margin-bottom: 8px;
     }
-    
+
     .custom-condition-selector .condition-option__description {
       line-height: 1.5;
     }
