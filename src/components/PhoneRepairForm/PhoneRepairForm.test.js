@@ -87,6 +87,7 @@ describe('PhoneRepairForm component', () => {
     const form = createPhoneRepairForm({
       labels: customLabels,
       usedPhoneHref: 'https://example.com/used-phones',
+      currentPrice: { price: 299 }, // Add this - link only shows when price exists
       showStepsIndicator: true,
     });
 
