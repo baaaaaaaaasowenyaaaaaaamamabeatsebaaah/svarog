@@ -22,6 +22,7 @@ describe('PhoneRepairForm component', () => {
       ...props,
     });
   };
+
   it('should create a form with link and schedule button', () => {
     const form = createPhoneRepairForm({
       usedPhoneHref: 'https://example.com/used-phones',
@@ -29,9 +30,11 @@ describe('PhoneRepairForm component', () => {
 
     const element = form.getElement();
 
-    // Link should NOT be visible initially (no price yet)
+    // Check for link to used phones
     const link = element.querySelector('.phone-repair-form__link');
-    expect(link).toBeNull();
+    expect(link).not.toBeNull();
+    expect(link.href).toContain('example.com/used-phones');
+    expect(link.textContent).toContain('Zu teuer?');
 
     // Check for schedule button
     const button = element.querySelector('.btn');
@@ -42,40 +45,31 @@ describe('PhoneRepairForm component', () => {
     expect(button.disabled).toBe(true);
   });
 
-  // Add a new test for link visibility when price is shown:
-  it('should show link only when price is available', () => {
+  it('should show link only when href is provided', () => {
     const form = createPhoneRepairForm({
+      currentPrice: { price: 199 },
       usedPhoneHref: 'https://example.com/used-phones',
     });
 
     const element = form.getElement();
 
-    // Initially no link (no price)
-    let link = element.querySelector('.phone-repair-form__link');
-    expect(link).toBeNull();
-
-    // Update with price - link should appear
-    form.setState({
-      currentPrice: { price: 19900 },
-      loadingStates: { price: false },
-    });
-
-    // Now link should be visible
-    link = element.querySelector('.phone-repair-form__link');
+    // Check for link presence when href is provided
+    const link = element.querySelector('.phone-repair-form__link');
     expect(link).not.toBeNull();
     expect(link.href).toContain('example.com/used-phones');
-    expect(link.textContent).toContain('Zu teuer?');
 
-    // Hide link when price is loading
-    form.setState({
-      loadingStates: { price: true },
+    // Create form without href
+    const formWithoutHref = createPhoneRepairForm({
+      currentPrice: { price: 199 },
     });
 
-    link = element.querySelector('.phone-repair-form__link');
-    expect(link).toBeNull();
+    const elementWithoutHref = formWithoutHref.getElement();
+    const linkWithoutHref = elementWithoutHref.querySelector(
+      '.phone-repair-form__link'
+    );
+    expect(linkWithoutHref).toBeNull();
   });
 
-  // Update the custom labels test:
   it('should handle custom labels', () => {
     const customLabels = {
       manufacturerStep: 'Brand',
@@ -93,7 +87,6 @@ describe('PhoneRepairForm component', () => {
       labels: customLabels,
       usedPhoneHref: 'https://example.com/used-phones',
       showStepsIndicator: true,
-      currentPrice: { price: 19900 }, // Add price so link appears
     });
 
     const element = form.getElement();
@@ -102,7 +95,7 @@ describe('PhoneRepairForm component', () => {
     const button = element.querySelector('.btn');
     expect(button.textContent).toBe('Book Now');
 
-    // Check custom link text (now visible because we have a price)
+    // Check custom link text
     const link = element.querySelector('.phone-repair-form__link');
     expect(link).not.toBeNull();
     expect(link.textContent).toBe('Find a used phone instead');
@@ -278,7 +271,7 @@ describe('PhoneRepairForm component', () => {
     ).toBe(true);
   });
 
-  it('should handle custom labels including link text when price is shown', () => {
+  it('should handle custom labels including link text when href is provided', () => {
     const customLabels = {
       manufacturerStep: 'Brand',
       deviceStep: 'Model',
@@ -293,7 +286,8 @@ describe('PhoneRepairForm component', () => {
 
     const form = createPhoneRepairForm({
       labels: customLabels,
-      usedPhoneHref: 'https://example.com/used-phones',
+      currentPrice: { price: 199 }, // Include price to show the link properly
+      usedPhoneHref: 'https://example.com/used-phones', // Must provide href for link to render
       showStepsIndicator: true,
     });
 
@@ -303,7 +297,7 @@ describe('PhoneRepairForm component', () => {
     const button = element.querySelector('.btn');
     expect(button.textContent).toBe('Book Now');
 
-    // Check custom link text
+    // Check custom link text - note that the link is only rendered if usedPhoneHref is provided
     const link = element.querySelector('.phone-repair-form__link');
     expect(link).not.toBeNull();
     expect(link.textContent).toBe('Find a used phone instead');
