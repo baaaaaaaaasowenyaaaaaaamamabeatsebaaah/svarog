@@ -26,6 +26,7 @@ describe('PhoneRepairForm component', () => {
   it('should create a form with link and schedule button', () => {
     const form = createPhoneRepairForm({
       usedPhoneHref: 'https://example.com/used-phones',
+      currentPrice: { price: 199 }, // Add currentPrice to make link visible
     });
 
     const element = form.getElement();
