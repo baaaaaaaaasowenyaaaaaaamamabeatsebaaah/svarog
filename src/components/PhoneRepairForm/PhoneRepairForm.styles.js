@@ -23,13 +23,12 @@ export const phoneRepairFormStyles = css`
     padding: 0;
   }
 
-  /* Actions container (link and button) */
-  .phone-repair-form__actions {
+  /* Link container - positioned between price display and buttons */
+  .phone-repair-form__link-container {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    margin-top: var(--space-6);
-    align-items: flex-end;
+    justify-content: flex-end;
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 
   /* Used phone link */
@@ -37,13 +36,27 @@ export const phoneRepairFormStyles = css`
     color: var(--color-brand-primary);
     text-decoration: none;
     font-size: var(--font-size-sm, 14px);
-    align-self: flex-end;
     transition: color 0.2s ease;
   }
 
   .phone-repair-form__link:hover {
     color: var(--color-brand-primary-light);
     text-decoration: underline;
+  }
+
+  /* Actions container - now holds multiple buttons */
+  .phone-repair-form__actions {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  /* Button responsiveness */
+  .phone-repair-form__actions .btn {
+    flex: 1;
+    min-width: 160px;
   }
 
   /* Error state */
@@ -72,6 +85,15 @@ export const phoneRepairFormStyles = css`
   @media (max-width: 480px) {
     .phone-repair-form {
       padding: var(--space-3);
+    }
+
+    /* Stack buttons on mobile */
+    .phone-repair-form__actions {
+      flex-direction: column;
+    }
+
+    .phone-repair-form__actions .btn {
+      width: 100%;
     }
   }
 `;

@@ -236,8 +236,8 @@ const renderUsedPhonePriceForm = (state) => {
     options: manufacturerOptions,
     value: state.selectedManufacturer,
     loading: state.loadingStates.manufacturers,
-    loadingText: state.labels.manufacturerLoadingText,
-    emptyText: state.labels.manufacturerEmptyText,
+    loadingText: 'Loading manufacturers...',
+    emptyText: 'No manufacturers available',
     onChange: (event, value) => {
       if (typeof state.onManufacturerChange === 'function') {
         setTimeout(() => state.onManufacturerChange(value), 0);
@@ -257,10 +257,10 @@ const renderUsedPhonePriceForm = (state) => {
     value: state.selectedDevice,
     disabled: !state.selectedManufacturer,
     loading: state.loadingStates.devices,
-    loadingText: state.labels.deviceLoadingText,
+    loadingText: 'Loading devices...',
     emptyText: state.selectedManufacturer
-      ? state.labels.deviceEmptyText
-      : state.labels.deviceWaitingText,
+      ? 'No devices available for this manufacturer'
+      : 'Please select a manufacturer first',
     onChange: (event, value) => {
       if (typeof state.onDeviceChange === 'function') {
         setTimeout(() => state.onDeviceChange(value), 0);
@@ -270,28 +270,12 @@ const renderUsedPhonePriceForm = (state) => {
   });
   form.appendChild(components.deviceSelect.getElement());
 
-  // Create condition selector with improved UX logic
-  // Show appropriate waiting text based on selection state
-  let conditionDisabled = true;
-  let conditionWaitingText = '';
-
-  if (!state.selectedManufacturer) {
-    // If no manufacturer selected, show same message as device
-    conditionWaitingText = state.labels.deviceWaitingText;
-  } else if (!state.selectedDevice) {
-    // If manufacturer selected but no device, show condition waiting text
-    conditionWaitingText = state.labels.conditionWaitingText;
-  } else {
-    // If device selected, enable condition selector
-    conditionDisabled = false;
-  }
-
+  // Create condition selector
   components.conditionSelector = ConditionSelector({
     conditions: state.conditions,
     selectedId: state.selectedCondition,
     loading: state.loadingStates.conditions || false,
-    disabled: conditionDisabled,
-    waitingText: conditionWaitingText,
+    disabled: !state.selectedDevice,
     onChange: (conditionId) => {
       if (typeof state.onConditionChange === 'function') {
         setTimeout(() => state.onConditionChange(conditionId), 0);
@@ -316,13 +300,17 @@ const renderUsedPhonePriceForm = (state) => {
     classes: 'used-phone-price-form__actions',
   });
 
-  // Create submit button with algorithmic validation
+  // Determine if we need call button
+  const showCallButton = state.callButtonText && state.onCallClick;
   const canSubmitNow = canSubmit(state);
+
+  // Create submit button with algorithmic validation
   components.submitButton = Button({
     text: state.loadingStates.submit
       ? state.labels.submitButtonLoadingText
       : state.labels.submitButtonText,
     type: 'submit',
+    variant: 'primary',
     onClick: () => {
       if (typeof state.onSubmit === 'function' && canSubmit(state)) {
         // Start the submit animation
@@ -355,11 +343,51 @@ const renderUsedPhonePriceForm = (state) => {
       }
     },
     disabled: !canSubmitNow,
+    fullWidth: !showCallButton, // Full width if alone
     attributes: {
       'aria-busy': state.loadingStates.submit ? 'true' : 'false',
     },
   });
   actionsContainer.appendChild(components.submitButton.getElement());
+
+  // Create call button if configured
+  if (showCallButton) {
+    components.callButton = Button({
+      text: state.callButtonText,
+      variant: 'secondary',
+      onClick: () => {
+        if (typeof state.onCallClick === 'function' && canSubmit(state)) {
+          // Use O(1) lookup maps for name resolution
+          const names = resolveNames(state, lookupMaps);
+
+          const formData = {
+            manufacturerId: state.selectedManufacturer,
+            deviceId: state.selectedDevice,
+            conditionId: state.selectedCondition,
+            price: state.currentPrice?.price,
+            manufacturerName: names.manufacturerName,
+            deviceName: names.deviceName,
+            conditionName: names.conditionName,
+            timestamp: new Date().toISOString(),
+          };
+
+          try {
+            state.onCallClick(formData);
+          } catch (error) {
+            console.error(
+              'UsedPhonePriceForm: Error in onCallClick callback:',
+              error
+            );
+          }
+        }
+      },
+      disabled: !canSubmitNow,
+      attributes: {
+        'aria-busy': state.loadingStates.submit ? 'true' : 'false',
+      },
+    });
+    actionsContainer.appendChild(components.callButton.getElement());
+  }
 
   form.appendChild(actionsContainer);
 
@@ -381,13 +409,7 @@ const createDefaultLabels = () => {
     deviceStep: 'Modell',
     conditionStep: 'Zustand',
     manufacturerPlaceholder: 'Hersteller auswählen',
-    devicePlaceholder: 'Modell auswählen',
-    manufacturerLoadingText: 'Hersteller werden geladen...',
-    deviceLoadingText: 'Modelle werden geladen...',
-    manufacturerEmptyText: 'Keine Hersteller verfügbar',
-    deviceEmptyText: 'Keine Modelle für diesen Hersteller verfügbar',
-    deviceWaitingText: 'Bitte zuerst Hersteller auswählen',
-    conditionWaitingText: 'Bitte zuerst Modell auswählen',
+    devicePlaceholder: 'Zuerst Hersteller auswählen',
     initialPriceText: 'Bitte wählen Sie Hersteller, Modell und Zustand',
     loadingPriceText: 'Preis wird geladen...',
     priceLabel: 'Unser Angebot:',
@@ -445,12 +467,14 @@ const createUsedPhonePriceForm = (props) => {
     labels,
     className: props.className || '',
     showStepsIndicator: props.showStepsIndicator !== false,
+    callButtonText: props.callButtonText || null,
     onManufacturerChange: props.onManufacturerChange,
     onDeviceChange: props.onDeviceChange,
     onConditionChange: props.onConditionChange,
     onSubmit: props.onSubmit,
+    onCallClick: props.onCallClick,
     hasError: Object.values(props.error || {}).some(Boolean),
-    loading: Object.values(loadingStates).some(Boolean),
+    isLoading: Object.values(loadingStates).some(Boolean),
     animationEnabled: props.animationEnabled !== false,
   };
 
@@ -510,6 +534,8 @@ const createUsedPhonePriceForm = (props) => {
       'selectedDevice',
       'selectedCondition',
       'className',
+      'callButtonText',
+      'onCallClick',
     ].some(
       (prop) =>
         newProps[prop] !== undefined && newProps[prop] !== currentState[prop]
@@ -574,43 +600,27 @@ const createUsedPhonePriceForm = (props) => {
         disabled: !manufacturerSelected,
         value: newProps.selectedDevice ?? currentState.selectedDevice,
         emptyText: manufacturerSelected
-          ? currentState.labels.deviceEmptyText
-          : currentState.labels.deviceWaitingText,
+          ? 'No devices available for this manufacturer'
+          : 'Please select a manufacturer first',
       });
     }
 
-    // Update condition selector with improved UX logic
+    // Update condition selector
     if (
       newProps.conditions !== undefined ||
       loadingStates.conditions !== undefined ||
       newProps.selectedDevice !== undefined ||
-      newProps.selectedCondition !== undefined ||
-      newProps.selectedManufacturer !== undefined
+      newProps.selectedCondition !== undefined
     ) {
       const conditionLoading =
         loadingStates.conditions ?? currentState.loadingStates.conditions;
       const deviceSelected =
         newProps.selectedDevice ?? currentState.selectedDevice;
-      const manufacturerSelected =
-        newProps.selectedManufacturer ?? currentState.selectedManufacturer;
-
-      // Improved UX: determine appropriate waiting text
-      let conditionDisabled = true;
-      let conditionWaitingText = '';
-
-      if (!manufacturerSelected) {
-        conditionWaitingText = currentState.labels.deviceWaitingText;
-      } else if (!deviceSelected) {
-        conditionWaitingText = currentState.labels.conditionWaitingText;
-      } else {
-        conditionDisabled = false;
-      }
 
       components.conditionSelector?.update({
         conditions: newProps.conditions || currentState.conditions,
         loading: conditionLoading,
-        disabled: conditionDisabled,
-        waitingText: conditionWaitingText,
+        disabled: !deviceSelected,
         selectedId:
           newProps.selectedCondition ?? currentState.selectedCondition,
       });
@@ -645,7 +655,7 @@ const createUsedPhonePriceForm = (props) => {
       });
     }
 
-    // Update submit button with algorithmic validation
+    // Update buttons with algorithmic validation
     if (
       [
         'selectedManufacturer',
@@ -668,6 +678,7 @@ const createUsedPhonePriceForm = (props) => {
         loadingStates.submit ?? currentState.loadingStates.submit;
 
       components.submitButton?.setDisabled(!canSubmitNow || isSubmitting);
+      components.callButton?.setDisabled(!canSubmitNow || isSubmitting);
 
       if (loadingStates.submit !== undefined) {
         components.submitButton?.setText(
@@ -690,7 +701,7 @@ const createUsedPhonePriceForm = (props) => {
     if (newProps.isLoading !== undefined) {
       element.classList.toggle(
         'used-phone-price-form--loading',
-        newProps.loading
+        newProps.isLoading
       );
     }
   };
@@ -700,7 +711,7 @@ const createUsedPhonePriceForm = (props) => {
     const mergedLoading = { ...currentState.loadingStates, ...loadingState };
     return this.setState({
       loadingStates: mergedLoading,
-      loading: Object.values(mergedLoading).some(Boolean),
+      isLoading: Object.values(mergedLoading).some(Boolean),
     });
   };
 

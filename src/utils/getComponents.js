@@ -3116,6 +3116,20 @@ export const getComponents = () => {
               '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
             ).then((m) => m.Interactive),
         },
+        {
+          name: 'WithCallButton',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.WithCallButton),
+        },
+        {
+          name: 'FullyConfiguredExample',
+          module: () =>
+            import(
+              '../components/PhoneRepairForm/PhoneRepairForm.stories.js'
+            ).then((m) => m.FullyConfiguredExample),
+        },
       ],
     },
     {
@@ -3177,6 +3191,20 @@ export const getComponents = () => {
             import(
               '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
             ).then((m) => m.Interactive),
+        },
+        {
+          name: 'WithCallButton',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.WithCallButton),
+        },
+        {
+          name: 'FullyConfiguredWithButtons',
+          module: () =>
+            import(
+              '../components/UsedPhonePriceForm/UsedPhonePriceForm.stories.js'
+            ).then((m) => m.FullyConfiguredWithButtons),
         },
       ],
     },

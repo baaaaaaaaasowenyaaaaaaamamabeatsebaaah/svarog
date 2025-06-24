@@ -37,13 +37,19 @@ export const usedPhonePriceFormStyles = css`
     color: var(--color-text);
   }
 
-  /* Actions container (button) */
+  /* Actions container - now holds multiple buttons */
   .used-phone-price-form__actions {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-3);
     margin-top: var(--space-6);
-    align-items: flex-end;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  /* Button responsiveness */
+  .used-phone-price-form__actions .btn {
+    flex: 1;
+    min-width: 160px;
   }
 
   /* Error state */
@@ -178,6 +184,15 @@ export const usedPhonePriceFormStyles = css`
   @media (max-width: 480px) {
     .used-phone-price-form {
       padding: var(--space-3);
+    }
+
+    /* Stack buttons on mobile */
+    .used-phone-price-form__actions {
+      flex-direction: column;
+    }
+
+    .used-phone-price-form__actions .btn {
+      width: 100%;
     }
   }
 `;

@@ -1,4 +1,5 @@
 // src/components/PhoneRepairForm/PhoneRepairForm.js
+
 import {
   createElement,
   validateProps,
@@ -6,14 +7,12 @@ import {
 } from '../../utils/componentFactory.js';
 import { createBaseComponent } from '../../utils/baseComponent.js';
 import { withThemeAwareness } from '../../utils/composition.js';
+import { createStyleInjector } from '../../utils/styleInjection.js';
+import { phoneRepairFormStyles } from './PhoneRepairForm.styles.js';
 import Button from '../Button/Button.js';
 import Select from '../Select/Select.js';
 import StepsIndicator from '../StepsIndicator/StepsIndicator.js';
 import PriceDisplay from '../PriceDisplay/PriceDisplay.js';
-
-// CSS injection imports
-import { createStyleInjector } from '../../utils/styleInjection.js';
-import { phoneRepairFormStyles } from './PhoneRepairForm.styles.js';
 
 // Create style injector for PhoneRepairForm component
 const injectPhoneRepairFormStyles = createStyleInjector('PhoneRepairForm');
@@ -183,8 +182,8 @@ const renderPhoneRepairForm = (state) => {
     options: manufacturerOptions,
     value: state.selectedManufacturer,
     loading: state.loadingStates.manufacturers,
-    loadingText: state.labels.manufacturerLoadingText,
-    emptyText: state.labels.manufacturerEmptyText,
+    loadingText: 'Loading manufacturers...',
+    emptyText: 'No manufacturers available',
     onChange: (event, value) => {
       if (typeof state.onManufacturerChange === 'function') {
         setTimeout(() => state.onManufacturerChange(value), 0);
@@ -204,10 +203,10 @@ const renderPhoneRepairForm = (state) => {
     value: state.selectedDevice,
     disabled: !state.selectedManufacturer,
     loading: state.loadingStates.devices,
-    loadingText: state.labels.deviceLoadingText,
+    loadingText: 'Loading devices...',
     emptyText: state.selectedManufacturer
-      ? state.labels.deviceEmptyText
-      : state.labels.deviceWaitingText,
+      ? 'No devices available for this manufacturer'
+      : 'Please select a manufacturer first',
     onChange: (event, value) => {
       if (typeof state.onDeviceChange === 'function') {
         setTimeout(() => state.onDeviceChange(value), 0);
@@ -227,10 +226,10 @@ const renderPhoneRepairForm = (state) => {
     value: state.selectedAction,
     disabled: !state.selectedDevice,
     loading: state.loadingStates.actions,
-    loadingText: state.labels.serviceLoadingText,
+    loadingText: 'Loading services...',
     emptyText: state.selectedDevice
-      ? state.labels.serviceEmptyText
-      : state.labels.serviceWaitingText,
+      ? 'No services available for this device'
+      : 'Please select a device first',
     onChange: (event, value) => {
       if (typeof state.onActionChange === 'function') {
         setTimeout(() => state.onActionChange(value), 0);
@@ -251,13 +250,12 @@ const renderPhoneRepairForm = (state) => {
   });
   form.appendChild(components.priceDisplay.getElement());
 
-  // Create actions container
-  const actionsContainer = createElement('div', {
-    classes: 'phone-repair-form__actions',
-  });
+  // Create link to used phones ABOVE buttons (only when price is shown)
+  if (state.usedPhoneHref && state.currentPrice && !state.loadingStates.price) {
+    const linkContainer = createElement('div', {
+      classes: 'phone-repair-form__link-container',
+    });
 
-  // Create link to used phones
-  if (state.usedPhoneHref) {
     const usedPhoneLink = createElement('a', {
       classes: 'phone-repair-form__link',
       text: state.labels.usedPhoneText,
@@ -267,13 +265,23 @@ const renderPhoneRepairForm = (state) => {
         rel: 'noopener noreferrer',
       },
     });
-    actionsContainer.appendChild(usedPhoneLink);
+    linkContainer.appendChild(usedPhoneLink);
+    form.appendChild(linkContainer);
   }
 
-  // Create schedule button with algorithmic validation
+  // Create actions container for buttons
+  const actionsContainer = createElement('div', {
+    classes: 'phone-repair-form__actions',
+  });
+
+  // Determine if we need call button
+  const showCallButton = state.callButtonText && state.onCallClick;
   const canScheduleNow = canSchedule(state);
+
+  // Create schedule button with algorithmic validation
   components.scheduleButton = Button({
     text: state.labels.scheduleButtonText,
+    variant: 'primary',
     onClick: () => {
       if (typeof state.onScheduleClick === 'function') {
         // Use the same validation logic as canSchedule for consistency
@@ -313,8 +321,57 @@ const renderPhoneRepairForm = (state) => {
       }
     },
     disabled: !canScheduleNow,
+    fullWidth: !showCallButton, // Full width if alone
   });
   actionsContainer.appendChild(components.scheduleButton.getElement());
+
+  // Create call button if configured
+  if (showCallButton) {
+    components.callButton = Button({
+      text: state.callButtonText,
+      variant: 'secondary',
+      onClick: () => {
+        if (typeof state.onCallClick === 'function') {
+          // Use the same validation logic
+          if (!canSchedule(state)) {
+            console.warn('PhoneRepairForm: Cannot call - validation failed');
+            return;
+          }
+
+          // Use O(1) lookup maps for name resolution
+          const names = resolveNames(state, lookupMaps);
+
+          const repairInfo = {
+            manufacturer: {
+              id: state.selectedManufacturer,
+              name: names.manufacturerName,
+            },
+            device: {
+              id: state.selectedDevice,
+              name: names.deviceName,
+            },
+            service: {
+              id: state.selectedAction,
+              name: names.actionName,
+            },
+            price: state.currentPrice,
+            timestamp: new Date().toISOString(),
+          };
+
+          try {
+            state.onCallClick(repairInfo);
+          } catch (error) {
+            console.error(
+              'PhoneRepairForm: Error in onCallClick callback:',
+              error
+            );
+          }
+        }
+      },
+      disabled: !canScheduleNow,
+    });
+    actionsContainer.appendChild(components.callButton.getElement());
+  }
 
   form.appendChild(actionsContainer);
 
@@ -336,20 +393,12 @@ const createDefaultLabels = () => {
     deviceStep: 'Modell',
     serviceStep: 'Service',
     manufacturerPlaceholder: 'Hersteller auswählen',
-    devicePlaceholder: 'Modell auswählen',
-    servicePlaceholder: 'Service auswählen',
-    manufacturerLoadingText: 'Hersteller werden geladen...',
-    deviceLoadingText: 'Modelle werden geladen...',
-    serviceLoadingText: 'Services werden geladen...',
-    manufacturerEmptyText: 'Keine Hersteller verfügbar',
-    deviceEmptyText: 'Keine Modelle für diesen Hersteller verfügbar',
-    serviceEmptyText: 'Keine Services für dieses Modell verfügbar',
-    deviceWaitingText: 'Bitte zuerst Hersteller auswählen',
-    serviceWaitingText: 'Bitte zuerst Modell auswählen',
+    devicePlaceholder: 'Zuerst Hersteller auswählen',
+    servicePlaceholder: 'Zuerst Modell auswählen',
     initialPriceText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
     loadingPriceText: 'Preis wird geladen...',
     priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
-    usedPhoneText: 'Zu teuer? Finde hier ein günstiges Gebrauchtes!',
+    usedPhoneText: 'Zu teuer? Schau dir jetzt unsere Gebrauchten Modelle an!',
     scheduleButtonText: 'Jetzt Termin vereinbaren',
   };
 };
@@ -414,10 +463,12 @@ const createPhoneRepairForm = (props) => {
     labels,
     className: migratedProps.className || '',
     usedPhoneHref: migratedProps.usedPhoneHref || null,
+    callButtonText: migratedProps.callButtonText || null,
     onManufacturerChange: migratedProps.onManufacturerChange,
     onDeviceChange: migratedProps.onDeviceChange,
     onActionChange: migratedProps.onActionChange,
     onScheduleClick: migratedProps.onScheduleClick,
+    onCallClick: migratedProps.onCallClick,
     hasError: Object.values(migratedProps.error || {}).some(Boolean),
   };
 
@@ -468,6 +519,8 @@ const createPhoneRepairForm = (props) => {
       'selectedDevice',
       'selectedAction',
       'className',
+      'callButtonText',
+      'onCallClick',
     ].some(
       (prop) =>
         newProps[prop] !== undefined && newProps[prop] !== currentState[prop]
@@ -526,8 +579,8 @@ const createPhoneRepairForm = (props) => {
         disabled: !manufacturerSelected,
         value: newProps.selectedDevice ?? currentState.selectedDevice,
         emptyText: manufacturerSelected
-          ? currentState.labels.deviceEmptyText
-          : currentState.labels.deviceWaitingText,
+          ? 'No devices available for this manufacturer'
+          : 'Please select a manufacturer first',
       });
     }
 
@@ -552,8 +605,8 @@ const createPhoneRepairForm = (props) => {
         disabled: !deviceSelected,
         value: newProps.selectedAction ?? currentState.selectedAction,
         emptyText: deviceSelected
-          ? currentState.labels.serviceEmptyText
-          : currentState.labels.serviceWaitingText,
+          ? 'No services available for this device'
+          : 'Please select a device first',
       });
     }
 
@@ -579,6 +632,57 @@ const createPhoneRepairForm = (props) => {
       });
     }
 
+    // Update link visibility based on price availability
+    if (
+      newProps.currentPrice !== undefined ||
+      newProps.loadingStates?.price !== undefined ||
+      newProps.usedPhoneHref !== undefined
+    ) {
+      const hasPrice = newProps.currentPrice ?? currentState.currentPrice;
+      const loadingPrice =
+        newProps.loadingStates?.price ?? currentState.loadingStates.price;
+      const hasHref = newProps.usedPhoneHref ?? currentState.usedPhoneHref;
+
+      // Find existing link container
+      const existingLink = element.querySelector(
+        '.phone-repair-form__link-container'
+      );
+
+      if (hasHref && hasPrice && !loadingPrice) {
+        // Should show link
+        if (!existingLink) {
+          // Create and insert link before actions container
+          const linkContainer = createElement('div', {
+            classes: 'phone-repair-form__link-container',
+          });
+
+          const usedPhoneLink = createElement('a', {
+            classes: 'phone-repair-form__link',
+            text: currentState.labels.usedPhoneText,
+            attributes: {
+              href: hasHref,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            },
+          });
+          linkContainer.appendChild(usedPhoneLink);
+
+          // Insert before actions container
+          const actionsContainer = element.querySelector(
+            '.phone-repair-form__actions'
+          );
+          if (actionsContainer) {
+            element.insertBefore(linkContainer, actionsContainer);
+          }
+        }
+      } else {
+        // Should hide link
+        if (existingLink) {
+          existingLink.remove();
+        }
+      }
+    }
+
     // Update steps indicator with mathematical approach
     if (needsStepsUpdate && components.stepsIndicator) {
       components.stepsIndicator.update({
@@ -587,7 +691,7 @@ const createPhoneRepairForm = (props) => {
       });
     }
 
-    // Update schedule button with algorithmic validation
+    // Update buttons with algorithmic validation
     if (
       [
         'selectedManufacturer',
@@ -599,6 +703,7 @@ const createPhoneRepairForm = (props) => {
     ) {
       const canScheduleNow = canSchedule({ ...currentState, ...newProps });
       components.scheduleButton?.setDisabled(!canScheduleNow);
+      components.callButton?.setDisabled(!canScheduleNow);
     }
 
     // Update form error styling

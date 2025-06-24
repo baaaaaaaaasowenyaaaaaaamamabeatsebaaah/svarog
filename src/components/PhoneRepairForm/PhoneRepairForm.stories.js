@@ -341,3 +341,116 @@ export const Interactive = (args) => {
 
   return container;
 };
+export const WithCallButton = (args) => {
+  // Create container
+  const container = document.createElement('div');
+  container.style.maxWidth = '800px';
+
+  // Add description
+  const description = document.createElement('p');
+  description.textContent =
+    'Form with both "Schedule" and "Call Now" buttons. Complete all selections to enable both buttons.';
+  container.appendChild(description);
+
+  // Create form with call button configuration
+  const form = createForm({
+    ...args,
+    manufacturers: mockPhoneRepairData.manufacturers,
+    usedPhoneHref: 'https://example.com/used-phones',
+    callButtonText: 'Jetzt anrufen',
+    onCallClick: (repairInfo) => {
+      const priceFormatted = repairInfo.price
+        ? `€${(repairInfo.price.price / 100).toFixed(2)}`
+        : 'No price';
+
+      alert(
+        `Call initiated!\nDevice: ${repairInfo.device.name}\nService: ${repairInfo.service.name}\nPrice: ${priceFormatted}\n\nIn a real app, this would initiate a phone call.`
+      );
+    },
+    onScheduleClick: (_repairInfo) => {
+      alert('Appointment scheduled!');
+    },
+  });
+
+  container.appendChild(form.getElement());
+  return container;
+};
+
+export const FullyConfiguredExample = (args) => {
+  // Create container
+  const container = document.createElement('div');
+  container.style.maxWidth = '800px';
+
+  // Add description
+  const description = document.createElement('div');
+  description.style.marginBottom = '20px';
+  description.innerHTML = `
+    <h3>Fully Configured Phone Repair Form</h3>
+    <p>This example shows all new features:</p>
+    <ul>
+      <li>✓ Used phone link (above buttons)</li>
+      <li>✓ Schedule appointment button</li>
+      <li>✓ Call now button</li>
+      <li>✓ All buttons enabled when selections are complete</li>
+    </ul>
+  `;
+  container.appendChild(description);
+
+  // Create status display
+  const statusDiv = document.createElement('div');
+  statusDiv.id = 'status';
+  statusDiv.style.cssText = `
+    background: #e8f4f8;
+    border: 1px solid #bee5eb;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  `;
+  statusDiv.innerHTML =
+    '<strong>Status:</strong> Make selections to see prices and enable buttons';
+  container.appendChild(statusDiv);
+
+  const updateStatus = (message) => {
+    const timestamp = new Date().toLocaleTimeString();
+    statusDiv.innerHTML = `<strong>Status [${timestamp}]:</strong> ${message}`;
+  };
+
+  // Pre-selected data for immediate demonstration
+  const form = createForm({
+    ...args,
+    manufacturers: mockPhoneRepairData.manufacturers,
+    selectedManufacturer: '1', // Apple
+    devices: mockPhoneRepairData.manufacturers[0].devices,
+    selectedDevice: '3', // iPhone 13
+    actions: mockPhoneRepairData.manufacturers[0].devices[2].actions,
+    selectedAction: '7', // Display Repair
+    currentPrice: {
+      price: 26900,
+      deviceName: 'iPhone 13',
+      actionName: 'Display Reparatur',
+      manufacturerName: 'Apple',
+    },
+    usedPhoneHref: 'https://example.com/used-phones',
+    callButtonText: 'Jetzt anrufen',
+    onCallClick: (repairInfo) => {
+      updateStatus('📞 Call button clicked - initiating call...');
+      setTimeout(() => {
+        const priceFormatted = (repairInfo.price.price / 100).toFixed(2);
+        alert(
+          `Calling support team...\n\nRepair Details:\n- Device: ${repairInfo.device.name}\n- Service: ${repairInfo.service.name}\n- Price: €${priceFormatted}`
+        );
+        updateStatus('✅ Call completed');
+      }, 500);
+    },
+    onScheduleClick: (_repairInfo) => {
+      updateStatus('📅 Schedule button clicked - booking appointment...');
+      setTimeout(() => {
+        alert('Appointment successfully scheduled!');
+        updateStatus('✅ Appointment booked');
+      }, 500);
+    },
+  });
+
+  container.appendChild(form.getElement());
+  return container;
+};

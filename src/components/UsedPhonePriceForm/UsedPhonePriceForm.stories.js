@@ -192,33 +192,33 @@ export const WithCustomTheme = (args) => {
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
+
     .custom-theme .price-display {
       background-color: #dbeafe;
       border: 1px solid #3b82f6;
     }
-    
+
     .custom-theme .price-display__value {
       color: #1e40af;
       font-weight: bold;
       font-size: 24px;
     }
-    
+
     .custom-theme .condition-option__label {
       border: 2px solid #e2e8f0;
       transition: all 0.3s ease;
     }
-    
+
     .custom-theme .condition-option__label:hover {
       border-color: #3b82f6;
       transform: translateY(-2px);
     }
-    
+
     .custom-theme .condition-option--selected .condition-option__label {
       border-color: #3b82f6;
       background-color: #dbeafe;
     }
-    
+
     .custom-theme .btn {
       background-color: #3b82f6;
       border-radius: 4px;
@@ -226,7 +226,7 @@ export const WithCustomTheme = (args) => {
       font-weight: bold;
       transition: all 0.3s ease;
     }
-    
+
     .custom-theme .btn:hover:not(:disabled) {
       background-color: #1d4ed8;
       transform: translateY(-1px);
@@ -419,5 +419,96 @@ export const Interactive = () => {
     container.appendChild(errorDiv);
   }
 
+  return container;
+};
+export const WithCallButton = (args) => {
+  setupMocks();
+
+  // Create container
+  const container = document.createElement('div');
+  container.style.maxWidth = '800px';
+
+  // Add description
+  const description = document.createElement('p');
+  description.textContent =
+    'Form with both "Sell" and "Call Now" buttons. Complete all selections to enable both buttons.';
+  container.appendChild(description);
+
+  // Create form with call button configuration
+  const form = createForm({
+    ...args,
+    manufacturers: mockPhoneBuybackData.manufacturers,
+    callButtonText: 'Jetzt anrufen',
+    onCallClick: (formData) => {
+      const priceFormatted = formData.price
+        ? `€${(formData.price / 100).toFixed(2)}`
+        : 'No price';
+
+      alert(
+        `Call initiated!\nDevice: ${formData.deviceName}\nCondition: ${formData.conditionName}\nBuyback Price: ${priceFormatted}\n\nIn a real app, this would initiate a phone call.`
+      );
+    },
+    onSubmit: (_formData) => {
+      alert('Sale submitted!');
+    },
+  });
+
+  container.appendChild(form.getElement());
+  return container;
+};
+
+export const FullyConfiguredWithButtons = (args) => {
+  setupMocks();
+
+  // Create container
+  const container = document.createElement('div');
+  container.style.maxWidth = '800px';
+
+  // Add description
+  const description = document.createElement('div');
+  description.style.marginBottom = '20px';
+  description.innerHTML = `
+    <h3>Fully Configured Used Phone Price Form</h3>
+    <p>This example shows the new dual-button functionality:</p>
+    <ul>
+      <li>✓ Sell button (primary action)</li>
+      <li>✓ Call now button (secondary action)</li>
+      <li>✓ Both buttons enabled when all selections are complete</li>
+    </ul>
+  `;
+  container.appendChild(description);
+
+  // Pre-selected data for immediate demonstration
+  const form = createForm({
+    ...args,
+    manufacturers: mockPhoneBuybackData.manufacturers,
+    selectedManufacturer: '1', // Apple
+    devices: mockPhoneBuybackData.manufacturers[0].devices,
+    selectedDevice: '1', // iPhone 13
+    conditions: mockPhoneBuybackData.manufacturers[0].devices[0].conditions,
+    selectedCondition: '2', // Good condition
+    currentPrice: {
+      price: 39900,
+      deviceName: 'iPhone 13',
+      conditionName: 'Good',
+      manufacturerName: 'Apple',
+    },
+    callButtonText: 'Jetzt anrufen',
+    onCallClick: (formData) => {
+      const priceFormatted = (formData.price / 100).toFixed(2);
+      setTimeout(() => {
+        alert(
+          `Calling sales team...\n\nDevice Details:\n- Device: ${formData.deviceName}\n- Condition: ${formData.conditionName}\n- Buyback Price: €${priceFormatted}`
+        );
+      }, 300);
+    },
+    onSubmit: (_formData) => {
+      setTimeout(() => {
+        alert('Device sale submitted successfully!');
+      }, 300);
+    },
+  });
+
+  container.appendChild(form.getElement());
   return container;
 };

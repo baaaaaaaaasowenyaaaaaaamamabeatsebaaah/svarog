@@ -1,10 +1,12 @@
 # PhoneRepairForm Component
 
-The PhoneRepairForm component provides a multi-step interface for users to select a phone manufacturer, device model, and repair service to get pricing information. It features async loading, error handling, algorithmic optimizations, and CSS injection for zero-configuration styling.
+The PhoneRepairForm component provides a multi-step interface for users to select a phone manufacturer, device model, and repair service to get pricing information. It features async loading, error handling, optimized user experience with CSS injection for zero-configuration styling, and now includes dual action buttons and conditional link display.
 
 ## Key Features
 
 - **Multi-step selection flow**: Manufacturer → Device → Service → Price
+- **Dual action buttons**: Schedule appointment and Call now options
+- **Smart link display**: "Too expensive?" link appears only after price is shown
 - **Async data loading**: Supports loading states and error handling
 - **Progressive disclosure**: Each step enables the next based on selection
 - **Custom Select components**: Enhanced UI with loading and error states
@@ -15,7 +17,6 @@ The PhoneRepairForm component provides a multi-step interface for users to selec
 - **Theme awareness**: Responds to theme changes
 - **CSS Injection**: Zero-configuration styling that works everywhere
 - **SSR Compatible**: Safe for server-side rendering environments
-- **Algorithmic Optimizations**: O(1) lookups, mathematical calculations, and memoized transformations
 
 ## CSS Injection Architecture
 
@@ -29,16 +30,6 @@ This component uses the modern CSS injection pattern:
 ✅ **Developer Experience** - No separate CSS imports to remember
 
 The component automatically injects its styles on first render using the `createStyleInjector` utility.
-
-## Performance Optimizations
-
-The PhoneRepairForm includes several algorithmic optimizations:
-
-- **O(1) Lookup Maps**: Fast name resolution using Map data structures
-- **Memoized Transformations**: Cached option transformations with WeakMap
-- **Mathematical Step Progression**: Efficient step calculation using arithmetic
-- **Bitwise Validation**: Ultra-fast form validation using bitwise operations
-- **Partial Updates**: Only updates changed components instead of full re-renders
 
 ## Usage
 
@@ -62,6 +53,8 @@ const formContainer = PhoneRepairFormContainer({
   },
   onPriceChange: (priceData) => console.log('Price updated:', priceData),
   onScheduleClick: (repairInfo) => console.log('Repair scheduled:', repairInfo),
+  onCallClick: (repairInfo) => console.log('Call initiated:', repairInfo),
+  callButtonText: 'Jetzt anrufen',
   usedPhoneHref: 'https://example.com/used-phones',
 });
 
@@ -102,6 +95,11 @@ const repairForm = PhoneRepairForm({
   onScheduleClick: (repairInfo) => {
     console.log('Schedule clicked:', repairInfo);
   },
+  onCallClick: (repairInfo) => {
+    console.log('Call clicked:', repairInfo);
+  },
+  callButtonText: 'Jetzt anrufen',
+  usedPhoneHref: 'https://example.com/used-phones',
 });
 
 // Styles inject automatically on first render
@@ -125,11 +123,13 @@ document.body.appendChild(repairForm.getElement());
 | error                | Object   | {}      | Error states: `{manufacturers, devices, actions, price}`      |
 | labels               | Object   | {}      | Text labels to customize UI (see below)                       |
 | className            | string   | ""      | Additional CSS class names                                    |
-| usedPhoneHref        | string   | null    | URL for the "used phone" link                                 |
+| usedPhoneHref        | string   | null    | URL for the "used phone" link (shown after price loads)       |
+| callButtonText       | string   | null    | Text for call button (button hidden if not provided)          |
 | onManufacturerChange | Function | null    | Callback when manufacturer changes `(manufacturerId) => {}`   |
 | onDeviceChange       | Function | null    | Callback when device changes `(deviceId) => {}`               |
 | onActionChange       | Function | null    | Callback when action changes `(actionId) => {}`               |
 | onScheduleClick      | Function | null    | Callback when schedule button is clicked `(repairInfo) => {}` |
+| onCallClick          | Function | null    | Callback when call button is clicked `(repairInfo) => {}`     |
 
 ### Deprecated Props
 
@@ -145,6 +145,8 @@ document.body.appendChild(repairForm.getElement());
 | service         | Object   | Yes      | Service object with API methods (see below)                   |
 | onPriceChange   | Function | No       | Callback when price updates `(priceData) => {}`               |
 | onScheduleClick | Function | No       | Callback when schedule button is clicked `(repairInfo) => {}` |
+| onCallClick     | Function | No       | Callback when call button is clicked `(repairInfo) => {}`     |
+| callButtonText  | string   | No       | Text for call button (button hidden if not provided)          |
 | usedPhoneHref   | string   | No       | URL for the "used phone" link                                 |
 | labels          | Object   | No       | Text labels to customize UI                                   |
 | className       | string   | No       | Additional CSS class names                                    |
@@ -184,6 +186,30 @@ The service object passed to PhoneRepairFormContainer must implement:
 }
 ```
 
+**RepairInfo (passed to callbacks):**
+
+```javascript
+{
+  manufacturer: {
+    id: '1',
+    name: 'Apple'
+  },
+  device: {
+    id: '3',
+    name: 'iPhone 13'
+  },
+  service: {
+    id: '7',
+    name: 'Display Reparatur'
+  },
+  price: {
+    price: 26900,
+    // ... other price data
+  },
+  timestamp: '2025-06-24T10:30:00.000Z'
+}
+```
+
 ### Available Labels
 
 ```javascript
@@ -197,10 +223,35 @@ The service object passed to PhoneRepairFormContainer must implement:
   initialPriceText: 'Bitte zuerst Hersteller, Modell und Service auswählen',
   loadingPriceText: 'Preis wird geladen...',
   priceLabel: 'Ihr unverbindlicher Preisvorschlag:',
-  usedPhoneText: 'Zu teuer? Finde hier ein günstiges Gebrauchtes!',
+  usedPhoneText: 'Zu teuer? Schau dir jetzt unsere Gebrauchten Modelle an!',
   scheduleButtonText: 'Jetzt Termin vereinbaren',
 }
 ```
+
+## New Features
+
+### Dual Action Buttons
+
+The form now supports two action buttons side by side:
+
+1. **Schedule Button** (Primary) - Always shown, for scheduling repair appointments
+2. **Call Button** (Secondary) - Optional, shown when `callButtonText` and `onCallClick` are provided
+
+Both buttons:
+
+- Share the same enable/disable logic
+- Are enabled only when all selections are complete and price is loaded
+- Receive the same `repairInfo` data structure
+- Are responsive (side by side on desktop, stacked on mobile)
+
+### Conditional Link Display
+
+The "Zu teuer?" (Too expensive?) link now appears intelligently:
+
+- ✅ Shows when: Price is loaded AND not loading AND href is provided
+- ❌ Hidden when: No price selected OR price is loading OR no href
+- Appears between price display and action buttons
+- Provides better UX by showing alternatives only after price is visible
 
 ## Methods
 
@@ -233,37 +284,9 @@ The service object passed to PhoneRepairFormContainer must implement:
 - `getFormState()` - Get current form state
 - `destroy()` - Clean up resources
 
-## Callback Data Formats
-
-### onScheduleClick Callback Data
-
-```javascript
-{
-  manufacturer: {
-    id: "1",
-    name: "Apple"
-  },
-  device: {
-    id: "3",
-    name: "iPhone 13"
-  },
-  service: {
-    id: "7",
-    name: "Display Reparatur"
-  },
-  price: {
-    price: 26900,
-    deviceName: "iPhone 13",
-    actionName: "Display Reparatur",
-    manufacturerName: "Apple"
-  },
-  timestamp: "2024-06-19T10:30:00.000Z"
-}
-```
-
 ## Examples
 
-### Basic Implementation
+### Basic Implementation with Call Button
 
 ```javascript
 import PhoneRepairFormContainer from './PhoneRepairFormContainer.js';
@@ -280,7 +303,15 @@ const container = PhoneRepairFormContainer({
   onScheduleClick: (repairInfo) => {
     // Handle repair scheduling
     console.log('Scheduling repair:', repairInfo);
+    window.location.href = `/schedule?device=${repairInfo.device.id}`;
   },
+  onCallClick: (repairInfo) => {
+    // Handle call action
+    console.log('Initiating call:', repairInfo);
+    window.location.href = 'tel:+4912345678';
+  },
+  callButtonText: 'Jetzt anrufen',
+  usedPhoneHref: '/used-phones',
 });
 
 // Styles inject automatically
@@ -299,13 +330,16 @@ const customLabels = {
   servicePlaceholder: 'First select a model',
   priceLabel: 'Your repair estimate:',
   scheduleButtonText: 'Book Appointment',
+  usedPhoneText: 'Too expensive? Check our refurbished phones!',
 };
 
 const container = PhoneRepairFormContainer({
   service: myService,
   labels: customLabels,
+  callButtonText: 'Call Now',
   onPriceChange: (price) => updateSummary(price),
   onScheduleClick: (info) => bookRepair(info),
+  onCallClick: (info) => initiateCall(info),
 });
 ```
 
@@ -339,33 +373,36 @@ const container = PhoneRepairFormContainer({
       alert('Failed to schedule repair: ' + error.message);
     }
   },
+  onCallClick: (repairInfo) => {
+    // Track call initiation
+    analytics.track('repair_call_initiated', {
+      device: repairInfo.device.name,
+      service: repairInfo.service.name,
+      price: repairInfo.price.price,
+    });
+
+    window.location.href = 'tel:+4912345678';
+  },
+  callButtonText: 'Jetzt anrufen',
 });
 ```
 
-### Manual State Management
+### Conditional Button Display
 
 ```javascript
-import PhoneRepairForm from './PhoneRepairForm.js';
-
-const form = PhoneRepairForm({
-  manufacturers: [],
-  onManufacturerChange: async (manufacturerId) => {
-    form.setLoading({ devices: true });
-    try {
-      const devices = await fetchDevices(manufacturerId);
-      form.setDevices(devices);
-      form.setState({ selectedManufacturer: manufacturerId });
-    } catch (error) {
-      form.setErrors({ devices: error.message });
-    } finally {
-      form.setLoading({ devices: false });
-    }
-  },
+// Form with only schedule button (no call button)
+const formScheduleOnly = PhoneRepairFormContainer({
+  service: myService,
+  onScheduleClick: handleSchedule,
+  // No callButtonText or onCallClick = no call button shown
 });
 
-// Load initial data
-loadManufacturers().then((manufacturers) => {
-  form.setManufacturers(manufacturers);
+// Form with both buttons
+const formWithBothButtons = PhoneRepairFormContainer({
+  service: myService,
+  onScheduleClick: handleSchedule,
+  onCallClick: handleCall,
+  callButtonText: 'Call Support',
 });
 ```
 
@@ -389,8 +426,28 @@ The component uses CSS injection for automatic styling. You can customize using 
   margin: 0 auto;
 }
 
+/* Link styling */
+.phone-repair-form__link-container {
+  text-align: right;
+  margin: var(--space-4) 0;
+}
+
+/* Button container styling */
 .phone-repair-form__actions {
-  margin-top: var(--space-6);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+/* Responsive button layout */
+@media (max-width: 480px) {
+  .phone-repair-form__actions {
+    flex-direction: column;
+  }
+
+  .phone-repair-form__actions .btn {
+    width: 100%;
+  }
 }
 ```
 
@@ -422,6 +479,7 @@ src/components/PhoneRepairForm/
 - Focus management between form steps
 - Clear error messaging
 - Semantic HTML structure
+- Proper button states and ARIA attributes
 
 ## Browser Support
 
@@ -440,44 +498,39 @@ src/components/PhoneRepairForm/
 - **Memory leak prevention**: Proper cleanup with style injection management
 - **O(1) operations**: Optimized lookup maps for name resolution
 - **Mathematical algorithms**: Step progression and validation logic
-- **Memoized transformations**: Cached select option transformations
 
-## Migration from Legacy Props
+## Migration Guide
 
-If upgrading from an older version:
+### From Previous Version
 
-### Prop Migration
+If upgrading from a version without dual buttons:
 
 ```javascript
-// Before
-const form = PhoneRepairForm({
-  usedPhoneUrl: 'https://example.com/used', // ❌ Deprecated
-  loading: { devices: true }, // ❌ Deprecated
+// Before: Single button
+PhoneRepairFormContainer({
+  service: myService,
+  onScheduleClick: handleSchedule,
 });
 
-// After
-const form = PhoneRepairForm({
-  usedPhoneHref: 'https://example.com/used', // ✅ New prop name
-  loadingStates: { devices: true }, // ✅ New prop name
+// After: Add call button (optional)
+PhoneRepairFormContainer({
+  service: myService,
+  onScheduleClick: handleSchedule,
+  onCallClick: handleCall, // New
+  callButtonText: 'Jetzt anrufen', // New
 });
 ```
 
-The component provides warnings in the console for deprecated props and automatically migrates them internally for backward compatibility.
-
-## Migration from CSS Imports
+### From CSS Import Version
 
 If upgrading from a version that used CSS imports:
 
-### Before (CSS Import)
-
 ```javascript
+// Before: Required CSS import
 import './PhoneRepairForm.css'; // ❌ Remove this
 import PhoneRepairForm from './PhoneRepairForm.js';
-```
 
-### After (CSS Injection)
-
-```javascript
+// After: Just import and use
 import PhoneRepairForm from './PhoneRepairForm.js'; // ✅ Styles included automatically
 ```
 
