@@ -48,6 +48,8 @@ describe('PriceDisplay component', () => {
   });
 
   it('should display loading state with standardized loading prop', () => {
+    const consoleSpy = vi.spyOn(console, 'warn');
+
     const priceDisplay = PriceDisplay({
       label: 'Price:',
       value: 'Loading price...',
@@ -62,6 +64,11 @@ describe('PriceDisplay component', () => {
       '.price-display__loading-indicator'
     );
     expect(loadingIndicator).not.toBeNull();
+
+    // Verify NO deprecation warning when using correct prop
+    expect(consoleSpy).not.toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
   });
 
   it('should update value with setValue method', () => {
@@ -207,10 +214,8 @@ describe('PriceDisplay component', () => {
     const element = priceDisplay.getElement();
     expect(element.classList.contains('price-display--loading')).toBe(false);
 
-    // Verify deprecation warning still shown even when both props provided
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'PriceDisplay: "isLoading" prop is deprecated, use "loading" instead'
-    );
+    // When both props are provided and loading is present, NO warning should be shown
+    expect(consoleSpy).not.toHaveBeenCalled();
 
     consoleSpy.mockRestore();
   });
@@ -226,5 +231,20 @@ describe('PriceDisplay component', () => {
 
     priceDisplay.destroy();
     expect(priceDisplay.destroy).toHaveBeenCalled();
+  });
+
+  it('should render without label when label is not provided', () => {
+    const priceDisplay = PriceDisplay({
+      value: '€29.99',
+    });
+
+    const element = priceDisplay.getElement();
+    expect(element.classList.contains('price-display--no-label')).toBe(true);
+
+    const labelElement = element.querySelector('.price-display__label');
+    expect(labelElement).toBeNull();
+
+    const valueElement = element.querySelector('.price-display__value');
+    expect(valueElement.textContent).toBe('€29.99');
   });
 });

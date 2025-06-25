@@ -22,17 +22,19 @@ const injectPriceDisplayStyles = createStyleInjector('PriceDisplay');
 const normalizePriceDisplayProps = (props) => {
   const normalized = { ...props };
 
-  // Handle loading/isLoading standardization
-  if ('isLoading' in props) {
+  // Check for deprecated prop only if new prop is not present
+  if ('isLoading' in props && !('loading' in props)) {
     console.warn(
       'PriceDisplay: "isLoading" prop is deprecated, use "loading" instead'
     );
+    normalized.loading = props.isLoading;
   }
 
+  // Ensure internal state uses isLoading for backward compatibility
   if ('loading' in props) {
     normalized.isLoading = props.loading;
   } else if ('isLoading' in props) {
-    normalized.loading = props.isLoading;
+    normalized.isLoading = props.isLoading;
   }
 
   return normalized;
@@ -51,7 +53,7 @@ const renderPriceDisplay = (state) => {
   const classNames = [
     'price-display',
     state.className,
-    state.loading && 'price-display--loading',
+    state.isLoading && 'price-display--loading',
     state.isHighlighted && 'price-display--highlighted',
     state.isPlaceholder && 'price-display--placeholder',
     state.isError && 'price-display--error',
@@ -65,7 +67,7 @@ const renderPriceDisplay = (state) => {
   });
 
   // Add loading indicator if loading
-  if (state.loading) {
+  if (state.isLoading) {
     const loadingIndicator = createElement('span', {
       classes: ['price-display__loading-indicator'],
     });
@@ -117,7 +119,7 @@ const createPriceDisplay = (props) => {
   const initialState = {
     label: normalizedProps.label || '',
     value: normalizedProps.value || '',
-    loading: normalizedProps.loading || false,
+    isLoading: normalizedProps.isLoading || false,
     isHighlighted: normalizedProps.isHighlighted || false,
     isPlaceholder: normalizedProps.isPlaceholder || false,
     isError: normalizedProps.isError || false,
@@ -189,10 +191,10 @@ const createPriceDisplay = (props) => {
     }
 
     // Handle loading state changes
-    if (normalizedNewProps.loading !== undefined) {
+    if (normalizedNewProps.isLoading !== undefined) {
       element.classList.toggle(
         'price-display--loading',
-        normalizedNewProps.loading
+        normalizedNewProps.isLoading
       );
 
       // Remove existing loading indicator if any
@@ -200,11 +202,16 @@ const createPriceDisplay = (props) => {
         '.price-display__loading-indicator'
       );
       if (existingIndicator) {
-        valueElement.removeChild(existingIndicator);
+        existingIndicator.remove();
+        // Remove the text node (space) before it
+        const textNode = existingIndicator.previousSibling;
+        if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+          textNode.remove();
+        }
       }
 
       // Add new loading indicator if loading
-      if (normalizedNewProps.loading) {
+      if (normalizedNewProps.isLoading) {
         const loadingIndicator = createElement('span', {
           classes: ['price-display__loading-indicator'],
         });
