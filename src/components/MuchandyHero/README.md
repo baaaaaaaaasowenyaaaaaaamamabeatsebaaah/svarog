@@ -9,7 +9,7 @@ The MuchandyHero component is a specialized, high-performance hero section desig
 - **Algorithmic Optimizations**: O(1) tab calculations and efficient DOM updates
 - **Dynamic Updates**: Partial updates without full re-renders
 - **Theme Awareness**: Automatic theme change handling
-- **Performance Optimized**: Memoized services and cached configurations
+- **Performance Optimized**: Efficient rendering and state management
 - **Responsive Design**: Works perfectly on all screen sizes
 - **Accessibility**: Full keyboard navigation and screen reader support
 - **Clean API**: Consistent methods and state management
@@ -17,11 +17,11 @@ The MuchandyHero component is a specialized, high-performance hero section desig
 
 ## CSS Injection Benefits
 
-✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere  
-✅ **Zero Configuration** - Users just import and use components  
-✅ **SSR Compatible** - Styles inject safely in browser only  
-✅ **Tree Shakeable** - Only loads styles for used components  
-✅ **Performance Optimized** - Styles are cached and deduped  
+✅ **Zero CSS Import Errors** - Works in Node.js, bundlers, everywhere
+✅ **Zero Configuration** - Users just import and use components
+✅ **SSR Compatible** - Styles inject safely in browser only
+✅ **Tree Shakeable** - Only loads styles for used components
+✅ **Performance Optimized** - Styles are cached and deduped
 ✅ **Developer Experience** - No separate CSS imports to remember
 
 ## Usage
@@ -38,6 +38,7 @@ const repairForm = PhoneRepairFormContainer({
   service: repairService,
   onPriceChange: (price) => console.log('Repair price:', price),
   onScheduleClick: (repairInfo) => console.log('Repair scheduled:', repairInfo),
+  usedPhoneHref: '/used-phones', // Optional link to used phones
 });
 
 const buybackForm = UsedPhonePriceFormContainer({
@@ -54,15 +55,57 @@ const hero = MuchandyHero({
   repairForm,
   buybackForm,
   defaultTab: 'repair',
+  blurIntensity: 4,
+  overlayOpacity: 0.3,
 });
 
 // Add to DOM - styles are already injected
 document.body.appendChild(hero.getElement());
 ```
 
+### Using MuchandyHeroContainer (Simplified)
+
+The container simplifies initialization by handling form creation:
+
+```javascript
+import { MuchandyHeroContainer } from './MuchandyHero/index.js';
+
+const heroContainer = MuchandyHeroContainer({
+  // Services
+  repairService: myRepairService,
+  buybackService: myBuybackService,
+
+  // Hero props
+  backgroundImageUrl: '/images/hero-bg.jpg',
+  title: 'Your Smartphone<br>Service',
+  subtitle: 'Repair or sell - your choice!',
+  defaultTab: 'repair',
+  className: 'custom-hero',
+  blurIntensity: 6,
+  overlayOpacity: 0.4,
+
+  // Form callbacks
+  onRepairPriceChange: (price) => updateUI(price),
+  onScheduleClick: (info) => bookRepair(info),
+  onBuybackPriceChange: (price) => updateUI(price),
+  onSubmit: (data) => submitSale(data),
+
+  // Optional form props
+  usedPhoneHref: '/used-phones',
+  repairFormLabels: {
+    scheduleButtonText: 'Book Now',
+  },
+  buybackFormLabels: {
+    submitButtonText: 'Sell Now',
+  },
+});
+
+document.body.appendChild(heroContainer.getElement());
+```
+
 ### Node.js Compatibility
 
-The component now works seamlessly in Node.js environments:
+The component works seamlessly in Node.js environments:
 
 ```javascript
 // This works without CSS errors in Node.js
@@ -72,33 +115,9 @@ const { MuchandyHero } = require('svarog-ui');
 import { MuchandyHero } from 'svarog-ui';
 ```
 
-### Advanced Usage with Dynamic Updates
-
-```javascript
-const hero = MuchandyHero({
-  backgroundImageUrl: '/images/hero-bg.jpg',
-  title: 'Your Smartphone<br>Service',
-  subtitle: 'Repair or sell - your choice!',
-  repairForm,
-  buybackForm,
-  defaultTab: 'sell',
-  className: 'custom-hero-theme',
-});
-
-// Dynamic updates work exactly the same
-hero.setTitle('Updated<br>Title');
-hero.setSubtitle('New subtitle text');
-hero.setBackgroundImageUrl('/images/new-bg.jpg');
-
-// Batch updates
-hero.setState({
-  title: 'Batch<br>Update',
-  subtitle: 'Multiple properties updated efficiently',
-  className: 'updated-theme',
-});
-```
-
 ## Props
+
+### MuchandyHero Props
 
 | Prop               | Type   | Default                     | Required | Description                                     |
 | ------------------ | ------ | --------------------------- | -------- | ----------------------------------------------- |
@@ -109,7 +128,24 @@ hero.setState({
 | subtitle           | string | "Jetzt Preis berechnen."    | No       | Hero subtitle text                              |
 | defaultTab         | string | "repair"                    | No       | Default active tab ("repair" or "sell")         |
 | className          | string | ""                          | No       | Additional CSS classes for the component        |
-| backgroundImage    | string | -                           | No       | _Deprecated: Use backgroundImageUrl_            |
+| blurIntensity      | number | 4                           | No       | Background blur intensity in pixels             |
+| overlayOpacity     | number | 0.3                         | No       | Background overlay opacity (0-1)                |
+
+### MuchandyHeroContainer Props
+
+All MuchandyHero props plus:
+
+| Prop                 | Type     | Required | Description                               |
+| -------------------- | -------- | -------- | ----------------------------------------- |
+| repairService        | Object   | Yes      | Service object for repair form API calls  |
+| buybackService       | Object   | Yes      | Service object for buyback form API calls |
+| onRepairPriceChange  | Function | No       | Callback when repair price changes        |
+| onScheduleClick      | Function | No       | Callback when schedule button is clicked  |
+| onBuybackPriceChange | Function | No       | Callback when buyback price changes       |
+| onSubmit             | Function | No       | Callback when buyback form is submitted   |
+| usedPhoneHref        | string   | No       | URL for "used phone" link in repair form  |
+| repairFormLabels     | Object   | No       | Custom labels for repair form             |
+| buybackFormLabels    | Object   | No       | Custom labels for buyback form            |
 
 ### Form Component Requirements
 
@@ -118,175 +154,72 @@ Both `repairForm` and `buybackForm` must implement:
 ```javascript
 {
   getElement: () => HTMLElement,  // Returns the form DOM element
-  destroy: () => void,           // Cleans up form resources
-  update?: (props) => Object,    // Optional: Updates form props
-  setState?: (state) => Object,  // Optional: Updates form state
+  destroy: () => void,            // Cleans up form resources
+  update?: (props) => Object,     // Optional: Updates form props
+  setState?: (state) => Object,   // Optional: Updates form state
+}
+```
+
+### Service Interface Requirements
+
+Services passed to MuchandyHeroContainer must implement:
+
+```javascript
+// Repair Service
+{
+  fetchManufacturers: () => Promise<Array>,
+  fetchDevices: (manufacturerId) => Promise<Array>,
+  fetchActions: (deviceId) => Promise<Array>,
+  fetchPrice: (actionId) => Promise<Object>
+}
+
+// Buyback Service
+{
+  fetchManufacturers: () => Promise<Array>,
+  fetchDevices: (manufacturerId) => Promise<Array>,
+  fetchConditions: (deviceId) => Promise<Array>,
+  fetchPrice: (conditionId) => Promise<Object>
 }
 ```
 
 ## Methods
 
-### Component Lifecycle
+### MuchandyHero Methods
 
-#### getElement()
+#### Component Lifecycle
 
-Returns the MuchandyHero DOM element with styles automatically injected.
+- `getElement()` - Returns the hero DOM element with styles automatically injected
+- `update(props)` - Updates the component with new props (uses intelligent rerender detection)
+- `destroy()` - Cleans up resources and event listeners
 
-```javascript
-const heroElement = hero.getElement();
-// Styles are automatically available - no CSS imports needed
-```
+#### State Management
 
-#### update(props)
+- `setState(newState)` - Efficiently updates multiple state properties with partial DOM updates
+- `getCurrentState()` - Returns the current component state
+- `setBackgroundImageUrl(url)` - Updates the background image
+- `setTitle(title)` - Updates the title (supports HTML)
+- `setSubtitle(subtitle)` - Updates the subtitle text
+- `setBlurIntensity(intensity)` - Updates background blur (pixels)
+- `setOverlayOpacity(opacity)` - Updates overlay opacity (0-1)
 
-Updates the MuchandyHero component with new props. Uses intelligent rerender detection.
+### MuchandyHeroContainer Methods
 
-```javascript
-hero.update({
-  title: 'New<br>Title',
-  subtitle: 'New subtitle text',
-  defaultTab: 'sell',
-});
-```
-
-#### destroy()
-
-Cleans up resources and event listeners. Call when removing the component from the DOM.
-
-```javascript
-hero.destroy();
-```
-
-### State Management
-
-#### setState(newState)
-
-Efficiently updates multiple state properties with partial DOM updates.
-
-```javascript
-hero.setState({
-  title: 'Updated<br>Title',
-  subtitle: 'Updated subtitle',
-  className: 'new-theme',
-});
-```
-
-#### getCurrentState()
-
-Returns the current component state.
-
-```javascript
-const currentState = hero.getCurrentState();
-console.log(currentState.title, currentState.subtitle);
-```
-
-### Convenience Methods
-
-#### setBackgroundImageUrl(imageUrl)
-
-Updates the background image efficiently.
-
-```javascript
-hero.setBackgroundImageUrl('/images/new-background.jpg');
-```
-
-#### setBackgroundImage(imageUrl)
-
-_Deprecated_: Use `setBackgroundImageUrl()` instead.
-
-```javascript
-// Deprecated method
-hero.setBackgroundImage('/images/new-background.jpg');
-
-// Recommended method
-hero.setBackgroundImageUrl('/images/new-background.jpg');
-```
-
-#### setTitle(title)
-
-Updates the title with support for HTML line breaks.
-
-```javascript
-hero.setTitle('New<br>Hero Title');
-```
-
-#### setSubtitle(subtitle)
-
-Updates the subtitle text.
-
-```javascript
-hero.setSubtitle('New subtitle text here');
-```
-
-## Tab Configuration
-
-The MuchandyHero component includes an optimized tabbed interface:
-
-### Available Tabs
-
-1. **Repair** ("Reparatur") - Shows the phone repair form
-2. **Sell** ("Verkaufen") - Shows the phone buyback form
-
-### Tab Selection
-
-```javascript
-// Set repair tab as default
-const hero = MuchandyHero({
-  repairForm,
-  buybackForm,
-  defaultTab: 'repair', // Default
-});
-
-// Set sell tab as default
-const hero = MuchandyHero({
-  repairForm,
-  buybackForm,
-  defaultTab: 'sell',
-});
-```
-
-## Performance Optimizations
-
-The MuchandyHero component includes several performance enhancements:
-
-### CSS Injection Optimizations
-
-- **Automatic Deduplication**: Styles are injected only once per component type
-- **SSR Safe**: No styles injected on server, only in browser
-- **Zero Configuration**: No CSS imports needed, works everywhere
-- **Tree Shaking**: Only used component styles are loaded
-
-### Algorithmic Optimizations
-
-- **O(1) Tab Calculations**: Mathematical mapping instead of string comparisons
-- **Efficient Configuration**: Pre-computed tab setup
-- **Optimized DOM Operations**: Single-operation style updates
-- **Smart Rerender Detection**: Only re-renders when necessary
-
-### Memory Management
-
-- **Proper Cleanup**: Comprehensive resource cleanup on destroy
-- **Reference Management**: Efficient component reference handling
-- **Event Management**: Automatic event listener cleanup
-
-### Update Efficiency
-
-- **Partial Updates**: Only updates changed elements
-- **Batch Operations**: Efficient state batching
-- **DOM Minimization**: Minimal DOM manipulations
+- `getElement()` - Returns the container DOM element
+- `update(props)` - Updates hero props (filters out service-specific props)
+- `getState()` - Returns container state information
+- `getHero()` - Returns the hero component instance
+- `getForms()` - Returns form container instances
+- `refresh()` - Recreates forms with current configuration
+- `destroy()` - Cleans up all resources
 
 ## Examples
 
 ### Complete Integration Example
 
 ```javascript
-import MuchandyHero from './MuchandyHero.js';
-import {
-  PhoneRepairFormContainer,
-  UsedPhonePriceFormContainer,
-} from '../Forms/index.js';
+import { MuchandyHeroContainer } from './MuchandyHero/index.js';
 
-// Create services
+// Create API services
 const repairService = {
   fetchManufacturers: () => fetch('/api/manufacturers').then((r) => r.json()),
   fetchDevices: (id) => fetch(`/api/devices/${id}`).then((r) => r.json()),
@@ -304,255 +237,296 @@ const buybackService = {
   fetchPrice: (id) => fetch(`/api/buyback/price/${id}`).then((r) => r.json()),
 };
 
-// Create forms with callbacks
-const repairForm = PhoneRepairFormContainer({
-  service: repairService,
-  onScheduleClick: (repairInfo) => {
-    // Handle repair scheduling
-    console.log('Scheduling repair:', repairInfo);
-    submitRepairRequest(repairInfo);
-  },
-});
+// Create hero with all features
+const heroContainer = MuchandyHeroContainer({
+  // Services
+  repairService,
+  buybackService,
 
-const buybackForm = UsedPhonePriceFormContainer({
-  service: buybackService,
-  onSubmit: (formData) => {
-    // Handle buyback submission
-    console.log('Submitting buyback:', formData);
-    submitBuybackRequest(formData);
-  },
-});
-
-// Create hero - styles inject automatically
-const hero = MuchandyHero({
+  // Visual customization
   backgroundImageUrl: '/images/hero-bg.jpg',
   title: 'Your Smartphone<br>Service Center',
-  subtitle: 'Repair or sell your device with confidence.',
-  repairForm,
-  buybackForm,
-  defaultTab: 'repair',
+  subtitle: 'Professional repair and buyback services',
+  blurIntensity: 6,
+  overlayOpacity: 0.4,
+  className: 'hero-premium',
+
+  // Repair form configuration
+  onRepairPriceChange: (price) => {
+    console.log('Repair price updated:', price);
+    updateRepairSummary(price);
+  },
+  onScheduleClick: async (repairInfo) => {
+    try {
+      const booking = await submitRepairBooking(repairInfo);
+      window.location.href = `/booking-confirmation/${booking.id}`;
+    } catch (error) {
+      showError('Failed to schedule repair');
+    }
+  },
+  usedPhoneHref: '/marketplace/used-phones',
+  repairFormLabels: {
+    scheduleButtonText: 'Book Repair Appointment',
+    priceLabel: 'Repair Cost Estimate:',
+  },
+
+  // Buyback form configuration
+  onBuybackPriceChange: (price) => {
+    console.log('Buyback price updated:', price);
+    updateBuybackSummary(price);
+  },
+  onSubmit: async (saleData) => {
+    try {
+      const sale = await submitDeviceSale(saleData);
+      window.location.href = `/sale-confirmation/${sale.id}`;
+    } catch (error) {
+      showError('Failed to submit device sale');
+    }
+  },
+  buybackFormLabels: {
+    submitButtonText: 'Sell My Device',
+    priceLabel: 'Your Device Value:',
+  },
 });
 
-document.body.appendChild(hero.getElement());
+// Mount to page
+document.getElementById('hero-section').appendChild(heroContainer.getElement());
 ```
 
-### Dynamic Theme Switching
+### Dynamic Updates Example
 
 ```javascript
-import { switchTheme } from '../utils/theme.js';
+const hero = MuchandyHero({
+  repairForm,
+  buybackForm,
+  title: 'Initial<br>Title',
+  backgroundImageUrl: '/images/bg1.jpg',
+});
+
+// Update individual properties
+hero.setTitle('Updated<br>Title');
+hero.setSubtitle('New subtitle text');
+hero.setBackgroundImageUrl('/images/bg2.jpg');
+hero.setBlurIntensity(8);
+hero.setOverlayOpacity(0.5);
+
+// Batch updates
+hero.setState({
+  title: 'Batch<br>Update',
+  subtitle: 'Multiple properties at once',
+  className: 'hero-updated',
+  blurIntensity: 10,
+});
+
+// Update via container
+heroContainer.update({
+  title: 'Container<br>Update',
+  backgroundImageUrl: '/images/bg3.jpg',
+});
+```
+
+### Error Handling Example
+
+```javascript
+// Services with error handling
+const resilientRepairService = {
+  fetchManufacturers: async () => {
+    try {
+      const response = await fetch('/api/manufacturers');
+      if (!response.ok) throw new Error('Failed to load manufacturers');
+      return response.json();
+    } catch (error) {
+      console.error('Manufacturer fetch failed:', error);
+      // Return fallback data or rethrow
+      throw error;
+    }
+  },
+  // ... other methods
+};
+
+// Container handles form errors gracefully
+const heroContainer = MuchandyHeroContainer({
+  repairService: resilientRepairService,
+  buybackService,
+  // Forms will display error states automatically
+});
+```
+
+### Theme Integration
+
+```javascript
+import { switchTheme } from '../utils/themeManager.js';
 
 const hero = MuchandyHero({
   repairForm,
   buybackForm,
   title: 'Theme-Aware<br>Hero',
-  subtitle: 'Automatically adapts to theme changes.',
 });
 
-// Switch themes - hero will automatically adapt
-switchTheme('muchandy');
-switchTheme('default');
-```
-
-### Error Handling
-
-```javascript
-const hero = MuchandyHero({
-  repairForm,
-  buybackForm,
-});
-
-// Handle update errors gracefully
-try {
-  hero.update({ invalidProp: 'value' });
-} catch (error) {
-  console.error('Update failed:', error);
-  // Hero continues to work normally
-}
-
-// Safe cleanup
-window.addEventListener('beforeunload', () => {
-  try {
-    hero.destroy();
-  } catch (error) {
-    console.warn('Cleanup warning:', error);
-  }
-});
+// Components automatically adapt to theme changes
+switchTheme('muchandy'); // Hero updates automatically
+switchTheme('cabalou'); // Hero adapts to new theme
+switchTheme('default'); // Back to default theme
 ```
 
 ## CSS Customization
 
-MuchandyHero styles can be customized using CSS variables. The injected styles respect your theme system:
+MuchandyHero styles can be customized using CSS variables:
 
 ```css
 :root {
-  /* Layout variables */
+  /* Spacing */
+  --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.25rem;
   --space-8: 2rem;
   --space-12: 3rem;
 
-  /* Color variables */
+  /* Colors */
   --color-bg-dark: #1a1a1a;
   --color-brand-secondary: #ff6b00;
   --color-white: #ffffff;
   --color-bg-transparent: rgba(0, 0, 0, 0.7);
 
-  /* Typography variables */
+  /* Typography */
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
   --font-size-6xl: 3.75rem;
   --font-weight-bold: 700;
+
+  /* Component-specific */
+  --muchandy-hero-blur: 4px;
+  --muchandy-hero-overlay: rgba(0, 0, 0, 0.3);
 }
 
-/* Custom theme example */
-.custom-hero-theme {
+/* Custom theme */
+.hero-premium {
   --color-brand-secondary: #4299e1;
-  --color-bg-transparent: rgba(66, 153, 225, 0.1);
-}
-
-.custom-hero-theme .muchandy-hero__title {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  --muchandy-hero-blur: 8px;
+  --muchandy-hero-overlay: rgba(0, 0, 0, 0.5);
 }
 ```
 
-## Grid Layout
+### Blur Intensity Classes
 
-The component uses an efficient 12-column grid system:
+The component automatically applies blur modifier classes:
 
-```css
-.muchandy-hero__grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 12px;
-}
-
-.muchandy-hero__content-column {
-  grid-column: 2 / span 4; /* Columns 2-5 */
-  min-height: 820px;
-}
-
-/* Responsive behavior */
-@media (max-width: 768px) {
-  .muchandy-hero__content-column {
-    grid-column: 1 / span 12; /* Full width on mobile */
-  }
-}
-```
-
-## Accessibility Features
-
-The MuchandyHero component implements comprehensive accessibility:
-
-### Semantic Structure
-
-- Proper heading hierarchy (H1 for title, H2 for subtitle)
-- Semantic HTML elements throughout
-- ARIA roles and labels
-
-### Keyboard Navigation
-
-- Full keyboard accessibility via Tabs component
-- Proper focus management
-- Tab order optimization
-
-### Screen Reader Support
-
-- Descriptive labels and announcements
-- Status updates for dynamic content
-- Clear content structure
-
-## Browser Support
-
-- **Chrome/Edge**: Latest versions
-- **Firefox**: Latest versions
-- **Safari**: Latest versions
-- **Mobile**: iOS Safari, Chrome for Android
-- **Node.js**: All versions (styles inject only in browser)
-- **Legacy**: IE11+ (with polyfills)
+- `.muchandy-hero--no-blur` - When `blurIntensity` is 0
+- `.muchandy-hero--blur-light` - When `blurIntensity` is 1-4
+- `.muchandy-hero--blur-heavy` - When `blurIntensity` is 12-19
+- `.muchandy-hero--blur-extreme` - When `blurIntensity` is 20+
 
 ## Performance Characteristics
 
-### Load Time
-
 - **Initial Render**: < 16ms (60fps)
 - **Style Injection**: < 1ms (cached after first injection)
-- **Update Time**: < 8ms (120fps)
+- **Update Time**: < 8ms (120fps) for partial updates
 - **Memory Usage**: < 1MB baseline
+- **Tab Switching**: O(1) mathematical calculation
+- **DOM Updates**: Optimized partial updates only
 
-### Optimization Features
+## Accessibility
 
-- **Automatic Style Deduplication**: Only one style tag per component type
-- **Lazy Evaluation**: Components loaded on demand
-- **Efficient Updates**: Partial DOM updates only
-- **Memory Management**: Automatic cleanup
-- **Cache Utilization**: Optimized service caching
+- Semantic HTML structure (H1 for title, H2 for subtitle)
+- Full keyboard navigation via Tabs component
+- ARIA labels and roles
+- Screen reader compatible
+- Proper focus management
+- High contrast mode support
+- Reduced motion support
+
+## Browser Support
+
+- Chrome/Edge: Latest versions
+- Firefox: Latest versions
+- Safari: Latest versions
+- Mobile: iOS Safari, Chrome for Android
+- Node.js: All versions (styles inject only in browser)
+- SSR: Fully compatible
 
 ## Migration Guide
 
-### From CSS Import Version
-
-If migrating from a version that used CSS imports:
+### From Older Versions
 
 ```javascript
-// Before: Required CSS import
+// Old way with separate CSS
 import MuchandyHero from './MuchandyHero.js';
-import './MuchandyHero.css'; // No longer needed
+import './MuchandyHero.css'; // No longer needed!
 
-// After: Just import and use
+// New way - CSS injects automatically
 import MuchandyHero from './MuchandyHero.js';
-// Styles inject automatically
+// That's it! Styles are included
 ```
 
-### From Manual Tab Management
+### From Manual Form Creation
 
 ```javascript
-// Before: Manual tab switching
-const tabsElement = document.querySelector('.tabs');
-tabsElement.addEventListener('click', handleTabSwitch);
+// Old way - manual form management
+const repairForm = createRepairForm();
+await repairForm.loadData();
 
-// After: Integrated tab management
-const hero = MuchandyHero({
-  repairForm,
-  buybackForm,
-  defaultTab: 'repair', // Automatic tab management
+// New way - use form containers
+const repairForm = PhoneRepairFormContainer({
+  service: repairService,
+  // Forms handle their own loading
 });
 ```
 
-## Technical Implementation
+## Troubleshooting
 
-### CSS Injection Architecture
+### Common Issues
 
-The component uses a modern CSS injection system:
+**Hero not displaying forms**: Ensure both `repairForm` and `buybackForm` are provided and implement required methods.
+
+**Styles not applied**: Check that no CSS is being overridden by more specific selectors.
+
+**Background image not showing**: Verify the image URL is correct and accessible.
+
+**Forms not loading data**: Check that services implement all required methods and return proper data formats.
+
+### Debug Mode
 
 ```javascript
-// Styles are injected automatically on component creation
-import { createStyleInjector } from '../../utils/styleInjection.js';
-import { muchandyHeroStyles } from './MuchandyHero.styles.js';
+// Get current state for debugging
+const state = hero.getCurrentState();
+console.log('Hero state:', state);
 
-const injectMuchandyHeroStyles = createStyleInjector('MuchandyHero');
+// Container state
+const containerState = heroContainer.getState();
+console.log('Container state:', containerState);
 
-// In render function
-const renderMuchandyHero = (state) => {
-  // Inject styles once, cached automatically
-  injectMuchandyHeroStyles(muchandyHeroStyles);
-
-  // ... component creation
-};
+// Form states
+const forms = heroContainer.getForms();
+console.log('Repair form:', forms.repairForm);
+console.log('Buyback form:', forms.buybackForm);
 ```
 
-### File Structure
-
-The refactored component follows the modular CSS injection pattern:
+## File Structure
 
 ```
 src/components/MuchandyHero/
-├── MuchandyHero.js                 # Component with style injection
-├── MuchandyHero.styles.js          # Component-specific styles
-├── MuchandyHero.test.js
-├── MuchandyHero.stories.js
-├── README.md
-└── index.js
+├── MuchandyHero.js                # Main component with CSS injection
+├── MuchandyHero.styles.js         # Component styles
+├── MuchandyHeroContainer.js       # Container for easy integration
+├── MuchandyHero.test.js           # Component tests
+├── MuchandyHeroContainer.test.js  # Container tests
+├── MuchandyHero.stories.js        # Storybook stories
+├── README.md                      # This file
+└── index.js                       # Module exports
 ```
 
-The MuchandyHero component provides a complete, optimized solution for phone service hero sections with built-in performance optimizations, accessibility features, CSS injection system, and clean API design that works seamlessly across all JavaScript environments.
+## Contributing
+
+When modifying MuchandyHero:
+
+1. Maintain backward compatibility
+2. Update tests for new features
+3. Add Storybook stories for new use cases
+4. Update this README
+5. Follow the algorithmic optimization patterns
+6. Ensure CSS injection works properly
+7. Test in Node.js environments
+
+The MuchandyHero component provides a complete, optimized solution for phone service hero sections with zero-configuration styling, excellent performance, and seamless integration with modern form components.
